@@ -1,6 +1,6 @@
 # ADR-0002: Lokal und selbst gehostet, Zugriff nur über Tailscale
 
-- **Status:** Angenommen
+- **Status:** Angenommen, ergänzt durch [0020](0020-https-ueber-tailscale-serve.md)
 - **Datum:** 2026-11-18
 
 ## Kontext

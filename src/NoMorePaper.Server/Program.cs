@@ -8,6 +8,9 @@ builder.AddServer();
 
 var app = builder.Build();
 
+// First: everything after it sees the scheme and host the browser used, not the proxy's.
+app.UseForwardedHeaders();
+
 // The host filter (AllowedHosts) already ran: only the configured names reach this point.
 app.UseMiddleware<CrossSiteRequestGuard>();
 

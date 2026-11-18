@@ -1,6 +1,3 @@
-using Microsoft.AspNetCore.DataProtection;
-using Microsoft.AspNetCore.DataProtection.KeyManagement;
-using Microsoft.AspNetCore.DataProtection.Repositories;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -45,16 +42,7 @@ public static class InfrastructureServiceCollectionExtensions
         services.AddScoped<DocumentQueries>();
         services.AddScoped<DocumentSearch>();
 
-        services.AddDataProtection().SetApplicationName(InfrastructureSettings.DataProtectionApplicationName);
-        services.AddOptions<KeyManagementOptions>().Configure<ILoggerFactory>((options, loggerFactory) =>
-        {
-            // Without a path the framework default applies (user profile on a dev box).
-            var path = configuration[InfrastructureSettings.DataProtectionPathKey];
-            if (!string.IsNullOrWhiteSpace(path))
-            {
-                options.XmlRepository = new FileSystemXmlRepository(new DirectoryInfo(path), loggerFactory);
-            }
-        });
+        services.AddNoMorePaperDataProtection(configuration);
 
         return services;
     }
