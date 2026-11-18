@@ -9,8 +9,14 @@ public sealed class ProcessingJob
 {
     public required Guid DocumentId { get; init; }
 
-    /// <summary>Attempts started so far; 0 until a Worker claims the job.</summary>
+    /// <summary>
+    /// Attempts counted so far; 0 until a Worker claims the job. An attempt handed back on shutdown
+    /// does not count.
+    /// </summary>
     public int Attempt { get; set; }
+
+    /// <summary>Token of the current claim, new for every claim; <c>null</c> while nobody works on it.</summary>
+    public Guid? ClaimId { get; set; }
 
     /// <summary>Earliest time the job may run (again).</summary>
     public DateTimeOffset NextAttemptAt { get; set; }

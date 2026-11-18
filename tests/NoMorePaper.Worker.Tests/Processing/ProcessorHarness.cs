@@ -36,7 +36,7 @@ internal sealed class ProcessorHarness : IAsyncDisposable
         services.AddScoped<JobQueue>();
         _services = services.BuildServiceProvider();
 
-        Storage = new FileSystemDocumentStorage(_dataRoot.FullName, NullLogger<FileSystemDocumentStorage>.Instance);
+        Storage = new FileSystemDocumentStorage(_dataRoot.FullName, new SkippedDirectorySync(), NullLogger<FileSystemDocumentStorage>.Instance);
         WorkingFolder = new WorkingFolder(Path.Combine(_dataRoot.FullName, WorkingFolder.FolderName), Time, NullLogger<WorkingFolder>.Instance);
         WorkingFolder.Prepare();
         Processor = new DocumentProcessor(

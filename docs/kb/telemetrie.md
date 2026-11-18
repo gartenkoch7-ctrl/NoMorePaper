@@ -58,7 +58,7 @@ Innerhalb eines Bereichs bekommt jedes Feature einen eigenen Hunderterblock (z. 
 | 2105 | Warning | `Worker/Processing/ProcessingLog` | Job konnte nicht geholt werden (nur Ausnahmetyp; nur der erste Fehler eines Ausfalls) |
 | 2106 | Information | `Worker/Processing/ProcessingLog` | Jobs holen klappt nach einem Ausfall wieder |
 | 2107 | Error | `Worker/Processing/ProcessingLog` | Fehlschlag konnte nicht gespeichert werden; der Job läuft nach Ablauf seiner Sperre erneut |
-| 2108 | Information | `Worker/Processing/ProcessingLog` | Verarbeitung durch Herunterfahren abgebrochen; der Job ist zurückgegeben und läuft beim nächsten Start ohne Versuchszählung |
+| 2108 | Information | `Worker/Processing/ProcessingLog` | Verarbeitung durch Herunterfahren abgebrochen (auch wenn der Versuch dabei mit einem Fehler endete); der Job ist zurückgegeben und läuft beim nächsten Start ohne Versuchszählung |
 | 2109 | Warning | `Worker/Processing/ProcessingLog` | Arbeitsordner des Versuchs nicht gelöscht (nur Ausnahmetyp); ein Worker-Start nach einem Tag räumt ihn weg |
 | 2110 | Warning | `Worker/Processing/ProcessingLog` | Versuch hat seinen Job an einen anderen Worker verloren (Sperre abgelaufen); Ergebnis bzw. Fehlschlag wird verworfen |
 | 2111 | Warning | `Worker/Processing/ProcessingLog` | Job beim Herunterfahren nicht zurückgegeben (nur Ausnahmetyp); er läuft nach Ablauf seiner Sperre erneut |

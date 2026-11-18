@@ -4,11 +4,9 @@ using System.Text;
 namespace NoMorePaper.Infrastructure.Documents;
 
 /// <summary>
-/// Makes a rename durable. On Linux a renamed file only survives a power loss once its folder is
-/// flushed too (<c>fsync</c> on the directory); .NET cannot open directories as files, so this calls
-/// libc. Windows (NTFS journals the rename) and other systems need nothing: there it does nothing.
+/// Flushes folders with <c>fsync</c> through libc, for Linux: .NET cannot open directories as files.
 /// </summary>
-internal sealed class DirectorySync
+internal sealed class LibcDirectorySync : IDirectorySync
 {
     private const int ReadOnly = 0;
 
@@ -17,22 +15,9 @@ internal sealed class DirectorySync
     private const int InvalidArgument = 22;
     private const int NotSupported = 95;
 
-    private readonly bool _needed = OperatingSystem.IsLinux();
-
-    /// <summary>
-    /// Flushes the folder and its parent: the folder holds the renamed file, the parent the folder
-    /// itself, which is usually new (<c>inbox/&lt;id&gt;</c>). Folders further up are new only once a
-    /// month (<c>archive/&lt;yyyy&gt;/&lt;mm&gt;</c>) and are not flushed, to keep each write cheap.
-    /// </summary>
-    /// <exception cref="IOException">A folder could not be opened or flushed.</exception>
     public void Flush(string folder)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(folder);
-        if (!_needed)
-        {
-            return;
-        }
-
         FlushOne(folder);
         if (Path.GetDirectoryName(Path.TrimEndingDirectorySeparator(folder)) is { Length: > 0 } parent)
         {

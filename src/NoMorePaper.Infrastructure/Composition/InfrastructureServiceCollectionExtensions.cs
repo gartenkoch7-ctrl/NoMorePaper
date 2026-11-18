@@ -31,8 +31,10 @@ public static class InfrastructureServiceCollectionExtensions
         services.AddScoped<DatabaseMigrator>();
         services.AddScoped<HeartbeatStore>();
         services.AddScoped<JobQueue>();
+        services.AddSingleton<IDirectorySync>(OperatingSystem.IsLinux() ? new LibcDirectorySync() : new NoDirectorySync());
         services.AddSingleton<IDocumentStorage>(provider => new FileSystemDocumentStorage(
             DataPath(configuration),
+            provider.GetRequiredService<IDirectorySync>(),
             provider.GetRequiredService<ILogger<FileSystemDocumentStorage>>()));
         services.AddScoped(provider => new DocumentIntake(
             provider.GetRequiredService<AppDbContext>(),

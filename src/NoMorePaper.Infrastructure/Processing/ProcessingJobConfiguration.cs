@@ -13,6 +13,7 @@ internal sealed class ProcessingJobConfiguration : IEntityTypeConfiguration<Proc
         builder.HasKey(job => job.DocumentId);
         builder.Property(job => job.DocumentId).HasColumnName("document_id").ValueGeneratedNever();
         builder.Property(job => job.Attempt).HasColumnName("attempt");
+        builder.Property(job => job.ClaimId).HasColumnName("claim_id");
         builder.Property(job => job.NextAttemptAt).HasColumnName("next_attempt_at");
         builder.Property(job => job.LockedUntil).HasColumnName("locked_until");
         builder.Property(job => job.LastError).HasColumnName("last_error");

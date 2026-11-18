@@ -103,6 +103,10 @@ namespace NoMorePaper.Infrastructure.Persistence.Migrations
                         .HasColumnType("integer")
                         .HasColumnName("attempt");
 
+                    b.Property<Guid?>("ClaimId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("claim_id");
+
                     b.Property<string>("LastError")
                         .HasColumnType("text")
                         .HasColumnName("last_error");
