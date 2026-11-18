@@ -6,6 +6,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <!-- Ensures the Server (and with it the WASM client) is built before the UI tests start it. -->
     <ProjectReference Include="..\..\src\NoMorePaper.Server\NoMorePaper.Server.csproj" />
   </ItemGroup>
 
@@ -13,5 +14,6 @@
     <PackageReference Include="xunit.v3" />
     <PackageReference Include="Microsoft.Playwright" />
     <PackageReference Include="Deque.AxeCore.Playwright" />
+    <PackageReference Include="Testcontainers.PostgreSql" />
   </ItemGroup>
 </Project>
