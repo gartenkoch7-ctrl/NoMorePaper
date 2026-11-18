@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="SkipToContent" xml:space="preserve">
+    <value>Zum Inhalt springen</value>
+  </data>
+  <data name="MainNavigation" xml:space="preserve">
+    <value>Hauptnavigation</value>
+  </data>
+  <data name="NavHome" xml:space="preserve">
+    <value>Startseite</value>
+  </data>
+  <data name="Language" xml:space="preserve">
+    <value>Sprache</value>
+  </data>
+  <data name="HomeTitle" xml:space="preserve">
+    <value>Startseite – NoMorePaper</value>
+  </data>
+  <data name="HomeIntro" xml:space="preserve">
+    <value>Dein Dokumentenarchiv für Papier, Mails und Dateien – durchsuchbar und privat, im eigenen Netz.</value>
+  </data>
+  <data name="NotFoundTitle" xml:space="preserve">
+    <value>Seite nicht gefunden – NoMorePaper</value>
+  </data>
+  <data name="NotFoundHeading" xml:space="preserve">
+    <value>Seite nicht gefunden</value>
+  </data>
+  <data name="NotFoundText" xml:space="preserve">
+    <value>Diese Seite gibt es nicht.</value>
+  </data>
+  <data name="NotFoundBackLink" xml:space="preserve">
+    <value>Zur Startseite</value>
+  </data>
+</root>

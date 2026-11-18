@@ -1,0 +1,48 @@
+@inject ICulturePreference Preference
+@inject IUiCulture UiCulture
+@inject NavigationManager Navigation
+@inject ILogger<LanguageSwitch> Logger
+@inject IStringLocalizer<Strings> L
+
+@* A button group instead of a select: choosing a language reloads the app, and a select would
+   reload while a keyboard user is still arrowing through the options (WCAG 3.2.2). *@
+<div class="language-switch" role="group" aria-labelledby="language-switch-label">
+    <span id="language-switch-label">@L["Language"]</span>
+    @foreach (var option in _options)
+    {
+        var isCurrent = option.Culture == UiCulture.Current;
+        @* The current language is marked by fill, a check mark and aria-pressed, not by colour alone. *@
+        <MudButton Variant="@(isCurrent ? Variant.Filled : Variant.Outlined)"
+                   Color="Color.Primary"
+                   StartIcon="@(isCurrent ? Icons.Material.Filled.Check : null)"
+                   aria-pressed="@(isCurrent ? "true" : "false")"
+                   lang="@option.Culture"
+                   OnClick="@(() => SelectAsync(option.Culture))">
+            @option.NativeName
+        </MudButton>
+    }
+</div>
+
+@code {
+    // Language names are shown in their own language, so each user can find theirs.
+    private static readonly LanguageOption[] _options =
+    [
+        new(SupportedCultures.German, "Deutsch"),
+        new(SupportedCultures.English, "English"),
+    ];
+
+    private async Task SelectAsync(string culture)
+    {
+        if (culture == UiCulture.Current)
+        {
+            return;
+        }
+
+        await Preference.SaveAsync(culture);
+        Logger.CultureChangeRequested(culture);
+        // Satellite resources are loaded at startup, so a new language needs a reload.
+        Navigation.Refresh(forceReload: true);
+    }
+
+    private sealed record LanguageOption(string Culture, string NativeName);
+}
