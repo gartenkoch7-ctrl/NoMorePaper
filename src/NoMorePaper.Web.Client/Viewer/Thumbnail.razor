@@ -2,12 +2,13 @@
    keeps its size from the start, so the list does not jump; the image appears once it is drawn.
    Until then (or if it fails) the canvas is hidden and not in the accessibility tree. *@
 @implements IDisposable
-@inject IStringLocalizer<Strings> L
 @inject ThumbnailRenderer Renderer
 @inject ViewerPreferences Preferences
 
 <span class="thumbnail" @ref="_box">
-    <canvas @ref="_canvas" role="img" aria-label="@L["ThumbnailAlt", Title]" hidden="@(!_shown)"></canvas>
+    @* Decorative (WCAG H2): the title link right next to it already names the document, so a
+       screen reader would otherwise read the title twice. *@
+    <canvas @ref="_canvas" aria-hidden="true" data-title="@Title" hidden="@(!_shown)"></canvas>
 </span>
 
 @code {

@@ -23,9 +23,9 @@ public sealed partial class ThumbnailTests(ServerFixture server)
         });
         var page = session.Page;
 
-        await Assertions.Expect(page.GetByRole(AriaRole.Img, new() { Name = "Vorschau: Steuerbescheid" })).ToBeVisibleAsync();
+        await Assertions.Expect(page.Locator("canvas[data-title=\"Steuerbescheid\"][aria-hidden=true]")).ToBeVisibleAsync();
         // Only a finished document has a PDF/A to show.
-        await Assertions.Expect(page.GetByRole(AriaRole.Img, new() { Name = "Vorschau: Stromrechnung" })).ToHaveCountAsync(0);
+        await Assertions.Expect(page.Locator("canvas[data-title=\"Stromrechnung\"]:visible")).ToHaveCountAsync(0);
         await Assertions.Expect(page.GetByRole(AriaRole.Link, new() { Name = "Steuerbescheid" }))
             .ToHaveAttributeAsync("href", $"dokumente/{done.Id}");
     }
@@ -42,7 +42,7 @@ public sealed partial class ThumbnailTests(ServerFixture server)
         await page.Locator("#header-search-input").FillAsync("invoice");
         await page.Keyboard.PressAsync("Enter");
 
-        await Assertions.Expect(page.GetByRole(AriaRole.Img, new() { Name = "Preview: Invoice" })).ToBeVisibleAsync();
+        await Assertions.Expect(page.Locator("canvas[data-title=\"Invoice\"][aria-hidden=true]")).ToBeVisibleAsync();
         await Assertions.Expect(page.GetByRole(AriaRole.Link, new() { Name = "Invoice" })).ToHaveAttributeAsync("href", $"dokumente/{id}");
     }
 

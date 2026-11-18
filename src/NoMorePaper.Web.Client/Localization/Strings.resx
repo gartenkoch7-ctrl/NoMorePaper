@@ -249,7 +249,4 @@
   <data name="ViewerKeys" xml:space="preserve">
     <value>Tasten: Strg + Plus und Strg + Minus zoomen, Strg + 0 zeigt 100 %. Die Pfeiltasten bewegen die Seite, Bild auf und Bild ab blättern. Mit Strg + Mausrad zoomst du um den Mauszeiger.</value>
   </data>
-  <data name="ThumbnailAlt" xml:space="preserve">
-    <value>Vorschau: {0}</value>
-  </data>
 </root>
