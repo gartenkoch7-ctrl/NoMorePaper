@@ -75,3 +75,8 @@ Schritte:
 3. Playwright-Chromium mit Abhängigkeiten installieren (`install --with-deps chromium`)
 4. `dotnet test` in Release
 5. Zeilenprüfung (maximal 300 Zeilen je Datei)
+
+## Worker-Image und OCR lokal
+- OCR-Tests werden auf Windows übersprungen, weil dort kein `ocrmypdf` installiert ist. Sie laufen in der CI.
+- Das Worker-Image ist jetzt Ubuntu-basiert (`aspnet:10.0`, siehe [ADR-0016](../adr/0016-ocrmypdf-und-ubuntu-worker-image.md)). Der Hinweis zu Alpine und ICU gilt nur für das Server-Image.
+- Der Server puffert Uploads über 64 KB in `/tmp`. In `docker-compose` ist `/tmp` ein tmpfs. Der Platz muss für 100 MB reichen.

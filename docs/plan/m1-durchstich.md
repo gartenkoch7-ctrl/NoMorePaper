@@ -34,67 +34,67 @@ Entscheidungen (Grilling 2026-11-18):
 - [x] Contracts: `DocumentSummaryDto`, `DocumentDetailDto`, `SearchHitDto`, `UploadResultDto`
 
 ### 2. Upload, API und Suche (Server)
-- [ ] `POST /api/documents` (multipart, max. 100 MB, Typ nach **Dateisignatur** prüfen, nicht nach
+- [x] `POST /api/documents` (multipart, max. 100 MB, Typ nach **Dateisignatur** prüfen, nicht nach
       Endung): legt Dokument + Job an, Antwort 202 mit Id
-- [ ] `GET /api/documents` (neueste zuerst, Seiten), `GET /api/documents/{id}`,
+- [x] `GET /api/documents` (neueste zuerst, Seiten), `GET /api/documents/{id}`,
       `GET /api/documents/{id}/files/{original|archive}` (Download immer unverändert)
-- [ ] `GET /api/search?q=` mit Rangfolge (`ts_rank`) und Textausschnitt (`ts_headline`);
+- [x] `GET /api/search?q=` mit Rangfolge (`ts_rank`) und Textausschnitt (`ts_headline`);
       Trigramm-Ähnlichkeit als Rückfall, wenn die Wortsuche nichts findet
-- [ ] Server bleibt auf `127.0.0.1`; keine Anmeldung in M1 (in README deutlich vermerkt)
+- [x] Server bleibt auf `127.0.0.1`; keine Anmeldung in M1 (in README deutlich vermerkt)
 
 ### 3. Verarbeitung (Worker)
-- [ ] Job-Schleife: Job holen (`SKIP LOCKED`), Status setzen, Fehler mit 3 Versuchen und
+- [x] Job-Schleife: Job holen (`SKIP LOCKED`), Status setzen, Fehler mit 3 Versuchen und
       wachsendem Abstand, danach `Failed` mit technischem Grund (ohne Inhalt)
-- [ ] Bilder (JPG/PNG/HEIC) → PDF (HEIC über `heif-convert`, dann `img2pdf`)
-- [ ] OCRmyPDF: `--output-type pdfa --language deu+eng --rotate-pages --deskew --skip-text`
+- [x] Bilder (JPG/PNG/HEIC) → PDF (HEIC über `heif-convert`, dann `img2pdf`)
+- [x] OCRmyPDF: `--output-type pdfa --language deu+eng --rotate-pages --deskew --skip-text`
       mit Zeitlimit je Dokument; Text mit `pdftotext` in `content_text`
-- [ ] Worker-Image auf **Debian-Basis** (`aspnet:10.0`), da OCRmyPDF, Tesseract-Sprachdaten,
+- [x] Worker-Image auf **Debian-Basis** (`aspnet:10.0`), da OCRmyPDF, Tesseract-Sprachdaten,
       Ghostscript, `libheif-examples` und `poppler-utils` dort als Pakete vorliegen; behebt nebenbei
       die fehlende ICU (M0-Review)
 
 ### 4. Oberfläche: Upload, Liste, Suche
-- [ ] Seite „Hochladen“: Dateiauswahl mit sichtbarer Beschriftung, Ziehen-und-Ablegen nur
+- [x] Seite „Hochladen“: Dateiauswahl mit sichtbarer Beschriftung, Ziehen-und-Ablegen nur
       zusätzlich, Fortschritt und Ergebnis über `aria-live`
-- [ ] Seite „Dokumente“: Liste mit Titel, Datum, Status (Text, nicht nur Farbe); Status wird
+- [x] Seite „Dokumente“: Liste mit Titel, Datum, Status (Text, nicht nur Farbe); Status wird
       aktualisiert, solange etwas verarbeitet wird
-- [ ] Suche im Kopfbereich (Tastenkürzel `/`), Trefferliste mit Ausschnitt, Treffer als Überschriften
+- [x] Suche im Kopfbereich (Tastenkürzel `/`), Trefferliste mit Ausschnitt, Treffer als Überschriften
       navigierbar
-- [ ] Texte DE/EN, Navigation um die neuen Seiten ergänzt
+- [x] Texte DE/EN, Navigation um die neuen Seiten ergänzt
 
 ### 5. Viewer mit Shader (nach dem Shader-Spike)
-- [ ] PDF.js (feste Version, unter `wwwroot/lib/pdfjs/` ausgeliefert, kein CDN)
-- [ ] WebGL-Shader „intelligent invertiert“ mit den Werten aus dem Spike; Rückfall ohne WebGL:
+- [x] PDF.js (feste Version, unter `wwwroot/lib/pdfjs/` ausgeliefert, kein CDN)
+- [x] WebGL-Shader „intelligent invertiert“ mit den Werten aus dem Spike; Rückfall ohne WebGL:
       Invertieren mit erhaltenem Farbton (CSS-Filter)
-- [ ] Schalter „Originalfarben“ je Gerät (gespeichert im Browser)
-- [ ] Zoom 25–1600 %: `Strg` + `+`/`-`/`0`, `Strg` + Mausrad und Zwei-Finger-Geste um den Zeiger,
+- [x] Schalter „Originalfarben“ je Gerät (gespeichert im Browser)
+- [x] Zoom 25–1600 %: `Strg` + `+`/`-`/`0`, `Strg` + Mausrad und Zwei-Finger-Geste um den Zeiger,
       „Breite anpassen“; bei jeder Stufe scharf neu rendern
-- [ ] Bewegen mit Pfeiltasten, Seiten mit `Bild auf`/`Bild ab`; Zoomstufe und Seite per `aria-live`
-- [ ] Textebene von PDF.js für Screenreader; Hinweis, wenn ein Dokument keinen Text hat
-- [ ] Vorschaubilder in Liste und Suche ebenfalls durch den Shader (ADR-0011)
+- [x] Bewegen mit Pfeiltasten, Seiten mit `Bild auf`/`Bild ab`; Zoomstufe und Seite per `aria-live`
+- [x] Textebene von PDF.js für Screenreader; Hinweis, wenn ein Dokument keinen Text hat
+- [x] Vorschaubilder in Liste und Suche ebenfalls durch den Shader (ADR-0011)
 
 ### 6. Shader-Spike (2 Tage, zuerst)
-- [ ] Testsatz: Brief mit farbigem Logo, Rechnung mit farbiger Tabelle, Foto im Dokument, grauer
+- [x] Testsatz: Brief mit farbigem Logo, Rechnung mit farbiger Tabelle, Foto im Dokument, grauer
       Scan, reiner Text
-- [ ] Prototyp `spikes/viewer-shader/` (PDF.js + WebGL, nicht in der Solution)
-- [ ] Festlegen: Farbraum für „Helligkeit drehen, Farbton halten“ (z. B. OKLab), Foto-Erkennung
+- [x] Prototyp `spikes/viewer-shader/` (PDF.js + WebGL, nicht in der Solution)
+- [x] Festlegen: Farbraum für „Helligkeit drehen, Farbton halten“ (z. B. OKLab), Foto-Erkennung
       (Farbigkeit und Detailreichtum der Umgebung), Schwellen; GPU-Zeit je Seite bei 1600 %
-- [ ] Ergebnis in `docs/kb/darstellung.md` und als Nachtrag zu ADR-0011
+- [x] Ergebnis in `docs/kb/darstellung.md` und als Nachtrag zu ADR-0011
 
 ### 7. iCloud-Spike (3 Tage, parallel)
-- [ ] Prototyp `spikes/icloud/` (.NET-Konsolenprogramm, nicht in der Solution, keine Zugangsdaten
+- [x] Prototyp `spikes/icloud/` (.NET-Konsolenprogramm, nicht in der Solution, keine Zugangsdaten
       im Repo)
 - [ ] Prüfen: Anmeldung mit Apple-ID, 2FA-Code eingeben, iCloud-Drive-Ordner auflisten, Datei
       laden, Sitzung speichern und nach Neustart weiterverwenden
 - [ ] Ergebnis als ADR (bestanden → Umsetzung in M4; nicht bestanden → Fallback)
 
 ### 8. Tests und Doku
-- [ ] Domain: Unit-Tests für Status- und Wiederholungslogik
-- [ ] Infrastructure (Testcontainers): Warteschlange mit zwei Workern ohne Doppelverarbeitung,
+- [x] Domain: Unit-Tests für Status- und Wiederholungslogik
+- [x] Infrastructure (Testcontainers): Warteschlange mit zwei Workern ohne Doppelverarbeitung,
       Suche findet „Rechnungen“ bei „Rechnung“ und bei OCR-Tippfehlern
-- [ ] Worker: Integrationstest mit echtem OCRmyPDF im gebauten Worker-Image (Beispiel-PDF und -Foto)
-- [ ] UI: axe ohne Verstöße auf allen neuen Seiten (DE/EN), Tastaturtests für Upload, Suche
+- [x] Worker: Integrationstest mit echtem OCRmyPDF im gebauten Worker-Image (Beispiel-PDF und -Foto)
+- [x] UI: axe ohne Verstöße auf allen neuen Seiten (DE/EN), Tastaturtests für Upload, Suche
       und Viewer, Pixeltest des Shaders (weiße Fläche → schwarz, rotes Logo bleibt rot, Foto unverändert)
-- [ ] KB: `darstellung.md`, `verarbeitung.md` (Pipeline, Werkzeuge, Zeitlimits), Telemetrie-Katalog;
+- [x] KB: `darstellung.md`, `verarbeitung.md` (Pipeline, Werkzeuge, Zeitlimits), Telemetrie-Katalog;
       ADR-0016 (OCRmyPDF, Debian-Worker-Image), ADR-0017 (PDF.js)
 
 ## Akzeptanzkriterien
@@ -102,10 +102,10 @@ Entscheidungen (Grilling 2026-11-18):
 - [ ] Suche findet das Dokument über ein Wort aus dem gescannten Text
 - [ ] Viewer: schwarzer Hintergrund, weiße Schrift, farbiges Logo im Farbton erhalten, Foto original;
       Zoom bis 1600 % scharf; alles ohne Maus bedienbar
-- [ ] Download liefert Original und PDF/A unverändert
+- [x] Download liefert Original und PDF/A unverändert
 - [ ] axe 0 Verstöße; Sichtprüfung mit NVDA durch den Nutzer
 - [ ] Beide Spikes mit Ergebnis-ADR abgeschlossen
-- [ ] CI grün
+- [x] CI grün
 
 ## Parallelisierung
 
