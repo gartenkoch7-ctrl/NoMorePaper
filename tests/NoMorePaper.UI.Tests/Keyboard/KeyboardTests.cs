@@ -44,7 +44,10 @@ public sealed class KeyboardTests(ServerFixture server)
     {
         await using var session = await server.OpenAsync("/", SupportedCultures.German);
         var page = session.Page;
-        string[] expected = ["Zum Inhalt springen", "Startseite", "Deutsch", "English"];
+        string[] expected =
+        [
+            "Zum Inhalt springen", "Startseite", "Hochladen", "Dokumente", "Suche", "", "Suchen", "Deutsch", "English",
+        ];
 
         var stops = new List<FocusState>();
         foreach (var _ in expected)

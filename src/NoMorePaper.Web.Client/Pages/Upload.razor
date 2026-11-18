@@ -1,0 +1,79 @@
+@page "/hochladen"
+@inject IStringLocalizer<Strings> L
+@inject DocumentApi Api
+
+<PageTitle>@L["UploadTitle"]</PageTitle>
+
+<MudText Typo="Typo.h1">@L["UploadHeading"]</MudText>
+
+@* Dropping a file on the field is only an extra: the file input itself is the real control and
+   works with keyboard and screen reader alone. *@
+<div class="drop-zone">
+    <label for="upload-input" class="drop-zone-label">@L["UploadFileLabel"]</label>
+    <InputFile id="upload-input" OnChange="OnFilesChangedAsync" multiple
+               accept=".pdf,.jpg,.jpeg,.png,.heic,application/pdf,image/jpeg,image/png,image/heic"
+               aria-describedby="upload-hint" />
+    <p id="upload-hint" class="drop-zone-hint">@L["UploadHint"]</p>
+</div>
+
+<LiveRegion @ref="_progress" />
+
+@if (_results.Count > 0)
+{
+    <MudText Typo="Typo.h2">@L["UploadResultsHeading"]</MudText>
+    <ul class="upload-results">
+        @foreach (var result in _results)
+        {
+            <li>
+                @if (result.Id is { } id)
+                {
+                    <MudIcon Icon="@Icons.Material.Filled.CheckCircle" />
+                    <span>@L["UploadSuccess", result.FileName]</span>
+                    <a href="@DocumentLinks.Of(id)">@L["UploadShowInList", result.FileName]</a>
+                }
+                else
+                {
+                    <MudIcon Icon="@Icons.Material.Filled.Error" />
+                    <span>@L["UploadFailed", result.FileName, result.Error ?? string.Empty]</span>
+                }
+            </li>
+        }
+    </ul>
+}
+
+@code {
+    // Many files at once are fine, but each one is read in the browser: keep the batch bounded.
+    private const int MaxFiles = 20;
+
+    private readonly List<UploadOutcome> _results = [];
+    private LiveRegion? _progress;
+
+    private async Task OnFilesChangedAsync(InputFileChangeEventArgs args)
+    {
+        foreach (var file in args.GetMultipleFiles(MaxFiles))
+        {
+            await UploadOneAsync(file);
+        }
+    }
+
+    private async Task UploadOneAsync(IBrowserFile file)
+    {
+        await AnnounceAsync(L["UploadInProgress", file.Name]);
+        var result = await Api.UploadAsync(file);
+        var outcome = new UploadOutcome(file.Name, result.Value?.Id, result.Error);
+        _results.Insert(0, outcome);
+        await AnnounceAsync(outcome.Id is null
+            ? L["UploadFailed", file.Name, outcome.Error ?? string.Empty]
+            : L["UploadSuccess", file.Name]);
+    }
+
+    private async Task AnnounceAsync(string message)
+    {
+        if (_progress is not null)
+        {
+            await _progress.Announce(message);
+        }
+    }
+
+    private sealed record UploadOutcome(string FileName, Guid? Id, string? Error);
+}

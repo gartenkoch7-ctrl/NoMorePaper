@@ -1,0 +1,64 @@
+@implements IDisposable
+@inject NavigationManager Navigation
+@inject IStringLocalizer<Strings> L
+
+@* Search in the header on every page. The "/" key focuses the input (wwwroot/js/shortcuts.js). *@
+<form role="search" class="header-search" @onsubmit="Submit">
+    <input id="header-search-input" type="search" name="q" class="search-input"
+           aria-label="@L["SearchLabel"]" aria-keyshortcuts="/"
+           @bind="_query" @bind:event="oninput" />
+    <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Outlined" Color="Color.Primary"
+               StartIcon="@Icons.Material.Filled.Search">@L["SearchButton"]</MudButton>
+</form>
+
+@code {
+    private string _query = string.Empty;
+
+    protected override void OnInitialized()
+    {
+        _query = QueryFromUrl();
+        Navigation.LocationChanged += OnLocationChanged;
+    }
+
+    private void Submit()
+    {
+        var query = _query.Trim();
+        Navigation.NavigateTo(query.Length == 0 ? "suche" : $"suche?q={Uri.EscapeDataString(query)}");
+    }
+
+    private void OnLocationChanged(object? sender, LocationChangedEventArgs e)
+    {
+        // Keep the field in step with the address, e.g. after back/forward.
+        var fromUrl = QueryFromUrl();
+        if (IsSearchPage() && fromUrl != _query.Trim())
+        {
+            _query = fromUrl;
+            StateHasChanged();
+        }
+    }
+
+    private bool IsSearchPage() =>
+        Navigation.ToBaseRelativePath(Navigation.Uri).Split('?', '#')[0] == "suche";
+
+    private string QueryFromUrl()
+    {
+        if (!IsSearchPage())
+        {
+            return string.Empty;
+        }
+
+        var uri = new Uri(Navigation.Uri);
+        foreach (var pair in uri.Query.TrimStart('?').Split('&', StringSplitOptions.RemoveEmptyEntries))
+        {
+            var parts = pair.Split('=', 2);
+            if (parts[0] == "q" && parts.Length == 2)
+            {
+                return Uri.UnescapeDataString(parts[1].Replace('+', ' '));
+            }
+        }
+
+        return string.Empty;
+    }
+
+    public void Dispose() => Navigation.LocationChanged -= OnLocationChanged;
+}
