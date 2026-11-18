@@ -177,7 +177,23 @@ Schritt 0 (Aufgabe 0) ─┬─► Spur A (1, 2) ─┐
 - **Akzeptanz:** keine Verhaltensänderung: alle bestehenden Tests grün (Inhalt unverändert, nur
   Typnamen/Fixtures angepasst), Architekturtest grün, Dateien ≤ 300 Zeilen
 
-Die Dateitabellen für P1–P3 schreibt die steuernde Sitzung nach P0 (sie hängen an den neuen Ports).
+Die Dateitabellen für P1 und P2 schreibt die steuernde Sitzung nach P0 (sie hängen an den neuen
+Ports). P3 hängt nicht an P0 und startet parallel dazu.
+
+### Paket P3 – Betrieb (Spur C) · Modell: **Sonnet** · Effort: `medium`
+| Datei | neu/ändern | Was genau | Tests | ca. Zeilen |
+|---|---|---|---|---|
+| `src/NoMorePaper.Infrastructure/Composition/DataProtectionRegistration.cs` | neu | `AddNoMorePaperDataProtection(IServiceCollection, IConfiguration)`: bisheriger Code aus `AddInfrastructure` (Name, `FileSystemXmlRepository`) plus `ProtectKeysWithCertificate(X509Certificate2)` aus `NoMorePaper:KeyRingCertificatePath` + `NoMorePaper:KeyRingCertificatePassword` (Laden mit `X509CertificateLoader.LoadPkcs12FromFile`); fehlt das Zertifikat außerhalb `Development` → `InvalidOperationException` mit klarer Meldung; in `AddInfrastructure` nur noch ein Aufruf (Hotspot-Zeile) | Infrastructure.Tests | 90 |
+| `InfrastructureSettings.cs` | ändern | Konstanten `KeyRingCertificatePathKey`, `KeyRingCertificatePasswordKey` | – | 10 |
+| `src/NoMorePaper.Server/Hosting/ForwardedHeadersRegistration.cs` | neu | `ForwardedHeadersOptions`: `XForwardedFor \| XForwardedProto \| XForwardedHost`, `KnownProxies` nur `127.0.0.1` und `::1`, `ForwardLimit = 1`; `app.UseForwardedHeaders()` als erste Middleware (Hotspot `Program.cs`) | Server.Tests | 40 |
+| `src/NoMorePaper.Server/Hosting/HostingLog.cs` | neu | EventIds 1400–1419 (Schlüsselring geschützt mit Zertifikat-Fingerabdruck, Forwarded-Header verworfen) | – | 25 |
+| `scripts/new-keyring-certificate.ps1` | neu | erzeugt selbstsigniertes RSA-3072-Zertifikat (10 Jahre) als PFX mit zufälligem Passwort, schreibt Pfad + Passwort-Hinweis; läuft unter PowerShell 5.1 und 7 | manuell | 60 |
+| `docker-compose.yml`, `.env.example` | ändern | Bind-Mount `${NOMOREPAPER_KEYRING_CERT}` → `/run/secrets/keyring.pfx:ro` für Server und Worker, Umgebungsvariablen für Pfad/Passwort, `AllowedHosts` per `NOMOREPAPER_ALLOWED_HOSTS` (Werk `localhost;127.0.0.1`) | Compose-Lauf | 20 |
+| `docs/kb/betrieb.md` | neu | Einrichtung `tailscale serve --bg --https=443 http://127.0.0.1:8080`, MagicDNS-Name in `NOMOREPAPER_ALLOWED_HOSTS`, Zertifikat erzeugen und **getrennt** sichern, Prüfliste | – | 100 |
+| `docs/adr/0020-https-ueber-tailscale-serve.md` | neu | ergänzt ADR-0002; Status in ADR-0002 auf „ergänzt durch 0020“ | – | 40 |
+| `tests/NoMorePaper.Infrastructure.Tests/Composition/DataProtectionTests.cs`, `tests/NoMorePaper.Server.Tests/Hosting/ForwardedHeadersTests.cs` | neu | Schlüssel-XML auf Platte enthält kein `<masterKey>` im Klartext (verschlüsselt), Entschlüsseln mit Zertifikat gelingt, ohne Zertifikat → Fehler; `X-Forwarded-Proto: https` von 127.0.0.1 → `Request.IsHttps`, von fremder IP ignoriert | selbst | 160 |
+- **Akzeptanz:** Tests grün; `docker compose up` mit erzeugtem Zertifikat → Server/Worker healthy,
+  Schlüssel-Dateien im Volume verschlüsselt; ohne Zertifikat startet der Server mit klarer Meldung nicht
 
 ### Rückblick (nach Abschluss)
 | Paket | geplante Stufe | passend? | Anmerkung |
