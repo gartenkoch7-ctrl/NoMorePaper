@@ -1,0 +1,82 @@
+# NoMorePaper stack: Server, Worker, Postgres (docs/kb/architektur.md).
+# First copy .env.example to .env and set POSTGRES_PASSWORD. Remote access only via Tailscale (ADR-0002).
+name: nomorepaper
+
+# Hardening shared by the .NET services: read-only root, no capabilities, no privilege escalation.
+x-dotnet-service: &dotnet-service
+  restart: unless-stopped
+  read_only: true
+  tmpfs:
+    - /tmp
+  cap_drop:
+    - ALL
+  security_opt:
+    - no-new-privileges:true
+  volumes:
+    - data:/data
+    - dpkeys:/dpkeys
+
+services:
+  db:
+    image: postgres:17-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: nomorepaper
+      POSTGRES_USER: nomorepaper
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env (see .env.example)}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    # No published port: only server and worker reach the database on the compose network.
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U nomorepaper -d nomorepaper"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+
+  server:
+    <<: *dotnet-service
+    build:
+      context: .
+      dockerfile: Dockerfile.server
+    image: nomorepaper-server:local
+    environment:
+      ConnectionStrings__NoMorePaper: Host=db;Port=5432;Database=nomorepaper;Username=nomorepaper;Password=${POSTGRES_PASSWORD};GSS Encryption Mode=Disable
+      OTEL_EXPORTER_OTLP_ENDPOINT: ${OTEL_EXPORTER_OTLP_ENDPOINT:-}
+    ports:
+      # Loopback only; never 0.0.0.0. Tailscale on the host forwards remote access.
+      - "127.0.0.1:${NOMOREPAPER_PORT:-8080}:8080"
+    depends_on:
+      db:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://127.0.0.1:8080/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+  worker:
+    <<: *dotnet-service
+    build:
+      context: .
+      dockerfile: Dockerfile.worker
+    image: nomorepaper-worker:local
+    environment:
+      ConnectionStrings__NoMorePaper: Host=db;Port=5432;Database=nomorepaper;Username=nomorepaper;Password=${POSTGRES_PASSWORD};GSS Encryption Mode=Disable
+      OTEL_EXPORTER_OTLP_ENDPOINT: ${OTEL_EXPORTER_OTLP_ENDPOINT:-}
+    # No published port: /health is only for the container healthcheck.
+    depends_on:
+      server:
+        # The Server applies the migrations; a healthy Server means the schema is current.
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://127.0.0.1:8080/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+volumes:
+  data:
+  pgdata:
+  dpkeys:
