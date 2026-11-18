@@ -19,6 +19,9 @@ internal static class AccountResponses
 
     public static IResult NotFound() => Problem(StatusCodes.Status404NotFound, "Not found.");
 
+    /// <summary>423; the caller sets <c>Retry-After</c>.</summary>
+    public static IResult Locked() => Problem(StatusCodes.Status423Locked, "The account is locked; try again later.");
+
     /// <param name="passwordField">Request field that carries the new password.</param>
     public static IResult Failure(AccountResult result, string passwordField)
     {
@@ -30,6 +33,9 @@ internal static class AccountResponses
             AccountStatus.Forbidden => Problem(StatusCodes.Status403Forbidden, "Only the administrator may do this."),
             AccountStatus.Conflict => Problem(StatusCodes.Status409Conflict, "The household is set up already."),
             AccountStatus.Unauthorized => Problem(StatusCodes.Status401Unauthorized, "Wrong user name or emergency code."),
+
+            // Endpoints that can be locked answer through AccountSessions, which adds Retry-After.
+            AccountStatus.LockedOut => Locked(),
             _ => throw new ArgumentOutOfRangeException(nameof(result), result.Status, "Not a failure."),
         };
     }
@@ -37,8 +43,12 @@ internal static class AccountResponses
     /// <summary>A member as others see it.</summary>
     public static AccountDto ToDto(this Account account) => new(account.Id, account.UserName, account.DisplayName, account.IsAdmin);
 
-    /// <summary>The signed-in account as it sees itself, with the notice about an administrator's reset.</summary>
-    public static AccountDto ToOwnDto(this Account account) => account.ToDto() with { AdminResetAt = account.AdminResetAt };
+    /// <summary>The signed-in account as it sees itself, with the notice about the administrator's resets.</summary>
+    public static AccountDto ToOwnDto(this Account account, AdminResetNotice notice)
+    {
+        ArgumentNullException.ThrowIfNull(notice);
+        return account.ToDto() with { AdminResetAt = notice.OldestUnacknowledged, AdminResets = notice.Resets };
+    }
 
     private static Dictionary<string, string[]> Errors(IEnumerable<AccountProblem> problems, string passwordField) =>
         problems

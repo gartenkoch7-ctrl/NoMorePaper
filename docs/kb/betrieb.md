@@ -29,6 +29,12 @@ powershell -NoProfile -File scripts/new-keyring-certificate.ps1 -OutputDirectory
   nur für Entwicklung und Tests). Die Meldung nennt `NoMorePaper__KeyRingCertificatePath`.
 - Ein Zertifikatwechsel wird noch nicht unterstützt: schon verschlüsselte Schlüssel bleiben nur mit dem
   alten Zertifikat lesbar (Restore-Anleitung in M7).
+- **Umstieg von M1 (Schlüssel ohne Zertifikat):** Beim ersten Start mit Zertifikat widerrufen Server und Worker
+  jeden noch gültigen Schlüssel ohne `encryptedSecret` (Grund „unencrypted key from before M2“, Ereignis 3410).
+  Danach entsteht ein neuer, verschlüsselter Schlüssel. Damit sind **alle Sitzungen einmal abgemeldet**; alle
+  melden sich neu an. Andere Daten sind mit diesen Schlüsseln nicht geschützt.
+- Die widerrufenen Schlüsseldateien bleiben im Volume liegen (die Bibliothek löscht nichts). Sie schützen nichts
+  mehr, das noch gilt; wer sie loswerden will, löscht nach dem Umstieg die `key-*.xml` ohne `encryptedSecret`.
 
 ## Zugriff von unterwegs (Tailscale)
 Einmalig auf dem Host, nicht im Container:
@@ -55,6 +61,8 @@ tailscale serve status
 - [ ] Server-Log enthält „Key ring is encrypted with the certificate …“ (Ereignis 3400), keine Warnung 3401.
 - [ ] Schlüsseldateien im Volume enthalten `encryptedSecret`, kein `<masterKey>` im Klartext:
       `docker run --rm -v nomorepaper_dpkeys:/k alpine sh -c "grep -L encryptedSecret /k/key-*.xml"` gibt nichts aus.
+      Nach dem Umstieg von M1 stehen dort nur die widerrufenen alten Schlüssel (je eine `revocation-*.xml` mit
+      ihrer Id; Ereignis 3410 im Log).
 - [ ] `http://127.0.0.1:8080/health` antwortet; der MagicDNS-Name über HTTPS antwortet.
 - [ ] Ein fremder Hostname wird mit 400 abgelehnt (`AllowedHosts`).
 - [ ] Zertifikat und Passwort liegen getrennt von den Backups.

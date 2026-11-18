@@ -25,6 +25,9 @@ public interface IAccountStore
 
     Task<Account?> FindAsync(Guid id, CancellationToken cancellationToken);
 
+    /// <summary>Whether the account exists (not removed); cheaper than <see cref="FindAsync"/>.</summary>
+    Task<bool> ExistsAsync(Guid id, CancellationToken cancellationToken);
+
     /// <summary>All accounts, ordered by display name.</summary>
     Task<IReadOnlyList<Account>> ListAsync(CancellationToken cancellationToken);
 
@@ -39,7 +42,10 @@ public interface IAccountStore
     /// Like a sign-in, the current password is refused while the account is locked and a wrong one
     /// counts towards the lockout. Success ends all other sessions and voids open reset links.
     /// </summary>
-    /// <returns>The account with its new security stamp; <see cref="AccountStatus.NotFound"/> for an unknown id.</returns>
+    /// <returns>
+    /// The account with its new security stamp; <see cref="AccountStatus.LockedOut"/> while locked (also
+    /// for the guess that locks it); <see cref="AccountStatus.NotFound"/> for an unknown id.
+    /// </returns>
     Task<AccountResult<Account>> ChangePasswordAsync(Guid id, string currentPassword, string newPassword, CancellationToken cancellationToken);
 
     Task AddInvitationAsync(string tokenHash, Guid createdBy, DateTimeOffset expiresAt, CancellationToken cancellationToken);
@@ -56,15 +62,18 @@ public interface IAccountStore
 
     /// <summary>
     /// Uses the reset link and sets the password; ends all sessions and any lockout and voids the
-    /// account's other reset links. A refused password leaves the link usable. Records the time in
-    /// <see cref="Account.AdminResetAt"/>, so the member is told at the next sign-in.
+    /// account's other reset links. A refused password leaves the link usable. Appends an
+    /// <see cref="AdminReset"/> at <paramref name="now"/>, so the member is told at the next sign-in.
     /// </summary>
     /// <returns>The account id; <see cref="AccountStatus.NotFound"/> if the link is not open at <paramref name="now"/>.</returns>
     Task<AccountResult<Guid>> ResetPasswordAsync(string tokenHash, DateTimeOffset now, string newPassword, CancellationToken cancellationToken);
 
-    /// <summary>Clears <see cref="Account.AdminResetAt"/> once the member has seen the notice.</summary>
+    /// <summary>Every reset of the account through a reset link, acknowledged or not; empty for an unknown id.</summary>
+    Task<IReadOnlyList<AdminReset>> ListAdminResetsAsync(Guid id, CancellationToken cancellationToken);
+
+    /// <summary>Marks every unacknowledged reset of the account as seen at <paramref name="now"/>; never deletes one.</summary>
     /// <returns><c>false</c> if no such account exists.</returns>
-    Task<bool> ClearAdminResetAsync(Guid id, CancellationToken cancellationToken);
+    Task<bool> AcknowledgeAdminResetsAsync(Guid id, DateTimeOffset now, CancellationToken cancellationToken);
 
     /// <summary>
     /// Checks the emergency code of the account (constant time); if it matches, sets the password,

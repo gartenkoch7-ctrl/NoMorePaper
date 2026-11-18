@@ -40,7 +40,6 @@ internal sealed class AccountUserConfiguration :
             .HasColumnName("emergency_code_hash")
             .HasMaxLength(SecretHash.Length)
             .IsFixedLength();
-        builder.Property(user => user.PasswordResetByAdminAt).HasColumnName("password_reset_by_admin_at");
     }
 
     public void Configure(EntityTypeBuilder<IdentityUserClaim<Guid>> builder)

@@ -1,6 +1,7 @@
 using NoMorePaper.Application.Documents;
 using NoMorePaper.Contracts.Documents;
 using NoMorePaper.Domain.Documents;
+using NoMorePaper.Server.Accounts;
 
 namespace NoMorePaper.Server.Documents;
 
@@ -67,8 +68,14 @@ internal static class DocumentEndpoints
     }
 
     private static async Task<IResult> SetPrivacyAsync(
-        Guid id, DocumentPrivacyDto body, SetDocumentPrivacy privacy, CancellationToken cancellationToken) =>
-        await privacy.SetAsync(id, body.IsPrivate, cancellationToken).ConfigureAwait(false) ? Results.NoContent() : NotFound();
+        Guid id, DocumentPrivacyDto body, SetDocumentPrivacy privacy, AccountSessions sessions, HttpContext context,
+        CancellationToken cancellationToken) =>
+        await privacy.SetAsync(id, body.IsPrivate, cancellationToken).ConfigureAwait(false) switch
+        {
+            PrivacyChange.Changed => Results.NoContent(),
+            PrivacyChange.AccountGone => await sessions.EndRemovedAsync(context).ConfigureAwait(false),
+            _ => NotFound(),
+        };
 
     private static IResult NotFound() => Results.Problem(title: "Not found.", statusCode: StatusCodes.Status404NotFound);
 }

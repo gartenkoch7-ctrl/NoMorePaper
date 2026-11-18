@@ -24,6 +24,16 @@ Entscheidungen (Grilling 2026-11-18):
   nächsten Anmeldung auf der Startseite einen Hinweis (mit Datum), bis es „Verstanden“ drückt
   (`users.password_reset_by_admin_at`); eigene Änderung und Notfall-Code lösen ihn nicht aus
 - Aus dem M1-Review: **Schritt 0 verschiebt die Anwendungsfälle nach Application** (AGENTS.md §2.2)
+- Aus dem M2-Review (2026-11-18):
+  - owner_id bleibt nullable; nach der Einrichtung hat jedes Dokument einen Besitzer, geprüft durch Test
+    (`Server.Tests/Documents/OwnershipTests`). Grund: Dokumente vor der Einrichtung lädt der Worker ohne
+    Besitzer; Dokumente entfernter Mitglieder bleiben, daher kein Fremdschlüssel (ADR-0021)
+  - Der Hinweis auf Rücksetzungen durch den Verwalter liegt in der Tabelle `admin_password_resets`
+    (nur ergänzt, nie gelöscht) statt in `users.password_reset_by_admin_at`; er zeigt alle Rücksetzungen,
+    solange eine unbestätigt ist
+  - Ändernde Anwendungsfälle prüfen, ob das angemeldete Konto noch existiert (entferntes Mitglied im
+    5-Minuten-Fenster → 401); Passwortänderung bei Sperre → 423 mit `Retry-After`; abgelehnte Anmeldung
+    dauert mindestens 300 ms; Schlüssel ohne Zertifikat (vor M2) werden beim Start widerrufen
 
 ## Aufgaben
 
@@ -49,7 +59,7 @@ Entscheidungen (Grilling 2026-11-18):
       `CrossSiteRequestGuard` bleibt
 
 ### 2. Besitz und „privat“
-- [x] `documents.owner_id` (Pflicht nach Migration), `documents.is_private`
+- [x] `documents.owner_id` (nullable; nach der Einrichtung immer gesetzt, siehe M2-Review oben), `documents.is_private`
 - [x] Liste, Detail, Dateien, Suche zeigen nur eigene + nicht private Dokumente; fremde private →
       404 (nicht 403, damit ihre Existenz nicht verraten wird)
 - [x] Upload mit Feld `private`; `PATCH /api/documents/{id}` `{ isPrivate }` nur durch den Besitzer

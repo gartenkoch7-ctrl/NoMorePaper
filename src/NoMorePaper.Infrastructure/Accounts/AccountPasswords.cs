@@ -76,20 +76,23 @@ internal sealed class AccountPasswords(AppDbContext db, UserManager<AccountUser>
     /// <summary>
     /// Changes the password of a signed-in account. The current password is checked like at sign-in:
     /// refused while the account is locked, and each wrong guess counts towards the lockout, so a
-    /// stolen session cannot be used to guess it.
+    /// stolen session cannot be used to guess it. Like at sign-in, the guess that locks the account
+    /// is answered with the lockout already.
     /// </summary>
     public async Task<AccountResult<Account>> ChangeAsync(
         AccountUser user, string currentPassword, string newPassword, CancellationToken cancellationToken)
     {
         if (await users.IsLockedOutAsync(user).ConfigureAwait(false))
         {
-            return AccountResult.Invalid<Account>(AccountProblem.CurrentPasswordWrong);
+            return AccountResult.Locked<Account>(LockoutEnd(user));
         }
 
         if (!await users.CheckPasswordAsync(user, currentPassword).ConfigureAwait(false))
         {
             IdentityOutcome.EnsureSucceeded(await users.AccessFailedAsync(user).ConfigureAwait(false));
-            return AccountResult.Invalid<Account>(AccountProblem.CurrentPasswordWrong);
+            return await users.IsLockedOutAsync(user).ConfigureAwait(false)
+                ? AccountResult.Locked<Account>(LockoutEnd(user))
+                : AccountResult.Invalid<Account>(AccountProblem.CurrentPasswordWrong);
         }
 
         var problems = await ValidateAsync(user, newPassword).ConfigureAwait(false);
@@ -136,6 +139,8 @@ internal sealed class AccountPasswords(AppDbContext db, UserManager<AccountUser>
     public Task VoidResetLinksAsync(Guid userId, CancellationToken cancellationToken) =>
         db.PasswordResetTokens.Where(token => token.UserId == userId).ExecuteDeleteAsync(cancellationToken);
 
-    private static PasswordCheck Locked(AccountUser user) =>
-        PasswordCheck.Locked(user.Id, user.LockoutEnd ?? throw new InvalidOperationException("A locked account has a lockout end."));
+    private static PasswordCheck Locked(AccountUser user) => PasswordCheck.Locked(user.Id, LockoutEnd(user));
+
+    private static DateTimeOffset LockoutEnd(AccountUser user) =>
+        user.LockoutEnd ?? throw new InvalidOperationException("A locked account has a lockout end.");
 }

@@ -41,32 +41,49 @@ internal static class AuthEndpoints
     }
 
     private static async Task<IResult> MeAsync(
-        GetAccount get, ICurrentAccount current, AccountSessions sessions, HttpContext context, CancellationToken cancellationToken)
+        GetAccount get,
+        GetAdminResetNotice notice,
+        ICurrentAccount current,
+        AccountSessions sessions,
+        HttpContext context,
+        CancellationToken cancellationToken)
     {
         var account = await get.FindAsync(current.Id, cancellationToken).ConfigureAwait(false);
         if (account is null)
         {
-            await sessions.SignOutAsync(context).ConfigureAwait(false);
-            return AccountResponses.SignInRequired();
+            return await sessions.EndRemovedAsync(context).ConfigureAwait(false);
         }
 
-        return Results.Ok(account.ToOwnDto());
+        return Results.Ok(account.ToOwnDto(await notice.GetAsync(cancellationToken).ConfigureAwait(false)));
     }
 
     // The account saw the notice that the administrator's reset link changed its password.
-    private static async Task<IResult> AcknowledgeResetAsync(AcknowledgeAdminReset acknowledge, CancellationToken cancellationToken) =>
+    private static async Task<IResult> AcknowledgeResetAsync(
+        AcknowledgeAdminReset acknowledge, AccountSessions sessions, HttpContext context, CancellationToken cancellationToken) =>
         await acknowledge.AcknowledgeAsync(cancellationToken).ConfigureAwait(false)
             ? Results.NoContent()
-            : AccountResponses.SignInRequired();
+            : await sessions.EndRemovedAsync(context).ConfigureAwait(false);
 
     // The security stamp changed with the password: this device gets a fresh cookie, all others end.
     private static async Task<IResult> ChangePasswordAsync(
-        ChangePasswordDto body, ChangePassword change, AccountSessions sessions, HttpContext context, CancellationToken cancellationToken)
+        ChangePasswordDto body,
+        ChangePassword change,
+        ICurrentAccount current,
+        AccountSessions sessions,
+        HttpContext context,
+        CancellationToken cancellationToken)
     {
         var result = await change.ChangeAsync(body.CurrentPassword, body.NewPassword, cancellationToken).ConfigureAwait(false);
         if (result.Value is not { } account)
         {
-            return AccountResponses.Failure(result, AccountResponses.NewPasswordField);
+            return result.Status switch
+            {
+                AccountStatus.LockedOut => sessions.PasswordChangeLocked(context, current.Id, result.LockedUntil!.Value),
+
+                // The account was removed; its cookie is not checked yet.
+                AccountStatus.NotFound => await sessions.EndRemovedAsync(context).ConfigureAwait(false),
+                _ => AccountResponses.Failure(result, AccountResponses.NewPasswordField),
+            };
         }
 
         await sessions.SignInAsync(context, account).ConfigureAwait(false);

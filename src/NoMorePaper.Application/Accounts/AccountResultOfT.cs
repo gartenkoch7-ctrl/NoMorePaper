@@ -6,8 +6,8 @@ namespace NoMorePaper.Application.Accounts;
 /// </summary>
 public sealed class AccountResult<T> : AccountResult
 {
-    internal AccountResult(AccountStatus status, T? value, IReadOnlyList<AccountProblem> problems)
-        : base(status, problems) => Value = value;
+    internal AccountResult(AccountStatus status, T? value, IReadOnlyList<AccountProblem> problems, DateTimeOffset? lockedUntil = null)
+        : base(status, problems, lockedUntil) => Value = value;
 
     public T? Value { get; }
 
@@ -17,6 +17,7 @@ public sealed class AccountResult<T> : AccountResult
     {
         AccountStatus.Succeeded => throw new InvalidOperationException("Only failures can be cast."),
         AccountStatus.Invalid => Invalid<TOther>([.. Problems]),
+        AccountStatus.LockedOut => Locked<TOther>(LockedUntil!.Value),
         _ => Fail<TOther>(Status),
     };
 }

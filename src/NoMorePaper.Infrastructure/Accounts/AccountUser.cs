@@ -16,7 +16,4 @@ public sealed class AccountUser : IdentityUser<Guid>
 
     /// <summary>SHA-256 of the emergency code (administrator only), never the code itself.</summary>
     public string? EmergencyCodeHash { get; set; }
-
-    /// <summary>When a reset link from the administrator last set the password; cleared once the member saw the notice.</summary>
-    public DateTimeOffset? PasswordResetByAdminAt { get; set; }
 }

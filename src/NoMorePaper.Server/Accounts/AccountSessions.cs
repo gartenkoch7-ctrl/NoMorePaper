@@ -6,7 +6,10 @@ using NoMorePaper.Server.Telemetry;
 
 namespace NoMorePaper.Server.Accounts;
 
-/// <summary>Issues and removes the sign-in cookie and answers a password check (204, 401, 423 with <c>Retry-After</c>).</summary>
+/// <summary>
+/// Issues and removes the sign-in cookie and answers a password check (204, 401, 423 with
+/// <c>Retry-After</c>) or a password change of a locked account.
+/// </summary>
 internal sealed class AccountSessions(TimeProvider clock, ILogger<AccountSessions> logger)
 {
     private static readonly Counter<long> s_signIns = ServerTelemetry.Meter.CreateCounter<long>(
@@ -33,6 +36,16 @@ internal sealed class AccountSessions(TimeProvider clock, ILogger<AccountSession
         await context.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme).ConfigureAwait(false);
     }
 
+    /// <summary>
+    /// The answer when the signed-in account was removed but its cookie is not checked yet: the cookie
+    /// is cleared and the client is asked to sign in (401).
+    /// </summary>
+    public async Task<IResult> EndRemovedAsync(HttpContext context)
+    {
+        await SignOutAsync(context).ConfigureAwait(false);
+        return AccountResponses.SignInRequired();
+    }
+
     public async Task<IResult> AnswerAsync(HttpContext context, PasswordCheck check)
     {
         ArgumentNullException.ThrowIfNull(check);
@@ -44,12 +57,10 @@ internal sealed class AccountSessions(TimeProvider clock, ILogger<AccountSession
                 return Results.NoContent();
 
             case PasswordCheckStatus.LockedOut when check.LockedUntil is { } until && check.AccountId is { } lockedId:
-                // Whole seconds, rounded up, so a client that waits that long is not refused again.
-                var seconds = Math.Max(1, (long)Math.Ceiling((until - clock.GetUtcNow()).TotalSeconds));
-                context.Response.Headers.RetryAfter = seconds.ToString(System.Globalization.CultureInfo.InvariantCulture);
+                var seconds = SetRetryAfter(context, until);
                 Count("locked");
                 logger.SignInLocked(lockedId, seconds);
-                return AccountResponses.Problem(StatusCodes.Status423Locked, "The account is locked; try again later.");
+                return AccountResponses.Locked();
 
             default:
                 Count("failed");
@@ -65,6 +76,21 @@ internal sealed class AccountSessions(TimeProvider clock, ILogger<AccountSession
                 // The same answer for unknown names and wrong passwords.
                 return AccountResponses.Problem(StatusCodes.Status401Unauthorized, "Wrong user name or password.");
         }
+    }
+
+    /// <summary>The answer to a password change while the account is locked: 423 with <c>Retry-After</c>, like at sign-in.</summary>
+    public IResult PasswordChangeLocked(HttpContext context, Guid accountId, DateTimeOffset until)
+    {
+        logger.PasswordChangeLocked(accountId, SetRetryAfter(context, until));
+        return AccountResponses.Locked();
+    }
+
+    // Whole seconds, rounded up, so a client that waits that long is not refused again.
+    private long SetRetryAfter(HttpContext context, DateTimeOffset until)
+    {
+        var seconds = Math.Max(1, (long)Math.Ceiling((until - clock.GetUtcNow()).TotalSeconds));
+        context.Response.Headers.RetryAfter = seconds.ToString(System.Globalization.CultureInfo.InvariantCulture);
+        return seconds;
     }
 
     private static void Count(string outcome) =>

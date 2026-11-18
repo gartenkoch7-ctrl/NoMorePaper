@@ -46,4 +46,7 @@ internal static partial class AccountsLog
 
     [LoggerMessage(EventId = 5112, Level = LogLevel.Information, Message = "Account {AccountId} acknowledged that its password was reset with a reset link")]
     public static partial void AdminResetAcknowledged(this ILogger logger, Guid accountId);
+
+    [LoggerMessage(EventId = 5113, Level = LogLevel.Warning, Message = "Account {AccountId} no longer exists; its session was refused: {Action}")]
+    public static partial void AccountGone(this ILogger logger, Guid accountId, string action);
 }

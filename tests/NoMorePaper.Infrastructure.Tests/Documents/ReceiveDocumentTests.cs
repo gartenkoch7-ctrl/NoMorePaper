@@ -46,7 +46,7 @@ public sealed class ReceiveDocumentTests(PostgresFixture postgres) : IDisposable
         Assert.Null(job.LockedUntil);
         Assert.True(job.NextAttemptAt <= DateTimeOffset.UtcNow);
 
-        Assert.Equal(s_content, await File.ReadAllBytesAsync(Path.Combine(_sandbox.FullName, "inbox", id.ToString(), "original.pdf"), Ct));
+        Assert.Equal(s_content, await File.ReadAllBytesAsync(Path.Combine(_sandbox.FullName, "inbox", $"{id}", "original.pdf"), Ct));
     }
 
     [Fact]
@@ -70,7 +70,7 @@ public sealed class ReceiveDocumentTests(PostgresFixture postgres) : IDisposable
 
         var id = await CreateIntake(db).ReceiveAsync("../../outside/secret.pdf", "application/pdf", new MemoryStream(s_content), isPrivate: false, Ct);
 
-        Assert.True(File.Exists(Path.Combine(_sandbox.FullName, "inbox", id.ToString(), "original.pdf")));
+        Assert.True(File.Exists(Path.Combine(_sandbox.FullName, "inbox", $"{id}", "original.pdf")));
         Assert.Equal("secret.pdf", (await db.Documents.AsNoTracking().SingleAsync(d => d.Id == id, Ct)).Files.Single().FileName);
         Assert.Empty(Directory.GetFiles(Path.GetDirectoryName(_sandbox.FullName)!, "secret*"));
     }

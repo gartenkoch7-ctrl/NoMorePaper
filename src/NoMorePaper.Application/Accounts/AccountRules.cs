@@ -15,6 +15,13 @@ public static class AccountRules
 
     public static readonly TimeSpan LockoutDuration = TimeSpan.FromMinutes(5);
 
+    /// <summary>
+    /// A refused sign-in (unknown name or wrong password) is answered no sooner than this, so the
+    /// answer time does not tell whether the name exists. Well above the password hash and the
+    /// failure count write on a small server.
+    /// </summary>
+    public static readonly TimeSpan MinFailedSignInDuration = TimeSpan.FromMilliseconds(300);
+
     /// <summary>An invitation link is valid this long, and only once.</summary>
     public static readonly TimeSpan InvitationLifetime = TimeSpan.FromDays(7);
 

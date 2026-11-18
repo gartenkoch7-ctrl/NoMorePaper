@@ -37,5 +37,5 @@ internal static class IdentityOutcome
     }
 
     public static Account ToAccount(AccountUser user) =>
-        new(user.Id, user.UserName ?? string.Empty, user.DisplayName, user.IsAdmin, user.SecurityStamp ?? string.Empty, user.PasswordResetByAdminAt);
+        new(user.Id, user.UserName ?? string.Empty, user.DisplayName, user.IsAdmin, user.SecurityStamp ?? string.Empty);
 }

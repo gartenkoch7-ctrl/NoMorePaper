@@ -86,6 +86,35 @@ public sealed class DataProtectionTests : IDisposable
     }
 
     [Fact]
+    public async Task Start_WithCertificate_RevokesTheUnencryptedKeysFromBefore_Once()
+    {
+        string oldCookie;
+        using (var before = Provider(Settings(certificatePath: null)))
+        {
+            oldCookie = Protector(before).Protect("payload");
+        }
+
+        var settings = Settings(CreateCertificate("keyring.pfx"));
+        using (var after = Provider(settings, Environments.Production))
+        {
+            await StartHostedServices(after);
+
+            Assert.ThrowsAny<CryptographicException>(() => Protector(after).Unprotect(oldCookie));
+            Assert.Equal("new", Protector(after).Unprotect(Protector(after).Protect("new")));
+        }
+
+        using (var restarted = Provider(settings, Environments.Production))
+        {
+            await StartHostedServices(restarted);
+        }
+
+        var keys = KeyFolder.GetFiles("key-*.xml").Select(file => File.ReadAllText(file.FullName)).ToList();
+        Assert.Equal(2, keys.Count);
+        Assert.Single(keys, xml => xml.Contains("encryptedSecret", StringComparison.Ordinal));
+        Assert.Single(KeyFolder.GetFiles("revocation-*.xml"));
+    }
+
+    [Fact]
     public void Composition_FailsWithAClearMessage_WhenTheCertificateCannotBeLoaded()
     {
         var path = Path.Combine(_folder.FullName, "missing.pfx");

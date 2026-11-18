@@ -24,6 +24,12 @@ internal sealed class FakeAccountStore : IAccountStore
 
     public AccountResult<Guid> ResetResult { get; set; } = AccountResult.Success(Someone.Id);
 
+    public AccountResult<Account> ChangeResult { get; set; } = AccountResult.Success(Someone);
+
+    public PasswordCheck CheckResult { get; set; } = PasswordCheck.Failure(null);
+
+    public List<AdminReset> AdminResets { get; } = [];
+
     public Task<bool> AnyAccountAsync(CancellationToken cancellationToken) => Task.FromResult(HasAccounts);
 
     public Task<AccountResult<HouseholdSetUp>> SetUpAsync(NewAccount administrator, string emergencyCodeHash, CancellationToken cancellationToken)
@@ -35,10 +41,12 @@ internal sealed class FakeAccountStore : IAccountStore
     public Task<PasswordCheck> CheckPasswordAsync(string userName, string password, CancellationToken cancellationToken)
     {
         Calls.Add($"{nameof(CheckPasswordAsync)}:{userName}");
-        return Task.FromResult(PasswordCheck.Failure(null));
+        return Task.FromResult(CheckResult);
     }
 
     public Task<Account?> FindAsync(Guid id, CancellationToken cancellationToken) => Task.FromResult<Account?>(KnownAccount ? Someone : null);
+
+    public Task<bool> ExistsAsync(Guid id, CancellationToken cancellationToken) => Task.FromResult(KnownAccount);
 
     public Task<IReadOnlyList<Account>> ListAsync(CancellationToken cancellationToken)
     {
@@ -61,7 +69,7 @@ internal sealed class FakeAccountStore : IAccountStore
     public Task<AccountResult<Account>> ChangePasswordAsync(Guid id, string currentPassword, string newPassword, CancellationToken cancellationToken)
     {
         Calls.Add(nameof(ChangePasswordAsync));
-        return Task.FromResult(AccountResult.Success(Someone));
+        return Task.FromResult(ChangeResult);
     }
 
     public Task AddInvitationAsync(string tokenHash, Guid createdBy, DateTimeOffset expiresAt, CancellationToken cancellationToken)
@@ -94,9 +102,16 @@ internal sealed class FakeAccountStore : IAccountStore
         return Task.FromResult(ResetResult);
     }
 
-    public Task<bool> ClearAdminResetAsync(Guid id, CancellationToken cancellationToken)
+    public Task<IReadOnlyList<AdminReset>> ListAdminResetsAsync(Guid id, CancellationToken cancellationToken)
     {
-        Calls.Add(nameof(ClearAdminResetAsync));
+        Calls.Add(nameof(ListAdminResetsAsync));
+        return Task.FromResult<IReadOnlyList<AdminReset>>(AdminResets);
+    }
+
+    public Task<bool> AcknowledgeAdminResetsAsync(Guid id, DateTimeOffset now, CancellationToken cancellationToken)
+    {
+        Calls.Add(nameof(AcknowledgeAdminResetsAsync));
+        Expiries.Add(now);
         return Task.FromResult(KnownAccount);
     }
 
