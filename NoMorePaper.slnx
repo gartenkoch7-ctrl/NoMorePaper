@@ -1,0 +1,17 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/NoMorePaper.Application/NoMorePaper.Application.csproj" />
+    <Project Path="src/NoMorePaper.Contracts/NoMorePaper.Contracts.csproj" />
+    <Project Path="src/NoMorePaper.Domain/NoMorePaper.Domain.csproj" />
+    <Project Path="src/NoMorePaper.Infrastructure/NoMorePaper.Infrastructure.csproj" />
+    <Project Path="src/NoMorePaper.Server/NoMorePaper.Server.csproj" />
+    <Project Path="src/NoMorePaper.Web.Client/NoMorePaper.Web.Client.csproj" />
+    <Project Path="src/NoMorePaper.Worker/NoMorePaper.Worker.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/NoMorePaper.Architecture.Tests/NoMorePaper.Architecture.Tests.csproj" />
+    <Project Path="tests/NoMorePaper.Domain.Tests/NoMorePaper.Domain.Tests.csproj" />
+    <Project Path="tests/NoMorePaper.Infrastructure.Tests/NoMorePaper.Infrastructure.Tests.csproj" />
+    <Project Path="tests/NoMorePaper.UI.Tests/NoMorePaper.UI.Tests.csproj" />
+  </Folder>
+</Solution>

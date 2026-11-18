@@ -1,0 +1,24 @@
+# .NET
+bin/
+obj/
+*.user
+*.suo
+*.binlog
+TestResults/
+artifacts/
+
+# IDEs
+.vs/
+.idea/
+
+# Node
+node_modules/
+
+# Playwright
+playwright-report/
+test-results/
+.playwright/
+
+# Secrets and local configuration
+.env
+!.env.example

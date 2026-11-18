@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <OutputType>Exe</OutputType>
+    <IsTestProject>true</IsTestProject>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\NoMorePaper.Domain\NoMorePaper.Domain.csproj" />
+    <ProjectReference Include="..\..\src\NoMorePaper.Application\NoMorePaper.Application.csproj" />
+    <ProjectReference Include="..\..\src\NoMorePaper.Infrastructure\NoMorePaper.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\src\NoMorePaper.Contracts\NoMorePaper.Contracts.csproj" />
+    <ProjectReference Include="..\..\src\NoMorePaper.Server\NoMorePaper.Server.csproj" />
+    <ProjectReference Include="..\..\src\NoMorePaper.Worker\NoMorePaper.Worker.csproj" />
+    <ProjectReference Include="..\..\src\NoMorePaper.Web.Client\NoMorePaper.Web.Client.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="xunit.v3" />
+    <PackageReference Include="NetArchTest.Rules" />
+  </ItemGroup>
+</Project>
