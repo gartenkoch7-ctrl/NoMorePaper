@@ -5,8 +5,8 @@ builder.AddServer();
 
 var app = builder.Build();
 
-// The WASM client is served as static assets; unknown routes fall back to the SPA shell.
-app.UseBlazorFrameworkFiles();
+// The WASM client (incl. _framework) is served by MapStaticAssets; UseBlazorFrameworkFiles must not
+// be added on top of it, it breaks the _framework endpoints with HTTP 500 in .NET 10.
 app.MapStaticAssets();
 app.MapHealthChecks("/health");
 app.MapFallbackToFile("index.html");
