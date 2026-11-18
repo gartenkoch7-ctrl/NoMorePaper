@@ -171,4 +171,85 @@
   <data name="ErrorUnreachable" xml:space="preserve">
     <value>The server cannot be reached or answered unexpectedly.</value>
   </data>
+  <data name="ViewerTitle" xml:space="preserve">
+    <value>{0} – NoMorePaper</value>
+  </data>
+  <data name="ViewerTitleLoading" xml:space="preserve">
+    <value>Document – NoMorePaper</value>
+  </data>
+  <data name="ViewerHeading" xml:space="preserve">
+    <value>Document</value>
+  </data>
+  <data name="ViewerLoading" xml:space="preserve">
+    <value>Loading document …</value>
+  </data>
+  <data name="ViewerLoadError" xml:space="preserve">
+    <value>The document could not be loaded. {0}</value>
+  </data>
+  <data name="ViewerStatus" xml:space="preserve">
+    <value>Status: {0}</value>
+  </data>
+  <data name="ViewerDownloads" xml:space="preserve">
+    <value>Download</value>
+  </data>
+  <data name="DownloadOriginal" xml:space="preserve">
+    <value>Download original</value>
+  </data>
+  <data name="DownloadArchive" xml:space="preserve">
+    <value>Download archive PDF (PDF/A)</value>
+  </data>
+  <data name="ViewerNotYet" xml:space="preserve">
+    <value>The document is still being processed. It will be shown here once it is done. You can already download the original.</value>
+  </data>
+  <data name="ViewerFailed" xml:space="preserve">
+    <value>The document could not be processed and therefore cannot be shown. You can download the original.</value>
+  </data>
+  <data name="ViewerShowError" xml:space="preserve">
+    <value>The document could not be shown. You can download it.</value>
+  </data>
+  <data name="ViewerToolbar" xml:space="preserve">
+    <value>View</value>
+  </data>
+  <data name="ViewerPages" xml:space="preserve">
+    <value>Pages</value>
+  </data>
+  <data name="ZoomOut" xml:space="preserve">
+    <value>Zoom out</value>
+  </data>
+  <data name="ZoomIn" xml:space="preserve">
+    <value>Zoom in</value>
+  </data>
+  <data name="ZoomReset" xml:space="preserve">
+    <value>100 %</value>
+  </data>
+  <data name="FitWidth" xml:space="preserve">
+    <value>Fit width</value>
+  </data>
+  <data name="OriginalColors" xml:space="preserve">
+    <value>Original colours</value>
+  </data>
+  <data name="PreviousPage" xml:space="preserve">
+    <value>Previous page</value>
+  </data>
+  <data name="NextPage" xml:space="preserve">
+    <value>Next page</value>
+  </data>
+  <data name="ViewerZoom" xml:space="preserve">
+    <value>Zoom {0} %</value>
+  </data>
+  <data name="ViewerPageOf" xml:space="preserve">
+    <value>Page {0} of {1}</value>
+  </data>
+  <data name="ViewerNoText" xml:space="preserve">
+    <value>This page has no text that a screen reader can read.</value>
+  </data>
+  <data name="ViewerRegion" xml:space="preserve">
+    <value>Document page</value>
+  </data>
+  <data name="ViewerKeys" xml:space="preserve">
+    <value>Keys: Ctrl + Plus and Ctrl + Minus zoom, Ctrl + 0 shows 100 %. The arrow keys move the page, Page Up and Page Down turn pages. Ctrl + mouse wheel zooms around the mouse pointer.</value>
+  </data>
+  <data name="ThumbnailAlt" xml:space="preserve">
+    <value>Preview: {0}</value>
+  </data>
 </root>

@@ -31,8 +31,10 @@ else if (_hits is not null)
         <p class="search-summary">@CountText(_hits.Length, _searched ?? string.Empty)</p>
         @foreach (var hit in _hits)
         {
-            <article class="search-hit">
-                <MudText Typo="Typo.h2"><a href="@DocumentLinks.Of(hit.Id)">@hit.Title</a></MudText>
+            <article class="search-hit" @key="hit.Id">
+                <MudText Typo="Typo.h2"><a href="@DocumentLinks.Viewer(hit.Id)">@hit.Title</a></MudText>
+                @* Hits come from the OCR text, so the document is done and has its PDF/A. *@
+                <Thumbnail Source="@DocumentLinks.Archive(hit.Id)" Title="@hit.Title" />
                 @* The snippet is plain text from the server and is rendered as text, never as HTML. *@
                 <p>@hit.Snippet</p>
                 <p class="search-hit-date">@L["SearchReceived", hit.ReceivedAt.ToLocalTime().ToString("g", CultureInfo.CurrentCulture)]</p>

@@ -32,6 +32,14 @@ docker compose up -d --build
 - Die UI-Tests starten Postgres über Testcontainers und den echten Server.
 - Optional: Die Umgebungsvariable `NOMOREPAPER_UI_TESTS_BASE_URL` lässt die Tests gegen einen
   bereits laufenden Server laufen.
+- **WebGL im headless Chromium (Viewer, Pixeltest):** Playwright startet Chromium schon mit
+  `--enable-unsafe-swiftshader`; WebGL2 läuft dann ohne GPU über SwiftShader (ANGLE/Vulkan), lokal
+  unter Windows genauso wie in CI auf `ubuntu-latest`. Eigene Startoptionen braucht
+  `ServerFixture` dafür nicht. Gemessen 2026-11-18: SwiftShader und RTX 3060 Ti (D3D11, nur mit
+  `--use-angle=d3d11 --enable-gpu --ignore-gpu-blocklist`) liefern dieselben Pixel
+  (Weiß → `#000000`, Rot `#c62828` → `#fe7368`, Foto unverändert).
+- In headless Chromium kommt `Strg` + Mausrad aus Playwright (`Mouse.WheelAsync` bei gedrückter
+  Taste) nicht bei der Seite an; der Viewer-Test schickt das `WheelEvent` deshalb per Skript.
 
 ## EF-Migrationen
 - Liegen in [src/NoMorePaper.Infrastructure/Persistence/Migrations](../../src/NoMorePaper.Infrastructure/Persistence/Migrations/).

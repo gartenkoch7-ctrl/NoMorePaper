@@ -1,0 +1,74 @@
+@page "/dokumente/{Id:guid}"
+@implements IAsyncDisposable
+
+<PageTitle>@(_detail is null ? L["ViewerTitleLoading"] : L["ViewerTitle", _detail.Title])</PageTitle>
+
+@if (_detail is null)
+{
+    <MudText Typo="Typo.h1">@L["ViewerHeading"]</MudText>
+    @if (_error is null)
+    {
+        <p role="status">@L["ViewerLoading"]</p>
+    }
+    else
+    {
+        <div role="alert" class="error-box" data-ready>
+            <MudIcon Icon="@Icons.Material.Filled.Error" />
+            <span>@L["ViewerLoadError", _error]</span>
+        </div>
+    }
+}
+else
+{
+    <div class="viewer">
+        <MudText Typo="Typo.h1">@_detail.Title</MudText>
+        <p class="viewer-state">@L["ViewerStatus", L["State" + _detail.State]]</p>
+        <ul class="viewer-downloads" aria-label="@L["ViewerDownloads"]">
+            <li><a href="@DocumentLinks.Original(Id)" download>@L["DownloadOriginal"]</a></li>
+            @if (_detail.Archive is not null)
+            {
+                <li><a href="@DocumentLinks.Archive(Id)" download>@L["DownloadArchive"]</a></li>
+            }
+        </ul>
+
+        <LiveRegion @ref="_announcer" />
+
+        @if (_source is null)
+        {
+            <p data-ready>@(_detail.State == DocumentProcessingState.Failed ? L["ViewerFailed"] : L["ViewerNotYet"])</p>
+        }
+        else if (_showFailed)
+        {
+            <div role="alert" class="error-box" data-ready>
+                <MudIcon Icon="@Icons.Material.Filled.Error" />
+                <span>@L["ViewerShowError"]</span>
+            </div>
+        }
+        else
+        {
+            <div class="viewer-toolbar" role="group" aria-label="@L["ViewerToolbar"]">
+                <button type="button" @onclick="ZoomOutAsync">@L["ZoomOut"]</button>
+                <button type="button" @onclick="ZoomInAsync">@L["ZoomIn"]</button>
+                <button type="button" @onclick="ResetZoomAsync">@L["ZoomReset"]</button>
+                <button type="button" @onclick="FitWidthAsync">@L["FitWidth"]</button>
+                <button type="button" aria-pressed="@(_originalColors ? "true" : "false")" @onclick="ToggleOriginalColorsAsync">@L["OriginalColors"]</button>
+                <span class="viewer-zoom">@ZoomText</span>
+            </div>
+            <div class="viewer-toolbar" role="group" aria-label="@L["ViewerPages"]">
+                <button type="button" @onclick="() => GoToPageAsync(-1)">@L["PreviousPage"]</button>
+                <span class="viewer-page">@PageText</span>
+                <button type="button" @onclick="() => GoToPageAsync(1)">@L["NextPage"]</button>
+            </div>
+            <p id="viewer-keys" class="viewer-keys">@L["ViewerKeys"]</p>
+            @if (_state is { HasText: false })
+            {
+                <p class="viewer-no-text">@L["ViewerNoText"]</p>
+            }
+
+            <div class="viewer-stage" @ref="_stage" data-ready="@(_state is null ? null : "true")">
+                <div class="viewer-canvas"></div>
+                <section class="viewer-scroller" tabindex="0" aria-label="@L["ViewerRegion"]" aria-describedby="viewer-keys"></section>
+            </div>
+        }
+    </div>
+}

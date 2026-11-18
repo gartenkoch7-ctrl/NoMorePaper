@@ -171,4 +171,85 @@
   <data name="ErrorUnreachable" xml:space="preserve">
     <value>Der Server ist nicht erreichbar oder hat unerwartet geantwortet.</value>
   </data>
+  <data name="ViewerTitle" xml:space="preserve">
+    <value>{0} – NoMorePaper</value>
+  </data>
+  <data name="ViewerTitleLoading" xml:space="preserve">
+    <value>Dokument – NoMorePaper</value>
+  </data>
+  <data name="ViewerHeading" xml:space="preserve">
+    <value>Dokument</value>
+  </data>
+  <data name="ViewerLoading" xml:space="preserve">
+    <value>Dokument wird geladen …</value>
+  </data>
+  <data name="ViewerLoadError" xml:space="preserve">
+    <value>Das Dokument konnte nicht geladen werden. {0}</value>
+  </data>
+  <data name="ViewerStatus" xml:space="preserve">
+    <value>Status: {0}</value>
+  </data>
+  <data name="ViewerDownloads" xml:space="preserve">
+    <value>Herunterladen</value>
+  </data>
+  <data name="DownloadOriginal" xml:space="preserve">
+    <value>Original herunterladen</value>
+  </data>
+  <data name="DownloadArchive" xml:space="preserve">
+    <value>Archiv-PDF (PDF/A) herunterladen</value>
+  </data>
+  <data name="ViewerNotYet" xml:space="preserve">
+    <value>Das Dokument wird noch verarbeitet. Die Ansicht erscheint, sobald es fertig ist. Das Original kannst du schon herunterladen.</value>
+  </data>
+  <data name="ViewerFailed" xml:space="preserve">
+    <value>Das Dokument konnte nicht verarbeitet werden und lässt sich deshalb nicht anzeigen. Das Original kannst du herunterladen.</value>
+  </data>
+  <data name="ViewerShowError" xml:space="preserve">
+    <value>Das Dokument konnte nicht angezeigt werden. Du kannst es herunterladen.</value>
+  </data>
+  <data name="ViewerToolbar" xml:space="preserve">
+    <value>Ansicht</value>
+  </data>
+  <data name="ViewerPages" xml:space="preserve">
+    <value>Seiten</value>
+  </data>
+  <data name="ZoomOut" xml:space="preserve">
+    <value>Verkleinern</value>
+  </data>
+  <data name="ZoomIn" xml:space="preserve">
+    <value>Vergrößern</value>
+  </data>
+  <data name="ZoomReset" xml:space="preserve">
+    <value>100 %</value>
+  </data>
+  <data name="FitWidth" xml:space="preserve">
+    <value>Breite anpassen</value>
+  </data>
+  <data name="OriginalColors" xml:space="preserve">
+    <value>Originalfarben</value>
+  </data>
+  <data name="PreviousPage" xml:space="preserve">
+    <value>Vorherige Seite</value>
+  </data>
+  <data name="NextPage" xml:space="preserve">
+    <value>Nächste Seite</value>
+  </data>
+  <data name="ViewerZoom" xml:space="preserve">
+    <value>Zoom {0} %</value>
+  </data>
+  <data name="ViewerPageOf" xml:space="preserve">
+    <value>Seite {0} von {1}</value>
+  </data>
+  <data name="ViewerNoText" xml:space="preserve">
+    <value>Diese Seite hat keinen Text, den ein Screenreader vorlesen kann.</value>
+  </data>
+  <data name="ViewerRegion" xml:space="preserve">
+    <value>Dokumentseite</value>
+  </data>
+  <data name="ViewerKeys" xml:space="preserve">
+    <value>Tasten: Strg + Plus und Strg + Minus zoomen, Strg + 0 zeigt 100 %. Die Pfeiltasten bewegen die Seite, Bild auf und Bild ab blättern. Mit Strg + Mausrad zoomst du um den Mauszeiger.</value>
+  </data>
+  <data name="ThumbnailAlt" xml:space="preserve">
+    <value>Vorschau: {0}</value>
+  </data>
 </root>
