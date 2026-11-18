@@ -1,0 +1,55 @@
+# Betrieb
+
+Einrichtung und Pflege des laufenden Stacks. Entscheidungen: [ADR-0002](../adr/0002-lokal-und-tailscale.md),
+[ADR-0015](../adr/0015-data-protection-schluessel-verschluesselt.md),
+[ADR-0020](../adr/0020-https-ueber-tailscale-serve.md).
+
+## Erstinstallation
+1. Repository klonen, `.env.example` nach `.env` kopieren (`.env` ist git-ignoriert).
+2. `POSTGRES_PASSWORD` setzen: lang, zufällig, nur Buchstaben und Ziffern.
+3. Schlüsselring-Zertifikat erzeugen (nächster Abschnitt) und die zwei ausgegebenen Zeilen in `.env` eintragen.
+4. `docker compose up -d --build`; `docker compose ps` zeigt Server und Worker als `healthy`.
+
+## Schlüsselring-Zertifikat
+Zugangsdaten (IMAP, CalDAV, …) werden mit ASP.NET Data Protection verschlüsselt. Der Schlüsselring im
+Volume `dpkeys` ist selbst mit einem Zertifikat verschlüsselt, damit ein Backup der Volumes nicht
+Daten **und** Schlüssel enthält.
+
+```powershell
+powershell -NoProfile -File scripts/new-keyring-certificate.ps1 -OutputDirectory C:\Secrets\nomorepaper
+```
+
+- Das Skript schreibt `keyring.pfx` (RSA 3072, 10 Jahre, zufälliges Passwort) und gibt
+  `NOMOREPAPER_KEYRING_CERT` und `NOMOREPAPER_KEYRING_CERT_PASSWORD` für `.env` aus. Das Passwort wird nur einmal angezeigt.
+- Die Datei liegt **außerhalb** des Repositorys und der Docker-Volumes; Compose bindet sie lesend nach
+  `/run/secrets/keyring.pfx` ein. Auf Linux-Hosts muss sie für die UID des Containers (`APP_UID`, 1654) lesbar sein.
+- Datei **und** Passwort **getrennt** von den Daten-Backups sichern (z. B. Passwortmanager). Ohne sie sind
+  wiederhergestellte Schlüssel unlesbar und gespeicherte Zugangsdaten verloren.
+- Fehlt das Zertifikat, starten Server und Worker nicht (Ausnahme: `ASPNETCORE_ENVIRONMENT=Development`,
+  nur für Entwicklung und Tests). Die Meldung nennt `NoMorePaper__KeyRingCertificatePath`.
+- Ein Zertifikatwechsel wird noch nicht unterstützt: schon verschlüsselte Schlüssel bleiben nur mit dem
+  alten Zertifikat lesbar (Restore-Anleitung in M7).
+
+## Zugriff von unterwegs (Tailscale)
+Einmalig auf dem Host, nicht im Container:
+
+```bash
+tailscale serve --bg --https=443 http://127.0.0.1:8080
+tailscale serve status
+```
+
+1. In der Tailscale-Verwaltung MagicDNS und HTTPS-Zertifikate aktivieren.
+2. Den MagicDNS-Namen des Hosts (`host.tailnet-name.ts.net`) in `.env` eintragen:
+   `NOMOREPAPER_ALLOWED_HOSTS=localhost;127.0.0.1;host.tailnet-name.ts.net`, dann `docker compose up -d`.
+3. Kein `tailscale funnel`: der Dienst bleibt außerhalb des Tailnets unerreichbar.
+
+Der Server übernimmt `X-Forwarded-*` nur von `127.0.0.1`/`::1`. Siehe ADR-0020 zur Einschränkung bei NAT.
+
+## Prüfliste nach Änderungen
+- [ ] `docker compose ps`: `db`, `server`, `worker` healthy.
+- [ ] Server-Log enthält „Key ring is encrypted with the certificate …“ (Ereignis 3400), keine Warnung 3401.
+- [ ] Schlüsseldateien im Volume enthalten `encryptedSecret`, kein `<masterKey>` im Klartext:
+      `docker run --rm -v nomorepaper_dpkeys:/k alpine sh -c "grep -L encryptedSecret /k/key-*.xml"` gibt nichts aus.
+- [ ] `http://127.0.0.1:8080/health` antwortet; der MagicDNS-Name über HTTPS antwortet.
+- [ ] Ein fremder Hostname wird mit 400 abgelehnt (`AllowedHosts`).
+- [ ] Zertifikat und Passwort liegen getrennt von den Backups.

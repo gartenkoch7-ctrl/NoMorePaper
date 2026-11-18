@@ -84,6 +84,8 @@ und Annahme (3200–3204) sind nach Application umgezogen und haben ihre Nummern
 | 3302 | Information | `Infrastructure/Ocr/OcrLog` | Werkzeug wegen Abbruch (Herunterfahren) beendet |
 | 3303 | Information | `Infrastructure/Ocr/OcrLog` | Erkannter Text auf die Höchstlänge (Zeichen) gekürzt |
 | 3304 | Warning | `Infrastructure/Ocr/OcrLog` | OCR-Arbeitsordner nicht gelöscht (nur Ausnahmetyp); nur Platzverlust |
+| 3400 | Information | `Infrastructure/Composition/KeyRingCertificateGuard` | Schlüsselring mit Zertifikat verschlüsselt, Fingerabdruck (kein Geheimnis) |
+| 3401 | Warning | `Infrastructure/Composition/KeyRingCertificateGuard` | Kein Zertifikat konfiguriert, Schlüsselring unverschlüsselt (nur Development) |
 | 4000 | Information | `Web.Client/Telemetry/WebClientLog` | Kultur (Sprache) angewendet |
 | 4001 | Warning | `Web.Client/Telemetry/WebClientLog` | Gespeicherte Sprache wird nicht unterstützt, Standard wird genommen |
 | 4002 | Warning | `Web.Client/Telemetry/WebClientLog` | Sprachpräferenz nicht lesbar oder nicht speicherbar |
