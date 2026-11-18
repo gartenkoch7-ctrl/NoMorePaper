@@ -3,6 +3,7 @@ using NoMorePaper.Domain.Documents;
 namespace NoMorePaper.Application.Documents;
 
 /// <summary>A single document with its files; <paramref name="Archive"/> is <c>null</c> until processing is done.</summary>
+/// <param name="IsMine">Whether the account that asked owns the document.</param>
 public sealed record DocumentDetail(
     Guid Id,
     string Title,
@@ -10,4 +11,6 @@ public sealed record DocumentDetail(
     ProcessingState State,
     string? FailureReason,
     DocumentFile Original,
-    DocumentFile? Archive);
+    DocumentFile? Archive,
+    bool IsPrivate,
+    bool IsMine);

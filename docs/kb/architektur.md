@@ -33,6 +33,19 @@ Handy/PC ──Tailscale──► server ──► postgres ◄── worker ─
 5. **Kalender:** Der Worker schreibt bestätigte bzw. automatisch übernommene Fristen per CalDAV
    in den iCloud-Kalender des Kontos und merkt sich die Termin-UID (ADR-0012).
 
+## Anwendungsfälle und Ports (seit M2)
+- **Application** enthält die Anwendungsfälle als Klassen mit einer Methode: `ReceiveDocument`,
+  `ListDocuments`, `GetDocument`, `OpenDocumentFile`, `SearchDocuments` (Server) und
+  `ProcessNextDocument` (Worker). Sie arbeiten nur über Ports aus Application: `IDocumentRepository`,
+  `IDocumentStorage`, `ISearchIndex`, `IJobQueue`, `IOcrEngine`, `IWorkingFolder`; für Betrieb
+  `IHeartbeatStore`, `ISchemaMigrator`, `IDatabaseProbe`.
+- **Infrastructure** setzt die Ports um (`EfDocumentRepository`, `FileSystemDocumentStorage`,
+  `PostgresSearchIndex`, `JobQueue`, `OcrMyPdfEngine`, …); `IWorkingFolder` setzt der Worker selbst um.
+- **Registrierung:** `AddInfrastructure` (Ports), `AddApplication` (Anwendungsfälle des Servers),
+  `AddDocumentProcessing` (`ProcessNextDocument`, nur Worker, braucht OCR und Arbeitsordner).
+- Server und Worker nennen Infrastructure-Typen nur in `Composition/` (Architekturtest). Grenzen
+  wie Seitengröße 1–100, Suchlimit 1–50 und Anfrage ≤ 200 Zeichen setzen die Anwendungsfälle.
+
 ## Dokumentablage und Schema (M1)
 - **Ablage** (`IDocumentStorage`, umgesetzt von `FileSystemDocumentStorage`): Wurzel aus
   `NoMorePaper:DataPath` (Werk `/data`). Eingang `inbox/<id>/original.<ext>`, Archiv
@@ -46,7 +59,7 @@ Handy/PC ──Tailscale──► server ──► postgres ◄── worker ─
   der Ordner geflusht ist. `IDirectorySync` ruft nach jedem Umbenennen `fsync` auf Zielordner und
   dessen Elternordner auf (`LibcDirectorySync`, unter glibc und musl/Alpine geprüft); unter Windows
   wählt `AddInfrastructure` `NoDirectorySync`, das nichts tut.
-- **Annahme:** `DocumentIntake` committet mit `CancellationToken.None` – ein abgebrochener Upload
+- **Annahme:** `ReceiveDocument` committet mit `CancellationToken.None` – ein abgebrochener Upload
   darf einen schon laufenden Commit nicht abbrechen. Nach einem Fehler beim Commit wird die
   Eingangsdatei nur gelöscht, wenn sicher keine Zeile in `documents` existiert (Ereignisse 3203/3204).
 - **Windows-Eigenheit:** Eine Datei, die gerade gelesen wird, lässt sich unter Windows nicht

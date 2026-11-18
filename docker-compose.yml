@@ -15,6 +15,8 @@ x-dotnet-service: &dotnet-service
   volumes:
     - data:/data
     - dpkeys:/dpkeys
+    # Key ring certificate (ADR-0015): a file outside the volumes, mounted read-only.
+    - ${NOMOREPAPER_KEYRING_CERT:?Set NOMOREPAPER_KEYRING_CERT in .env (scripts/new-keyring-certificate.ps1)}:/run/secrets/keyring.pfx:ro
 
 services:
   db:
@@ -42,6 +44,13 @@ services:
     environment:
       ConnectionStrings__NoMorePaper: Host=db;Port=5432;Database=nomorepaper;Username=nomorepaper;Password=${POSTGRES_PASSWORD};GSS Encryption Mode=Disable
       OTEL_EXPORTER_OTLP_ENDPOINT: ${OTEL_EXPORTER_OTLP_ENDPOINT:-}
+      NoMorePaper__KeyRingCertificatePath: /run/secrets/keyring.pfx
+      NoMorePaper__KeyRingCertificatePassword: ${NOMOREPAPER_KEYRING_CERT_PASSWORD:?Set NOMOREPAPER_KEYRING_CERT_PASSWORD in .env}
+      # Host names served (docs/kb/betrieb.md); add the Tailscale MagicDNS name there.
+      AllowedHosts: ${NOMOREPAPER_ALLOWED_HOSTS:-localhost;127.0.0.1}
+      # tailscale serve on the host reaches the container through Docker's NAT, i.e. from the bridge
+      # network; its X-Forwarded-* headers are trusted from there (the port is bound to 127.0.0.1 only).
+      NoMorePaper__TrustedProxies: 172.16.0.0/12
     ports:
       # Loopback only; never 0.0.0.0. Tailscale on the host forwards remote access.
       - "127.0.0.1:${NOMOREPAPER_PORT:-8080}:8080"
@@ -66,6 +75,8 @@ services:
     environment:
       ConnectionStrings__NoMorePaper: Host=db;Port=5432;Database=nomorepaper;Username=nomorepaper;Password=${POSTGRES_PASSWORD};GSS Encryption Mode=Disable
       OTEL_EXPORTER_OTLP_ENDPOINT: ${OTEL_EXPORTER_OTLP_ENDPOINT:-}
+      NoMorePaper__KeyRingCertificatePath: /run/secrets/keyring.pfx
+      NoMorePaper__KeyRingCertificatePassword: ${NOMOREPAPER_KEYRING_CERT_PASSWORD:?Set NOMOREPAPER_KEYRING_CERT_PASSWORD in .env}
     # No published port: /health is only for the container healthcheck.
     depends_on:
       server:

@@ -1,4 +1,6 @@
+using System.Net.Http.Json;
 using Microsoft.Playwright;
+using NoMorePaper.Contracts.Accounts;
 using NoMorePaper.UI.Tests.Hosting;
 using NoMorePaper.Web.Client.Localization;
 using Testcontainers.PostgreSql;
@@ -34,6 +36,15 @@ public sealed class ServerFixture : IAsyncLifetime
     private IPlaywright? _playwright;
     private IBrowser? _browser;
 
+    /// <summary>The administrator the fixture creates (or finds, on an external server).</summary>
+    public const string AdminUserName = "testadmin";
+
+    /// <summary>Test-only password of <see cref="AdminUserName"/>; the server runs in a throw-away database.</summary>
+    public const string AdminPassword = "Testpasswort-2026";
+
+    /// <summary>Header the server's cross-site guard requires on every call that changes something.</summary>
+    public const string RequestHeader = "X-NoMorePaper-Request";
+
     public Uri BaseAddress => _externalBaseAddress ?? _server?.BaseAddress
         ?? throw new InvalidOperationException("Server not started.");
 
@@ -50,6 +61,7 @@ public sealed class ServerFixture : IAsyncLifetime
         }
 
         await EnsureClientIsServedAsync();
+        await SetUpHouseholdAsync();
         _playwright = await Playwright.CreateAsync();
         _browser = await _playwright.Chromium.LaunchAsync(new BrowserTypeLaunchOptions { Headless = true });
     }
@@ -85,12 +97,53 @@ public sealed class ServerFixture : IAsyncLifetime
         }
     }
 
+    // A fresh database needs the household first; against an external server it may exist already.
+    private async Task SetUpHouseholdAsync()
+    {
+        using var client = new HttpClient { BaseAddress = BaseAddress };
+        var setup = await client.GetFromJsonAsync<SetupStatusDto>(new Uri("api/setup", UriKind.Relative))
+            ?? throw new InvalidOperationException("The server answered GET api/setup without a body.");
+        if (!setup.Needed)
+        {
+            return;
+        }
+
+        using var request = new HttpRequestMessage(HttpMethod.Post, "api/setup")
+        {
+            Content = JsonContent.Create(new SetupDto(AdminUserName, "Test Admin", AdminPassword)),
+        };
+        request.Headers.Add(RequestHeader, "1");
+        using var response = await client.SendAsync(request);
+        response.EnsureSuccessStatusCode();
+    }
+
+    /// <summary>
+    /// Signs <paramref name="context"/> in through the real API; the session cookie lands in the
+    /// context, as after a sign-in on the page.
+    /// </summary>
+    public static async Task SignInAsync(IBrowserContext context, string userName, string password)
+    {
+        ArgumentNullException.ThrowIfNull(context);
+        var response = await context.APIRequest.PostAsync("api/auth/login", new APIRequestContextOptions
+        {
+            DataObject = new SignInDto(userName, password),
+            Headers = new Dictionary<string, string> { [RequestHeader] = "1" },
+        });
+        if (!response.Ok)
+        {
+            throw new InvalidOperationException($"Test sign-in failed with HTTP {response.Status}.");
+        }
+    }
+
     /// <summary>
     /// Opens <paramref name="path"/> in a fresh browser context and waits until the WASM app has
     /// rendered its H1. With <paramref name="culture"/> set, that language is preselected the way
-    /// the language switch stores it; with null the app starts with nothing stored.
+    /// the language switch stores it; with null the app starts with nothing stored. The context is
+    /// signed in as the test administrator unless <paramref name="signedIn"/> is false;
+    /// <paramref name="prepare"/> runs on the page before it navigates (to mock API calls).
     /// </summary>
-    public async Task<BrowserSession> OpenAsync(string path, string? culture = null)
+    public async Task<BrowserSession> OpenAsync(
+        string path, string? culture = null, bool signedIn = true, Func<IPage, Task>? prepare = null)
     {
         var browser = _browser ?? throw new InvalidOperationException("Browser not started.");
         var context = await browser.NewContextAsync(new BrowserNewContextOptions
@@ -109,7 +162,17 @@ public sealed class ServerFixture : IAsyncLifetime
                     $"localStorage.setItem('{LocalStorageCulturePreference.StorageKey}', '{culture}');");
             }
 
+            if (signedIn)
+            {
+                await SignInAsync(context, AdminUserName, AdminPassword);
+            }
+
             var page = await context.NewPageAsync();
+            if (prepare is not null)
+            {
+                await prepare(page);
+            }
+
             await page.GotoAsync(path);
             await page.Locator("h1").WaitForAsync(new LocatorWaitForOptions { State = WaitForSelectorState.Visible });
             return new BrowserSession(context, page);

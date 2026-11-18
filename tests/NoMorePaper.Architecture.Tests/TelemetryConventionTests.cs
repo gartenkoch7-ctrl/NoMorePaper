@@ -11,12 +11,16 @@ namespace NoMorePaper.Architecture.Tests;
 /// </summary>
 public sealed partial class TelemetryConventionTests
 {
-    private static readonly Dictionary<string, (int Min, int Max)> s_eventRanges = new(StringComparer.Ordinal)
+    private static readonly Dictionary<string, (int Min, int Max)[]> s_eventRanges = new(StringComparer.Ordinal)
     {
-        ["NoMorePaper.Server"] = (1000, 1999),
-        ["NoMorePaper.Worker"] = (2000, 2999),
-        ["NoMorePaper.Infrastructure"] = (3000, 3999),
-        ["NoMorePaper.Web.Client"] = (4000, 4999),
+        ["NoMorePaper.Server"] = [(1000, 1999)],
+        ["NoMorePaper.Worker"] = [(2000, 2999)],
+        ["NoMorePaper.Infrastructure"] = [(3000, 3999)],
+        ["NoMorePaper.Web.Client"] = [(4000, 4999)],
+
+        // Processing (2101–2111) and intake (3200–3204) moved here from Worker and Infrastructure in
+        // M2 step 0 and kept their ids, so dashboards and the catalog stay valid.
+        ["NoMorePaper.Application"] = [(5000, 5999), (2101, 2111), (3200, 3204)],
     };
 
     [Fact]
@@ -44,7 +48,8 @@ public sealed partial class TelemetryConventionTests
 
         var duplicates = ids.GroupBy(found => found.Id).Where(group => group.Count() > 1).Select(group => group.Key).ToList();
         var outOfRange = ids
-            .Where(found => !s_eventRanges.TryGetValue(found.Project, out var range) || found.Id < range.Min || found.Id > range.Max)
+            .Where(found => !s_eventRanges.TryGetValue(found.Project, out var ranges)
+                || !ranges.Any(range => found.Id >= range.Min && found.Id <= range.Max))
             .Select(found => $"{found.Id} ({found.Project})")
             .ToList();
 

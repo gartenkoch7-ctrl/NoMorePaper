@@ -1,5 +1,5 @@
 using System.Diagnostics;
-using NoMorePaper.Infrastructure.Heartbeat;
+using NoMorePaper.Application.Heartbeat;
 using NoMorePaper.Worker.Telemetry;
 
 namespace NoMorePaper.Worker.Heartbeat;
@@ -33,7 +33,7 @@ internal sealed class HeartbeatWriter(IServiceScopeFactory scopes, TimeProvider 
             var scope = scopes.CreateAsyncScope();
             await using (scope.ConfigureAwait(false))
             {
-                var store = scope.ServiceProvider.GetRequiredService<HeartbeatStore>();
+                var store = scope.ServiceProvider.GetRequiredService<IHeartbeatStore>();
                 await store.RecordAsync(HeartbeatSchedule.WorkerName, time.GetUtcNow(), stoppingToken).ConfigureAwait(false);
             }
         }

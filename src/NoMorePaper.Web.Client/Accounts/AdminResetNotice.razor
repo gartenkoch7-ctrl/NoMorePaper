@@ -1,0 +1,76 @@
+@using System.Globalization
+@inject IStringLocalizer<Strings> L
+@inject AccountApi Api
+@inject AuthState Auth
+@inject IJSRuntime Js
+@inject ILogger<AdminResetNotice> Logger
+
+@* After the administrator's reset link set the password, the member is told at the next sign-in:
+   someone else may have used the link. The text is an alert and takes focus, so a screen reader
+   reads it first; it stays until "Got it" is pressed. Several resets are each named with date
+   and time, so two on the same day stay apart. *@
+@if (Auth.AdminResets is { Count: > 0 } resets)
+{
+    <section class="reset-notice">
+        <div class="reset-notice-text" role="alert" tabindex="-1" @ref="_text">
+            <MudIcon Icon="@Icons.Material.Filled.Warning" />
+            @if (resets.Count == 1)
+            {
+                <span>@L["AdminResetNotice", resets[0].ToLocalTime().ToString("D", CultureInfo.CurrentCulture)]</span>
+            }
+            else
+            {
+                <div>
+                    <p>@L["AdminResetNoticeMany", resets.Count]</p>
+                    <ul class="reset-notice-dates">
+                        @foreach (var resetAt in resets)
+                        {
+                            <li>@resetAt.ToLocalTime().ToString("f", CultureInfo.CurrentCulture)</li>
+                        }
+                    </ul>
+                    <p>@L["AdminResetNoticeAdvice"]</p>
+                </div>
+            }
+        </div>
+        <MudButton Variant="Variant.Filled" Color="Color.Primary" Disabled="_busy" OnClick="AcknowledgeAsync">@L["AdminResetAcknowledge"]</MudButton>
+        <LiveRegion @ref="_error" Assertive="true" Class="form-error" />
+    </section>
+}
+
+@code {
+    private ElementReference _text;
+    private LiveRegion? _error;
+    private bool _focused;
+    private bool _busy;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!_focused && Auth.AdminResets.Count > 0)
+        {
+            _focused = true;
+            await _text.FocusAsync();
+        }
+    }
+
+    private async Task AcknowledgeAsync()
+    {
+        _busy = true;
+        var result = await Api.AcknowledgeResetAsync();
+        _busy = false;
+        if (!result.IsSuccess)
+        {
+            if (_error is not null)
+            {
+                await _error.Announce(L["ErrorPrefix", result.Error!]);
+            }
+
+            return;
+        }
+
+        Logger.AdminResetAcknowledged();
+        Auth.MarkAdminResetSeen();
+
+        // The notice and its button are gone; the page goes on where its content starts.
+        await Js.InvokeVoidAsync("nmpForms.focusById", "main-content");
+    }
+}

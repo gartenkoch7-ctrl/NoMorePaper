@@ -13,12 +13,16 @@ des Nutzers) und §2.4 (nichts verlässt das eigene Netz). Geprüft durch
   Dauern, Zustände und technische Kennungen. Der Architekturtest weist Platzhalter mit
   verdächtigen Namen (`Path`, `File`, `Name`, `Title`, `Content`, `Mail`, `User`, `Token`, …) ab.
 - **Je Projekt eine `ActivitySource` und ein `Meter`**, beide mit dem Projektnamen
-  (`NoMorePaper.Server`, `NoMorePaper.Worker`, `NoMorePaper.Infrastructure`), definiert in
+  (`NoMorePaper.Server`, `NoMorePaper.Worker`, `NoMorePaper.Application`, `NoMorePaper.Infrastructure`), definiert in
   `<Projekt>/Telemetry/<Projekt>Telemetry.cs`.
 - **Export nur auf Wunsch**: Ohne `OTEL_EXPORTER_OTLP_ENDPOINT` wird OpenTelemetry gar nicht
   registriert – es gibt keinen Export und keine Kosten. Ist die Variable gesetzt, gehen Traces,
   Metriken und Logs per OTLP an diesen Collector; er muss im eigenen Netz stehen.
-- Aufrufe von `/health` erzeugen im Server keine Traces (Filter in der ASP.NET-Core-Instrumentierung).
+- Aufrufe von `/health` erzeugen im Server keine Traces (Filter in der ASP.NET-Core-Instrumentierung),
+  ebenso Pfade mit Einladungs- oder Rücksetz-Token (`/einladung/…`, `/passwort/…`, `/api/invitations/…`,
+  `/api/password-reset/…`), damit kein Token als `url.path` beim Collector landet.
+- **Konten:** Logs nennen nur Konto-Ids – nie Benutzernamen, Anzeigenamen, Passwörter, Cookies, Tokens oder
+  Notfall-Codes. Tokens und Notfall-Codes werden nur als SHA-256 gespeichert.
 
 ## Namen
 Activities und Messinstrumente heißen `nomorepaper.<feature>.<vorgang>`: nur Kleinbuchstaben,
@@ -32,9 +36,11 @@ Ziffern und `_`, mindestens drei Teile, z. B. `nomorepaper.worker.heartbeat`.
 | `NoMorePaper.Worker` | 2000–2999 |
 | `NoMorePaper.Infrastructure` | 3000–3999 |
 | `NoMorePaper.Web.Client` | 4000–4999 |
+| `NoMorePaper.Application` | 5000–5999 |
 
 Innerhalb eines Bereichs bekommt jedes Feature einen eigenen Hunderterblock (z. B. Server-Start
-1000–1099). EventIds sind solutionweit eindeutig.
+1000–1099). EventIds sind solutionweit eindeutig. Ausnahme seit M2 (Schritt 0): Verarbeitung (2101–2111)
+und Annahme (3200–3204) sind nach Application umgezogen und haben ihre Nummern behalten.
 
 ## Katalog
 
@@ -47,21 +53,28 @@ Innerhalb eines Bereichs bekommt jedes Feature einen eigenen Hunderterblock (z. 
 | 1100 | Information | `Server/Documents/DocumentsLog` | Upload angenommen: Dokument-Id, Größe, Medientyp (ohne Dateinamen) |
 | 1101 | Warning | `Server/Documents/DocumentsLog` | Upload abgelehnt: Grund (`too-large`, `empty`, `type-not-allowed`, `not-multipart`, `malformed`) und Größe |
 | 1200 | Warning | `Server/Security/SecurityLog` | Ändernde API-Anfrage abgelehnt, mögliche fremde Seite: `Sec-Fetch-Site` als festes Wort (`cross-site`, `same-site`, `none`, `absent`, `other`) |
+| 1300 | Information | `Server/Accounts/AccountsLog` | Konto angemeldet (Anmeldung, Einrichtung, Einladung angenommen, Passwort geändert): nur Konto-Id |
+| 1301 | Warning | `Server/Accounts/AccountsLog` | Anmeldung fehlgeschlagen, falsches Passwort: Konto-Id |
+| 1302 | Warning | `Server/Accounts/AccountsLog` | Anmeldung fehlgeschlagen, unbekanntes Konto (ohne Benutzername) |
+| 1303 | Warning | `Server/Accounts/AccountsLog` | Anmeldung abgelehnt, Konto gesperrt: Konto-Id, Restsperre in s (`Retry-After`) |
+| 1304 | Information | `Server/Accounts/AccountsLog` | Konto abgemeldet: Konto-Id |
+| 1305 | Information | `Server/Accounts/AccountsLog` | Sitzung beendet, weil das Konto entfernt oder sein Security-Stamp erneuert wurde: Konto-Id |
+| 1306 | Warning | `Server/Accounts/AccountsLog` | Passwortänderung abgelehnt, weil das Konto gesperrt ist (423): Konto-Id, `Retry-After` in Sekunden |
 | 2000 | Information | `Worker/Heartbeat/HeartbeatLog` | Heartbeat gestartet, Intervall in s |
 | 2001 | Warning | `Worker/Heartbeat/HeartbeatLog` | Heartbeat nicht geschrieben (nur der erste Fehler eines Ausfalls) |
 | 2002 | Information | `Worker/Heartbeat/HeartbeatLog` | Heartbeat nach einem Ausfall wieder geschrieben |
 | 2100 | Information | `Worker/Processing/ProcessingLog` | Verarbeitung gestartet, Abfrageintervall in s |
-| 2101 | Information | `Worker/Processing/ProcessingLog` | Dokument-Id wird verarbeitet, Versuch Nr. |
-| 2102 | Information | `Worker/Processing/ProcessingLog` | Dokument fertig: Dauer in ms, Seiten, Anzahl erkannter Zeichen |
-| 2103 | Warning | `Worker/Processing/ProcessingLog` | Versuch fehlgeschlagen: technischer Grund (Ausnahmetyp, ggf. Werkzeug + Exit-Code), Zeitpunkt des nächsten Versuchs |
-| 2104 | Error | `Worker/Processing/ProcessingLog` | Dokument endgültig `Failed` nach dem letzten Versuch oder einem dauerhaften Fehler, technischer Grund |
-| 2105 | Warning | `Worker/Processing/ProcessingLog` | Job konnte nicht geholt werden (nur Ausnahmetyp; nur der erste Fehler eines Ausfalls) |
-| 2106 | Information | `Worker/Processing/ProcessingLog` | Jobs holen klappt nach einem Ausfall wieder |
-| 2107 | Error | `Worker/Processing/ProcessingLog` | Fehlschlag konnte nicht gespeichert werden; der Job läuft nach Ablauf seiner Sperre erneut |
-| 2108 | Information | `Worker/Processing/ProcessingLog` | Verarbeitung durch Herunterfahren abgebrochen (auch wenn der Versuch dabei mit einem Fehler endete); der Job ist zurückgegeben und läuft beim nächsten Start ohne Versuchszählung |
-| 2109 | Warning | `Worker/Processing/ProcessingLog` | Arbeitsordner des Versuchs nicht gelöscht (nur Ausnahmetyp); ein Worker-Start nach einem Tag räumt ihn weg |
-| 2110 | Warning | `Worker/Processing/ProcessingLog` | Versuch hat seinen Job an einen anderen Worker verloren (Sperre abgelaufen); Ergebnis bzw. Fehlschlag wird verworfen |
-| 2111 | Warning | `Worker/Processing/ProcessingLog` | Job beim Herunterfahren nicht zurückgegeben (nur Ausnahmetyp); er läuft nach Ablauf seiner Sperre erneut |
+| 2101 | Information | `Application/Processing/ProcessingLog` | Dokument-Id wird verarbeitet, Versuch Nr. |
+| 2102 | Information | `Application/Processing/ProcessingLog` | Dokument fertig: Dauer in ms, Seiten, Anzahl erkannter Zeichen |
+| 2103 | Warning | `Application/Processing/ProcessingLog` | Versuch fehlgeschlagen: technischer Grund (Ausnahmetyp, ggf. Werkzeug + Exit-Code), Zeitpunkt des nächsten Versuchs |
+| 2104 | Error | `Application/Processing/ProcessingLog` | Dokument endgültig `Failed` nach dem letzten Versuch oder einem dauerhaften Fehler, technischer Grund |
+| 2105 | Warning | `Application/Processing/ProcessingLog` | Job konnte nicht geholt werden (nur Ausnahmetyp; nur der erste Fehler eines Ausfalls) |
+| 2106 | Information | `Application/Processing/ProcessingLog` | Jobs holen klappt nach einem Ausfall wieder |
+| 2107 | Error | `Application/Processing/ProcessingLog` | Fehlschlag konnte nicht gespeichert werden; der Job läuft nach Ablauf seiner Sperre erneut |
+| 2108 | Information | `Application/Processing/ProcessingLog` | Verarbeitung durch Herunterfahren abgebrochen (auch wenn der Versuch dabei mit einem Fehler endete); der Job ist zurückgegeben und läuft beim nächsten Start ohne Versuchszählung |
+| 2109 | Warning | `Application/Processing/ProcessingLog` | Arbeitsordner des Versuchs nicht gelöscht (nur Ausnahmetyp); ein Worker-Start nach einem Tag räumt ihn weg |
+| 2110 | Warning | `Application/Processing/ProcessingLog` | Versuch hat seinen Job an einen anderen Worker verloren (Sperre abgelaufen); Ergebnis bzw. Fehlschlag wird verworfen |
+| 2111 | Warning | `Application/Processing/ProcessingLog` | Job beim Herunterfahren nicht zurückgegeben (nur Ausnahmetyp); er läuft nach Ablauf seiner Sperre erneut |
 | 2112 | Information | `Worker/Processing/ProcessingLog` | Beim Start Reste älter als einen Tag aus dem Arbeitsordner `/data/tmp` entfernt: Anzahl |
 | 2113 | Warning | `Worker/Processing/ProcessingLog` | Rest im Arbeitsordner nicht entfernt (nur Ausnahmetyp); nur Platzverlust |
 | 3000 | Information | `Infrastructure/Persistence/PersistenceLog` | Migration beginnt, Anzahl bekannter Migrationen |
@@ -71,17 +84,20 @@ Innerhalb eines Bereichs bekommt jedes Feature einen eigenen Hunderterblock (z. 
 | 3101 | Warning | `Infrastructure/Documents/DocumentStorageLog` | Speichern fehlgeschlagen (nur Ausnahmetyp, keine Meldung mit Pfad); die halbe Datei wurde verworfen |
 | 3102 | Information | `Infrastructure/Documents/DocumentStorageLog` | Original vom Eingang ins Archiv verschoben |
 | 3103 | Warning | `Infrastructure/Documents/DocumentStorageLog` | Aufräumen (temporäre Datei, alter Eingangsordner) fehlgeschlagen; nur Platzverlust |
-| 3200 | Information | `Infrastructure/Documents/DocumentIntakeLog` | Dokument angenommen und eingereiht: Id, Größe, Medientyp |
-| 3201 | Error | `Infrastructure/Documents/DocumentIntakeLog` | Annahme fehlgeschlagen (nur Ausnahmetyp); die Eingangsdatei wird verworfen, außer 3203/3204 folgen |
-| 3202 | Warning | `Infrastructure/Documents/DocumentIntakeLog` | Eingangsdatei nach einem Fehler nicht entfernbar; nur Platzverlust |
-| 3203 | Warning | `Infrastructure/Documents/DocumentIntakeLog` | Speichern meldete einen Fehler, das Dokument steht aber in der Datenbank; die Eingangsdatei bleibt |
-| 3204 | Warning | `Infrastructure/Documents/DocumentIntakeLog` | Nach einem Fehler nicht prüfbar, ob das Dokument gespeichert ist (nur Ausnahmetyp); die Eingangsdatei bleibt |
+| 3200 | Information | `Application/Documents/DocumentIntakeLog` | Dokument angenommen und eingereiht: Id, Größe, Medientyp |
+| 3201 | Error | `Application/Documents/DocumentIntakeLog` | Annahme fehlgeschlagen (nur Ausnahmetyp); die Eingangsdatei wird verworfen, außer 3203/3204 folgen |
+| 3202 | Warning | `Application/Documents/DocumentIntakeLog` | Eingangsdatei nach einem Fehler nicht entfernbar; nur Platzverlust |
+| 3203 | Warning | `Application/Documents/DocumentIntakeLog` | Speichern meldete einen Fehler, das Dokument steht aber in der Datenbank; die Eingangsdatei bleibt |
+| 3204 | Warning | `Application/Documents/DocumentIntakeLog` | Nach einem Fehler nicht prüfbar, ob das Dokument gespeichert ist (nur Ausnahmetyp); die Eingangsdatei bleibt |
 | 3210 | Information | `Infrastructure/Search/SearchLog` | Suche beantwortet: Trefferzahl, Dauer in ms, ob der Ähnlichkeits-Rückfall nötig war (nie die Anfrage) |
 | 3300 | Debug | `Infrastructure/Ocr/OcrLog` | Werkzeug (`ocrmypdf`, `img2pdf`, `heif-convert`, `pdftotext`) beendet: Exit-Code, Dauer in ms |
 | 3301 | Warning | `Infrastructure/Ocr/OcrLog` | Werkzeug hat sein Zeitlimit überschritten und wurde samt Kindprozessen beendet |
 | 3302 | Information | `Infrastructure/Ocr/OcrLog` | Werkzeug wegen Abbruch (Herunterfahren) beendet |
 | 3303 | Information | `Infrastructure/Ocr/OcrLog` | Erkannter Text auf die Höchstlänge (Zeichen) gekürzt |
 | 3304 | Warning | `Infrastructure/Ocr/OcrLog` | OCR-Arbeitsordner nicht gelöscht (nur Ausnahmetyp); nur Platzverlust |
+| 3400 | Information | `Infrastructure/Composition/KeyRingCertificateGuard` | Schlüsselring mit Zertifikat verschlüsselt, Fingerabdruck (kein Geheimnis) |
+| 3401 | Warning | `Infrastructure/Composition/KeyRingCertificateGuard` | Kein Zertifikat konfiguriert, Schlüsselring unverschlüsselt (nur Development) |
+| 3410 | Warning | `Infrastructure/Composition/UnencryptedKeyRevocation` | Unverschlüsselte Schlüssel von vor dem Zertifikat (vor M2) widerrufen: Anzahl; alle Sitzungen enden einmal |
 | 4000 | Information | `Web.Client/Telemetry/WebClientLog` | Kultur (Sprache) angewendet |
 | 4001 | Warning | `Web.Client/Telemetry/WebClientLog` | Gespeicherte Sprache wird nicht unterstützt, Standard wird genommen |
 | 4002 | Warning | `Web.Client/Telemetry/WebClientLog` | Sprachpräferenz nicht lesbar oder nicht speicherbar |
@@ -95,6 +111,7 @@ Innerhalb eines Bereichs bekommt jedes Feature einen eigenen Hunderterblock (z. 
 | 4106 | Information | `Web.Client/Documents/DocumentsLog` | Dokument hat den Verarbeitungsstatus gewechselt (neuer Status) |
 | 4107 | Information | `Web.Client/Documents/DocumentsLog` | Suche beendet (Trefferzahl, ohne Suchbegriff) |
 | 4108 | Debug | `Web.Client/Documents/DocumentsLog` | Liste fragt alle 3 s nach, solange Dokumente in Arbeit sind |
+| 4109 | Information | `Web.Client/Documents/DocumentsLog` | Dokument privat gemacht oder wieder freigegeben (`true`/`false`) |
 | 4200 | Information | `Web.Client/Viewer/ViewerLog` | Viewer hat ein Dokument geöffnet (Seitenzahl, Renderer `webgl2`/`fallback`) |
 | 4201 | Warning | `Web.Client/Viewer/ViewerLog` | WebGL2 nicht nutzbar, Rückfall auf den CSS-Filter (Grund: `no-webgl2`, `shader-error`, `context-lost`, `restore-failed`) |
 | 4202 | Debug | `Web.Client/Viewer/ViewerLog` | sichtbarer Ausschnitt einer Seite gerendert (Dauer in ms, gerundet) |
@@ -107,6 +124,36 @@ Innerhalb eines Bereichs bekommt jedes Feature einen eigenen Hunderterblock (z. 
 | 4209 | Warning | `Web.Client/Viewer/ViewerLog` | Vorschaubild konnte nicht gerendert werden (technischer Fehlername oder `interop`) |
 | 4210 | Warning | `Web.Client/Viewer/ViewerLog` | WebGL-Kontext verloren (z. B. GPU-Reset); Viewer versucht den Neuaufbau |
 | 4211 | Information | `Web.Client/Viewer/ViewerLog` | WebGL-Kontext wieder da, Seite neu gezeichnet |
+| 4400 | Information | `Web.Client/Accounts/AccountsLog` | Sitzungszustand geladen (`SignedIn`, `SignedOut`, `SetupNeeded`, `Unavailable`) |
+| 4401 | Information | `Web.Client/Accounts/AccountsLog` | Server antwortete 401, Sitzung vorbei |
+| 4402 | Information | `Web.Client/Accounts/AccountsLog` | angemeldet |
+| 4403 | Information | `Web.Client/Accounts/AccountsLog` | abgemeldet (überall: ja/nein) |
+| 4404 | Warning | `Web.Client/Accounts/AccountsLog` | Konto-Aufruf mit HTTP-Fehlercode beantwortet (Vorgang, Statuscode) |
+| 4405 | Warning | `Web.Client/Accounts/AccountsLog` | Konto-Aufruf nicht erreichbar oder unlesbare Antwort (Vorgang, Ausnahmetyp) |
+| 4406 | Information | `Web.Client/Accounts/AccountsLog` | Haushalt eingerichtet |
+| 4407 | Information | `Web.Client/Accounts/AccountsLog` | Einladungslink erzeugt (nie der Link) |
+| 4408 | Information | `Web.Client/Accounts/AccountsLog` | Einladung angenommen |
+| 4409 | Information | `Web.Client/Accounts/AccountsLog` | Rücksetzlink erzeugt (nie der Link) |
+| 4410 | Information | `Web.Client/Accounts/AccountsLog` | Mitglied entfernt |
+| 4411 | Information | `Web.Client/Accounts/AccountsLog` | Passwort geändert (Weg: `account`, `reset-link`, `emergency-code`) |
+| 4412 | Debug | `Web.Client/Accounts/AccountsLog` | nicht angemeldet, Weiterleitung zur Anmeldung |
+| 4413 | Warning | `Web.Client/Accounts/AccountsLog` | Kopieren in die Zwischenablage fehlgeschlagen (Ausnahmetyp) |
+| 4414 | Information | `Web.Client/Accounts/AccountsLog` | Hinweis „Passwort per Rücksetzlink des Verwalters geändert“ bestätigt |
+| 5100 | Information | `Application/Accounts/AccountsLog` | Haushalt eingerichtet: Verwalter-Id, Anzahl übernommener Dokumente ohne Besitzer (M1) |
+| 5101 | Warning | `Application/Accounts/AccountsLog` | Einrichtung abgelehnt, Haushalt schon eingerichtet |
+| 5102 | Information | `Application/Accounts/AccountsLog` | Einladung erzeugt: Konto-Id des Verwalters, Ablaufzeit (nie der Link) |
+| 5103 | Information | `Application/Accounts/AccountsLog` | Einladung angenommen: Id des neuen Mitglieds |
+| 5104 | Information | `Application/Accounts/AccountsLog` | Mitglied entfernt: Konto-Id des Verwalters, Id des Mitglieds |
+| 5105 | Information | `Application/Accounts/AccountsLog` | Rücksetzlink erzeugt: Konto-Id des Verwalters, Id des Mitglieds, Ablaufzeit |
+| 5106 | Information | `Application/Accounts/AccountsLog` | Passwort per Rücksetzlink neu gesetzt: Konto-Id |
+| 5107 | Warning | `Application/Accounts/AccountsLog` | Passwort per Notfall-Code neu gesetzt, neuer Code ausgegeben: Konto-Id |
+| 5108 | Warning | `Application/Accounts/AccountsLog` | Notfall-Reset abgelehnt (unbekanntes Konto oder falscher Code) |
+| 5109 | Information | `Application/Accounts/AccountsLog` | Passwort geändert: Konto-Id |
+| 5110 | Information | `Application/Accounts/AccountsLog` | „Auf allen Geräten abmelden“: Konto-Id |
+| 5111 | Warning | `Application/Accounts/AccountsLog` | Verwalter-Aktion eines Mitglieds abgelehnt (403): Konto-Id, Aktion (`invite`, `list-members`, `remove-member`, `reset-link`) |
+| 5112 | Information | `Application/Accounts/AccountsLog` | Hinweis auf Zurücksetzen durch den Verwalter bestätigt: Konto-Id |
+| 5113 | Warning | `Application/Accounts/AccountsLog` | Änderung abgelehnt, weil das angemeldete Konto entfernt wurde (Cookie noch nicht geprüft): Konto-Id, Vorgang (`upload`, `set-privacy`, `change-password`, `acknowledge-reset`) |
+| 5120 | Information | `Application/Documents/DocumentPrivacyLog` | Besitzer hat „privat“ umgestellt: Dokument-Id, neuer Wert, Konto-Id |
 
 Web.Client: Die Ereignisse erscheinen nur in der Browser-Konsole und enthalten nur Sprachkürzel,
 Größen, Anzahlen, Statuscodes, Dauern und technische Fehlernamen – nie Dateinamen, Titel,
@@ -121,10 +168,10 @@ In WASM gibt es keine `ActivitySource` und kein `Meter` (kein Exporter).
 | `nomorepaper.database.migrate` | `NoMorePaper.Infrastructure` | EF-Core-Migrationen anwenden (Kind von `server.startup`) |
 | `nomorepaper.storage.write` | `NoMorePaper.Infrastructure` | eine Dokumentdatei atomar schreiben (Tag `nomorepaper.storage.kind`) |
 | `nomorepaper.storage.archive_original` | `NoMorePaper.Infrastructure` | Original vom Eingang ins Archiv verschieben |
-| `nomorepaper.documents.receive` | `NoMorePaper.Infrastructure` | ein Dokument annehmen: Eingang speichern, Dokument und Auftrag eintragen |
+| `nomorepaper.documents.receive` | `NoMorePaper.Application` | ein Dokument annehmen: Eingang speichern, Dokument und Auftrag eintragen |
 | `nomorepaper.search.query` | `NoMorePaper.Infrastructure` | eine Suche ausführen (Stämme, ggf. Ähnlichkeits-Rückfall) |
 | `nomorepaper.worker.heartbeat` | `NoMorePaper.Worker` | ein Heartbeat in `worker_heartbeats` schreiben |
-| `nomorepaper.processing.document` | `NoMorePaper.Worker` | ein Verarbeitungsversuch eines Dokuments (OCR, Archiv speichern, abschließen); Tag `nomorepaper.processing.attempt` |
+| `nomorepaper.processing.document` | `NoMorePaper.Application` | ein Verarbeitungsversuch eines Dokuments (OCR, Archiv speichern, abschließen); Tag `nomorepaper.processing.attempt` |
 
 ### Messwerte
 
@@ -133,12 +180,13 @@ In WASM gibt es keine `ActivitySource` und kein `Meter` (kein Exporter).
 | `nomorepaper.worker.heartbeat_failures` | Counter | `NoMorePaper.Worker` | nicht geschriebene Heartbeats |
 | `nomorepaper.upload.rejected` | Counter | `NoMorePaper.Server` | abgelehnte Uploads, Tag `nomorepaper.upload.reason` (siehe Ereignis 1101) |
 | `nomorepaper.request_guard.rejected` | Counter | `NoMorePaper.Server` | abgelehnte ändernde API-Anfragen, Tag `nomorepaper.request_guard.fetch_site` (siehe Ereignis 1200) |
-| `nomorepaper.documents.received` | Counter | `NoMorePaper.Infrastructure` | angenommene Dokumente |
+| `nomorepaper.auth.sign_ins` | Counter | `NoMorePaper.Server` | Anmeldeversuche, Tag `nomorepaper.auth.outcome` (`succeeded`/`failed`/`locked`) |
+| `nomorepaper.documents.received` | Counter | `NoMorePaper.Application` | angenommene Dokumente |
 | `nomorepaper.search.duration` | Histogramm (ms) | `NoMorePaper.Infrastructure` | Dauer einer Suche |
 | `nomorepaper.storage.stored_bytes` | Counter (By) | `NoMorePaper.Infrastructure` | in die Dokumentablage geschriebene Bytes, Tag `nomorepaper.storage.kind` (`Original`/`Archive`) |
-| `nomorepaper.processing.completed` | Counter | `NoMorePaper.Worker` | erfolgreich verarbeitete Dokumente |
-| `nomorepaper.processing.failed` | Counter | `NoMorePaper.Worker` | fehlgeschlagene Versuche, Tag `nomorepaper.processing.outcome` (`retry`/`failed` = aufgegeben) |
-| `nomorepaper.processing.duration` | Histogram (s) | `NoMorePaper.Worker` | Dauer eines Versuchs, Tag `nomorepaper.processing.outcome` (`done`/`retry`/`failed`) |
+| `nomorepaper.processing.completed` | Counter | `NoMorePaper.Application` | erfolgreich verarbeitete Dokumente |
+| `nomorepaper.processing.failed` | Counter | `NoMorePaper.Application` | fehlgeschlagene Versuche, Tag `nomorepaper.processing.outcome` (`retry`/`failed` = aufgegeben) |
+| `nomorepaper.processing.duration` | Histogram (s) | `NoMorePaper.Application` | Dauer eines Versuchs, Tag `nomorepaper.processing.outcome` (`done`/`retry`/`failed`) |
 
 ## Health
 - **Server** `/health`: 200, wenn die Datenbank erreichbar ist, sonst 503.

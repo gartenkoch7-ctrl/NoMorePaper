@@ -41,8 +41,8 @@ public sealed class WorkingFolderTests : IDisposable
     {
         var folder = Folder();
 
-        var first = folder.CreateAttemptFolder();
-        var second = folder.CreateAttemptFolder();
+        var first = new DirectoryInfo(folder.CreateAttemptFolder());
+        var second = new DirectoryInfo(folder.CreateAttemptFolder());
 
         Assert.NotEqual(first.FullName, second.FullName);
         Assert.Equal(folder.Root, first.Parent?.FullName);

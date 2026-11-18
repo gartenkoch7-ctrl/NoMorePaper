@@ -1,6 +1,7 @@
 using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore;
 using NoMorePaper.Application.Documents;
+using NoMorePaper.Application.Processing;
 using NoMorePaper.Domain.Documents;
 using NoMorePaper.Domain.Processing;
 using NoMorePaper.Infrastructure.Persistence;
@@ -19,7 +20,7 @@ namespace NoMorePaper.Infrastructure.Processing;
 /// <c>attempt</c> only counts attempts and is no token: handing a job back takes its attempt back.
 /// </remarks>
 [SuppressMessage("Naming", "CA1711:Identifiers should not have incorrect suffix", Justification = "A queue in the domain sense (docs/plan/m1-durchstich.md), not a collection type.")]
-public sealed class JobQueue(AppDbContext db, TimeProvider time)
+public sealed class JobQueue(AppDbContext db, TimeProvider time) : IJobQueue
 {
     private const string ArchiveMediaType = "application/pdf";
     private const string ArchiveExtension = ".pdf";

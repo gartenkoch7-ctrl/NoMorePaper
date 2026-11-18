@@ -1,0 +1,78 @@
+@page "/anmelden"
+@inject IStringLocalizer<Strings> L
+@inject AccountApi Api
+@inject AuthState Auth
+@inject NavigationManager Navigation
+@inject IJSRuntime Js
+@inject ILogger<SignIn> Logger
+
+<PageTitle>@L["SignInTitle"]</PageTitle>
+
+<MudText Typo="Typo.h1">@L["SignInHeading"]</MudText>
+
+<form class="account-form" novalidate @onsubmit="SubmitAsync" data-ready>
+    <FormField Id="signin-user" Label="@L["FieldUserName"]" Autocomplete="username"
+               @bind-Value="_userName" Invalid='_form.IsInvalid("signin-user")' />
+    <FormField Id="signin-password" Label="@L["FieldPassword"]" Autocomplete="current-password" Password="true"
+               @bind-Value="_password" Invalid='_form.IsInvalid("signin-password")' />
+    <LiveRegion @ref="_error" Assertive="true" Class="form-error" />
+    <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" Color="Color.Primary" Disabled="_busy">@L["SignInButton"]</MudButton>
+</form>
+
+<p class="form-help">@L["SignInForgot"]</p>
+<p><a href="notfall">@L["SignInEmergencyLink"]</a></p>
+
+@code {
+    private FormValidation _form = default!;
+    private LiveRegion? _error;
+    private string _userName = string.Empty;
+    private string _password = string.Empty;
+    private bool _busy;
+
+    // Where to go after signing in: only a path inside this app, never another site.
+    [SupplyParameterFromQuery(Name = "ziel")]
+    public string? Target { get; set; }
+
+    protected override void OnInitialized()
+    {
+        _form = new FormValidation(L, Js);
+
+        // Someone who is signed in already (e.g. a bookmark of this page) has nothing to do here.
+        if (Auth.IsSignedIn)
+        {
+            Navigation.NavigateTo(SafeTarget(), replace: true);
+        }
+    }
+
+    private async Task SubmitAsync()
+    {
+        _form.Reset();
+        _form.Required("signin-user", _userName, L["FieldUserName"]);
+        _form.Required("signin-password", _password, L["FieldPassword"]);
+        if (await _form.ReportAsync(_error))
+        {
+            return;
+        }
+
+        _busy = true;
+        var result = await Api.LoginAsync(new(_userName.Trim(), _password));
+        _busy = false;
+        if (!result.IsSuccess)
+        {
+            // A wrong password or a lock: the password is typed again, the name usually stays.
+            _password = string.Empty;
+            _form.Set("signin-password", result.Error!);
+            await _form.ReportAsync(_error);
+            return;
+        }
+
+        Logger.SignedIn();
+        _password = string.Empty;
+        await Auth.RefreshAsync();
+
+        // The notice about an administrator's reset is on the start page; it comes before the target.
+        Navigation.NavigateTo(Auth.AdminResets.Count == 0 ? SafeTarget() : SignInTarget.Fallback);
+    }
+
+    private string SafeTarget() => SignInTarget.Safe(Target, Navigation.BaseUri);
+}

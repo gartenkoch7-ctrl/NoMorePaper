@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging.Abstractions;
+using NoMorePaper.Application.Processing;
 using NoMorePaper.Domain.Documents;
 using NoMorePaper.Infrastructure.Documents;
 using NoMorePaper.Infrastructure.Persistence;
@@ -12,7 +13,7 @@ using Xunit;
 namespace NoMorePaper.Worker.Tests.Processing;
 
 /// <summary>
-/// A <see cref="DocumentProcessor"/> wired like the Worker, on a migrated database and a data root of
+/// A <see cref="ProcessNextDocument"/> wired like the Worker, on a migrated database and a data root of
 /// its own, with a fake OCR engine and a clock the test sets.
 /// </summary>
 internal sealed class ProcessorHarness : IAsyncDisposable
@@ -20,6 +21,8 @@ internal sealed class ProcessorHarness : IAsyncDisposable
     public const string FileName = "Scan 1.pdf";
 
     public static readonly DateTimeOffset Start = new(2026, 11, 18, 12, 0, 0, TimeSpan.Zero);
+
+    private static readonly Guid s_owner = Guid.CreateVersion7();
 
     private readonly PostgresFixture _postgres;
     private readonly string _database;
@@ -33,27 +36,27 @@ internal sealed class ProcessorHarness : IAsyncDisposable
         var services = new ServiceCollection();
         services.AddSingleton<TimeProvider>(Time);
         services.AddDbContext<AppDbContext>(options => options.UseNpgsql(postgres.ConnectionString(database)));
-        services.AddScoped<JobQueue>();
+        services.AddScoped<IJobQueue, JobQueue>();
         _services = services.BuildServiceProvider();
 
         Storage = new FileSystemDocumentStorage(_dataRoot.FullName, new SkippedDirectorySync(), NullLogger<FileSystemDocumentStorage>.Instance);
         WorkingFolder = new WorkingFolder(Path.Combine(_dataRoot.FullName, WorkingFolder.FolderName), Time, NullLogger<WorkingFolder>.Instance);
         WorkingFolder.Prepare();
-        Processor = new DocumentProcessor(
-            _services.GetRequiredService<IServiceScopeFactory>(), new DocumentPipeline(Storage, Ocr), WorkingFolder, Time, Log);
+        Processor = new ProcessNextDocument(
+            _services.GetRequiredService<IServiceScopeFactory>(), Storage, Ocr, WorkingFolder, Time, Log);
     }
 
     public ManualTimeProvider Time { get; } = new(Start);
 
     public FakeOcrEngine Ocr { get; } = new();
 
-    public RecordingLogger<DocumentProcessor> Log { get; } = new();
+    public RecordingLogger<ProcessNextDocument> Log { get; } = new();
 
     public FileSystemDocumentStorage Storage { get; }
 
     public WorkingFolder WorkingFolder { get; }
 
-    public DocumentProcessor Processor { get; }
+    public ProcessNextDocument Processor { get; }
 
     private static CancellationToken Ct => TestContext.Current.CancellationToken;
 
@@ -72,7 +75,7 @@ internal sealed class ProcessorHarness : IAsyncDisposable
     /// <returns>The id of the new document.</returns>
     public async Task<Guid> AddQueuedDocumentAsync(int attemptsSoFar = 0)
     {
-        var document = Document.Receive("Scan 1", Start);
+        var document = Document.Receive("Scan 1", Start, s_owner, isPrivate: false);
         using var content = new MemoryStream("%PDF-1.7 original"u8.ToArray());
         var stored = await Storage.SaveInboxAsync(document.Id, FileName, content, Ct);
         document.AttachFile(new DocumentFile(DocumentFileKind.Original, FileName, "application/pdf", stored.SizeBytes, stored.Sha256));

@@ -1,10 +1,11 @@
 using Microsoft.EntityFrameworkCore;
+using NoMorePaper.Application.Heartbeat;
 using NoMorePaper.Infrastructure.Persistence;
 
 namespace NoMorePaper.Infrastructure.Heartbeat;
 
 /// <summary>Reads and writes worker heartbeats in Postgres.</summary>
-public sealed class HeartbeatStore(AppDbContext db)
+public sealed class HeartbeatStore(AppDbContext db) : IHeartbeatStore
 {
     public async Task RecordAsync(string workerName, DateTimeOffset beatAt, CancellationToken cancellationToken)
     {

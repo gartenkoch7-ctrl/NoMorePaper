@@ -1,7 +1,3 @@
-using System.Buffers;
-using System.Diagnostics;
-using System.Diagnostics.Metrics;
-using System.Security.Cryptography;
 using Microsoft.Extensions.Logging;
 using NoMorePaper.Application.Documents;
 using NoMorePaper.Domain.Documents;
@@ -11,23 +7,20 @@ namespace NoMorePaper.Infrastructure.Documents;
 
 /// <summary>
 /// Stores document files below a data root (the <c>/data</c> volume shared by Server and Worker).
-/// Writes go to a temporary file in the target folder and are renamed into place, which is atomic
-/// on one file system, and the target folder is flushed after each rename (<see cref="IDirectorySync"/>);
-/// readers open files so that a concurrent rename or replace does not fail.
+/// Writes are atomic (<see cref="AtomicFileWriter"/>), moves flush the target folder
+/// (<see cref="IDirectorySync"/>), and readers open files so that a concurrent rename or replace
+/// does not fail.
 /// </summary>
 public sealed class FileSystemDocumentStorage : IDocumentStorage
 {
     private const string InboxArea = "inbox";
     private const string ArchiveArea = "archive";
-    private const string KindTag = "nomorepaper.storage.kind";
-    private const int BufferSize = 81920;
-
-    private static readonly Counter<long> s_storedBytes = InfrastructureTelemetry.Meter.CreateCounter<long>(
-        "nomorepaper.storage.stored_bytes", unit: "By", description: "Bytes written to the document storage");
 
     private readonly DocumentPaths _paths;
     private readonly IDirectorySync _directories;
     private readonly ILogger<FileSystemDocumentStorage> _logger;
+    private readonly StorageCleanup _cleanup;
+    private readonly AtomicFileWriter _writer;
 
     /// <param name="rootPath">Data root; created on the first write.</param>
     /// <param name="directories">Makes each rename durable.</param>
@@ -38,6 +31,8 @@ public sealed class FileSystemDocumentStorage : IDocumentStorage
         _paths = new DocumentPaths(rootPath);
         _directories = directories;
         _logger = logger;
+        _cleanup = new StorageCleanup(logger);
+        _writer = new AtomicFileWriter(directories, _cleanup, logger);
     }
 
     public async Task<StoredFile> SaveInboxAsync(Guid id, string fileName, Stream content, CancellationToken cancellationToken)
@@ -46,9 +41,9 @@ public sealed class FileSystemDocumentStorage : IDocumentStorage
         var folder = _paths.InboxFolder(id);
         var target = Path.Combine(folder, DocumentPaths.OriginalFileName(fileName));
 
-        var stored = await WriteAtomicallyAsync(id, DocumentFileKind.Original, InboxArea, target, content, cancellationToken)
+        var stored = await _writer.WriteAsync(id, DocumentFileKind.Original, InboxArea, target, content, cancellationToken)
             .ConfigureAwait(false);
-        RemoveOtherOriginals(id, InboxArea, target);
+        _cleanup.RemoveOtherOriginals(id, InboxArea, target);
         return stored;
     }
 
@@ -61,7 +56,7 @@ public sealed class FileSystemDocumentStorage : IDocumentStorage
 
         ArgumentNullException.ThrowIfNull(content);
         var target = Path.Combine(_paths.ArchiveFolder(id), DocumentPaths.ArchiveFileName);
-        return WriteAtomicallyAsync(id, kind, ArchiveArea, target, content, cancellationToken);
+        return _writer.WriteAsync(id, kind, ArchiveArea, target, content, cancellationToken);
     }
 
     public Task ArchiveOriginalAsync(Guid id, CancellationToken cancellationToken)
@@ -86,9 +81,18 @@ public sealed class FileSystemDocumentStorage : IDocumentStorage
         _directories.Flush(archive);
         _logger.OriginalArchived(id);
 
-        RemoveOtherOriginals(id, ArchiveArea, target);
-        TryCleanUp(id, InboxArea, () => Directory.Delete(inbox, recursive: true));
+        _cleanup.RemoveOtherOriginals(id, ArchiveArea, target);
+        _cleanup.TryCleanUp(id, InboxArea, () => Directory.Delete(inbox, recursive: true));
         return Task.CompletedTask;
+    }
+
+    public void DiscardInbox(Guid id)
+    {
+        var folder = _paths.InboxFolder(id);
+        if (Directory.Exists(folder))
+        {
+            Directory.Delete(folder, recursive: true);
+        }
     }
 
     public Stream OpenRead(Guid id, DocumentFileKind kind)
@@ -106,78 +110,6 @@ public sealed class FileSystemDocumentStorage : IDocumentStorage
         };
 
         return stream ?? throw new FileNotFoundException($"No {kind} file is stored for document {id}.");
-    }
-
-    private async Task<StoredFile> WriteAtomicallyAsync(
-        Guid id, DocumentFileKind kind, string area, string target, Stream content, CancellationToken cancellationToken)
-    {
-        using var activity = InfrastructureTelemetry.Source.StartActivity("nomorepaper.storage.write");
-        activity?.SetTag(KindTag, kind.ToString());
-
-        var folder = Path.GetDirectoryName(target)!;
-        Directory.CreateDirectory(folder);
-        var temporary = Path.Combine(folder, $".{Guid.NewGuid():N}.tmp");
-        try
-        {
-            StoredFile stored;
-            var options = new FileStreamOptions
-            {
-                Mode = FileMode.CreateNew,
-                Access = FileAccess.Write,
-                Share = FileShare.None,
-                Options = FileOptions.Asynchronous,
-            };
-            var file = new FileStream(temporary, options);
-            await using (file.ConfigureAwait(false))
-            {
-                stored = await CopyAndHashAsync(content, file, cancellationToken).ConfigureAwait(false);
-
-                // Durable before the rename publishes it; otherwise a power loss could leave an empty file.
-                file.Flush(flushToDisk: true);
-            }
-
-            File.Move(temporary, target, overwrite: true);
-
-            // Only the folder entry makes the new name survive a power loss (Linux).
-            _directories.Flush(folder);
-            s_storedBytes.Add(stored.SizeBytes, new KeyValuePair<string, object?>(KindTag, kind.ToString()));
-            _logger.Stored(kind, id, area, stored.SizeBytes);
-            return stored;
-        }
-        catch (Exception exception)
-        {
-            activity?.SetStatus(ActivityStatusCode.Error);
-            TryCleanUp(id, area, () => File.Delete(temporary));
-            if (exception is not OperationCanceledException)
-            {
-                _logger.StoreFailed(kind, id, exception.GetType().Name);
-            }
-
-            throw;
-        }
-    }
-
-    private static async Task<StoredFile> CopyAndHashAsync(Stream source, Stream target, CancellationToken cancellationToken)
-    {
-        using var hash = IncrementalHash.CreateHash(HashAlgorithmName.SHA256);
-        var buffer = ArrayPool<byte>.Shared.Rent(BufferSize);
-        try
-        {
-            long size = 0;
-            int read;
-            while ((read = await source.ReadAsync(buffer, cancellationToken).ConfigureAwait(false)) > 0)
-            {
-                hash.AppendData(buffer, 0, read);
-                await target.WriteAsync(buffer.AsMemory(0, read), cancellationToken).ConfigureAwait(false);
-                size += read;
-            }
-
-            return new StoredFile(size, Convert.ToHexStringLower(hash.GetHashAndReset()));
-        }
-        finally
-        {
-            ArrayPool<byte>.Shared.Return(buffer);
-        }
     }
 
     private static string? FindOriginal(string folder)
@@ -213,32 +145,6 @@ public sealed class FileSystemDocumentStorage : IDocumentStorage
         catch (Exception exception) when (exception is FileNotFoundException or DirectoryNotFoundException)
         {
             return null;
-        }
-    }
-
-    // An earlier original with another extension would make the original ambiguous.
-    private void RemoveOtherOriginals(Guid id, string area, string keep)
-    {
-        var folder = Path.GetDirectoryName(keep)!;
-        foreach (var other in Directory.EnumerateFiles(folder, DocumentPaths.OriginalPattern))
-        {
-            if (!string.Equals(other, keep, StringComparison.Ordinal))
-            {
-                TryCleanUp(id, area, () => File.Delete(other));
-            }
-        }
-    }
-
-    private void TryCleanUp(Guid id, string area, Action cleanUp)
-    {
-        try
-        {
-            cleanUp();
-        }
-        catch (Exception exception) when (exception is IOException or UnauthorizedAccessException)
-        {
-            // The stored state is already correct; a leftover only costs space.
-            _logger.CleanupFailed(id, area, exception.GetType().Name);
         }
     }
 }

@@ -1,12 +1,13 @@
 using System.Diagnostics;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using NoMorePaper.Application.Persistence;
 using NoMorePaper.Infrastructure.Telemetry;
 
 namespace NoMorePaper.Infrastructure.Persistence;
 
 /// <summary>Brings the database schema up to date. Called once by the Server at startup.</summary>
-public sealed class DatabaseMigrator(AppDbContext db, TimeProvider time, ILogger<DatabaseMigrator> logger)
+public sealed class DatabaseMigrator(AppDbContext db, TimeProvider time, ILogger<DatabaseMigrator> logger) : ISchemaMigrator
 {
     public async Task MigrateAsync(CancellationToken cancellationToken)
     {

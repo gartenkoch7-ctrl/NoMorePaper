@@ -46,7 +46,8 @@ public sealed class KeyboardTests(ServerFixture server)
         var page = session.Page;
         string[] expected =
         [
-            "Zum Inhalt springen", "Startseite", "Hochladen", "Dokumente", "Suche", "", "Suchen", "Deutsch", "English",
+            "Zum Inhalt springen", "Startseite", "Hochladen", "Dokumente", "Suche", "Konto", "Mitglieder", "", "Suchen",
+            "Abmelden", "Deutsch", "English",
         ];
 
         var stops = new List<FocusState>();

@@ -29,6 +29,9 @@ public sealed partial class DocumentViewer : IAsyncDisposable
     private ViewerState? _state;
     private LiveRegion? _announcer;
     private ElementReference _stage;
+    private ElementReference _privateBox;
+    private int _privacyVersion;
+    private bool _focusPrivateBox;
 
     [Parameter] public Guid Id { get; set; }
 
@@ -72,6 +75,12 @@ public sealed partial class DocumentViewer : IAsyncDisposable
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
+        if (_focusPrivateBox)
+        {
+            _focusPrivateBox = false;
+            await _privateBox.FocusAsync();
+        }
+
         if (_source is null || _opened || _showFailed)
         {
             return;
@@ -132,6 +141,36 @@ public sealed partial class DocumentViewer : IAsyncDisposable
         if (_announcer is not null)
         {
             await _announcer.Announce(L["ViewerRenderer" + change]);
+        }
+    }
+
+    // The checkbox changes the server's state right away; the result is announced, and a failure
+    // puts the box back (a new element, because the model value did not change) and keeps focus on it.
+    private async Task OnPrivateChangedAsync(ChangeEventArgs args)
+    {
+        if (_detail is null)
+        {
+            return;
+        }
+
+        var wanted = args.Value is true;
+        var result = await Api.SetPrivacyAsync(Id, wanted);
+        string message;
+        if (result.IsSuccess)
+        {
+            _detail = _detail with { IsPrivate = wanted };
+            message = L[wanted ? "ViewerNowPrivate" : "ViewerNowShared"];
+        }
+        else
+        {
+            _privacyVersion++;
+            _focusPrivateBox = true;
+            message = L["ErrorPrefix", result.Error ?? string.Empty];
+        }
+
+        if (_announcer is not null)
+        {
+            await _announcer.Announce(message);
         }
     }
 

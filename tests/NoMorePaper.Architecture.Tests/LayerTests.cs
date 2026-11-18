@@ -4,9 +4,14 @@ using Xunit;
 
 namespace NoMorePaper.Architecture.Tests;
 
-/// <summary>AGENTS.md 2.2 / ADR-0001: dependencies only point inwards, Web.Client only knows Contracts.</summary>
+/// <summary>
+/// AGENTS.md 2.2 / ADR-0001: dependencies only point inwards, Web.Client only knows Contracts, and
+/// Server and Worker name Infrastructure types only in their composition roots.
+/// </summary>
 public sealed class LayerTests
 {
+    private const string InfrastructureNamespace = "NoMorePaper.Infrastructure";
+
     // Types that would let the Domain do IO; plain streams in memory stay allowed.
     private static readonly string[] s_domainForbiddenDependencies =
     [
@@ -75,6 +80,35 @@ public sealed class LayerTests
             "NoMorePaper.Domain",
             "NoMorePaper.Contracts",
             "NoMorePaper.Web.Client");
+
+    [Fact]
+    public void Server_UsesInfrastructureOnlyInItsCompositionRoot() =>
+        AssertInfrastructureOnlyInComposition(Layers.Server, "NoMorePaper.Server");
+
+    [Fact]
+    public void Worker_UsesInfrastructureOnlyInItsCompositionRoot() =>
+        AssertInfrastructureOnlyInComposition(Layers.Worker, "NoMorePaper.Worker");
+
+    // Hosts call use cases and ports; only Composition/ may name Infrastructure types. Checked on the
+    // compiled types (real use) and on the sources, which also see constants the compiler inlines.
+    private static void AssertInfrastructureOnlyInComposition(Assembly assembly, string project)
+    {
+        var result = Types.InAssembly(assembly)
+            .That()
+            .DoNotResideInNamespace(project + ".Composition")
+            .ShouldNot()
+            .HaveDependencyOn(InfrastructureNamespace)
+            .GetResult();
+        AssertSuccessful(result);
+
+        var composition = Path.DirectorySeparatorChar + "Composition" + Path.DirectorySeparatorChar;
+        var offenders = SourceFiles.Production()
+            .Where(file => file.Project == project && !file.Path.Contains(composition, StringComparison.Ordinal))
+            .Where(file => file.Text.Contains(InfrastructureNamespace, StringComparison.Ordinal))
+            .Select(file => Path.GetFileName(file.Path))
+            .ToList();
+        Assert.True(offenders.Count == 0, $"{project} uses Infrastructure outside Composition/: {string.Join(", ", offenders)}");
+    }
 
     // The compiler only records references whose types are actually used, so this checks real use.
     private static void AssertProjectReferences(Assembly assembly, params string[] allowed)

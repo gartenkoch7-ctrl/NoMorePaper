@@ -33,7 +33,7 @@ public sealed class UploadTests(ApiFixture api)
         Assert.NotNull(result);
         Assert.Equal($"/api/documents/{result.Id}", response.Headers.Location?.OriginalString);
 
-        var detail = await api.CreateClient().GetFromJsonAsync<DocumentDetailDto>($"/api/documents/{result.Id}", Ct);
+        var detail = await api.CreateAdminClient().GetFromJsonAsync<DocumentDetailDto>($"/api/documents/{result.Id}", Ct);
         Assert.NotNull(detail);
         Assert.Equal(DocumentProcessingState.Queued, detail.State);
         Assert.Equal(Path.GetFileNameWithoutExtension(fileName), detail.Title);
@@ -60,7 +60,7 @@ public sealed class UploadTests(ApiFixture api)
         file.Headers.ContentType = new("application/pdf");
         content.Add(file, "file", "fake.pdf");
 
-        using var response = await api.CreateClient().PostAsync("/api/documents", content, Ct);
+        using var response = await api.CreateAdminClient().PostAsync("/api/documents", content, Ct);
 
         Assert.Equal(HttpStatusCode.UnsupportedMediaType, response.StatusCode);
     }
@@ -80,8 +80,8 @@ public sealed class UploadTests(ApiFixture api)
         using var wrongField = new MultipartFormDataContent { { new ByteArrayContent(SampleFiles.Pdf()), "other", "a.pdf" } };
         using var json = JsonContent.Create(new { file = "x" });
 
-        using var first = await api.CreateClient().PostAsync("/api/documents", wrongField, Ct);
-        using var second = await api.CreateClient().PostAsync("/api/documents", json, Ct);
+        using var first = await api.CreateAdminClient().PostAsync("/api/documents", wrongField, Ct);
+        using var second = await api.CreateAdminClient().PostAsync("/api/documents", json, Ct);
 
         Assert.Equal(HttpStatusCode.BadRequest, first.StatusCode);
         Assert.Equal(HttpStatusCode.BadRequest, second.StatusCode);
@@ -114,7 +114,7 @@ public sealed class UploadTests(ApiFixture api)
         using var response = await api.UploadAsync("..\\..\\etc/evil name.pdf", SampleFiles.Pdf(), Ct);
         var result = await response.Content.ReadFromJsonAsync<UploadResultDto>(Ct);
 
-        var detail = await api.CreateClient().GetFromJsonAsync<DocumentDetailDto>($"/api/documents/{result!.Id}", Ct);
+        var detail = await api.CreateAdminClient().GetFromJsonAsync<DocumentDetailDto>($"/api/documents/{result!.Id}", Ct);
 
         Assert.Equal("evil name.pdf", detail!.Original.FileName);
         Assert.Equal("evil name", detail.Title);
@@ -126,7 +126,7 @@ public sealed class UploadTests(ApiFixture api)
         var bytes = SampleFiles.WithHead("%PDF-1.4 "u8, totalLength: 300_000);
         using var upload = await api.UploadAsync("brief.pdf", bytes, Ct);
         var id = (await upload.Content.ReadFromJsonAsync<UploadResultDto>(Ct))!.Id;
-        var client = api.CreateClient();
+        var client = api.CreateAdminClient();
 
         using var response = await client.GetAsync($"/api/documents/{id}/files/original", Ct);
         var downloaded = await response.Content.ReadAsByteArrayAsync(Ct);

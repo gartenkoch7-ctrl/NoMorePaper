@@ -1,4 +1,5 @@
 using NoMorePaper.Application.Documents;
+using NoMorePaper.Application.Processing;
 using NoMorePaper.Domain.Documents;
 using NoMorePaper.Infrastructure.Processing;
 using NoMorePaper.Infrastructure.Tests.Persistence;

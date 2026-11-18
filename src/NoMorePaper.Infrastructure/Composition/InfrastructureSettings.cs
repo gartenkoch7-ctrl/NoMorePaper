@@ -9,6 +9,12 @@ public static class InfrastructureSettings
     /// <summary>Folder of the Data Protection key ring (env <c>NoMorePaper__DataProtectionPath</c>).</summary>
     public const string DataProtectionPathKey = "NoMorePaper:DataProtectionPath";
 
+    /// <summary>PKCS#12 file that encrypts the key ring (env <c>NoMorePaper__KeyRingCertificatePath</c>, ADR-0015).</summary>
+    public const string KeyRingCertificatePathKey = "NoMorePaper:KeyRingCertificatePath";
+
+    /// <summary>Password of the key ring certificate (env <c>NoMorePaper__KeyRingCertificatePassword</c>).</summary>
+    public const string KeyRingCertificatePasswordKey = "NoMorePaper:KeyRingCertificatePassword";
+
     /// <summary>Root of the document storage (env <c>NoMorePaper__DataPath</c>); Server and Worker share it.</summary>
     public const string DataPathKey = "NoMorePaper:DataPath";
 

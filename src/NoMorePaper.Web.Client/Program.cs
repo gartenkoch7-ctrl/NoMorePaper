@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using MudBlazor.Services;
 using NoMorePaper.Web.Client;
+using NoMorePaper.Web.Client.Accounts;
 using NoMorePaper.Web.Client.Documents;
 using NoMorePaper.Web.Client.Localization;
 using NoMorePaper.Web.Client.Viewer;
@@ -15,7 +16,13 @@ builder.Services.AddMudServices();
 builder.Services.AddLocalization();
 builder.Services.AddSingleton<ICulturePreference, LocalStorageCulturePreference>();
 builder.Services.AddSingleton<IUiCulture, BrowserUiCulture>();
-builder.Services.AddScoped(_ => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
+builder.Services.AddScoped<SessionSignal>();
+builder.Services.AddScoped(services => new HttpClient(new UnauthorizedHandler(services.GetRequiredService<SessionSignal>()))
+{
+    BaseAddress = new Uri(builder.HostEnvironment.BaseAddress),
+});
+builder.Services.AddScoped<AccountApi>();
+builder.Services.AddScoped<AuthState>();
 builder.Services.AddScoped<DocumentApi>();
 builder.Services.AddScoped<ViewerInterop>();
 builder.Services.AddScoped<ThumbnailRenderer>();

@@ -1,0 +1,180 @@
+/*
+ * Accounts, forms and privacy (M2). Same rules as app.css: high contrast, large targets,
+ * nothing conveyed by colour alone (errors carry the word "Fehler"/"Error" and a thick border).
+ */
+
+.account-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+    max-width: 32rem;
+    margin-bottom: 1.5rem;
+}
+
+.form-field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+}
+
+.form-field label {
+    font-weight: 700;
+}
+
+.form-hint {
+    margin: 0;
+}
+
+.form-field-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.form-input {
+    box-sizing: border-box;
+    flex: 1 1 14rem;
+    min-height: 2.75rem;
+    padding: 0.5rem 0.75rem;
+    background-color: var(--nmp-background);
+    color: var(--nmp-text);
+    border: 2px solid var(--nmp-text);
+    border-radius: 4px;
+    font: inherit;
+}
+
+/* An invalid field gets a thicker, dashed border besides the error text: not colour alone. */
+.form-input[aria-invalid="true"] {
+    border-width: 4px;
+    border-style: dashed;
+}
+
+/* The emergency code is read from the screen or copied by hand: big and spaced out. */
+.form-input-large {
+    font-size: 1.75rem;
+    font-weight: 700;
+    letter-spacing: 0.15em;
+}
+
+.nmp-button,
+.form-toggle {
+    min-height: 2.75rem;
+    padding: 0.5rem 1rem;
+    background-color: var(--nmp-background);
+    color: var(--nmp-text);
+    border: 2px solid var(--nmp-text);
+    border-radius: 4px;
+    font: inherit;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.form-toggle[aria-pressed="true"] {
+    background-color: var(--nmp-text);
+    color: var(--nmp-background);
+}
+
+.form-check {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin: 1rem 0 0.25rem;
+}
+
+.form-check input[type="checkbox"] {
+    width: 1.75rem;
+    height: 1.75rem;
+    accent-color: var(--nmp-accent);
+}
+
+.form-check label {
+    font-weight: 700;
+}
+
+/* The error text is a live region: empty it takes no room, filled it is boxed and bold. */
+.live-region.form-error {
+    min-height: 0;
+    margin: 0;
+}
+
+.live-region.form-error:not(:empty) {
+    padding: 0.75rem 1rem;
+    border: 3px solid var(--nmp-text);
+}
+
+.success-box {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin: 1rem 0;
+    padding: 1rem;
+    border: 3px solid var(--nmp-text);
+    font-weight: 700;
+}
+
+.button-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.account-menu {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem 1rem;
+}
+
+.account-menu .live-region {
+    margin: 0;
+    min-height: 0;
+}
+
+.link-result,
+.confirm-box,
+.emergency-code {
+    margin: 1.5rem 0;
+    padding: 1rem 1.5rem;
+    border: 3px solid var(--nmp-text);
+}
+
+.confirm-box {
+    border-style: double;
+    border-width: 6px;
+}
+
+.doc-table .nmp-button {
+    margin: 0.25rem 0.5rem 0.25rem 0;
+}
+
+.private-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    margin-inline-start: 0.75rem;
+    padding: 0 0.5rem;
+    border: 2px solid var(--nmp-text);
+    border-radius: 4px;
+    font-weight: 700;
+}
+
+/* The notice after an administrator's reset: boxed and bold like an error, it waits for "Got it". */
+.reset-notice {
+    margin: 1rem 0;
+}
+
+.reset-notice-text {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 0.75rem;
+    padding: 1rem;
+    border: 3px solid var(--nmp-text);
+    font-weight: 700;
+}
+
+.reset-notice-text p,
+.reset-notice-dates {
+    margin: 0.25rem 0;
+}

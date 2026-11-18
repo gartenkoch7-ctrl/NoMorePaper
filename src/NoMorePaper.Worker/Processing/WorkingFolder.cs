@@ -1,3 +1,5 @@
+using NoMorePaper.Application.Processing;
+
 namespace NoMorePaper.Worker.Processing;
 
 /// <summary>
@@ -5,7 +7,7 @@ namespace NoMorePaper.Worker.Processing;
 /// <c>tmp</c> on the data volume. Not <c>/tmp</c>, which is RAM (tmpfs) in the container, while a
 /// scan and its intermediate images can take hundreds of megabytes.
 /// </summary>
-internal sealed class WorkingFolder(string root, TimeProvider time, ILogger<WorkingFolder> logger)
+internal sealed class WorkingFolder(string root, TimeProvider time, ILogger<WorkingFolder> logger) : IWorkingFolder
 {
     /// <summary>Folder name below the data root.</summary>
     public const string FolderName = "tmp";
@@ -56,7 +58,23 @@ internal sealed class WorkingFolder(string root, TimeProvider time, ILogger<Work
         }
     }
 
-    /// <summary>A new, empty folder for one attempt.</summary>
-    public DirectoryInfo CreateAttemptFolder() =>
-        Directory.CreateDirectory(Path.Combine(Root, $"attempt-{Guid.NewGuid():N}"));
+    public string CreateAttemptFolder() =>
+        Directory.CreateDirectory(Path.Combine(Root, $"attempt-{Guid.NewGuid():N}")).FullName;
+
+    public async Task<string> WriteFileAsync(string attemptFolder, string fileName, Stream content, CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(content);
+        var path = Path.Combine(attemptFolder, fileName);
+        var file = File.Create(path);
+        await using (file.ConfigureAwait(false))
+        {
+            await content.CopyToAsync(file, cancellationToken).ConfigureAwait(false);
+        }
+
+        return path;
+    }
+
+    public Stream OpenRead(string path) => File.OpenRead(path);
+
+    public void DeleteAttemptFolder(string attemptFolder) => Directory.Delete(attemptFolder, recursive: true);
 }

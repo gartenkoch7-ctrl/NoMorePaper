@@ -5,11 +5,11 @@ using NoMorePaper.Domain.Documents;
 
 namespace NoMorePaper.Server.Documents;
 
-/// <summary>Maps the read models of Infrastructure to the Contracts DTOs of the HTTP API. Pure logic.</summary>
+/// <summary>Maps the Application read models to the Contracts DTOs of the HTTP API. Pure logic.</summary>
 internal static class DocumentMapping
 {
     public static DocumentSummaryDto ToDto(this DocumentSummary summary) =>
-        new(summary.Id, summary.Title, summary.ReceivedAt, summary.State.ToDto());
+        new(summary.Id, summary.Title, summary.ReceivedAt, summary.State.ToDto(), summary.IsPrivate, summary.IsMine);
 
     public static DocumentDetailDto ToDto(this DocumentDetail detail) =>
         new(
@@ -19,10 +19,12 @@ internal static class DocumentMapping
             detail.State.ToDto(),
             detail.FailureReason,
             detail.Original.ToDto(),
-            detail.Archive?.ToDto());
+            detail.Archive?.ToDto(),
+            detail.IsPrivate,
+            detail.IsMine);
 
     public static SearchHitDto ToDto(this SearchHit hit) =>
-        new(hit.Id, hit.Title, hit.ReceivedAt, hit.Snippet, hit.Rank);
+        new(hit.Id, hit.Title, hit.ReceivedAt, hit.Snippet, hit.Rank, hit.IsPrivate, hit.IsMine);
 
     public static DocumentFileDto ToDto(this DocumentFile file) =>
         new(file.FileName, file.MediaType, file.SizeBytes, file.Sha256);

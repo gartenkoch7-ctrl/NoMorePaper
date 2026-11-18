@@ -1,0 +1,105 @@
+@page "/mitglieder"
+@using System.Globalization
+@inject IStringLocalizer<Strings> L
+@inject AccountApi Api
+@inject AuthState Auth
+@inject NavigationManager Navigation
+@inject ILogger<Members> Logger
+
+<PageTitle>@L["MembersTitle"]</PageTitle>
+
+<MudText Typo="Typo.h1">@L["MembersHeading"]</MudText>
+
+@if (!Auth.IsAdmin)
+{
+    <p data-ready>@L["MembersAdminOnly"]</p>
+}
+else
+{
+    <LiveRegion @ref="_status" />
+    <LiveRegion @ref="_error" Assertive="true" Class="form-error" />
+
+    <section aria-labelledby="invite-heading">
+        <MudText Typo="Typo.h2" id="invite-heading">@L["MembersInviteHeading"]</MudText>
+        <p>@L["MembersInviteExplain"]</p>
+        <button type="button" class="nmp-button" @ref="_inviteButton" @onclick="InviteAsync">@L["MembersInviteButton"]</button>
+        @if (_invitation is not null)
+        {
+            <div class="link-result">
+                <CopyField @ref="_inviteLink" Id="invite-link" Label="@L["MembersInviteLinkLabel"]" Value="@Absolute(_invitation.Link)" />
+                <p>@L["MembersLinkValid", Expires(_invitation)]</p>
+            </div>
+        }
+    </section>
+
+    <section aria-labelledby="members-heading">
+        <MudText Typo="Typo.h2" id="members-heading">@L["MembersListHeading"]</MudText>
+        @if (_loading)
+        {
+            <p role="status">@L["MembersLoading"]</p>
+        }
+        else if (_loadError is not null)
+        {
+            <div role="alert" class="error-box" data-ready>
+                <MudIcon Icon="@Icons.Material.Filled.Error" />
+                <span>@L["MembersLoadError", _loadError]</span>
+            </div>
+        }
+        else
+        {
+            <table class="doc-table" data-ready>
+                <caption>@L["MembersCaption"]</caption>
+                <thead>
+                    <tr>
+                        <th scope="col">@L["ColName"]</th>
+                        <th scope="col">@L["FieldUserName"]</th>
+                        <th scope="col">@L["ColRole"]</th>
+                        <th scope="col">@L["ColActions"]</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var member in _members)
+                    {
+                        <tr @key="member.Id">
+                            <th scope="row">@member.DisplayName</th>
+                            <td>@member.UserName</td>
+                            <td>@(member.IsAdmin ? L["RoleAdmin"] : L["RoleMember"])</td>
+                            <td>
+                                @if (!member.IsAdmin)
+                                {
+                                    <button type="button" class="nmp-button" aria-label="@L["MembersResetFor", member.DisplayName]"
+                                            @onclick="() => ResetLinkAsync(member)">@L["MembersResetButton"]</button>
+                                    <button type="button" class="nmp-button" aria-label="@L["MembersRemoveFor", member.DisplayName]"
+                                            @onclick="() => AskRemove(member)">@L["MembersRemoveButton"]</button>
+                                }
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+    </section>
+
+    @if (_resetFor is not null && _resetLink is not null)
+    {
+        <section class="link-result" aria-labelledby="reset-heading">
+            <MudText Typo="Typo.h2" id="reset-heading">@L["MembersResetHeading", _resetFor.DisplayName]</MudText>
+            <CopyField @ref="_resetField" Id="reset-link" Label="@L["MembersResetLinkLabel"]" Value="@Absolute(_resetLink.Link)" />
+            <p>@L["MembersLinkValid", Expires(_resetLink)]</p>
+        </section>
+    }
+
+    @if (_removing is not null)
+    {
+        @* Not a modal dialog: a group in the page that takes focus, with the safe choice first.
+           Escape cancels. *@
+        <section class="confirm-box" role="group" aria-labelledby="confirm-heading" @onkeydown="OnConfirmKey">
+            <MudText Typo="Typo.h2" id="confirm-heading">@L["MembersRemoveQuestion", _removing.DisplayName]</MudText>
+            <p>@L["MembersRemoveExplain"]</p>
+            <div class="button-row">
+                <button type="button" class="nmp-button" @ref="_cancelButton" @onclick="CancelRemove">@L["Cancel"]</button>
+                <button type="button" class="nmp-button" @onclick="RemoveAsync">@L["MembersRemoveConfirm"]</button>
+            </div>
+        </section>
+    }
+}

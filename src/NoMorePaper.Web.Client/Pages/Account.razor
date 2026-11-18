@@ -1,0 +1,103 @@
+@page "/konto"
+@inject IStringLocalizer<Strings> L
+@inject AccountApi Api
+@inject AuthState Auth
+@inject NavigationManager Navigation
+@inject IJSRuntime Js
+@inject ILogger<Account> Logger
+
+<PageTitle>@L["AccountTitle"]</PageTitle>
+
+<MudText Typo="Typo.h1">@L["AccountHeading"]</MudText>
+
+@if (Auth.Me is { } me)
+{
+    <p data-ready>@L["AccountSignedInAs", me.DisplayName, me.UserName] @(me.IsAdmin ? L["RoleAdmin"] : L["RoleMember"])</p>
+}
+
+<section aria-labelledby="password-heading">
+    <MudText Typo="Typo.h2" id="password-heading">@L["AccountPasswordHeading"]</MudText>
+    <form class="account-form" novalidate @onsubmit="ChangePasswordAsync">
+        <FormField Id="account-current" Label="@L["FieldCurrentPassword"]" Autocomplete="current-password" Password="true"
+                   @bind-Value="_current" Invalid='_form.IsInvalid("account-current")' />
+        <FormField Id="account-new" Label="@L["FieldNewPassword"]" Autocomplete="new-password" Password="true"
+                   Hint="@L["HintPasswordLength", FormValidation.MinPasswordLength]"
+                   @bind-Value="_new" Invalid='_form.IsInvalid("account-new")' />
+        <FormField Id="account-repeat" Label="@L["FieldRepeatPassword"]" Autocomplete="new-password" Password="true"
+                   @bind-Value="_repeat" Invalid='_form.IsInvalid("account-repeat")' />
+        <LiveRegion @ref="_error" Assertive="true" Class="form-error" />
+        <LiveRegion @ref="_status" />
+        <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" Color="Color.Primary" Disabled="_busy">@L["AccountPasswordButton"]</MudButton>
+    </form>
+</section>
+
+<section aria-labelledby="signout-heading">
+    <MudText Typo="Typo.h2" id="signout-heading">@L["AccountSignOutHeading"]</MudText>
+    <p>@L["AccountSignOutEverywhereHint"]</p>
+    <div class="button-row">
+        <MudButton Variant="Variant.Outlined" Color="Color.Primary" OnClick="() => SignOutAsync(false)">@L["SignOut"]</MudButton>
+        <MudButton Variant="Variant.Outlined" Color="Color.Primary" OnClick="() => SignOutAsync(true)">@L["SignOutEverywhere"]</MudButton>
+    </div>
+    <LiveRegion @ref="_signOutError" Assertive="true" Class="form-error" />
+</section>
+
+@code {
+    private FormValidation _form = default!;
+    private LiveRegion? _error;
+    private LiveRegion? _status;
+    private LiveRegion? _signOutError;
+    private string _current = string.Empty;
+    private string _new = string.Empty;
+    private string _repeat = string.Empty;
+    private bool _busy;
+
+    protected override void OnInitialized() => _form = new FormValidation(L, Js);
+
+    private async Task ChangePasswordAsync()
+    {
+        _form.Reset();
+        _status?.Clear();
+        _form.Required("account-current", _current, L["FieldCurrentPassword"]);
+        _form.NewPassword("account-new", _new, "account-repeat", _repeat, L["FieldNewPassword"]);
+        if (await _form.ReportAsync(_error))
+        {
+            return;
+        }
+
+        _busy = true;
+        var result = await Api.ChangePasswordAsync(new(_current, _new));
+        _busy = false;
+        if (!result.IsSuccess)
+        {
+            _form.Refused(result, "account-current", ("newPassword", "account-new"));
+            await _form.ReportAsync(_error);
+            return;
+        }
+
+        Logger.PasswordChanged("account");
+        _current = _new = _repeat = string.Empty;
+        _error?.Clear();
+        if (_status is not null)
+        {
+            await _status.Announce(L["AccountPasswordChanged"]);
+        }
+    }
+
+    private async Task SignOutAsync(bool everywhere)
+    {
+        var result = await Api.LogoutAsync(everywhere);
+        if (!result.IsSuccess)
+        {
+            if (_signOutError is not null)
+            {
+                await _signOutError.Announce(L["ErrorPrefix", result.Error!]);
+            }
+
+            return;
+        }
+
+        Logger.SignedOut(everywhere);
+        Auth.MarkSignedOut();
+        Navigation.NavigateTo("anmelden");
+    }
+}
