@@ -87,9 +87,16 @@ public sealed class UploadTests(ServerFixture server)
     }
 
     [Theory]
-    [InlineData(SupportedCultures.German, 22, "2 Dateien wurden nicht hochgeladen, weil höchstens 20 auf einmal gehen.")]
-    [InlineData(SupportedCultures.English, 21, "1 file was not uploaded because at most 20 can be uploaded at once.")]
-    public async Task MoreThan20Files_UploadsTheFirst20_AndSaysHowManyWereLeftOut(string culture, int count, string expected)
+    [InlineData(SupportedCultures.German, 22, "2 Dateien wurden nicht hochgeladen, weil höchstens 20 auf einmal gehen.",
+        "Nicht hochgeladen: seite-21.pdf, seite-22.pdf.")]
+    [InlineData(SupportedCultures.English, 21, "1 file was not uploaded because at most 20 can be uploaded at once.",
+        "Not uploaded: seite-21.pdf.")]
+    // The announcement names ten files and counts the rest; the page lists them all.
+    [InlineData(SupportedCultures.German, 33, "13 Dateien wurden nicht hochgeladen",
+        "Nicht hochgeladen: seite-21.pdf, seite-22.pdf, seite-23.pdf, seite-24.pdf, seite-25.pdf, seite-26.pdf, "
+        + "seite-27.pdf, seite-28.pdf, seite-29.pdf, seite-30.pdf und 3 weitere.")]
+    public async Task MoreThan20Files_UploadsTheFirst20_AndNamesTheFilesLeftOut(
+        string culture, int count, string expected, string expectedNames)
     {
         await using var session = await server.OpenAsync("/hochladen", culture);
         var page = session.Page;
@@ -106,6 +113,9 @@ public sealed class UploadTests(ServerFixture server)
         // Shown as text with a symbol, and announced together with the last result.
         await Assertions.Expect(page.Locator(".upload-skipped")).ToContainTextAsync(expected);
         await Assertions.Expect(page.Locator("main [role=status]")).ToContainTextAsync(expected);
+        await Assertions.Expect(page.Locator("main [role=status]")).ToContainTextAsync(expectedNames);
+        var skipped = Enumerable.Range(21, count - 20).Select(i => $"seite-{i:D2}.pdf").ToArray();
+        await Assertions.Expect(page.Locator(".upload-skipped-names li")).ToHaveTextAsync(skipped);
         await Assertions.Expect(page.Locator(".upload-results li")).ToHaveCountAsync(20);
         await Assertions.Expect(page.Locator(".upload-results")).ToContainTextAsync("seite-20.pdf");
         await Assertions.Expect(page.Locator(".upload-results")).Not.ToContainTextAsync("seite-21.pdf");

@@ -53,8 +53,6 @@ internal static class ViewerPdfs
     /// </summary>
     public static byte[] BlueBox(int width, int height)
     {
-        var content = string.Create(CultureInfo.InvariantCulture,
-            $"0 0 1 rg {width / 5} {height * 2 / 5} {width * 3 / 5} {height * 3 / 10} re f BT /F1 {height / 30} Tf {width / 10} {height / 5} Td (Blaue Box) Tj ET");
         string[] objects =
         [
             "<< /Type /Catalog /Pages 2 0 R >>",
@@ -62,10 +60,35 @@ internal static class ViewerPdfs
             string.Create(CultureInfo.InvariantCulture,
                 $"<< /Type /Page /Parent 2 0 R /MediaBox [0 0 {width} {height}] /Resources << /Font << /F1 4 0 R >> >> /Contents 5 0 R >>"),
             "<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>",
-            Stream(content),
+            Stream(BlueBoxContent(width, height)),
         ];
         return Build(objects);
     }
+
+    /// <summary>
+    /// Two A4 pages: page 1 is grey paper with black text, so its analysis finds a grey paper
+    /// white; page 2 is <see cref="BlueBox"/>. Drawn with page 1's analysis, page 2's box is off.
+    /// </summary>
+    public static byte[] GreyPaperThenBlueBox()
+    {
+        const string grey = "0.7 g 0 0 595 842 re f 0 g BT /F1 24 Tf 72 760 Td (Graues Papier) Tj ET";
+        static string Page(int contents) => string.Create(CultureInfo.InvariantCulture,
+            $"<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 5 0 R >> >> /Contents {contents} 0 R >>");
+        string[] objects =
+        [
+            "<< /Type /Catalog /Pages 2 0 R >>",
+            "<< /Type /Pages /Kids [3 0 R 4 0 R] /Count 2 >>",
+            Page(6),
+            Page(7),
+            "<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>",
+            Stream(grey),
+            Stream(BlueBoxContent(595, 842)),
+        ];
+        return Build(objects);
+    }
+
+    private static string BlueBoxContent(int width, int height) => string.Create(CultureInfo.InvariantCulture,
+        $"0 0 1 rg {width / 5} {height * 2 / 5} {width * 3 / 5} {height * 3 / 10} re f BT /F1 {height / 30} Tf {width / 10} {height / 5} Td (Blaue Box) Tj ET");
 
     private static byte[] Build(string[] objects)
     {

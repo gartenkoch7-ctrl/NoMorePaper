@@ -255,6 +255,15 @@
   <data name="UploadSkippedOne" xml:space="preserve">
     <value>1 file was not uploaded because at most {0} can be uploaded at once. Choose it again afterwards.</value>
   </data>
+  <data name="UploadSkippedListLabel" xml:space="preserve">
+    <value>Not uploaded:</value>
+  </data>
+  <data name="UploadSkippedNames" xml:space="preserve">
+    <value>Not uploaded: {0}.</value>
+  </data>
+  <data name="UploadSkippedMore" xml:space="preserve">
+    <value>{0} and {1} more</value>
+  </data>
   <data name="ViewerRendererLost" xml:space="preserve">
     <value>The display was interrupted and is being rebuilt.</value>
   </data>

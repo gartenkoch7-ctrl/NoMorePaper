@@ -184,12 +184,17 @@ class Viewer {
       if (!page) return;
       const token = this.pageToken;
       const analysis = await analyzePage(page, renderer);
-      // Replaced by a page change, lost again or switched once more: that path redoes it.
-      if (token !== this.pageToken || this.disposed || renderer !== this.renderer || isStale(renderer, analysis)) {
+      // Replaced by a page change, lost again or switched once more: that path redoes it. The
+      // page check matters too: #showPage bumps the token before it awaits, so a page change
+      // that started first can finish meanwhile, with the same token.
+      if (token !== this.pageToken || page !== this.page || this.disposed || renderer !== this.renderer
+        || isStale(renderer, analysis)) {
         renderer.release(analysis);
         return;
       }
-      // The old analysis died with the lost context; nothing to free.
+      // Usually dead with the lost context (release skips it), but a second resume of the same
+      // page may have set a live one meanwhile.
+      renderer.release(this.analysis);
       this.analysis = analysis;
       this.view.resume(renderer, analysis);
     } catch (error) {
