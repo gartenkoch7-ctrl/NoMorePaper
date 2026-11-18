@@ -247,6 +247,21 @@
     <value>Document page</value>
   </data>
   <data name="ViewerKeys" xml:space="preserve">
-    <value>Keys: Ctrl + Plus and Ctrl + Minus zoom, Ctrl + 0 shows 100 %. The arrow keys move the page, Page Up and Page Down turn pages. Ctrl + mouse wheel zooms around the mouse pointer.</value>
+    <value>Keys in the document page: Ctrl + Plus and Ctrl + Minus zoom, Ctrl + 0 shows 100 %. The arrow keys move the page, Page Up and Page Down turn pages. Ctrl + mouse wheel zooms around the mouse pointer.</value>
+  </data>
+  <data name="UploadSkipped" xml:space="preserve">
+    <value>{0} files were not uploaded because at most {1} can be uploaded at once. Choose them again afterwards.</value>
+  </data>
+  <data name="UploadSkippedOne" xml:space="preserve">
+    <value>1 file was not uploaded because at most {0} can be uploaded at once. Choose it again afterwards.</value>
+  </data>
+  <data name="ViewerRendererLost" xml:space="preserve">
+    <value>The display was interrupted and is being rebuilt.</value>
+  </data>
+  <data name="ViewerRendererRestored" xml:space="preserve">
+    <value>The display is back.</value>
+  </data>
+  <data name="ViewerRendererFallback" xml:space="preserve">
+    <value>The display now runs in simple mode. Photos are inverted too.</value>
   </data>
 </root>

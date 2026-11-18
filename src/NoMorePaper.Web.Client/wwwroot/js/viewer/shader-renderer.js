@@ -1,7 +1,8 @@
 // WebGL2 renderer: photo analysis once per page (analyze -> CPU -> fill) and the display pass.
 // One context serves the viewer and every thumbnail, because browsers allow only a few WebGL
 // contexts per page. The viewer moves the shared canvas into its stage; thumbnails render into
-// an offscreen framebuffer and read the pixels back.
+// an offscreen framebuffer and read the pixels back. The shared instance and what happens when
+// the browser takes the context away live in shared-renderer.js.
 import { CELL, CORE, GROW, PARAMS, SPACING } from './defaults.js';
 import { FRAGMENT_HEADER, QUAD_VERT } from './glsl-common.js';
 import { ANALYZE_FRAG, FILL_FRAG } from './glsl-analysis.js';
@@ -9,24 +10,14 @@ import { DISPLAY_FRAG } from './glsl-display.js';
 import { createProgram, createTarget, createTexture, deleteTarget } from './gl-util.js';
 import { classifyImages, fillPhotoBoxes } from './images.js';
 
-let shared;
-
-// The shared renderer, or { renderer: null, reason } when WebGL2 is missing or broken.
-export function sharedRenderer() {
-  if (!shared) shared = ShaderRenderer.tryCreate();
-  return shared;
-}
-
 export class ShaderRenderer {
+  // { renderer, reason: null }, or { renderer: null, reason } when WebGL2 is missing or broken.
   static tryCreate() {
     const canvas = document.createElement('canvas');
     const gl = canvas.getContext('webgl2', { alpha: false, antialias: false, depth: false });
     if (!gl) return { renderer: null, reason: 'no-webgl2' };
     try {
-      const renderer = new ShaderRenderer(gl, canvas);
-      // A lost context cannot draw again; the next viewer or thumbnail starts a new one.
-      canvas.addEventListener('webglcontextlost', () => { shared = undefined; });
-      return { renderer, reason: null };
+      return { renderer: new ShaderRenderer(gl, canvas), reason: null };
     } catch {
       return { renderer: null, reason: 'shader-error' };
     }
@@ -36,6 +27,21 @@ export class ShaderRenderer {
     this.gl = gl;
     this.canvas = canvas;
     this.kind = 'webgl2';
+    // Counts context losses: whatever was drawn or analysed in an older generation is invalid.
+    this.generation = 0;
+    this.ready = false;
+    this.build();
+  }
+
+  // True while the context is gone: drawing shows nothing and readPixels returns black.
+  get lost() { return !this.ready || this.gl.isContextLost(); }
+
+  // Programs, buffer and tile texture; again after the browser restored a lost context, because
+  // every GL object died with it. Throws if a shader does not compile.
+  build() {
+    const gl = this.gl;
+    this.ready = false;
+    this.maxTextureSize = gl.getParameter(gl.MAX_TEXTURE_SIZE);
     this.display = createProgram(gl, QUAD_VERT, FRAGMENT_HEADER + DISPLAY_FRAG);
     this.analyze = createProgram(gl, QUAD_VERT, FRAGMENT_HEADER + ANALYZE_FRAG);
     this.fill = createProgram(gl, QUAD_VERT, FRAGMENT_HEADER + FILL_FRAG);
@@ -49,6 +55,13 @@ export class ShaderRenderer {
     // texture and every pass shares the same orientation.
     gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
     this.tile = createTexture(gl, gl.NEAREST, gl.NEAREST);
+    this.ready = true;
+  }
+
+  // Called on webglcontextlost: everything made so far belongs to the old generation.
+  markLost() {
+    this.ready = false;
+    this.generation++;
   }
 
   // The photo mask needs the analysis render of every page the viewer shows.
@@ -116,13 +129,18 @@ export class ShaderRenderer {
       pageSize,
       images,
       tone: { white: paper.white, black: paper.black },
+      // Made while the context was gone: the mask is empty and matches no generation.
+      generation: this.lost ? -1 : this.generation,
     };
   }
 
   release(analysis) {
     if (!analysis) return;
-    if (analysis.page) this.gl.deleteTexture(analysis.page);
-    deleteTarget(this.gl, analysis.mask);
+    // Objects of an older generation died with the lost context; deleting them is an error.
+    if (analysis.generation === this.generation) {
+      if (analysis.page) this.gl.deleteTexture(analysis.page);
+      deleteTarget(this.gl, analysis.mask);
+    }
     analysis.page = null;
     analysis.mask = null;
   }
@@ -175,7 +193,8 @@ export class ShaderRenderer {
     gl.viewport(0, 0, gl.drawingBufferWidth, gl.drawingBufferHeight);
     gl.clearColor(0, 0, 0, 1);
     gl.clear(gl.COLOR_BUFFER_BIT);
-    if (!part || !analysis?.mask) return;
+    // Black until the page is analysed again after a lost context.
+    if (!part || !analysis?.mask || analysis.generation !== this.generation) return;
     const { rect } = part;
     gl.viewport(rect.x, gl.drawingBufferHeight - rect.y - rect.height, rect.width, rect.height);
     this.#drawDisplay(this.tile, part, analysis, mode);

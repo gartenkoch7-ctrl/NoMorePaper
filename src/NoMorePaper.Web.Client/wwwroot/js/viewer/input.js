@@ -1,6 +1,8 @@
 // Keyboard, wheel and pinch input of the viewer. Ctrl + plus/minus/0 zoom, Page Up/Down change
 // the page, Ctrl + mouse wheel and the two-finger gesture (touchpads send it as Ctrl + wheel,
 // Safari as gesture events) zoom around the pointer. Arrow keys scroll natively.
+// Keys count only while the focus is in the document page (the scroller): everywhere else on
+// the page Ctrl + plus/minus/0 stay the browser's own zoom (WCAG 1.4.4).
 import { ZOOM_MAX, ZOOM_MIN, ZOOM_STEPS } from './defaults.js';
 
 // Wheel deltas from this size on are mouse wheel notches (one step each); smaller ones come
@@ -30,7 +32,7 @@ export function attachInput(scroller, actions) {
         ? { PageDown: actions.nextPage, PageUp: actions.previousPage }[event.key]
         : undefined;
     if (!command) return;
-    // Ctrl + plus would otherwise zoom the whole browser page, which only stretches pixels.
+    // In the document page Ctrl + plus re-renders sharp instead of letting the browser stretch it.
     event.preventDefault();
     command();
   };
@@ -62,12 +64,13 @@ export function attachInput(scroller, actions) {
     actions.zoomTo(gestureStart * event.scale, pointIn(event.clientX, event.clientY));
   };
 
-  document.addEventListener('keydown', onKey);
+  // On the scroller, not the document: key events reach it only while the focus is inside it.
+  scroller.addEventListener('keydown', onKey);
   scroller.addEventListener('wheel', onWheel, { passive: false });
   scroller.addEventListener('gesturestart', onGestureStart);
   scroller.addEventListener('gesturechange', onGestureChange);
   return () => {
-    document.removeEventListener('keydown', onKey);
+    scroller.removeEventListener('keydown', onKey);
     scroller.removeEventListener('wheel', onWheel);
     scroller.removeEventListener('gesturestart', onGestureStart);
     scroller.removeEventListener('gesturechange', onGestureChange);

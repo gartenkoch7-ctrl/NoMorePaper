@@ -86,6 +86,31 @@ public sealed class UploadTests(ServerFixture server)
         await Assertions.Expect(page.Locator(".upload-results li")).ToContainTextAsync(expected);
     }
 
+    [Theory]
+    [InlineData(SupportedCultures.German, 22, "2 Dateien wurden nicht hochgeladen, weil höchstens 20 auf einmal gehen.")]
+    [InlineData(SupportedCultures.English, 21, "1 file was not uploaded because at most 20 can be uploaded at once.")]
+    public async Task MoreThan20Files_UploadsTheFirst20_AndSaysHowManyWereLeftOut(string culture, int count, string expected)
+    {
+        await using var session = await server.OpenAsync("/hochladen", culture);
+        var page = session.Page;
+        await ApiMocks.UploadAsync(page, new { id = Guid.NewGuid() });
+        var files = Enumerable.Range(1, count).Select(i => new FilePayload
+        {
+            Name = $"seite-{i:D2}.pdf",
+            MimeType = "application/pdf",
+            Buffer = SampleDocuments.MinimalPdf(),
+        });
+
+        await page.Locator(FileInput).SetInputFilesAsync(files);
+
+        // Shown as text with a symbol, and announced together with the last result.
+        await Assertions.Expect(page.Locator(".upload-skipped")).ToContainTextAsync(expected);
+        await Assertions.Expect(page.Locator("main [role=status]")).ToContainTextAsync(expected);
+        await Assertions.Expect(page.Locator(".upload-results li")).ToHaveCountAsync(20);
+        await Assertions.Expect(page.Locator(".upload-results")).ToContainTextAsync("seite-20.pdf");
+        await Assertions.Expect(page.Locator(".upload-results")).Not.ToContainTextAsync("seite-21.pdf");
+    }
+
     // Needs the real API (track A): the document lands in the list as "Queued".
     [Fact]
     public async Task Upload_AgainstRealApi_ShowsDocumentAsQueuedInList()

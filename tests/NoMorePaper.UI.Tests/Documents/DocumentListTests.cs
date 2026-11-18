@@ -96,6 +96,33 @@ public sealed class DocumentListTests(ServerFixture server)
         await ExpectRowAsync(page, "Brief", "Fertig");
     }
 
+    [Fact]
+    public async Task SeveralChangesInOnePoll_AreAnnouncedTogether()
+    {
+        var calls = 0;
+        var (brief, rechnung) = (Guid.NewGuid(), Guid.NewGuid());
+        await using var session = await ApiMocks.OpenViaNavigationAsync(server, SupportedCultures.German, "Dokumente",
+            page => page.RouteAsync(new System.Text.RegularExpressions.Regex(@"/api/documents\?"), route =>
+            {
+                var (first, second) = Interlocked.Increment(ref calls) == 1 ? ("Processing", "Queued") : ("Done", "Failed");
+                return route.FulfillAsync(new RouteFulfillOptions
+                {
+                    Status = 200,
+                    ContentType = "application/json",
+                    Body = $$"""
+                        [{"id":"{{brief}}","title":"Brief","receivedAt":"2026-11-18T10:00:00Z","state":"{{first}}"},
+                         {"id":"{{rechnung}}","title":"Rechnung","receivedAt":"2026-11-18T09:00:00Z","state":"{{second}}"}]
+                        """,
+                });
+            }));
+        var page = session.Page;
+
+        await ExpectRowAsync(page, "Rechnung", "Fehlgeschlagen");
+        // One message with both changes, not the second one cutting off the first.
+        await Assertions.Expect(page.Locator("main .live-region"))
+            .ToHaveTextAsync("Brief: Status Fertig. Rechnung: Status Fehlgeschlagen");
+    }
+
     private static Task ExpectRowAsync(IPage page, string title, string state)
         => Assertions.Expect(page.Locator("tbody tr").Filter(new LocatorFilterOptions { HasText = title }))
             .ToContainTextAsync(state);

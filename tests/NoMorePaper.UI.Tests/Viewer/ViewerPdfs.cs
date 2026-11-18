@@ -3,7 +3,7 @@ using System.Text;
 
 namespace NoMorePaper.UI.Tests.Viewer;
 
-/// <summary>PDFs for the viewer tests: the shader spike's test documents and a generated two-page PDF.</summary>
+/// <summary>PDFs for the viewer tests: the shader spike's test documents and generated ones.</summary>
 internal static class ViewerPdfs
 {
     /// <summary>A sample from <c>spikes/viewer-shader/samples</c> (all invented, see its README).</summary>
@@ -38,7 +38,37 @@ internal static class ViewerPdfs
             Stream(text),
             Stream(box),
         ];
+        return Build(objects);
+    }
 
+    /// <summary>A point inside the box of <see cref="BlueBox"/> (fractions of the page from the top left).</summary>
+    public static readonly (double X, double Y) BoxPoint = (0.5, 0.45);
+
+    /// <summary>A point on bare paper of <see cref="BlueBox"/> (fractions of the page from the top left).</summary>
+    public static readonly (double X, double Y) PaperPoint = (0.05, 0.05);
+
+    /// <summary>
+    /// One page of <paramref name="width"/> x <paramref name="height"/> points: a pure blue box over
+    /// the middle (x 20–80 %, y 30–60 % from the top) and the text "Blaue Box".
+    /// </summary>
+    public static byte[] BlueBox(int width, int height)
+    {
+        var content = string.Create(CultureInfo.InvariantCulture,
+            $"0 0 1 rg {width / 5} {height * 2 / 5} {width * 3 / 5} {height * 3 / 10} re f BT /F1 {height / 30} Tf {width / 10} {height / 5} Td (Blaue Box) Tj ET");
+        string[] objects =
+        [
+            "<< /Type /Catalog /Pages 2 0 R >>",
+            "<< /Type /Pages /Kids [3 0 R] /Count 1 >>",
+            string.Create(CultureInfo.InvariantCulture,
+                $"<< /Type /Page /Parent 2 0 R /MediaBox [0 0 {width} {height}] /Resources << /Font << /F1 4 0 R >> >> /Contents 5 0 R >>"),
+            "<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>",
+            Stream(content),
+        ];
+        return Build(objects);
+    }
+
+    private static byte[] Build(string[] objects)
+    {
         var pdf = new StringBuilder("%PDF-1.4\n");
         var offsets = new List<int>();
         for (var i = 0; i < objects.Length; i++)

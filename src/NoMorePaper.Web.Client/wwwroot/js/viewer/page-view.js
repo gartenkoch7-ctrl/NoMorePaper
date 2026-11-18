@@ -51,6 +51,18 @@ export class PageView {
     this.render();
   }
 
+  // After the renderer was rebuilt (lost WebGL context) or replaced by the fallback: same page,
+  // same place and zoom, drawn and rendered anew. The old tile died with the old renderer.
+  resume(renderer, analysis) {
+    this.renderer = renderer;
+    this.analysis = analysis;
+    this.tile = null;
+    this.inflight = null;
+    if (!this.page) return;
+    this.draw();
+    this.render();
+  }
+
   get fitWidthZoom() {
     return clamp((this.scroller.clientWidth - 2 * PAGE_MARGIN) / (this.points[0] * CSS_PER_POINT), ZOOM_MIN, ZOOM_MAX);
   }

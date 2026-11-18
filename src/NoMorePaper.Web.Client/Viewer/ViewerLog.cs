@@ -49,4 +49,12 @@ internal static partial class ViewerLog
     [LoggerMessage(EventId = 4209, EventName = "ThumbnailFailed", Level = LogLevel.Warning,
         Message = "Thumbnail could not be rendered: {ErrorType}")]
     public static partial void ThumbnailFailed(this ILogger logger, string errorType);
+
+    [LoggerMessage(EventId = 4210, EventName = "WebGlContextLost", Level = LogLevel.Warning,
+        Message = "The browser took the viewer's WebGL context away; waiting for it to come back")]
+    public static partial void WebGlContextLost(this ILogger logger);
+
+    [LoggerMessage(EventId = 4211, EventName = "WebGlContextRestored", Level = LogLevel.Information,
+        Message = "The viewer's WebGL context is back and the page was drawn again")]
+    public static partial void WebGlContextRestored(this ILogger logger);
 }
