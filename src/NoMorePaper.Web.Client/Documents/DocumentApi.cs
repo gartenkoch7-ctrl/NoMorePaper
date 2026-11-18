@@ -4,6 +4,7 @@ using System.Text.Json;
 using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.Extensions.Localization;
 using Microsoft.Extensions.Logging;
+using NoMorePaper.Contracts.Accounts;
 using NoMorePaper.Contracts.Documents;
 using NoMorePaper.Web.Client.Localization;
 
@@ -18,7 +19,7 @@ public sealed class DocumentApi(HttpClient http, IStringLocalizer<Strings> local
 {
     public const long MaxUploadBytes = 100L * 1024 * 1024;
 
-    public async Task<ApiResult<UploadResultDto>> UploadAsync(IBrowserFile file, CancellationToken ct = default)
+    public async Task<ApiResult<UploadResultDto>> UploadAsync(IBrowserFile file, bool isPrivate = false, CancellationToken ct = default)
     {
         if (file.Size == 0)
         {
@@ -40,7 +41,12 @@ public sealed class DocumentApi(HttpClient http, IStringLocalizer<Strings> local
             part.Headers.ContentType = MediaTypeHeaderValue.TryParse(file.ContentType, out var type)
                 ? type
                 : new MediaTypeHeaderValue("application/octet-stream");
-            using var form = new MultipartFormDataContent { { part, "file", file.Name } };
+            // The privacy field goes first so a server reading the form as a stream knows it before the file.
+            using var form = new MultipartFormDataContent
+            {
+                { new StringContent(isPrivate ? "true" : "false"), "private" },
+                { part, "file", file.Name },
+            };
             form.Headers.Add("X-NoMorePaper-Request", "1");
             using var response = await http.PostAsync("api/documents", form, ct);
             var result = await ReadAsync<UploadResultDto>(response, "upload", ct);
@@ -65,6 +71,32 @@ public sealed class DocumentApi(HttpClient http, IStringLocalizer<Strings> local
 
     public Task<ApiResult<SearchHitDto[]>> SearchAsync(string query, int limit = 20, CancellationToken ct = default)
         => GetAsync<SearchHitDto[]>($"api/search?q={Uri.EscapeDataString(query)}&limit={limit}", "search", ct);
+
+    /// <summary>Makes a document private or shared again; only its owner may (anyone else gets "not found").</summary>
+    public async Task<ApiResult<bool>> SetPrivacyAsync(Guid id, bool isPrivate, CancellationToken ct = default)
+    {
+        try
+        {
+            using var request = new HttpRequestMessage(HttpMethod.Patch, $"api/documents/{id}")
+            {
+                Content = JsonContent.Create(new SetPrivacyRequestDto(isPrivate)),
+            };
+            request.Headers.Add("X-NoMorePaper-Request", "1");
+            using var response = await http.SendAsync(request, ct);
+            if (!response.IsSuccessStatusCode)
+            {
+                logger.ApiRequestFailed("privacy", (int)response.StatusCode);
+                return Fail<bool>(MessageFor((int)response.StatusCode));
+            }
+
+            logger.PrivacyChanged(isPrivate);
+            return Ok(true);
+        }
+        catch (Exception ex) when (IsRecoverable(ex, ct))
+        {
+            return Unreachable<bool>("privacy", ex);
+        }
+    }
 
     private async Task<ApiResult<T>> GetAsync<T>(string uri, string operation, CancellationToken ct)
     {
@@ -102,6 +134,7 @@ public sealed class DocumentApi(HttpClient http, IStringLocalizer<Strings> local
     private string MessageFor(int status) => status switch
     {
         400 => localizer["ErrorEmpty"],
+        401 => localizer["ErrorSignInRequired"],
         404 => localizer["ErrorNotFound"],
         413 => localizer["ErrorTooLarge"],
         415 => localizer["ErrorType"],

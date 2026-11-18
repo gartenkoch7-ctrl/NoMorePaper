@@ -50,6 +50,10 @@ else
                                 <Thumbnail Source="@DocumentLinks.Archive(document.Id)" Title="@document.Title" />
                             }
                             <a href="@DocumentLinks.Viewer(document.Id)">@document.Title</a>
+                            @if (document.IsPrivate)
+                            {
+                                <PrivateBadge />
+                            }
                         </span>
                     </th>
                     <td><time datetime="@document.ReceivedAt.ToString("o", CultureInfo.InvariantCulture)">@document.ReceivedAt.ToLocalTime().ToString("g", CultureInfo.CurrentCulture)</time></td>

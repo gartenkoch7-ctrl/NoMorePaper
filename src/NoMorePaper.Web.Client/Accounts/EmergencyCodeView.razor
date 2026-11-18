@@ -1,0 +1,55 @@
+@inject IStringLocalizer<Strings> L
+
+@* Shown once after setup and after an emergency reset. The code is only shown here, so the page
+   makes the person confirm that it is kept before it goes on. Heading level 2: the page's own
+   H1 stays. *@
+<section class="emergency-code" aria-labelledby="emergency-heading">
+    <h2 id="emergency-heading" tabindex="-1" @ref="_heading">@L["EmergencyHeading"]</h2>
+    <p>@L["EmergencyExplain"]</p>
+    <CopyField Id="emergency-code" Label="@L["EmergencyCodeLabel"]" Value="@Code" Large="true" />
+    <div class="form-check">
+        <input @ref="_check" id="emergency-kept" type="checkbox" @bind="_kept" aria-invalid="@(_missing ? "true" : null)" />
+        <label for="emergency-kept">@L["EmergencyKept"]</label>
+    </div>
+    <LiveRegion @ref="_error" Assertive="true" Class="form-error" />
+    <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="ContinueAsync">@L["Continue"]</MudButton>
+</section>
+
+@code {
+    private ElementReference _heading;
+    private ElementReference _check;
+    private LiveRegion? _error;
+    private bool _kept;
+    private bool _missing;
+
+    [Parameter, EditorRequired] public string Code { get; set; } = string.Empty;
+
+    [Parameter] public EventCallback OnConfirmed { get; set; }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        // The form is replaced by this view: put the screen reader where the new content starts.
+        if (firstRender)
+        {
+            await _heading.FocusAsync();
+        }
+    }
+
+    private async Task ContinueAsync()
+    {
+        if (!_kept)
+        {
+            _missing = true;
+            if (_error is not null)
+            {
+                await _error.Announce(L["ErrorPrefix", L["EmergencyNotKept"]]);
+            }
+
+            await _check.FocusAsync();
+
+            return;
+        }
+
+        await OnConfirmed.InvokeAsync();
+    }
+}

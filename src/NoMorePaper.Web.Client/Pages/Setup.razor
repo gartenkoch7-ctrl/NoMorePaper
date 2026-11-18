@@ -1,0 +1,107 @@
+@page "/einrichten"
+@inject IStringLocalizer<Strings> L
+@inject AccountApi Api
+@inject AuthState Auth
+@inject NavigationManager Navigation
+@inject IJSRuntime Js
+@inject ILogger<Setup> Logger
+
+<PageTitle>@L["SetupTitle"]</PageTitle>
+
+<MudText Typo="Typo.h1">@L["SetupHeading"]</MudText>
+
+@if (_checking)
+{
+    <p role="status">@L["SessionLoading"]</p>
+}
+else if (_alreadyDone)
+{
+    <p data-ready>@L["SetupAlreadyDone"]</p>
+    <p><a href="anmelden">@L["SetupToSignIn"]</a></p>
+}
+else if (_emergencyCode is not null)
+{
+    <div data-ready>
+        <EmergencyCodeView Code="@_emergencyCode" OnConfirmed="ContinueAsync" />
+    </div>
+}
+else
+{
+    <p>@L["SetupIntro"]</p>
+    <form class="account-form" novalidate @onsubmit="SubmitAsync" data-ready>
+        <FormField Id="setup-display" Label="@L["FieldDisplayName"]" Autocomplete="name"
+                   @bind-Value="_displayName" Invalid='_form.IsInvalid("setup-display")' />
+        <FormField Id="setup-user" Label="@L["FieldUserName"]" Autocomplete="username"
+                   @bind-Value="_userName" Invalid='_form.IsInvalid("setup-user")' />
+        <FormField Id="setup-password" Label="@L["FieldNewPassword"]" Autocomplete="new-password" Password="true"
+                   Hint="@L["HintPasswordLength", FormValidation.MinPasswordLength]"
+                   @bind-Value="_password" Invalid='_form.IsInvalid("setup-password")' />
+        <FormField Id="setup-repeat" Label="@L["FieldRepeatPassword"]" Autocomplete="new-password" Password="true"
+                   @bind-Value="_repeat" Invalid='_form.IsInvalid("setup-repeat")' />
+        <LiveRegion @ref="_error" Assertive="true" Class="form-error" />
+        <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" Color="Color.Primary" Disabled="_busy">@L["SetupButton"]</MudButton>
+    </form>
+}
+
+@code {
+    private FormValidation _form = default!;
+    private LiveRegion? _error;
+    private string _displayName = string.Empty;
+    private string _userName = string.Empty;
+    private string _password = string.Empty;
+    private string _repeat = string.Empty;
+    private string? _emergencyCode;
+    private bool _checking = true;
+    private bool _alreadyDone;
+    private bool _busy;
+
+    protected override async Task OnInitializedAsync()
+    {
+        _form = new FormValidation(L, Js);
+        var status = await Api.GetSetupAsync();
+        _alreadyDone = status.IsSuccess && status.Value is { Needed: false };
+        _checking = false;
+    }
+
+    private async Task SubmitAsync()
+    {
+        _form.Reset();
+        _form.Required("setup-display", _displayName, L["FieldDisplayName"]);
+        _form.Required("setup-user", _userName, L["FieldUserName"]);
+        _form.NewPassword("setup-password", _password, "setup-repeat", _repeat, L["FieldNewPassword"]);
+        if (await _form.ReportAsync(_error))
+        {
+            return;
+        }
+
+        _busy = true;
+        var result = await Api.SetUpAsync(new(_userName.Trim(), _displayName.Trim(), _password));
+        _busy = false;
+        if (!result.IsSuccess)
+        {
+            _form.Set("setup-user", result.Error!);
+            await _form.ReportAsync(_error);
+            return;
+        }
+
+        Logger.HouseholdSetUp();
+        _emergencyCode = result.Value!.EmergencyCode;
+    }
+
+    // The code is shown only once. After it is confirmed, sign in with the same credentials so the
+    // person lands in the app instead of typing them again.
+    private async Task ContinueAsync()
+    {
+        var signedIn = await Api.LoginAsync(new(_userName.Trim(), _password));
+        _password = _repeat = string.Empty;
+        _emergencyCode = null;
+        if (signedIn.IsSuccess)
+        {
+            Logger.SignedIn();
+        }
+
+        // Also when the sign-in failed: the guard must know the household exists now.
+        await Auth.RefreshAsync();
+        Navigation.NavigateTo(signedIn.IsSuccess ? "/" : "anmelden");
+    }
+}

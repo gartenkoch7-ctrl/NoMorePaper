@@ -16,6 +16,14 @@
     <p id="upload-hint" class="drop-zone-hint">@L["UploadHint"]</p>
 </div>
 
+@* Applies to the files chosen next. A native checkbox with a visible label and a hint that says
+   what "private" means, so it is clear before anything is uploaded. *@
+<div class="form-check">
+    <input id="upload-private" type="checkbox" @bind="_private" aria-describedby="upload-private-hint" />
+    <label for="upload-private">@L["PrivateLabel"]</label>
+</div>
+<p id="upload-private-hint" class="form-hint">@L["UploadPrivateHint"]</p>
+
 <LiveRegion @ref="_progress" />
 
 @if (_skipped is not null)
@@ -70,6 +78,7 @@
     private readonly List<UploadOutcome> _results = [];
     private LiveRegion? _progress;
     private SkippedFiles? _skipped;
+    private bool _private;
 
     private async Task OnFilesChangedAsync(InputFileChangeEventArgs args)
     {
@@ -103,7 +112,7 @@
     private async Task UploadOneAsync(IBrowserFile file, string? notice)
     {
         await AnnounceAsync(L["UploadInProgress", file.Name]);
-        var result = await Api.UploadAsync(file);
+        var result = await Api.UploadAsync(file, _private);
         var outcome = new UploadOutcome(file.Name, result.Value?.Id, result.Error);
         _results.Insert(0, outcome);
         string message = outcome.Id is null

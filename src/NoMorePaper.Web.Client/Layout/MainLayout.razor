@@ -1,6 +1,8 @@
 @inherits LayoutComponentBase
+@implements IDisposable
 @inject IStringLocalizer<Strings> L
 @inject NavigationManager Navigation
+@inject AuthState Auth
 
 <MudThemeProvider Theme="_theme" IsDarkMode="true" />
 <MudPopoverProvider />
@@ -13,28 +15,58 @@
 
 <header class="app-header">
     <span class="app-name">NoMorePaper</span>
-    <nav class="app-nav" aria-label="@L["MainNavigation"]">
-        <ul>
-            <li><a href="" aria-current="@(IsCurrent("") ? "page" : null)">@L["NavHome"]</a></li>
-            <li><a href="hochladen" aria-current="@(IsCurrent("hochladen") ? "page" : null)">@L["NavUpload"]</a></li>
-            <li><a href="dokumente" aria-current="@(IsCurrent("dokumente") ? "page" : null)">@L["NavDocuments"]</a></li>
-            <li><a href="suche" aria-current="@(IsCurrent("suche") ? "page" : null)">@L["NavSearch"]</a></li>
-        </ul>
-    </nav>
-    <HeaderSearch />
+    @* Navigation, search and account only exist for a signed-in person. *@
+    @if (Auth.IsSignedIn)
+    {
+        <nav class="app-nav" aria-label="@L["MainNavigation"]">
+            <ul>
+                <li><a href="" aria-current="@(IsCurrent("") ? "page" : null)">@L["NavHome"]</a></li>
+                <li><a href="hochladen" aria-current="@(IsCurrent("hochladen") ? "page" : null)">@L["NavUpload"]</a></li>
+                <li><a href="dokumente" aria-current="@(IsCurrent("dokumente") ? "page" : null)">@L["NavDocuments"]</a></li>
+                <li><a href="suche" aria-current="@(IsCurrent("suche") ? "page" : null)">@L["NavSearch"]</a></li>
+                <li><a href="konto" aria-current="@(IsCurrent("konto") ? "page" : null)">@L["NavAccount"]</a></li>
+                @if (Auth.IsAdmin)
+                {
+                    <li><a href="mitglieder" aria-current="@(IsCurrent("mitglieder") ? "page" : null)">@L["NavMembers"]</a></li>
+                }
+            </ul>
+        </nav>
+        <HeaderSearch />
+        <AccountMenu />
+    }
+
     <LanguageSwitch />
 </header>
 
 <main id="main-content" class="app-main" tabindex="-1" @ref="_main">
-    @Body
+    <RequireSignIn>
+        @Body
+    </RequireSignIn>
 </main>
 
 @code {
     private readonly MudTheme _theme = ContrastTheme.Create();
     private ElementReference _main;
 
+    protected override void OnInitialized()
+    {
+        Auth.Changed += OnAuthChanged;
+        Navigation.LocationChanged += OnLocationChanged;
+    }
+
+    private void OnAuthChanged() => _ = InvokeAsync(StateHasChanged);
+
+    // The current page is marked in the navigation, so the layout renders again on navigation.
+    private void OnLocationChanged(object? sender, LocationChangedEventArgs e) => _ = InvokeAsync(StateHasChanged);
+
     private bool IsCurrent(string path) =>
         Navigation.ToBaseRelativePath(Navigation.Uri).Split('?', '#')[0] == path;
 
     private async Task SkipToContentAsync() => await _main.FocusAsync();
+
+    public void Dispose()
+    {
+        Auth.Changed -= OnAuthChanged;
+        Navigation.LocationChanged -= OnLocationChanged;
+    }
 }

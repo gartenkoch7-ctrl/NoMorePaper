@@ -1,0 +1,101 @@
+@page "/einladung/{Token}"
+@using System.Globalization
+@inject IStringLocalizer<Strings> L
+@inject AccountApi Api
+@inject AuthState Auth
+@inject NavigationManager Navigation
+@inject IJSRuntime Js
+@inject ILogger<AcceptInvitation> Logger
+
+<PageTitle>@L["InvitationTitle"]</PageTitle>
+
+<MudText Typo="Typo.h1">@L["InvitationHeading"]</MudText>
+
+@if (_checking)
+{
+    <p role="status">@L["SessionLoading"]</p>
+}
+else if (_invalid is not null)
+{
+    <div role="alert" class="error-box" data-ready>
+        <MudIcon Icon="@Icons.Material.Filled.Error" />
+        <span>@_invalid</span>
+    </div>
+    <p><a href="anmelden">@L["SetupToSignIn"]</a></p>
+}
+else
+{
+    <p data-ready>@L["InvitationIntro", _expires]</p>
+    <form class="account-form" novalidate @onsubmit="SubmitAsync">
+        <FormField Id="invite-display" Label="@L["FieldDisplayName"]" Autocomplete="name"
+                   @bind-Value="_displayName" Invalid='_form.IsInvalid("invite-display")' />
+        <FormField Id="invite-user" Label="@L["FieldUserName"]" Autocomplete="username"
+                   @bind-Value="_userName" Invalid='_form.IsInvalid("invite-user")' />
+        <FormField Id="invite-password" Label="@L["FieldNewPassword"]" Autocomplete="new-password" Password="true"
+                   Hint="@L["HintPasswordLength", FormValidation.MinPasswordLength]"
+                   @bind-Value="_password" Invalid='_form.IsInvalid("invite-password")' />
+        <FormField Id="invite-repeat" Label="@L["FieldRepeatPassword"]" Autocomplete="new-password" Password="true"
+                   @bind-Value="_repeat" Invalid='_form.IsInvalid("invite-repeat")' />
+        <LiveRegion @ref="_error" Assertive="true" Class="form-error" />
+        <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" Color="Color.Primary" Disabled="_busy">@L["InvitationButton"]</MudButton>
+    </form>
+}
+
+@code {
+    private FormValidation _form = default!;
+    private LiveRegion? _error;
+    private string _displayName = string.Empty;
+    private string _userName = string.Empty;
+    private string _password = string.Empty;
+    private string _repeat = string.Empty;
+    private string _expires = string.Empty;
+    private string? _invalid;
+    private bool _checking = true;
+    private bool _busy;
+
+    [Parameter] public string Token { get; set; } = string.Empty;
+
+    protected override async Task OnInitializedAsync()
+    {
+        _form = new FormValidation(L, Js);
+        var status = await Api.GetInvitationAsync(Token);
+        if (status.IsSuccess)
+        {
+            _expires = status.Value!.ExpiresAt.ToLocalTime().ToString("f", CultureInfo.CurrentCulture);
+        }
+        else
+        {
+            _invalid = status.Error;
+        }
+
+        _checking = false;
+    }
+
+    private async Task SubmitAsync()
+    {
+        _form.Reset();
+        _form.Required("invite-display", _displayName, L["FieldDisplayName"]);
+        _form.Required("invite-user", _userName, L["FieldUserName"]);
+        _form.NewPassword("invite-password", _password, "invite-repeat", _repeat, L["FieldNewPassword"]);
+        if (await _form.ReportAsync(_error))
+        {
+            return;
+        }
+
+        _busy = true;
+        var result = await Api.AcceptInvitationAsync(Token, new(_userName.Trim(), _displayName.Trim(), _password));
+        _busy = false;
+        if (!result.IsSuccess)
+        {
+            _form.Set("invite-user", result.Error!);
+            await _form.ReportAsync(_error);
+            return;
+        }
+
+        // The server signs the new member in (204 with the session cookie).
+        Logger.InvitationAccepted();
+        _password = _repeat = string.Empty;
+        await Auth.RefreshAsync();
+        Navigation.NavigateTo("/");
+    }
+}

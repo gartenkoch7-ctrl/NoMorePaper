@@ -273,4 +273,334 @@
   <data name="ViewerRendererFallback" xml:space="preserve">
     <value>The display now runs in simple mode. Photos are inverted too.</value>
   </data>
+  <data name="NavAccount" xml:space="preserve">
+    <value>Account</value>
+  </data>
+  <data name="NavMembers" xml:space="preserve">
+    <value>Members</value>
+  </data>
+  <data name="SignOut" xml:space="preserve">
+    <value>Sign out</value>
+  </data>
+  <data name="SignOutEverywhere" xml:space="preserve">
+    <value>Sign out on all devices</value>
+  </data>
+  <data name="SignedInAs" xml:space="preserve">
+    <value>Signed in as {0}</value>
+  </data>
+  <data name="SessionLoading" xml:space="preserve">
+    <value>Checking your sign-in …</value>
+  </data>
+  <data name="SessionUnavailableHeading" xml:space="preserve">
+    <value>Server not reachable</value>
+  </data>
+  <data name="Cancel" xml:space="preserve">
+    <value>Cancel</value>
+  </data>
+  <data name="Continue" xml:space="preserve">
+    <value>Continue</value>
+  </data>
+  <data name="Copy" xml:space="preserve">
+    <value>Copy</value>
+  </data>
+  <data name="CopyFor" xml:space="preserve">
+    <value>Copy: {0}</value>
+  </data>
+  <data name="CopyDone" xml:space="preserve">
+    <value>{0} was copied.</value>
+  </data>
+  <data name="CopyFailed" xml:space="preserve">
+    <value>Copying did not work. Select the text in the field {0} and copy it by hand.</value>
+  </data>
+  <data name="ShowPassword" xml:space="preserve">
+    <value>Show password</value>
+  </data>
+  <data name="ShowPasswordFor" xml:space="preserve">
+    <value>Show password: {0}</value>
+  </data>
+  <data name="FieldUserName" xml:space="preserve">
+    <value>User name</value>
+  </data>
+  <data name="FieldDisplayName" xml:space="preserve">
+    <value>Your name</value>
+  </data>
+  <data name="FieldPassword" xml:space="preserve">
+    <value>Password</value>
+  </data>
+  <data name="FieldCurrentPassword" xml:space="preserve">
+    <value>Current password</value>
+  </data>
+  <data name="FieldNewPassword" xml:space="preserve">
+    <value>New password</value>
+  </data>
+  <data name="FieldRepeatPassword" xml:space="preserve">
+    <value>Repeat new password</value>
+  </data>
+  <data name="HintPasswordLength" xml:space="preserve">
+    <value>At least {0} characters.</value>
+  </data>
+  <data name="ErrorPrefix" xml:space="preserve">
+    <value>Error: {0}</value>
+  </data>
+  <data name="ErrorRequired" xml:space="preserve">
+    <value>Please fill in the field {0}.</value>
+  </data>
+  <data name="ErrorPasswordShort" xml:space="preserve">
+    <value>The password needs at least {0} characters.</value>
+  </data>
+  <data name="ErrorPasswordMismatch" xml:space="preserve">
+    <value>The two passwords are not the same.</value>
+  </data>
+  <data name="ErrorLoginFailed" xml:space="preserve">
+    <value>User name or password is wrong.</value>
+  </data>
+  <data name="ErrorEmergencyFailed" xml:space="preserve">
+    <value>User name or emergency code is wrong.</value>
+  </data>
+  <data name="ErrorSignInRequired" xml:space="preserve">
+    <value>You are not signed in. Please sign in.</value>
+  </data>
+  <data name="ErrorRejected" xml:space="preserve">
+    <value>The details were not accepted. The password needs at least 10 characters, and the user name must not be taken yet.</value>
+  </data>
+  <data name="ErrorPasswordChangeRejected" xml:space="preserve">
+    <value>The password was not changed. The current password is wrong, or the new one is too short.</value>
+  </data>
+  <data name="ErrorForbidden" xml:space="preserve">
+    <value>Only the administrator may do this.</value>
+  </data>
+  <data name="ErrorLinkInvalid" xml:space="preserve">
+    <value>This link is invalid, already used or expired.</value>
+  </data>
+  <data name="ErrorAlreadySetUp" xml:space="preserve">
+    <value>The household is already set up. Please sign in.</value>
+  </data>
+  <data name="ErrorLockedOne" xml:space="preserve">
+    <value>Too many failed attempts. The account is locked. Please try again in 1 minute.</value>
+  </data>
+  <data name="ErrorLocked" xml:space="preserve">
+    <value>Too many failed attempts. The account is locked. Please try again in {0} minutes.</value>
+  </data>
+  <data name="ErrorLockedUnknown" xml:space="preserve">
+    <value>Too many failed attempts. The account is locked. Please try again later.</value>
+  </data>
+  <data name="SignInTitle" xml:space="preserve">
+    <value>Sign in – NoMorePaper</value>
+  </data>
+  <data name="SignInHeading" xml:space="preserve">
+    <value>Sign in</value>
+  </data>
+  <data name="SignInButton" xml:space="preserve">
+    <value>Sign in</value>
+  </data>
+  <data name="SignInForgot" xml:space="preserve">
+    <value>Forgot your password? Ask the administrator for a reset link. The administrator uses the emergency code.</value>
+  </data>
+  <data name="SignInEmergencyLink" xml:space="preserve">
+    <value>Set a new password with the emergency code</value>
+  </data>
+  <data name="SetupTitle" xml:space="preserve">
+    <value>Set up – NoMorePaper</value>
+  </data>
+  <data name="SetupHeading" xml:space="preserve">
+    <value>Set up your household</value>
+  </data>
+  <data name="SetupIntro" xml:space="preserve">
+    <value>You create the administrator account. Afterwards you invite the other members with a link.</value>
+  </data>
+  <data name="SetupButton" xml:space="preserve">
+    <value>Set up</value>
+  </data>
+  <data name="SetupAlreadyDone" xml:space="preserve">
+    <value>The household is already set up.</value>
+  </data>
+  <data name="SetupToSignIn" xml:space="preserve">
+    <value>Go to sign in</value>
+  </data>
+  <data name="EmergencyHeading" xml:space="preserve">
+    <value>Your emergency code</value>
+  </data>
+  <data name="EmergencyExplain" xml:space="preserve">
+    <value>With this code you can replace a forgotten password. It is shown only now. Write it down or store it in a safe place.</value>
+  </data>
+  <data name="EmergencyCodeLabel" xml:space="preserve">
+    <value>Emergency code</value>
+  </data>
+  <data name="EmergencyKept" xml:space="preserve">
+    <value>I have kept the emergency code safe.</value>
+  </data>
+  <data name="EmergencyNotKept" xml:space="preserve">
+    <value>Please confirm that you have kept the emergency code safe.</value>
+  </data>
+  <data name="EmergencyResetTitle" xml:space="preserve">
+    <value>Emergency code – NoMorePaper</value>
+  </data>
+  <data name="EmergencyResetHeading" xml:space="preserve">
+    <value>Replace password with emergency code</value>
+  </data>
+  <data name="EmergencyResetIntro" xml:space="preserve">
+    <value>For the administrator only. Enter your user name, the emergency code and a new password. You then get a new emergency code.</value>
+  </data>
+  <data name="EmergencyResetButton" xml:space="preserve">
+    <value>Replace password</value>
+  </data>
+  <data name="EmergencyResetDone" xml:space="preserve">
+    <value>The password was changed. The old emergency code no longer works.</value>
+  </data>
+  <data name="InvitationTitle" xml:space="preserve">
+    <value>Invitation – NoMorePaper</value>
+  </data>
+  <data name="InvitationHeading" xml:space="preserve">
+    <value>Accept invitation</value>
+  </data>
+  <data name="InvitationIntro" xml:space="preserve">
+    <value>You have been invited to the household. The invitation is valid until {0}.</value>
+  </data>
+  <data name="InvitationButton" xml:space="preserve">
+    <value>Create account</value>
+  </data>
+  <data name="ResetTitle" xml:space="preserve">
+    <value>New password – NoMorePaper</value>
+  </data>
+  <data name="ResetHeading" xml:space="preserve">
+    <value>Set a new password</value>
+  </data>
+  <data name="ResetIntro" xml:space="preserve">
+    <value>Choose a new password for your account.</value>
+  </data>
+  <data name="ResetButton" xml:space="preserve">
+    <value>Save password</value>
+  </data>
+  <data name="ResetDone" xml:space="preserve">
+    <value>The password was changed. You can sign in now.</value>
+  </data>
+  <data name="AccountTitle" xml:space="preserve">
+    <value>Account – NoMorePaper</value>
+  </data>
+  <data name="AccountHeading" xml:space="preserve">
+    <value>Account</value>
+  </data>
+  <data name="AccountSignedInAs" xml:space="preserve">
+    <value>Signed in as {0} ({1}).</value>
+  </data>
+  <data name="RoleAdmin" xml:space="preserve">
+    <value>Administrator</value>
+  </data>
+  <data name="RoleMember" xml:space="preserve">
+    <value>Member</value>
+  </data>
+  <data name="AccountPasswordHeading" xml:space="preserve">
+    <value>Change password</value>
+  </data>
+  <data name="AccountPasswordButton" xml:space="preserve">
+    <value>Change password</value>
+  </data>
+  <data name="AccountPasswordChanged" xml:space="preserve">
+    <value>The password was changed.</value>
+  </data>
+  <data name="AccountSignOutHeading" xml:space="preserve">
+    <value>Sign out</value>
+  </data>
+  <data name="AccountSignOutEverywhereHint" xml:space="preserve">
+    <value>&quot;Sign out on all devices&quot; also signs you out on your other devices, for example if a device was lost.</value>
+  </data>
+  <data name="MembersTitle" xml:space="preserve">
+    <value>Members – NoMorePaper</value>
+  </data>
+  <data name="MembersHeading" xml:space="preserve">
+    <value>Members</value>
+  </data>
+  <data name="MembersAdminOnly" xml:space="preserve">
+    <value>This page is for the administrator only.</value>
+  </data>
+  <data name="MembersInviteHeading" xml:space="preserve">
+    <value>Invite a member</value>
+  </data>
+  <data name="MembersInviteExplain" xml:space="preserve">
+    <value>The invitation link is valid for 7 days and for one person only. Send it to that person yourself.</value>
+  </data>
+  <data name="MembersInviteButton" xml:space="preserve">
+    <value>Invite a new member</value>
+  </data>
+  <data name="MembersInviteCreated" xml:space="preserve">
+    <value>Invitation link created. It is in the field below the button.</value>
+  </data>
+  <data name="MembersInviteLinkLabel" xml:space="preserve">
+    <value>Invitation link</value>
+  </data>
+  <data name="MembersLinkValid" xml:space="preserve">
+    <value>The link is valid until {0} and can be used only once.</value>
+  </data>
+  <data name="MembersListHeading" xml:space="preserve">
+    <value>All members</value>
+  </data>
+  <data name="MembersLoading" xml:space="preserve">
+    <value>Loading members …</value>
+  </data>
+  <data name="MembersLoadError" xml:space="preserve">
+    <value>The members could not be loaded: {0}</value>
+  </data>
+  <data name="MembersCaption" xml:space="preserve">
+    <value>Members of the household</value>
+  </data>
+  <data name="ColName" xml:space="preserve">
+    <value>Name</value>
+  </data>
+  <data name="ColRole" xml:space="preserve">
+    <value>Role</value>
+  </data>
+  <data name="ColActions" xml:space="preserve">
+    <value>Actions</value>
+  </data>
+  <data name="MembersResetButton" xml:space="preserve">
+    <value>Create reset link</value>
+  </data>
+  <data name="MembersResetFor" xml:space="preserve">
+    <value>Create reset link for {0}</value>
+  </data>
+  <data name="MembersResetHeading" xml:space="preserve">
+    <value>Reset link for {0}</value>
+  </data>
+  <data name="MembersResetLinkLabel" xml:space="preserve">
+    <value>Reset link</value>
+  </data>
+  <data name="MembersResetCreated" xml:space="preserve">
+    <value>Reset link for {0} created. It is valid for 24 hours.</value>
+  </data>
+  <data name="MembersRemoveButton" xml:space="preserve">
+    <value>Remove</value>
+  </data>
+  <data name="MembersRemoveFor" xml:space="preserve">
+    <value>Remove: {0}</value>
+  </data>
+  <data name="MembersRemoveQuestion" xml:space="preserve">
+    <value>Really remove {0}?</value>
+  </data>
+  <data name="MembersRemoveExplain" xml:space="preserve">
+    <value>The account is deleted and the person is signed out at once. This cannot be undone.</value>
+  </data>
+  <data name="MembersRemoveConfirm" xml:space="preserve">
+    <value>Yes, remove</value>
+  </data>
+  <data name="MembersRemoved" xml:space="preserve">
+    <value>{0} was removed.</value>
+  </data>
+  <data name="PrivateLabel" xml:space="preserve">
+    <value>Private</value>
+  </data>
+  <data name="PrivateBadge" xml:space="preserve">
+    <value>Private</value>
+  </data>
+  <data name="UploadPrivateHint" xml:space="preserve">
+    <value>Only you see private documents. This applies to the files you choose next.</value>
+  </data>
+  <data name="ViewerPrivateHint" xml:space="preserve">
+    <value>Only you see private documents, not even the administrator.</value>
+  </data>
+  <data name="ViewerNowPrivate" xml:space="preserve">
+    <value>The document is now private.</value>
+  </data>
+  <data name="ViewerNowShared" xml:space="preserve">
+    <value>The document is no longer private.</value>
+  </data>
 </root>

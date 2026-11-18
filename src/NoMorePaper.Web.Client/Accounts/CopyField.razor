@@ -1,0 +1,53 @@
+@inject IJSRuntime Js
+@inject IStringLocalizer<Strings> L
+@inject ILogger<CopyField> Logger
+
+@* A text that is shown in full in a read-only field (so it can be read character by character and
+   selected by hand) with a button that copies it. Success and failure of copying are announced. *@
+<div class="form-field copy-field">
+    <label for="@Id">@Label</label>
+    <div class="form-field-row">
+        <input @ref="_input" id="@Id" class="form-input @(Large ? "form-input-large" : null)" type="text"
+               readonly value="@Value" autocomplete="off" spellcheck="false" />
+        <button type="button" class="form-toggle" aria-label="@L["CopyFor", Label]" @onclick="CopyAsync">@L["Copy"]</button>
+    </div>
+    <LiveRegion @ref="_status" />
+</div>
+
+@code {
+    private ElementReference _input;
+    private LiveRegion? _status;
+
+    [Parameter, EditorRequired] public string Id { get; set; } = string.Empty;
+
+    [Parameter, EditorRequired] public string Label { get; set; } = string.Empty;
+
+    [Parameter, EditorRequired] public string Value { get; set; } = string.Empty;
+
+    /// <summary>Bigger text, for the emergency code that is read from the screen.</summary>
+    [Parameter] public bool Large { get; set; }
+
+    public ValueTask FocusAsync() => _input.FocusAsync();
+
+    private async Task CopyAsync()
+    {
+        string message;
+        try
+        {
+            await Js.InvokeVoidAsync("navigator.clipboard.writeText", Value);
+            message = L["CopyDone", Label];
+        }
+        catch (Exception ex) when (ex is JSException or InvalidOperationException)
+        {
+            // Clipboard access is refused outside secure contexts and by some browsers.
+            Logger.CopyFailed(ex.GetType().Name);
+            await _input.FocusAsync();
+            message = L["CopyFailed", Label];
+        }
+
+        if (_status is not null)
+        {
+            await _status.Announce(message);
+        }
+    }
+}
