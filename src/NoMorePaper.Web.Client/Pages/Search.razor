@@ -27,6 +27,8 @@ else if (string.IsNullOrWhiteSpace(Query))
 else if (_hits is not null)
 {
     <div data-ready>
+        @* Visible as well as announced: without it a search with no hits leaves the page empty. *@
+        <p class="search-summary">@CountText(_hits.Length, _searched ?? string.Empty)</p>
         @foreach (var hit in _hits)
         {
             <article class="search-hit">
@@ -89,8 +91,11 @@ else if (_hits is not null)
 
         _hits = result.Value ?? [];
         Logger.SearchCompleted(_hits.Length);
-        await AnnounceAsync(_hits.Length == 1 ? L["SearchCountOne", query] : L["SearchCount", _hits.Length, query]);
+        await AnnounceAsync(CountText(_hits.Length, query));
     }
+
+    private string CountText(int count, string query) =>
+        count == 1 ? L["SearchCountOne", query] : L["SearchCount", count, query];
 
     private async Task AnnounceAsync(string message)
     {
