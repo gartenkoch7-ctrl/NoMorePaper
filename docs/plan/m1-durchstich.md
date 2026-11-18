@@ -291,3 +291,4 @@ abgenommen), PDF.js **6.5.438** wie im Spike.
 - PDF.js-Lizenz Apache-2.0 (kein Copyleft) ✅
 - Ohne Anmeldung darf M1 nicht über Tailscale erreichbar sein; der Port bleibt auf `127.0.0.1`.
 - HTTPS (M0-Review) wird erst vor M4 gebraucht; der Viewer läuft lokal auf `localhost` (sicherer Kontext).
+- Nach einem GPU-Reset wird „Die Darstellung ist wieder da.“ sofort von der Seiten-/Zoom-Ansage überschrieben (Live-Region behält nur die letzte Meldung) – in M2 zusammenfassen.

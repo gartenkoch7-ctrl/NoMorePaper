@@ -108,10 +108,12 @@ class Viewer {
     this.view.show(page, analysis);
     this.renderer.release(previous.analysis);
     previous.page?.cleanup();
+    // The renderer changed while this page was analysed (restore or switch to the fallback): the
+    // view still pairs the page with the old renderer's analysis, so redo it on the current one.
     // Analysed while the context was lost and it is already back: no restore event will follow
     // for this page, so analyse it again now. (Still lost: the restore event does it.)
-    if (renderer === this.renderer && !renderer.lost && isStale(renderer, analysis)) {
-      this.#resume(renderer, null);
+    if (renderer !== this.renderer || (!renderer.lost && isStale(renderer, analysis))) {
+      this.#resume(this.renderer, null);
     }
     const hasText = await this.#textOf(page);
     if (token !== this.pageToken || this.disposed || hasText === null) return;
