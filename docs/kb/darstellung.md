@@ -139,6 +139,7 @@ Dokument, angegeben ist die Spanne über die sechs Dokumente. Rohdaten:
   14 Megapixel) **85–119 ms** und 57 MB je Seite. 1600 % wären 228 Megapixel – nicht machbar.
 
 ## Grenzen
+- **Sehr große Seiten** (längere Seite über 2048 pt, z. B. Fotos, die `img2pdf` mit 72 dpi einbettet) werden nur mit höchstens 4096 px (bzw. `MAX_TEXTURE_SIZE`) auf der längeren Seite analysiert. Die Foto-Erkennung läuft dann auf dem verkleinerten Bild mit gröberen Maskenzellen.
 - **Gelb und andere von Natur aus helle Farben** werden dunkel (Oliv). Der Farbton stimmt, wirkt
   aber anders. Unvermeidbar, solange Schrift auf farbigem Grund lesbar bleiben soll.
 - **Schwarz-Weiß-Fotos** sind nicht bunt und werden umgekehrt (Negativ) – in beiden Stufen.
