@@ -79,7 +79,7 @@ public sealed partial class DocumentViewer : IAsyncDisposable
 
         _opened = true;
         var id = Id;
-        var shown = await Viewer.OpenAsync(_stage, _source, _originalColors, OnViewChangedAsync);
+        var shown = await Viewer.OpenAsync(_stage, _source, _originalColors, OnViewChangedAsync, OnRendererChangedAsync);
         if (!shown && !_disposed && id == Id)
         {
             _showFailed = true;
@@ -123,6 +123,15 @@ public sealed partial class DocumentViewer : IAsyncDisposable
         if (_announcer is not null && parts.Count > 0)
         {
             await _announcer.Announce(string.Join(". ", parts));
+        }
+    }
+
+    // A blind user cannot see the page go black and come back: say what happened.
+    private async Task OnRendererChangedAsync(RendererChange change)
+    {
+        if (_announcer is not null)
+        {
+            await _announcer.Announce(L["ViewerRenderer" + change]);
         }
     }
 

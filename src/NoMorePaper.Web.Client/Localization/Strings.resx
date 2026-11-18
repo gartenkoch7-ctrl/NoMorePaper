@@ -247,6 +247,21 @@
     <value>Dokumentseite</value>
   </data>
   <data name="ViewerKeys" xml:space="preserve">
-    <value>Tasten: Strg + Plus und Strg + Minus zoomen, Strg + 0 zeigt 100 %. Die Pfeiltasten bewegen die Seite, Bild auf und Bild ab blättern. Mit Strg + Mausrad zoomst du um den Mauszeiger.</value>
+    <value>Tasten in der Dokumentseite: Strg + Plus und Strg + Minus zoomen, Strg + 0 zeigt 100 %. Die Pfeiltasten bewegen die Seite, Bild auf und Bild ab blättern. Mit Strg + Mausrad zoomst du um den Mauszeiger.</value>
+  </data>
+  <data name="UploadSkipped" xml:space="preserve">
+    <value>{0} Dateien wurden nicht hochgeladen, weil höchstens {1} auf einmal gehen. Wähle sie danach noch einmal aus.</value>
+  </data>
+  <data name="UploadSkippedOne" xml:space="preserve">
+    <value>1 Datei wurde nicht hochgeladen, weil höchstens {0} auf einmal gehen. Wähle sie danach noch einmal aus.</value>
+  </data>
+  <data name="ViewerRendererLost" xml:space="preserve">
+    <value>Die Darstellung wurde unterbrochen und wird neu aufgebaut.</value>
+  </data>
+  <data name="ViewerRendererRestored" xml:space="preserve">
+    <value>Die Darstellung ist wieder da.</value>
+  </data>
+  <data name="ViewerRendererFallback" xml:space="preserve">
+    <value>Die Darstellung läuft jetzt im einfachen Modus. Fotos werden dabei ebenfalls umgekehrt.</value>
   </data>
 </root>

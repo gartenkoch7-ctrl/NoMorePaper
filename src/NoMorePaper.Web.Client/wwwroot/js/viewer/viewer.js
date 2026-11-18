@@ -1,15 +1,19 @@
 // Entry point of the document viewer for Blazor (Viewer/ViewerInterop.cs). The page renders the
 // stage with an empty .viewer-canvas and a focusable .viewer-scroller; everything inside them
 // belongs to this module. Reports go to .NET via the DotNetObjectReference:
-// OnViewChanged(zoomPercent, page, pageCount, hasText), OnRendered(ms), OnError(errorName).
+// OnViewChanged(zoomPercent, page, pageCount, hasText), OnRendered(ms), OnError(errorName),
+// OnRendererChanged(change, reason) with change 'lost', 'restored' or 'fallback'.
 import { analyzePage } from './analysis.js';
 import { CSS_PER_POINT, MODE_INTELLIGENT, MODE_ORIGINAL } from './defaults.js';
 import { FallbackRenderer } from './fallback.js';
 import { attachInput, zoomStep } from './input.js';
 import { PageView } from './page-view.js';
 import { errorName, openDocument } from './pdf-document.js';
-import { sharedRenderer } from './shader-renderer.js';
+import { onRendererChange, sharedRenderer } from './shared-renderer.js';
 import { PageText } from './text-layer.js';
+
+// An analysis the shader cannot use: made in an older context or while it was lost.
+const isStale = (renderer, analysis) => !!analysis && analysis.generation !== renderer.generation;
 
 class Viewer {
   constructor(host, dotnet, originalColors) {
@@ -25,6 +29,7 @@ class Viewer {
     this.forceReport = false;
     this.analysis = null;
     this.page = null;
+    this.notice = null;
 
     this.canvasHost = host.querySelector('.viewer-canvas');
     this.scroller = host.querySelector('.viewer-scroller');
@@ -54,6 +59,7 @@ class Viewer {
     this.scroller.addEventListener('scroll', this.onScroll, { passive: true });
     this.resizeObserver = new ResizeObserver(() => view.onResize());
     this.resizeObserver.observe(this.scroller);
+    this.stopWatching = onRendererChange((event, renderer, reason) => this.#rendererChanged(event, renderer, reason));
   }
 
   // Never throws: the result is { pageCount, renderer, fallbackReason } or { error }.
@@ -88,9 +94,10 @@ class Viewer {
     }
     const token = ++this.pageToken;
     const page = await this.document.getPage(target);
-    const analysis = await analyzePage(page, this.renderer);
+    const renderer = this.renderer;
+    const analysis = await analyzePage(page, renderer);
     if (token !== this.pageToken || this.disposed) {
-      this.renderer.release(analysis);
+      renderer.release(analysis);
       return;
     }
     const previous = { analysis: this.analysis, page: this.page };
@@ -101,6 +108,11 @@ class Viewer {
     this.view.show(page, analysis);
     this.renderer.release(previous.analysis);
     previous.page?.cleanup();
+    // Analysed while the context was lost and it is already back: no restore event will follow
+    // for this page, so analyse it again now. (Still lost: the restore event does it.)
+    if (renderer === this.renderer && !renderer.lost && isStale(renderer, analysis)) {
+      this.#resume(renderer, null);
+    }
     const hasText = await this.#textOf(page);
     if (token !== this.pageToken || this.disposed || hasText === null) return;
     this.hasText = hasText;
@@ -138,7 +150,51 @@ class Viewer {
 
   #rendered(ms) {
     this.#call('OnRendered', Math.round(ms));
+    if (this.notice) {
+      this.#call('OnRendererChanged', ...this.notice);
+      this.notice = null;
+    }
     this.#report();
+  }
+
+  // The shared WebGL context was lost, restored or given up (shared-renderer.js). Says so, then
+  // analyses and draws the page again with the rebuilt renderer or the CSS fallback.
+  #rendererChanged(event, renderer, reason) {
+    if (renderer !== this.renderer || this.disposed) return;
+    if (event === 'lost') {
+      this.notice = null;
+      this.#call('OnRendererChanged', 'lost', null);
+    } else if (event === 'restored') {
+      this.#resume(renderer, ['restored', null]);
+    } else {
+      this.#resume(new FallbackRenderer(reason), ['fallback', reason]);
+    }
+  }
+
+  // Never throws. notice is announced once the page is drawn again, not while it is still black.
+  async #resume(renderer, notice) {
+    try {
+      if (renderer !== this.renderer) {
+        this.renderer.canvas.remove();
+        this.renderer = renderer;
+        this.canvasHost.append(renderer.canvas);
+      }
+      if (notice) this.notice = notice;
+      const page = this.page;
+      if (!page) return;
+      const token = this.pageToken;
+      const analysis = await analyzePage(page, renderer);
+      // Replaced by a page change, lost again or switched once more: that path redoes it.
+      if (token !== this.pageToken || this.disposed || renderer !== this.renderer || isStale(renderer, analysis)) {
+        renderer.release(analysis);
+        return;
+      }
+      // The old analysis died with the lost context; nothing to free.
+      this.analysis = analysis;
+      this.view.resume(renderer, analysis);
+    } catch (error) {
+      this.#call('OnError', errorName(error));
+    }
   }
 
   // Tells .NET the settled state once page text and a sharp render are there; only changes,
@@ -162,6 +218,7 @@ class Viewer {
 
   dispose() {
     this.disposed = true;
+    this.stopWatching();
     this.detachInput();
     this.scroller.removeEventListener('scroll', this.onScroll);
     this.resizeObserver.disconnect();

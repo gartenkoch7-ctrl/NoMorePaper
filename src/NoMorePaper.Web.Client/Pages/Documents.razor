@@ -135,15 +135,23 @@ else
         }
     }
 
+    // All changes of one poll in one message: one announcement per document would cut off the one
+    // before it, so only the last change would be heard.
     private async Task AnnounceChangesAsync()
     {
+        var changes = new List<string>();
         foreach (var document in _documents)
         {
-            if (_lastStates.TryGetValue(document.Id, out var before) && before != document.State && _changes is not null)
+            if (_lastStates.TryGetValue(document.Id, out var before) && before != document.State)
             {
                 Logger.DocumentStateChanged(document.State.ToString());
-                await _changes.Announce(L["StateChanged", document.Title, StateText(document.State)]);
+                changes.Add(L["StateChanged", document.Title, StateText(document.State)]);
             }
+        }
+
+        if (changes.Count > 0 && _changes is not null)
+        {
+            await _changes.Announce(string.Join(". ", changes));
         }
     }
 

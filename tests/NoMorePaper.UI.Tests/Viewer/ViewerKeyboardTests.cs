@@ -41,6 +41,39 @@ public sealed class ViewerKeyboardTests(ServerFixture server)
     }
 
     [Fact]
+    public async Task ZoomKeys_OutsideTheDocumentPage_StayTheBrowsersZoom()
+    {
+        await using var viewer = await ViewerPages.OpenAsync(server, SupportedCultures.German, ViewerPdfs.TwoPages());
+        var page = viewer.Page;
+        await ViewerPages.WaitUntilShownAsync(page);
+        // Runs after every other listener: records whether the browser's own zoom was blocked.
+        await page.EvaluateAsync("""
+            () => {
+              window.prevented = [];
+              window.addEventListener('keydown', (e) => { if (e.key !== 'Control') window.prevented.push(e.defaultPrevented); });
+            }
+            """);
+        await Button(page, "Vergrößern").FocusAsync();
+
+        string[] keys = ["Control+Minus", "Control+Digit0", "Control+NumpadAdd", "Control+NumpadAdd"];
+        foreach (var key in keys)
+        {
+            await page.Keyboard.PressAsync(key);
+        }
+
+        var prevented = await page.EvaluateAsync<bool[]>("() => window.prevented");
+        Assert.Equal(keys.Length, prevented.Length);
+        Assert.DoesNotContain(true, prevented);
+
+        // In the document page the same key zooms the document (one step from 100 %, not from 200 %).
+        await page.Locator(ViewerPages.Scroller).FocusAsync();
+        await page.Keyboard.PressAsync("Control+NumpadAdd");
+
+        await Assertions.Expect(page.Locator(".viewer-zoom")).ToHaveTextAsync("Zoom 150 %");
+        Assert.True(await page.EvaluateAsync<bool>("() => window.prevented.at(-1)"), "Ctrl + plus in the page was not taken over");
+    }
+
+    [Fact]
     public async Task PageDownAndUp_ChangePage_AndAnnouncePageAndMissingText()
     {
         await using var viewer = await ViewerPages.OpenAsync(server, SupportedCultures.German, ViewerPdfs.TwoPages());

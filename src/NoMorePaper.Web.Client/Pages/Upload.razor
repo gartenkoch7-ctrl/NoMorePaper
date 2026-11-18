@@ -18,6 +18,15 @@
 
 <LiveRegion @ref="_progress" />
 
+@if (_skippedNotice is not null)
+{
+    @* Stays on the page after the announcement, with a symbol and in words. *@
+    <p class="error-box upload-skipped">
+        <MudIcon Icon="@Icons.Material.Filled.Warning" />
+        <span>@_skippedNotice</span>
+    </p>
+}
+
 @if (_results.Count > 0)
 {
     <MudText Typo="Typo.h2">@L["UploadResultsHeading"]</MudText>
@@ -47,24 +56,39 @@
 
     private readonly List<UploadOutcome> _results = [];
     private LiveRegion? _progress;
+    private string? _skippedNotice;
 
     private async Task OnFilesChangedAsync(InputFileChangeEventArgs args)
     {
-        foreach (var file in args.GetMultipleFiles(MaxFiles))
+        // GetMultipleFiles throws when more files are chosen than it may return: take them all,
+        // upload the first MaxFiles and say how many were left out.
+        var files = args.GetMultipleFiles(Math.Max(args.FileCount, 1));
+        var batch = files.Take(MaxFiles).ToList();
+        _skippedNotice = SkippedNotice(files.Count - batch.Count);
+        for (var i = 0; i < batch.Count; i++)
         {
-            await UploadOneAsync(file);
+            // The notice joins the last announcement; a separate one right after would cut it off.
+            await UploadOneAsync(batch[i], i == batch.Count - 1 ? _skippedNotice : null);
         }
     }
 
-    private async Task UploadOneAsync(IBrowserFile file)
+    private string? SkippedNotice(int skipped) => skipped switch
+    {
+        <= 0 => null,
+        1 => L["UploadSkippedOne", MaxFiles].Value,
+        _ => L["UploadSkipped", skipped, MaxFiles].Value,
+    };
+
+    private async Task UploadOneAsync(IBrowserFile file, string? notice)
     {
         await AnnounceAsync(L["UploadInProgress", file.Name]);
         var result = await Api.UploadAsync(file);
         var outcome = new UploadOutcome(file.Name, result.Value?.Id, result.Error);
         _results.Insert(0, outcome);
-        await AnnounceAsync(outcome.Id is null
+        string message = outcome.Id is null
             ? L["UploadFailed", file.Name, outcome.Error ?? string.Empty]
-            : L["UploadSuccess", file.Name]);
+            : L["UploadSuccess", file.Name];
+        await AnnounceAsync(notice is null ? message : $"{message} {notice}");
     }
 
     private async Task AnnounceAsync(string message)

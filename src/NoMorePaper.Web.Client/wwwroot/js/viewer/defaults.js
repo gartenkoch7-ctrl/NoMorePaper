@@ -3,6 +3,10 @@
 // resolution and the cell size: do not change one without recalibrating the others.
 
 export const ANALYSIS_SCALE = 2.0; // analysis pixels per PDF point (144 dpi)
+// Longest side of the analysis render in pixels. Pages up to 2048 points (72 cm) keep 144 dpi;
+// larger ones (photos packed into a PDF without a resolution, plans) are analysed smaller
+// (analysis.js, analysisScale).
+export const ANALYSIS_MAX_SIDE = 4096;
 export const CELL = 12;            // analysis pixels per mask cell (about 2.1 mm on paper)
 export const SPACING = 4.5;        // 8 samples x 4.5 px: each cell looks at 36 px (6.4 mm)
 export const GROW = [0.15, 0.45];  // mean range of the grown photo mask
