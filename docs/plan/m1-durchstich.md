@@ -173,6 +173,59 @@ Die Dateitabellen je Paket (`Datei | neu/ändern | Was genau | Tests | ca. Zeile
 steuernde Sitzung **vor dem Start des jeweiligen Pakets** in diese Datei: P0, P1, P2 sofort;
 P3–P5 nach P0 (sie hängen an dessen Typen und Signaturen); P6 nach P1 (hängt an den Spike-Werten).
 
+**Gemeinsamer Vertrag der Spuren A/B/C** (aus P0, Commit `8e8bf19`): Typen `Document`, `DocumentFile`,
+`ProcessingState`, `RetryPolicy` (Domain), `IDocumentStorage`/`StoredFile` (Application),
+`FileSystemDocumentStorage`, `ProcessingJob`, `AppDbContext.Documents/ProcessingJobs` (Infrastructure),
+DTOs in `NoMorePaper.Contracts.Documents`. HTTP-Routen (A baut sie, C nutzt sie):
+`POST /api/documents` (Formularfeld `file`) → 202 `UploadResultDto`; `GET /api/documents?page=1&pageSize=50`
+→ `DocumentSummaryDto[]`; `GET /api/documents/{id}` → `DocumentDetailDto`;
+`GET /api/documents/{id}/files/original|archive` → Datei; `GET /api/search?q=&limit=20` → `SearchHitDto[]`.
+Fehler als `ProblemDetails`: 400 leer, 413 zu groß, 415 Typ nicht erlaubt, 404 unbekannt.
+
+### Paket P3 – Upload, API, Suche (Spur A) · Modell: **Sonnet** · Effort: `medium`
+| Datei | neu/ändern | Was genau | Tests | ca. Zeilen |
+|---|---|---|---|---|
+| `src/NoMorePaper.Server/Documents/FileSignature.cs` | neu | `static string? DetectMediaType(ReadOnlySpan<byte> head)`: `%PDF-` → `application/pdf`, `FF D8 FF` → `image/jpeg`, `89 50 4E 47 0D 0A 1A 0A` → `image/png`, `ftyp` an Byte 4 mit Marke `heic`/`heix`/`mif1`/`heif` → `image/heic`; sonst `null` | Server.Tests | 50 |
+| `src/NoMorePaper.Infrastructure/Documents/DocumentIntake.cs` | neu | `public sealed`; `Task<Guid> ReceiveAsync(string fileName, string mediaType, Stream content, CancellationToken)`: `Document.Receive(Titel = Dateiname ohne Endung, gekürzt auf 500)`, `SaveInboxAsync`, `AttachFile(Original)`, `ProcessingJob { Attempt = 0, NextAttemptAt = now }`, ein `SaveChangesAsync`; bei DB-Fehler Eingangsdatei wieder löschen | Infrastructure.Tests | 90 |
+| `src/NoMorePaper.Infrastructure/Documents/DocumentQueries.cs` | neu | `ListAsync(int page, int pageSize, ct)` (neueste zuerst, `pageSize` 1–100), `GetAsync(Guid id, ct)` → DTOs | Infrastructure.Tests | 80 |
+| `src/NoMorePaper.Infrastructure/Search/DocumentSearch.cs` | neu | `SearchAsync(string query, int limit, ct)`: `websearch_to_tsquery('german', q) \|\| websearch_to_tsquery('english', q)`, `ts_rank`, `ts_headline` mit `StartSel=,StopSel=` (reiner Text, max. 30 Wörter); keine Treffer → Rückfall `word_similarity(q, content_text) > 0.4` absteigend; nur `State = Done`; nur parametrisiertes SQL | Infrastructure.Tests | 110 |
+| `src/NoMorePaper.Infrastructure/Composition/...ServiceCollectionExtensions.cs` | ändern | `DocumentIntake`, `DocumentQueries`, `DocumentSearch` scoped registrieren | – | 5 |
+| `src/NoMorePaper.Server/Documents/DocumentEndpoints.cs` | neu | `MapDocumentEndpoints(this IEndpointRouteBuilder)`: Routen oben; Upload mit `[RequestSizeLimit(100 MB)]`/`FormOptions.MultipartBodyLengthLimit`, Kopf (16 Byte) lesen → `FileSignature`, Datei-Download mit `Results.File(stream, mediaType, fileName, enableRangeProcessing: true)` | Server.Tests | 140 |
+| `src/NoMorePaper.Server/Search/SearchEndpoints.cs` | neu | `GET /api/search`; leere Anfrage → leere Liste; `limit` 1–50 | Server.Tests | 40 |
+| `src/NoMorePaper.Server/Documents/DocumentsLog.cs` | neu | EventIds 1100–1119 (Upload angenommen/abgelehnt mit Grund und Größe, ohne Dateinamen) | – | 30 |
+| `src/NoMorePaper.Server/Program.cs`, `Composition/ServerComposition.cs` | ändern | Endpunkte mappen, `AddProblemDetails()` | – | 10 |
+| `tests/NoMorePaper.Server.Tests/` (neues Projekt, in `.slnx`) | neu | `WebApplicationFactory<Program>` + Testcontainers-Postgres (wie `UI.Tests`-Fixture), `NoMorePaper__DataPath` auf Temp-Ordner; Tests: Upload PDF/JPG/PNG/HEIC → 202, Text-Datei → 415, 101 MB → 413, Download unverändert (gleicher SHA-256), Liste, Detail, 404, Suche leer | selbst | 250 |
+| `tests/NoMorePaper.Infrastructure.Tests/Search/DocumentSearchTests.cs` | neu | „Rechnungen“ findet „Rechnung“, englischer Text, Tippfehler „Rechnnug“ über Trigramme, `Queued` wird nicht gefunden | selbst | 120 |
+- **Akzeptanz:** alle Tests grün, Architekturtests grün (Server kennt nur Infrastructure/Contracts)
+
+### Paket P4 – Worker-Pipeline, Debian-Image (Spur B) · Modell: **Opus** · Effort: `high`
+| Datei | neu/ändern | Was genau | Tests | ca. Zeilen |
+|---|---|---|---|---|
+| `src/NoMorePaper.Application/Processing/IOcrEngine.cs`, `OcrResult.cs` | neu | `Task<OcrResult> CreateArchiveAsync(string inputPath, string mediaType, string outputPdfPath, CancellationToken)`; `OcrResult(string Text, int PageCount)` | – | 25 |
+| `src/NoMorePaper.Infrastructure/Ocr/ExternalProcess.cs` | neu | `RunAsync(string fileName, IReadOnlyList<string> args, TimeSpan timeout, ct)` → `(ExitCode, StdErrTail)`; nur `ArgumentList`, kein Shell; bei Zeitüberschreitung `Kill(entireProcessTree: true)` | Infrastructure.Tests | 80 |
+| `src/NoMorePaper.Infrastructure/Ocr/OcrMyPdfEngine.cs` | neu | Bilder: HEIC → `heif-convert` → JPG; JPG/PNG → `img2pdf`; dann `ocrmypdf --output-type pdfa --language deu+eng --rotate-pages --deskew --skip-text --jobs 2`; Text mit `pdftotext -enc UTF-8`; Zeitlimit 10 min; Text auf 500 000 Zeichen kürzen (tsvector-Grenze 1 MB) | Infrastructure.Tests (OCR) | 150 |
+| `src/NoMorePaper.Infrastructure/Processing/JobQueue.cs` | neu | `ClaimNextAsync(TimeSpan lockFor, ct)` per SQL `... WHERE next_attempt_at <= now AND (locked_until IS NULL OR locked_until < now) ORDER BY next_attempt_at LIMIT 1 FOR UPDATE SKIP LOCKED` + `locked_until` setzen, `Attempt++`; `CompleteAsync(Guid id, string text, StoredFile archive, ct)` (Dokument `Complete`, Archiv-Datei anhängen, Job löschen); `FailAsync(Guid id, string technicalError, DateTimeOffset now, ct)` mit `RetryPolicy` (Fehlertext auf 1000 Zeichen kürzen; nach `MaxAttempts` → `Document.Fail`, Job löschen) | Infrastructure.Tests | 160 |
+| `src/NoMorePaper.Worker/Processing/DocumentProcessor.cs` | neu | `BackgroundService`: alle 5 s Job holen; Ablauf: `StartProcessing` → Original aus Eingang lesen → `IOcrEngine` in Temp-Ordner → `SaveArchiveAsync(Archive)` → `ArchiveOriginalAsync` → `CompleteAsync`; Fehler → `FailAsync` mit Ausnahmetyp + Exit-Code (kein Inhalt); Temp-Ordner immer löschen | Infrastructure.Tests | 140 |
+| `src/NoMorePaper.Worker/Processing/ProcessingLog.cs` | neu | EventIds 2100–2119; Activity `nomorepaper.processing.document`; Zähler `nomorepaper.processing.completed/failed`, Histogramm Dauer | – | 40 |
+| `src/NoMorePaper.Worker/Composition/WorkerComposition.cs` | ändern | `DocumentProcessor`, `IOcrEngine` registrieren | – | 5 |
+| `Dockerfile.worker` | ändern | Laufzeit `mcr.microsoft.com/dotnet/aspnet:10.0` (Debian) + `apt-get install --no-install-recommends ocrmypdf tesseract-ocr-deu tesseract-ocr-eng img2pdf libheif-examples poppler-utils curl`; Healthcheck auf `curl` umstellen (`docker-compose.yml` Hotspot) | compose | 30 |
+| `.github/workflows/ci.yml` | ändern | vor „Test“: `sudo apt-get install -y ocrmypdf tesseract-ocr-deu img2pdf libheif-examples poppler-utils` | CI | 5 |
+| `tests/NoMorePaper.Infrastructure.Tests/Ocr/*`, `Processing/JobQueueTests.cs` | neu | Queue: zwei parallele Claims bekommen nie denselben Job, Wiederholung nach Fehler, Aufgeben nach 4; OCR (übersprungen mit `Assert.Skip`, wenn `ocrmypdf` fehlt): selbst erzeugte PDF und PNG mit bekanntem Text → Text gefunden, Ausgabe ist PDF/A | selbst | 250 |
+- **Akzeptanz:** Tests grün (lokal ohne OCR-Werkzeuge werden OCR-Tests übersprungen, in CI laufen sie); `docker compose up` → hochgeladene PDF wird `Done`
+
+### Paket P5 – Upload-, Listen- und Suchseiten (Spur C) · Modell: **Sonnet** · Effort: `medium`
+| Datei | neu/ändern | Was genau | Tests | ca. Zeilen |
+|---|---|---|---|---|
+| `src/NoMorePaper.Web.Client/Documents/DocumentApi.cs` | neu | typisierter `HttpClient`: `UploadAsync(IBrowserFile, ct)` (max. 100 MB), `ListAsync`, `GetAsync`, `SearchAsync`; `ProblemDetails` → verständliche Meldung (lokalisiert) | UI.Tests | 120 |
+| `src/NoMorePaper.Web.Client/Accessibility/LiveRegion.razor` | neu | `role="status"` bzw. `alert`, Methode `Announce(string)` (Text leeren, dann setzen, damit gleiche Meldungen wiederholt angesagt werden) | UI.Tests | 40 |
+| `src/NoMorePaper.Web.Client/Pages/Upload.razor` | neu | `/hochladen`: `<InputFile>` mit `<label>`, erlaubte Typen im Hinweistext, Ablegen-Fläche nur zusätzlich, Ergebnis über `LiveRegion`, Link zum Dokument | UI.Tests | 120 |
+| `src/NoMorePaper.Web.Client/Pages/Documents.razor` | neu | `/dokumente`: Tabelle (Titel, Eingang, Status als Text + Symbol), aktualisiert alle 3 s, solange etwas `Queued`/`Processing` ist; Statuswechsel per `LiveRegion` ansagen | UI.Tests | 130 |
+| `src/NoMorePaper.Web.Client/Pages/Search.razor` | neu | `/suche?q=`: Suchfeld mit Label, Treffer als `<h2>`-Links mit Ausschnitt, „n Treffer“ per `LiveRegion` | UI.Tests | 110 |
+| `src/NoMorePaper.Web.Client/Layout/MainLayout.razor`, `wwwroot/js/shortcuts.js` | ändern/neu | Navigation „Hochladen“, „Dokumente“, „Suche“; Taste `/` fokussiert die Suche (nicht in Eingabefeldern) | UI.Tests | 30 |
+| `Localization/Strings*.resx` | ändern | alle neuen Texte DE/EN | – | 60 |
+| `tests/NoMorePaper.UI.Tests/Documents/*`, `Search/*` | neu | axe 0 Verstöße auf allen neuen Seiten DE/EN; Upload per Tastatur (`SetInputFilesAsync`) → Ansage + Eintrag „In Warteschlange“; `/` fokussiert Suche; Suche ohne Treffer sagt „0 Treffer“ an | selbst | 250 |
+- **Akzeptanz:** UI-Tests grün; keine Information nur über Farbe
+
 ### Paket P0 – Schritt 0 · Modell: **Opus** · Effort: `high`
 | Datei | neu/ändern | Was genau | Tests | ca. Zeilen |
 |---|---|---|---|---|
