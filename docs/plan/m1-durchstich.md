@@ -259,6 +259,27 @@ Fehler als `ProblemDetails`: 400 leer, 413 zu groß, 415 Typ nicht erlaubt, 404 
 - **Akzeptanz:** Kriterien aus Aufgabe 7 mit der Apple-ID des Nutzers geprüft (Nutzer gibt Daten selbst ein)
 - **Eskalation:** Nach 3 Tagen ohne Ergebnis abbrechen und als „nicht bestanden“ dokumentieren
 
+### Paket P6 – Viewer mit Shader (Spur V) · Modell: **Opus** · Effort: `high`
+Grundlage: [darstellung.md](../kb/darstellung.md) (Formeln, Werkswerte, Abschnitt „Empfehlungen für
+den Viewer (P6)“), Prototyp `spikes/viewer-shader/` (vom Nutzer am 2026-11-18 mit „passt so“
+abgenommen), PDF.js **6.5.438** wie im Spike.
+
+| Datei | neu/ändern | Was genau | Tests | ca. Zeilen |
+|---|---|---|---|---|
+| `src/NoMorePaper.Web.Client/wwwroot/lib/pdfjs/` | neu | `pdf.min.mjs`, `pdf.worker.min.mjs`, `cmaps/`, `standard_fonts/`, `wasm/`, `LICENSE` (6.5.438, aus dem npm-Paket `pdfjs-dist`) | – | – |
+| `wwwroot/js/viewer/*.js` (+ Shader als `.js`-Module mit Template-Strings) | neu | Prototyp-Module übernehmen und produktiv machen: `shader-renderer.js` (ein WebGL-Kontext für Viewer und Vorschaubilder), `analysis.js` (Analyse 144 dpi, Maske, Fotorahmen aus `imageCoordinates`), `page-view.js` (nur sichtbarer Ausschnitt mit Rand, `renderTask.cancel()`, Geste skaliert Textur, nach 100 ms scharf), `text-layer.js` (PDF.js-`TextLayer` über die ganze Seite), `fallback.js` (CSS `invert(1) hue-rotate(180deg)` ohne WebGL), `viewer.js` (Export `createViewer(element, url, options)` → Objekt mit `zoomIn/zoomOut/reset/fitWidth/setPage/setOriginalColors/dispose` und Rückruf an .NET für Zoom/Seite/„kein Text“); Werkswerte aus `darstellung.md`, Regler entfallen | UI.Tests | je < 300 |
+| `src/NoMorePaper.Web.Client/Viewer/ViewerInterop.cs` | neu | Dienst (§2.6) mit `IJSObjectReference`, `IAsyncDisposable`, `[JSInvokable]`-Rückrufe | – | 120 |
+| `Viewer/ViewerPreferences.cs` | neu | Schalter „Originalfarben“ je Gerät in `localStorage` (Muster `LocalStorageCulturePreference`) | – | 50 |
+| `Pages/DocumentViewer.razor` (+ `.razor.cs` falls nötig) | neu | `/dokumente/{id:guid}`: Titel als H1, Status; zeigt `archive` wenn vorhanden, sonst `original` falls PDF, sonst „wird verarbeitet“; Werkzeugleiste: Verkleinern, Vergrößern, 100 %, Breite anpassen, Originalfarben (`aria-pressed`), „Seite x von y“, Downloads Original/Archiv; Tasten `Strg`+`+`/`-`/`0`, `Strg`+Mausrad, Pfeile, `Bild auf/ab`; Zoom 25–1600 %; Zoomstufe/Seite/„kein Text“ über `LiveRegion` | UI.Tests | 200 |
+| `Viewer/Thumbnail.razor` | neu | Vorschaubild über denselben Shader, erst wenn sichtbar (`IntersectionObserver`), `alt` = Titel; in Dokumentliste und Suchtreffern | UI.Tests | 80 |
+| `Documents/DocumentLinks.cs`, `Pages/Documents.razor`, `Pages/Search.razor` | ändern | Links auf `dokumente/{id}`; Vorschaubild einbinden | UI.Tests | 20 |
+| `Strings*.resx`, `app.css` | ändern | Texte DE/EN, Werkzeugleiste im Kontrast-Theme | – | 60 |
+| `tests/NoMorePaper.UI.Tests/Viewer/*` | neu | API-Antworten per Playwright-Route vortäuschen (Muster `ApiMocks`), Beispiel-PDF aus `spikes/viewer-shader/samples/`; axe 0 Verstöße DE/EN; Tastatur (Zoom bis 1600 % und zurück, Seitenwechsel, Ansage); **Pixeltest**: Weiß → `#000000`, Rot `#c62828` → ≈ `#fe7368` (Toleranz 6 je Kanal), Pixel im Fotorahmen unverändert; Rückfall ohne WebGL setzt den CSS-Filter; Download-Links zeigen auf die Original-Routen | selbst | 280 |
+- **Telemetrie:** Web.Client 4200–4299 (Viewer geöffnet mit Seitenzahl, WebGL-Rückfall, Renderdauer gerundet)
+- **CI:** Headless Chromium braucht für WebGL ggf. `--use-angle=swiftshader`/`--enable-unsafe-swiftshader`;
+  wenn nötig in `ServerFixture` setzen und in `build-und-tooling.md` notieren
+- **Akzeptanz:** alle Tests grün, Pixeltest grün auf Windows und in CI; Sichtprüfung durch den Nutzer
+
 ### Rückblick (nach Abschluss)
 | Paket | geplante Stufe | passend? | Anmerkung |
 |---|---|---|---|
