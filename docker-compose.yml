@@ -48,6 +48,9 @@ services:
       NoMorePaper__KeyRingCertificatePassword: ${NOMOREPAPER_KEYRING_CERT_PASSWORD:?Set NOMOREPAPER_KEYRING_CERT_PASSWORD in .env}
       # Host names served (docs/kb/betrieb.md); add the Tailscale MagicDNS name there.
       AllowedHosts: ${NOMOREPAPER_ALLOWED_HOSTS:-localhost;127.0.0.1}
+      # tailscale serve on the host reaches the container through Docker's NAT, i.e. from the bridge
+      # network; its X-Forwarded-* headers are trusted from there (the port is bound to 127.0.0.1 only).
+      NoMorePaper__TrustedProxies: 172.16.0.0/12
     ports:
       # Loopback only; never 0.0.0.0. Tailscale on the host forwards remote access.
       - "127.0.0.1:${NOMOREPAPER_PORT:-8080}:8080"

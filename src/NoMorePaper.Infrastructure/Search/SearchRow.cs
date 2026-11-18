@@ -12,4 +12,8 @@ internal sealed class SearchRow
     public string? Snippet { get; set; }
 
     public double Rank { get; set; }
+
+    public bool IsPrivate { get; set; }
+
+    public bool IsMine { get; set; }
 }

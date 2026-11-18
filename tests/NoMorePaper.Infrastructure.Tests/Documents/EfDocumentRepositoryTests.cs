@@ -1,5 +1,6 @@
 using Microsoft.Extensions.Logging.Abstractions;
 using NoMorePaper.Application.Documents;
+using NoMorePaper.Infrastructure.Tests.Accounts;
 using NoMorePaper.Domain.Documents;
 using NoMorePaper.Infrastructure.Documents;
 using NoMorePaper.Infrastructure.Persistence;
@@ -13,6 +14,7 @@ public sealed class EfDocumentRepositoryTests(PostgresFixture postgres)
 {
     private const string Sha256 = "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855";
     private static readonly DateTimeOffset s_start = new(2026, 11, 18, 12, 0, 0, TimeSpan.Zero);
+    private static readonly Guid s_owner = Guid.CreateVersion7();
 
     private static CancellationToken Ct => TestContext.Current.CancellationToken;
 
@@ -26,7 +28,7 @@ public sealed class EfDocumentRepositoryTests(PostgresFixture postgres)
             ids.Add(await AddAsync(db, $"Dokument {i}", s_start.AddMinutes(i)));
         }
 
-        var queries = new ListDocuments(new EfDocumentRepository(db));
+        var queries = new ListDocuments(new EfDocumentRepository(db), new FakeCurrentAccount(s_owner));
         var first = await queries.ListAsync(1, 2, Ct);
         var second = await queries.ListAsync(2, 2, Ct);
         var last = await queries.ListAsync(3, 2, Ct);
@@ -46,7 +48,7 @@ public sealed class EfDocumentRepositoryTests(PostgresFixture postgres)
             await AddAsync(db, $"Dokument {i}", s_start.AddMinutes(i));
         }
 
-        var queries = new ListDocuments(new EfDocumentRepository(db));
+        var queries = new ListDocuments(new EfDocumentRepository(db), new FakeCurrentAccount(s_owner));
 
         Assert.Single(await queries.ListAsync(0, 0, Ct));
         Assert.Single(await queries.ListAsync(-7, -1, Ct));
@@ -66,7 +68,7 @@ public sealed class EfDocumentRepositoryTests(PostgresFixture postgres)
         await db.SaveChangesAsync(Ct);
 
         await using var read = postgres.CreateContext("queries_get");
-        var detail = await new GetDocument(new EfDocumentRepository(read)).GetAsync(id, Ct);
+        var detail = await new GetDocument(new EfDocumentRepository(read), new FakeCurrentAccount(s_owner)).GetAsync(id, Ct);
 
         Assert.NotNull(detail);
         Assert.Equal((id, "Brief", ProcessingState.Done, null), (detail.Id, detail.Title, detail.State, detail.FailureReason));
@@ -84,7 +86,7 @@ public sealed class EfDocumentRepositoryTests(PostgresFixture postgres)
         document.Fail("OCR timed out");
         await db.SaveChangesAsync(Ct);
 
-        var detail = await new GetDocument(new EfDocumentRepository(db)).GetAsync(id, Ct);
+        var detail = await new GetDocument(new EfDocumentRepository(db), new FakeCurrentAccount(s_owner)).GetAsync(id, Ct);
 
         Assert.Null(detail!.Archive);
         Assert.Equal((ProcessingState.Failed, "OCR timed out"), (detail.State, detail.FailureReason));
@@ -95,12 +97,12 @@ public sealed class EfDocumentRepositoryTests(PostgresFixture postgres)
     {
         await using var db = await MigratedContextAsync("queries_unknown");
 
-        Assert.Null(await new GetDocument(new EfDocumentRepository(db)).GetAsync(Guid.CreateVersion7(), Ct));
+        Assert.Null(await new GetDocument(new EfDocumentRepository(db), new FakeCurrentAccount(s_owner)).GetAsync(Guid.CreateVersion7(), Ct));
     }
 
     private static async Task<Guid> AddAsync(AppDbContext db, string title, DateTimeOffset receivedAt)
     {
-        var document = Document.Receive(title, receivedAt);
+        var document = Document.Receive(title, receivedAt, s_owner, isPrivate: false);
         document.AttachFile(new DocumentFile(DocumentFileKind.Original, "scan.pdf", "application/pdf", 10, Sha256));
         db.Documents.Add(document);
         await db.SaveChangesAsync(Ct);

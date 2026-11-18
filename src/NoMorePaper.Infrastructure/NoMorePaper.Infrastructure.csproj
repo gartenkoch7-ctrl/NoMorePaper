@@ -12,6 +12,8 @@
     <!-- Lifts EF Core to the Design package's version for every consumer, not only this project. -->
     <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" />
     <PackageReference Include="Microsoft.AspNetCore.DataProtection" />
+    <!-- Accounts (M2): user store, password hashing, lockout and security stamps of ASP.NET Identity. -->
+    <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" />
     <!-- Design-time only (dotnet ef migrations); not passed on to Server, Worker or tests. -->
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design">
       <PrivateAssets>all</PrivateAssets>

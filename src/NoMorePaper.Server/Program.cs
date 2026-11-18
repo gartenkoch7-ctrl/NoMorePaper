@@ -1,3 +1,4 @@
+using NoMorePaper.Server.Accounts;
 using NoMorePaper.Server.Composition;
 using NoMorePaper.Server.Documents;
 using NoMorePaper.Server.Search;
@@ -14,12 +15,20 @@ app.UseForwardedHeaders();
 // The host filter (AllowedHosts) already ran: only the configured names reach this point.
 app.UseMiddleware<CrossSiteRequestGuard>();
 
+// Explicit, so they run after the two checks above and not where the host would add them by default.
+app.UseAuthentication();
+app.UseAuthorization();
+
 // The WASM client (incl. _framework) is served by MapStaticAssets; UseBlazorFrameworkFiles must not
 // be added on top of it, it breaks the _framework endpoints with HTTP 500 in .NET 10.
 app.MapStaticAssets();
 app.MapHealthChecks("/health");
-app.MapDocumentEndpoints();
-app.MapSearchEndpoints();
+
+// Every API route requires sign-in unless it opts out (setup, login, invitation and reset links).
+var api = app.MapGroup("/api").RequireAuthorization();
+api.MapAccountEndpoints();
+api.MapDocumentEndpoints();
+api.MapSearchEndpoints();
 app.MapFallbackToFile("index.html");
 
 await app.RunAsync();

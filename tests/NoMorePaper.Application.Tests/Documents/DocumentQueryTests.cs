@@ -1,3 +1,4 @@
+using NoMorePaper.Application.Tests.Accounts;
 using NoMorePaper.Application.Documents;
 using NoMorePaper.Domain.Documents;
 using Xunit;
@@ -11,6 +12,7 @@ public sealed class DocumentQueryTests
 
     private readonly FakeDocumentRepository _documents = new();
     private readonly FakeDocumentStorage _storage = new();
+    private readonly FakeCurrentAccount _current = new();
 
     private static CancellationToken Ct => TestContext.Current.CancellationToken;
 
@@ -22,9 +24,9 @@ public sealed class DocumentQueryTests
     [InlineData(int.MaxValue, 100, int.MaxValue, 100)]
     public async Task List_ClampsPageAndPageSize(int page, int pageSize, int expectedPage, int expectedPageSize)
     {
-        await new ListDocuments(_documents).ListAsync(page, pageSize, Ct);
+        await new ListDocuments(_documents, _current).ListAsync(page, pageSize, Ct);
 
-        Assert.Equal((expectedPage, expectedPageSize), _documents.LastList);
+        Assert.Equal((_current.Id, expectedPage, expectedPageSize), _documents.LastList);
     }
 
     [Fact]
@@ -32,7 +34,7 @@ public sealed class DocumentQueryTests
     {
         var detail = Detail(archive: null);
         _documents.Detail = detail;
-        var get = new GetDocument(_documents);
+        var get = new GetDocument(_documents, _current);
 
         Assert.Same(detail, await get.GetAsync(detail.Id, Ct));
         Assert.Null(await get.GetAsync(Guid.CreateVersion7(), Ct));
@@ -81,8 +83,8 @@ public sealed class DocumentQueryTests
     }
 
     private Task<DocumentFileContent?> Open(Guid id, DocumentFileKind kind) =>
-        new OpenDocumentFile(_documents, _storage).OpenAsync(id, kind, Ct);
+        new OpenDocumentFile(_documents, _storage, _current).OpenAsync(id, kind, Ct);
 
     private static DocumentDetail Detail(DocumentFile? archive) =>
-        new(Guid.CreateVersion7(), "Brief", DateTimeOffset.UnixEpoch, ProcessingState.Queued, null, s_original, archive);
+        new(Guid.CreateVersion7(), "Brief", DateTimeOffset.UnixEpoch, ProcessingState.Queued, null, s_original, archive, IsPrivate: false, IsMine: true);
 }

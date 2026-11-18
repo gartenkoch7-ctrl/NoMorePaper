@@ -20,7 +20,7 @@ public sealed class CrossSiteRequestTests(ApiFixture api)
         using var request = Upload();
         request.Headers.Add("Sec-Fetch-Site", fetchSite);
 
-        using var response = await api.CreateClient().SendAsync(request, Ct);
+        using var response = await api.CreateAdminClient().SendAsync(request, Ct);
 
         Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode);
         Assert.Equal("application/problem+json", response.Content.Headers.ContentType?.MediaType);
@@ -29,7 +29,7 @@ public sealed class CrossSiteRequestTests(ApiFixture api)
     [Fact]
     public async Task Post_FromTheSameOrigin_IsAccepted_WithoutTheMarker()
     {
-        using var client = api.CreateClient();
+        using var client = api.CreateAdminClient();
         client.DefaultRequestHeaders.Remove(Marker);
         using var request = Upload();
         request.Headers.Add("Sec-Fetch-Site", "same-origin");
@@ -42,7 +42,7 @@ public sealed class CrossSiteRequestTests(ApiFixture api)
     [Fact]
     public async Task Post_WithoutFetchSiteAndMarker_IsRefused()
     {
-        using var client = api.CreateClient();
+        using var client = api.CreateAdminClient();
         client.DefaultRequestHeaders.Remove(Marker);
         using var request = Upload();
 
@@ -57,7 +57,7 @@ public sealed class CrossSiteRequestTests(ApiFixture api)
         using var request = new HttpRequestMessage(HttpMethod.Get, "/api/documents");
         request.Headers.Add("Sec-Fetch-Site", "cross-site");
 
-        using var response = await api.CreateClient().SendAsync(request, Ct);
+        using var response = await api.CreateAdminClient().SendAsync(request, Ct);
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
     }
@@ -71,7 +71,7 @@ public sealed class CrossSiteRequestTests(ApiFixture api)
     {
         using var client = api.CreateClient(new WebApplicationFactoryClientOptions { BaseAddress = new Uri(baseAddress) });
 
-        using var response = await client.GetAsync(new Uri("/api/documents", UriKind.Relative), Ct);
+        using var response = await client.GetAsync(new Uri("/api/setup", UriKind.Relative), Ct);
 
         Assert.Equal(expected, response.StatusCode);
     }

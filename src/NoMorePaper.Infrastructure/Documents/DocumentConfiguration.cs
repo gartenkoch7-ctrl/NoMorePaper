@@ -36,6 +36,11 @@ internal sealed class DocumentConfiguration : IEntityTypeConfiguration<Document>
             .HasColumnName("failure_reason")
             .HasMaxLength(Document.MaxFailureReasonLength);
 
+        // No foreign key to users: documents outlive a removed member (their private ones stay hidden),
+        // and M1 documents have no owner until the household is set up.
+        builder.Property(document => document.OwnerId).HasColumnName("owner_id");
+        builder.Property(document => document.IsPrivate).HasColumnName("is_private");
+
         builder.Property<NpgsqlTsVector>(SearchVectorProperty)
             .HasColumnName("search_vector")
             .HasComputedColumnSql(SearchVectorSql, stored: true);

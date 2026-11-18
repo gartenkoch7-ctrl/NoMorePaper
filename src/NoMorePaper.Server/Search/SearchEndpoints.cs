@@ -3,15 +3,15 @@ using NoMorePaper.Server.Documents;
 
 namespace NoMorePaper.Server.Search;
 
-/// <summary><c>GET /api/search?q=&amp;limit=20</c>.</summary>
+/// <summary><c>GET /api/search?q=&amp;limit=20</c>, signed in only.</summary>
 internal static class SearchEndpoints
 {
     private const int DefaultLimit = 20;
 
-    public static IEndpointRouteBuilder MapSearchEndpoints(this IEndpointRouteBuilder routes)
+    public static RouteGroupBuilder MapSearchEndpoints(this RouteGroupBuilder api)
     {
-        routes.MapGet("/api/search", SearchAsync);
-        return routes;
+        api.MapGet("/search", SearchAsync);
+        return api;
     }
 
     // An empty query is not an error: the search box is empty before the user typed anything.

@@ -1,3 +1,4 @@
+using NoMorePaper.Server.Accounts;
 using OpenTelemetry;
 using OpenTelemetry.Logs;
 using OpenTelemetry.Metrics;
@@ -25,8 +26,12 @@ internal static class ServerTelemetryRegistration
             .ConfigureResource(resource => resource.AddService("nomorepaper-server"))
             .WithTracing(tracing => tracing
                 .AddSource(names)
+                // No traces for /health (noise) nor for invitation and reset links: their path holds a
+                // one-time token, which must not reach a collector (url.path).
                 .AddAspNetCoreInstrumentation(options =>
-                    options.Filter = context => !context.Request.Path.StartsWithSegments("/health", StringComparison.Ordinal)))
+                    options.Filter = context =>
+                        !context.Request.Path.StartsWithSegments("/health", StringComparison.Ordinal)
+                        && !AccountLinks.CarriesToken(context.Request.Path)))
             .WithMetrics(metrics => metrics
                 .AddMeter(names)
                 .AddAspNetCoreInstrumentation())

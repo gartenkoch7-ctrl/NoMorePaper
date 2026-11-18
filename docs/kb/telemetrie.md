@@ -18,7 +18,11 @@ des Nutzers) und §2.4 (nichts verlässt das eigene Netz). Geprüft durch
 - **Export nur auf Wunsch**: Ohne `OTEL_EXPORTER_OTLP_ENDPOINT` wird OpenTelemetry gar nicht
   registriert – es gibt keinen Export und keine Kosten. Ist die Variable gesetzt, gehen Traces,
   Metriken und Logs per OTLP an diesen Collector; er muss im eigenen Netz stehen.
-- Aufrufe von `/health` erzeugen im Server keine Traces (Filter in der ASP.NET-Core-Instrumentierung).
+- Aufrufe von `/health` erzeugen im Server keine Traces (Filter in der ASP.NET-Core-Instrumentierung),
+  ebenso Pfade mit Einladungs- oder Rücksetz-Token (`/einladung/…`, `/passwort/…`, `/api/invitations/…`,
+  `/api/password-reset/…`), damit kein Token als `url.path` beim Collector landet.
+- **Konten:** Logs nennen nur Konto-Ids – nie Benutzernamen, Anzeigenamen, Passwörter, Cookies, Tokens oder
+  Notfall-Codes. Tokens und Notfall-Codes werden nur als SHA-256 gespeichert.
 
 ## Namen
 Activities und Messinstrumente heißen `nomorepaper.<feature>.<vorgang>`: nur Kleinbuchstaben,
@@ -49,6 +53,12 @@ und Annahme (3200–3204) sind nach Application umgezogen und haben ihre Nummern
 | 1100 | Information | `Server/Documents/DocumentsLog` | Upload angenommen: Dokument-Id, Größe, Medientyp (ohne Dateinamen) |
 | 1101 | Warning | `Server/Documents/DocumentsLog` | Upload abgelehnt: Grund (`too-large`, `empty`, `type-not-allowed`, `not-multipart`, `malformed`) und Größe |
 | 1200 | Warning | `Server/Security/SecurityLog` | Ändernde API-Anfrage abgelehnt, mögliche fremde Seite: `Sec-Fetch-Site` als festes Wort (`cross-site`, `same-site`, `none`, `absent`, `other`) |
+| 1300 | Information | `Server/Accounts/AccountsLog` | Konto angemeldet (Anmeldung, Einrichtung, Einladung angenommen, Passwort geändert): nur Konto-Id |
+| 1301 | Warning | `Server/Accounts/AccountsLog` | Anmeldung fehlgeschlagen, falsches Passwort: Konto-Id |
+| 1302 | Warning | `Server/Accounts/AccountsLog` | Anmeldung fehlgeschlagen, unbekanntes Konto (ohne Benutzername) |
+| 1303 | Warning | `Server/Accounts/AccountsLog` | Anmeldung abgelehnt, Konto gesperrt: Konto-Id, Restsperre in s (`Retry-After`) |
+| 1304 | Information | `Server/Accounts/AccountsLog` | Konto abgemeldet: Konto-Id |
+| 1305 | Information | `Server/Accounts/AccountsLog` | Sitzung beendet, weil das Konto entfernt oder sein Security-Stamp erneuert wurde: Konto-Id |
 | 2000 | Information | `Worker/Heartbeat/HeartbeatLog` | Heartbeat gestartet, Intervall in s |
 | 2001 | Warning | `Worker/Heartbeat/HeartbeatLog` | Heartbeat nicht geschrieben (nur der erste Fehler eines Ausfalls) |
 | 2002 | Information | `Worker/Heartbeat/HeartbeatLog` | Heartbeat nach einem Ausfall wieder geschrieben |
@@ -111,6 +121,19 @@ und Annahme (3200–3204) sind nach Application umgezogen und haben ihre Nummern
 | 4209 | Warning | `Web.Client/Viewer/ViewerLog` | Vorschaubild konnte nicht gerendert werden (technischer Fehlername oder `interop`) |
 | 4210 | Warning | `Web.Client/Viewer/ViewerLog` | WebGL-Kontext verloren (z. B. GPU-Reset); Viewer versucht den Neuaufbau |
 | 4211 | Information | `Web.Client/Viewer/ViewerLog` | WebGL-Kontext wieder da, Seite neu gezeichnet |
+| 5100 | Information | `Application/Accounts/AccountsLog` | Haushalt eingerichtet: Verwalter-Id, Anzahl übernommener Dokumente ohne Besitzer (M1) |
+| 5101 | Warning | `Application/Accounts/AccountsLog` | Einrichtung abgelehnt, Haushalt schon eingerichtet |
+| 5102 | Information | `Application/Accounts/AccountsLog` | Einladung erzeugt: Konto-Id des Verwalters, Ablaufzeit (nie der Link) |
+| 5103 | Information | `Application/Accounts/AccountsLog` | Einladung angenommen: Id des neuen Mitglieds |
+| 5104 | Information | `Application/Accounts/AccountsLog` | Mitglied entfernt: Konto-Id des Verwalters, Id des Mitglieds |
+| 5105 | Information | `Application/Accounts/AccountsLog` | Rücksetzlink erzeugt: Konto-Id des Verwalters, Id des Mitglieds, Ablaufzeit |
+| 5106 | Information | `Application/Accounts/AccountsLog` | Passwort per Rücksetzlink neu gesetzt: Konto-Id |
+| 5107 | Warning | `Application/Accounts/AccountsLog` | Passwort per Notfall-Code neu gesetzt, neuer Code ausgegeben: Konto-Id |
+| 5108 | Warning | `Application/Accounts/AccountsLog` | Notfall-Reset abgelehnt (unbekanntes Konto oder falscher Code) |
+| 5109 | Information | `Application/Accounts/AccountsLog` | Passwort geändert: Konto-Id |
+| 5110 | Information | `Application/Accounts/AccountsLog` | „Auf allen Geräten abmelden“: Konto-Id |
+| 5111 | Warning | `Application/Accounts/AccountsLog` | Verwalter-Aktion eines Mitglieds abgelehnt (403): Konto-Id, Aktion (`invite`, `list-members`, `remove-member`, `reset-link`) |
+| 5120 | Information | `Application/Documents/DocumentPrivacyLog` | Besitzer hat „privat“ umgestellt: Dokument-Id, neuer Wert, Konto-Id |
 
 Web.Client: Die Ereignisse erscheinen nur in der Browser-Konsole und enthalten nur Sprachkürzel,
 Größen, Anzahlen, Statuscodes, Dauern und technische Fehlernamen – nie Dateinamen, Titel,
@@ -137,6 +160,7 @@ In WASM gibt es keine `ActivitySource` und kein `Meter` (kein Exporter).
 | `nomorepaper.worker.heartbeat_failures` | Counter | `NoMorePaper.Worker` | nicht geschriebene Heartbeats |
 | `nomorepaper.upload.rejected` | Counter | `NoMorePaper.Server` | abgelehnte Uploads, Tag `nomorepaper.upload.reason` (siehe Ereignis 1101) |
 | `nomorepaper.request_guard.rejected` | Counter | `NoMorePaper.Server` | abgelehnte ändernde API-Anfragen, Tag `nomorepaper.request_guard.fetch_site` (siehe Ereignis 1200) |
+| `nomorepaper.auth.sign_ins` | Counter | `NoMorePaper.Server` | Anmeldeversuche, Tag `nomorepaper.auth.outcome` (`succeeded`/`failed`/`locked`) |
 | `nomorepaper.documents.received` | Counter | `NoMorePaper.Application` | angenommene Dokumente |
 | `nomorepaper.search.duration` | Histogramm (ms) | `NoMorePaper.Infrastructure` | Dauer einer Suche |
 | `nomorepaper.storage.stored_bytes` | Counter (By) | `NoMorePaper.Infrastructure` | in die Dokumentablage geschriebene Bytes, Tag `nomorepaper.storage.kind` (`Original`/`Archive`) |
