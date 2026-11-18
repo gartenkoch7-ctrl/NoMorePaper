@@ -1,6 +1,10 @@
-using Microsoft.Extensions.Hosting;
+using Microsoft.AspNetCore.Builder;
+using NoMorePaper.Worker.Composition;
 
-var builder = Host.CreateApplicationBuilder(args);
-using var host = builder.Build();
+var builder = WebApplication.CreateSlimBuilder(args);
+builder.AddWorker();
 
-await host.RunAsync();
+var app = builder.Build();
+app.MapHealthChecks("/health");
+
+await app.RunAsync();
