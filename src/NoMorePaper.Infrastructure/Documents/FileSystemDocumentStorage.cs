@@ -12,7 +12,8 @@ namespace NoMorePaper.Infrastructure.Documents;
 /// <summary>
 /// Stores document files below a data root (the <c>/data</c> volume shared by Server and Worker).
 /// Writes go to a temporary file in the target folder and are renamed into place, which is atomic
-/// on one file system; readers open files so that a concurrent rename or replace does not fail.
+/// on one file system, and the target folder is flushed after each rename (<see cref="DirectorySync"/>);
+/// readers open files so that a concurrent rename or replace does not fail.
 /// </summary>
 public sealed class FileSystemDocumentStorage : IDocumentStorage
 {
@@ -25,6 +26,7 @@ public sealed class FileSystemDocumentStorage : IDocumentStorage
         "nomorepaper.storage.stored_bytes", unit: "By", description: "Bytes written to the document storage");
 
     private readonly DocumentPaths _paths;
+    private readonly DirectorySync _directories = new();
     private readonly ILogger<FileSystemDocumentStorage> _logger;
 
     /// <param name="rootPath">Data root; created on the first write.</param>
@@ -77,6 +79,7 @@ public sealed class FileSystemDocumentStorage : IDocumentStorage
         Directory.CreateDirectory(archive);
         var target = Path.Combine(archive, Path.GetFileName(source));
         File.Move(source, target, overwrite: true);
+        _directories.Flush(archive);
         _logger.OriginalArchived(id);
 
         RemoveOtherOriginals(id, ArchiveArea, target);
@@ -130,6 +133,9 @@ public sealed class FileSystemDocumentStorage : IDocumentStorage
             }
 
             File.Move(temporary, target, overwrite: true);
+
+            // Only the folder entry makes the new name survive a power loss (Linux).
+            _directories.Flush(folder);
             s_storedBytes.Add(stored.SizeBytes, new KeyValuePair<string, object?>(KindTag, kind.ToString()));
             _logger.Stored(kind, id, area, stored.SizeBytes);
             return stored;

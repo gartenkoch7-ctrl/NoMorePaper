@@ -19,8 +19,8 @@ public sealed class DocumentSearch(AppDbContext db, ILogger<DocumentSearch> logg
     // Longer queries only cost time; nobody searches with a paragraph.
     private const int MaxQueryLength = 200;
 
-    // Below this, trigram matches are mostly noise.
-    private const double SimilarityThreshold = 0.4;
+    // Below 0.4, trigram matches are mostly noise. SET takes no parameters, hence a fixed statement.
+    private const string SetSimilarityThreshold = "SET LOCAL pg_trgm.word_similarity_threshold = 0.4";
 
     private static readonly Histogram<double> s_duration = InfrastructureTelemetry.Meter.CreateHistogram<double>(
         "nomorepaper.search.duration", unit: "ms", description: "Time to answer a search");
@@ -69,19 +69,27 @@ public sealed class DocumentSearch(AppDbContext db, ILogger<DocumentSearch> logg
         return ToHits(rows);
     }
 
+    // Only the operator form (<%) can use the trigram index; a word_similarity(...) > x filter reads
+    // every row. The operator takes its threshold from the setting, so it is set for this transaction only.
     private async Task<List<SearchHit>> SimilaritySearchAsync(string text, int limit, CancellationToken cancellationToken)
     {
-        var rows = await db.Database.SqlQuery<SearchRow>($"""
-            SELECT d.id AS "Id", d.title AS "Title", d.received_at AS "ReceivedAt",
-                   left(d.content_text, 200) AS "Snippet",
-                   word_similarity({text}, d.content_text)::float8 AS "Rank"
-            FROM documents d
-            WHERE d.state = 'Done' AND word_similarity({text}, d.content_text) > {SimilarityThreshold}
-            ORDER BY "Rank" DESC, d.received_at DESC
-            LIMIT {limit}
-            """).ToListAsync(cancellationToken).ConfigureAwait(false);
+        var transaction = await db.Database.BeginTransactionAsync(cancellationToken).ConfigureAwait(false);
+        await using (transaction.ConfigureAwait(false))
+        {
+            await db.Database.ExecuteSqlRawAsync(SetSimilarityThreshold, cancellationToken).ConfigureAwait(false);
+            var rows = await db.Database.SqlQuery<SearchRow>($"""
+                SELECT d.id AS "Id", d.title AS "Title", d.received_at AS "ReceivedAt",
+                       left(d.content_text, 200) AS "Snippet",
+                       word_similarity({text}, d.content_text)::float8 AS "Rank"
+                FROM documents d
+                WHERE d.state = 'Done' AND {text} <% d.content_text
+                ORDER BY {text} <<-> d.content_text, d.received_at DESC
+                LIMIT {limit}
+                """).ToListAsync(cancellationToken).ConfigureAwait(false);
+            await transaction.CommitAsync(cancellationToken).ConfigureAwait(false);
 
-        return ToHits(rows);
+            return ToHits(rows);
+        }
     }
 
     private static List<SearchHit> ToHits(List<SearchRow> rows) =>

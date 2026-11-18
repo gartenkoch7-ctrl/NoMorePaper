@@ -38,6 +38,13 @@ public sealed class ApiFixture : WebApplicationFactory<Program>, IAsyncLifetime
             }));
     }
 
+    /// <summary>Clients act like scripts outside a browser: no Sec-Fetch-Site, but the request marker.</summary>
+    protected override void ConfigureClient(HttpClient client)
+    {
+        base.ConfigureClient(client);
+        client.DefaultRequestHeaders.Add("X-NoMorePaper-Request", "1");
+    }
+
     public override async ValueTask DisposeAsync()
     {
         await base.DisposeAsync().ConfigureAwait(false);

@@ -1,3 +1,4 @@
+using System.Diagnostics.Metrics;
 using Microsoft.AspNetCore.Http.Features;
 using NoMorePaper.Contracts.Documents;
 using NoMorePaper.Infrastructure.Documents;
@@ -7,9 +8,10 @@ namespace NoMorePaper.Server.Documents;
 
 /// <summary>
 /// <c>POST /api/documents</c>: checks size and real file type before anything is stored. Errors are
-/// ProblemDetails: 400 nothing usable sent, 413 too large, 415 type not allowed.
+/// ProblemDetails: 400 nothing usable sent, 413 too large, 415 type not allowed. Scoped, like the
+/// <see cref="DocumentIntake"/> it hands the file to.
 /// </summary>
-internal static class DocumentUpload
+internal sealed class DocumentUpload(DocumentIntake intake, ILogger<DocumentUpload> logger)
 {
     public const long MaxFileBytes = 100L * 1024 * 1024;
 
@@ -18,17 +20,15 @@ internal static class DocumentUpload
 
     public const string FormField = "file";
 
-    private static readonly System.Diagnostics.Metrics.Counter<long> s_rejected = ServerTelemetry.Meter.CreateCounter<long>(
+    private static readonly Counter<long> s_rejected = ServerTelemetry.Meter.CreateCounter<long>(
         "nomorepaper.upload.rejected", description: "Uploads refused, by reason");
 
-    public static async Task<IResult> HandleAsync(
-        HttpRequest request, DocumentIntake intake, ILoggerFactory loggerFactory, CancellationToken cancellationToken)
+    public async Task<IResult> HandleAsync(HttpRequest request, CancellationToken cancellationToken)
     {
-        var logger = loggerFactory.CreateLogger("NoMorePaper.Server.Documents.Upload");
-
+        ArgumentNullException.ThrowIfNull(request);
         if (request.ContentLength > MaxRequestBytes)
         {
-            return Reject(logger, "too-large", StatusCodes.Status413PayloadTooLarge, "The file is too large.", request.ContentLength ?? 0);
+            return Reject("too-large", StatusCodes.Status413PayloadTooLarge, "The file is too large.", request.ContentLength ?? 0);
         }
 
         // Kestrel's default (30 MB) would cut off valid uploads; chunked bodies are limited here too.
@@ -39,7 +39,7 @@ internal static class DocumentUpload
 
         if (!request.HasFormContentType)
         {
-            return Reject(logger, "not-multipart", StatusCodes.Status400BadRequest, "Send the file as multipart form field 'file'.", 0);
+            return Reject("not-multipart", StatusCodes.Status400BadRequest, "Send the file as multipart form field 'file'.", 0);
         }
 
         IFormCollection form;
@@ -49,28 +49,28 @@ internal static class DocumentUpload
         }
         catch (BadHttpRequestException exception) when (exception.StatusCode == StatusCodes.Status413PayloadTooLarge)
         {
-            return Reject(logger, "too-large", StatusCodes.Status413PayloadTooLarge, "The file is too large.", 0);
+            return Reject("too-large", StatusCodes.Status413PayloadTooLarge, "The file is too large.", 0);
         }
         catch (Exception exception) when (exception is InvalidDataException or BadHttpRequestException)
         {
-            return Reject(logger, "malformed", StatusCodes.Status400BadRequest, "The upload could not be read.", 0);
+            return Reject("malformed", StatusCodes.Status400BadRequest, "The upload could not be read.", 0);
         }
 
         if (form.Files.GetFile(FormField) is not { Length: > 0 } file)
         {
-            return Reject(logger, "empty", StatusCodes.Status400BadRequest, "No file was sent, or it is empty.", 0);
+            return Reject("empty", StatusCodes.Status400BadRequest, "No file was sent, or it is empty.", 0);
         }
 
         if (file.Length > MaxFileBytes)
         {
-            return Reject(logger, "too-large", StatusCodes.Status413PayloadTooLarge, "The file is too large.", file.Length);
+            return Reject("too-large", StatusCodes.Status413PayloadTooLarge, "The file is too large.", file.Length);
         }
 
         var mediaType = await DetectAsync(file, cancellationToken).ConfigureAwait(false);
         if (mediaType is null)
         {
             return Reject(
-                logger, "type-not-allowed", StatusCodes.Status415UnsupportedMediaType,
+                "type-not-allowed", StatusCodes.Status415UnsupportedMediaType,
                 "Only PDF, JPEG, PNG and HEIC files are accepted.", file.Length);
         }
 
@@ -95,7 +95,7 @@ internal static class DocumentUpload
         }
     }
 
-    private static IResult Reject(ILogger logger, string reason, int status, string title, long sizeBytes)
+    private IResult Reject(string reason, int status, string title, long sizeBytes)
     {
         logger.UploadRejected(reason, sizeBytes);
         s_rejected.Add(1, new KeyValuePair<string, object?>("nomorepaper.upload.reason", reason));
