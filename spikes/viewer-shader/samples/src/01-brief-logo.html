@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<title>Brief mit farbigem Logo (Testdokument)</title>
+<link rel="stylesheet" href="common.css">
+<style>
+  .head { display: flex; justify-content: space-between; align-items: center; border-bottom: 1.2mm solid #c62828; padding-bottom: 5mm; }
+  .brand { font-size: 20pt; font-weight: bold; color: #c62828; }
+  .brand span { color: #1565c0; }
+  .claim { color: #2e7d32; font-size: 9.5pt; }
+  .address { margin: 16mm 0 14mm; }
+  .info { position: absolute; right: 22mm; top: 62mm; font-size: 9.5pt; color: #1565c0; text-align: right; }
+  .mark { background: #fff59d; }
+  .foot { position: absolute; left: 25mm; right: 22mm; bottom: 12mm; border-top: 0.5mm solid #1565c0; padding-top: 2mm; display: flex; justify-content: space-between; }
+  .foot div { font-size: 8pt; color: #555; }
+  a { color: #0d47a1; }
+  .warn { color: #d32f2f; font-weight: bold; }
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="head">
+    <svg width="34mm" height="24mm" viewBox="0 0 170 120" role="img" aria-label="Logo">
+      <circle cx="60" cy="60" r="52" fill="#c62828"/>
+      <rect x="78" y="22" width="78" height="78" rx="10" fill="#1565c0"/>
+      <path d="M40 78 L60 30 L80 78 Z" fill="#fdd835"/>
+      <circle cx="117" cy="61" r="20" fill="#2e7d32"/>
+    </svg>
+    <div class="right">
+      <div class="brand">Muster<span>werk</span> GmbH</div>
+      <div class="claim">Beispielstraße 12 · 12345 Musterstadt · Testdokument</div>
+    </div>
+  </div>
+  <div class="address">
+    <div class="small">Musterwerk GmbH · Beispielstraße 12 · 12345 Musterstadt</div>
+    Erika Mustermann<br>Musterweg 7<br>54321 Beispielhausen
+  </div>
+  <div class="info">Kundennummer 000-4711<br>Datum: 14. März 2031<br>Zeichen: TS/mw</div>
+  <h1>Ihre Anfrage vom 3. März 2031</h1>
+  <p>Sehr geehrte Frau Mustermann,</p>
+  <p>vielen Dank für Ihre Nachricht. Dieses Schreiben ist ein frei erfundenes Testdokument für die
+  Darstellung im Viewer. Es enthält ein farbiges Logo, farbige Überschriften und eine
+  <span class="mark">gelb markierte Textstelle</span>, damit sich prüfen lässt, ob Farbtöne beim
+  Invertieren erhalten bleiben.</p>
+  <p>Der schwarze Fließtext soll auf dunklem Hintergrund weiß erscheinen. Das rote Logo bleibt rot, das
+  blaue Feld bleibt blau, das gelbe Dreieck bleibt gelb und der grüne Kreis bleibt grün. Dünne
+  Linien und kleine Schrift (8 Punkt) müssen auch bei hoher Vergrößerung scharf bleiben.</p>
+  <h2 style="color:#1565c0">Was Sie jetzt tun können</h2>
+  <p>Bitte prüfen Sie die Angaben und senden Sie uns das beiliegende Formular bis zum
+  <span class="warn">31. März 2031</span> zurück. Weitere Hinweise finden Sie unter
+  <a href="#">www.musterwerk.example/hilfe</a>.</p>
+  <p>Franz jagt im komplett verwahrlosten Taxi quer durch Bayern. Zwölf Boxkämpfer jagen Viktor
+  quer über den großen Sylter Deich. Vogel Quax zwickt Johnys Pferd Bim. Die heiße Zypernsonne
+  quälte Max und Victoria ja böse auf dem Weg bis zur Küste.</p>
+  <p>Mit freundlichen Grüßen</p>
+  <p style="margin-top:14mm">Thea Stellvertreter<br><span class="small">Kundenservice</span></p>
+  <div class="foot">
+    <div>Musterwerk GmbH<br>Geschäftsführung: M. Beispiel</div>
+    <div>Bank: Testbank<br>IBAN: DE00 0000 0000 0000 0000 00</div>
+    <div>Telefon 0000 000000<br>info@musterwerk.example</div>
+  </div>
+</div>
+</body>
+</html>
