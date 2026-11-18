@@ -1,6 +1,7 @@
 using NoMorePaper.Application.Documents;
 using NoMorePaper.Domain.Documents;
 using NoMorePaper.Domain.Processing;
+using NoMorePaper.Infrastructure.Processing;
 using NoMorePaper.Infrastructure.Tests.Persistence;
 using Xunit;
 
@@ -9,6 +10,7 @@ namespace NoMorePaper.Infrastructure.Tests.Processing;
 [Collection(SharedPostgres.Name)]
 public sealed class JobQueueOutcomeTests(PostgresFixture postgres)
 {
+    private const string ToolError = "ExternalToolException: ocrmypdf exited with code 7";
     private static readonly DateTimeOffset s_start = QueueDatabase.Start;
 
     private static CancellationToken Ct => TestContext.Current.CancellationToken;
@@ -19,10 +21,12 @@ public sealed class JobQueueOutcomeTests(PostgresFixture postgres)
         var data = await QueueDatabase.CreateAsync(postgres, "queue_start");
         var id = await data.AddQueuedDocumentAsync(s_start);
         await using var db = data.Context();
+        var queue = data.Queue(db);
+        var job = await queue.ClaimNextAsync(QueueDatabase.LockFor, Ct);
 
-        var document = await data.Queue(db).StartAsync(id, Ct);
+        var document = await queue.StartAsync(id, job!.Attempt, Ct);
 
-        Assert.NotNull(document.FindFile(DocumentFileKind.Original));
+        Assert.NotNull(document?.FindFile(DocumentFileKind.Original));
         Assert.Equal(ProcessingState.Processing, (await data.DocumentAsync(id)).State);
     }
 
@@ -34,9 +38,9 @@ public sealed class JobQueueOutcomeTests(PostgresFixture postgres)
         await using (var db = data.Context())
         {
             var queue = data.Queue(db);
-            await queue.ClaimNextAsync(QueueDatabase.LockFor, Ct);
-            await queue.StartAsync(id, Ct);
-            await queue.CompleteAsync(id, "Rechnung", new StoredFile(4711, QueueDatabase.Sha256), Ct);
+            var job = await queue.ClaimNextAsync(QueueDatabase.LockFor, Ct);
+            await queue.StartAsync(id, job!.Attempt, Ct);
+            Assert.True(await queue.CompleteAsync(id, job.Attempt, "Rechnung", new StoredFile(4711, QueueDatabase.Sha256), Ct));
         }
 
         var document = await data.DocumentAsync(id);
@@ -53,20 +57,20 @@ public sealed class JobQueueOutcomeTests(PostgresFixture postgres)
     {
         var data = await QueueDatabase.CreateAsync(postgres, "queue_fail_retry");
         var id = await data.AddQueuedDocumentAsync(s_start);
-        DateTimeOffset? next;
+        RecordedFailure recorded;
         await using (var db = data.Context())
         {
             var queue = data.Queue(db);
-            await queue.ClaimNextAsync(QueueDatabase.LockFor, Ct);
-            await queue.StartAsync(id, Ct);
-            next = await queue.FailAsync(id, new string('x', 5000), s_start.AddMinutes(2), Ct);
+            var job = await queue.ClaimNextAsync(QueueDatabase.LockFor, Ct);
+            await queue.StartAsync(id, job!.Attempt, Ct);
+            recorded = await queue.FailAsync(id, job.Attempt, new string('x', 5000), permanent: false, s_start.AddMinutes(2), Ct);
         }
 
-        Assert.Equal(s_start.AddMinutes(3), next);
-        var job = await data.JobAsync(id);
-        Assert.NotNull(job);
-        Assert.Equal((s_start.AddMinutes(3), (DateTimeOffset?)null), (job.NextAttemptAt, job.LockedUntil));
-        Assert.Equal(Document.MaxFailureReasonLength, job.LastError?.Length);
+        Assert.Equal(new RecordedFailure(FailureOutcome.RetryScheduled, s_start.AddMinutes(3)), recorded);
+        var stored = await data.JobAsync(id);
+        Assert.NotNull(stored);
+        Assert.Equal((s_start.AddMinutes(3), (DateTimeOffset?)null), (stored.NextAttemptAt, stored.LockedUntil));
+        Assert.Equal(Document.MaxFailureReasonLength, stored.LastError?.Length);
         Assert.Equal(ProcessingState.Processing, (await data.DocumentAsync(id)).State);
     }
 
@@ -82,10 +86,10 @@ public sealed class JobQueueOutcomeTests(PostgresFixture postgres)
             var queue = data.Queue(db);
             var job = await queue.ClaimNextAsync(QueueDatabase.LockFor, Ct);
             Assert.Equal(attempt, job?.Attempt);
-            await queue.StartAsync(id, Ct);
-            var next = await queue.FailAsync(id, "ExternalToolException: ocrmypdf exited with code 2", data.Time.Now, Ct);
-            retries.Add(next);
-            data.Time.Now = next ?? data.Time.Now;
+            await queue.StartAsync(id, attempt, Ct);
+            var recorded = await queue.FailAsync(id, attempt, ToolError, permanent: false, data.Time.Now, Ct);
+            retries.Add(recorded.NextAttemptAt);
+            data.Time.Now = recorded.NextAttemptAt ?? data.Time.Now;
         }
 
         Assert.Equal(
@@ -93,7 +97,27 @@ public sealed class JobQueueOutcomeTests(PostgresFixture postgres)
             retries);
         var document = await data.DocumentAsync(id);
         Assert.Equal(ProcessingState.Failed, document.State);
-        Assert.Equal("ExternalToolException: ocrmypdf exited with code 2", document.FailureReason);
+        Assert.Equal(ToolError, document.FailureReason);
+        Assert.Null(await data.JobAsync(id));
+    }
+
+    [Fact]
+    public async Task Fail_GivesUpAtOnce_WhenTheFailureIsPermanent()
+    {
+        var data = await QueueDatabase.CreateAsync(postgres, "queue_fail_permanent");
+        var id = await data.AddQueuedDocumentAsync(s_start);
+        RecordedFailure recorded;
+        await using (var db = data.Context())
+        {
+            var queue = data.Queue(db);
+            var job = await queue.ClaimNextAsync(QueueDatabase.LockFor, Ct);
+            await queue.StartAsync(id, job!.Attempt, Ct);
+            recorded = await queue.FailAsync(id, job.Attempt, "ExternalToolException: ocrmypdf exited with code 8", permanent: true, s_start, Ct);
+        }
+
+        Assert.Equal(new RecordedFailure(FailureOutcome.GivenUp), recorded);
+        var document = await data.DocumentAsync(id);
+        Assert.Equal((ProcessingState.Failed, "ExternalToolException: ocrmypdf exited with code 8"), (document.State, document.FailureReason));
         Assert.Null(await data.JobAsync(id));
     }
 
@@ -108,7 +132,8 @@ public sealed class JobQueueOutcomeTests(PostgresFixture postgres)
             job!.Attempt = RetryPolicy.MaxAttempts;
             await db.SaveChangesAsync(Ct);
 
-            Assert.Null(await data.Queue(db).FailAsync(id, "NpgsqlException", s_start, Ct));
+            var recorded = await data.Queue(db).FailAsync(id, RetryPolicy.MaxAttempts, "NpgsqlException", permanent: false, s_start, Ct);
+            Assert.Equal(FailureOutcome.GivenUp, recorded.Outcome);
         }
 
         Assert.Equal(ProcessingState.Failed, (await data.DocumentAsync(id)).State);
@@ -123,12 +148,12 @@ public sealed class JobQueueOutcomeTests(PostgresFixture postgres)
         await using (var db = data.Context())
         {
             var queue = data.Queue(db);
-            await queue.ClaimNextAsync(QueueDatabase.LockFor, Ct);
-            var document = await queue.StartAsync(id, Ct);
+            var job = await queue.ClaimNextAsync(QueueDatabase.LockFor, Ct);
+            var document = await queue.StartAsync(id, job!.Attempt, Ct);
 
             // The attempt broke after changing the tracked document, before saving it.
-            document.Complete("half done");
-            await queue.FailAsync(id, "IOException", s_start, Ct);
+            document!.Complete("half done");
+            await queue.FailAsync(id, job.Attempt, "IOException", permanent: false, s_start, Ct);
         }
 
         var stored = await data.DocumentAsync(id);
@@ -137,11 +162,31 @@ public sealed class JobQueueOutcomeTests(PostgresFixture postgres)
     }
 
     [Fact]
-    public async Task Fail_ReturnsNull_WhenTheJobIsGone()
+    public async Task Fail_ReportsALostClaim_WhenTheJobIsGone()
     {
         var data = await QueueDatabase.CreateAsync(postgres, "queue_fail_gone");
         await using var db = data.Context();
 
-        Assert.Null(await data.Queue(db).FailAsync(Guid.CreateVersion7(), "IOException", s_start, Ct));
+        var recorded = await data.Queue(db).FailAsync(Guid.CreateVersion7(), 1, "IOException", permanent: false, s_start, Ct);
+
+        Assert.Equal(FailureOutcome.ClaimLost, recorded.Outcome);
+    }
+
+    [Fact]
+    public async Task Release_HandsTheJobBack_WithoutCountingTheAttempt()
+    {
+        var data = await QueueDatabase.CreateAsync(postgres, "queue_release");
+        var id = await data.AddQueuedDocumentAsync(s_start);
+        await using var db = data.Context();
+        var queue = data.Queue(db);
+        var job = await queue.ClaimNextAsync(QueueDatabase.LockFor, Ct);
+        await queue.StartAsync(id, job!.Attempt, Ct);
+
+        Assert.True(await queue.ReleaseAsync(id, job.Attempt, Ct));
+
+        var stored = await data.JobAsync(id);
+        Assert.Equal((0, (DateTimeOffset?)null), (stored!.Attempt, stored.LockedUntil));
+        var again = await queue.ClaimNextAsync(QueueDatabase.LockFor, Ct);
+        Assert.Equal((id, 1), (again?.DocumentId, again?.Attempt));
     }
 }

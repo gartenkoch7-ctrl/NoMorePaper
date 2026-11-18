@@ -45,6 +45,58 @@ public sealed class OcrMyPdfEngineTests(OcrSamples samples) : IClassFixture<OcrS
     }
 
     [Fact]
+    public async Task CreateArchive_RecognizesTheText_OfAPngWithAlphaChannel()
+    {
+        OcrSamples.SkipUnlessToolsInstalled();
+
+        var (result, output) = await CreateArchiveAsync(samples.RgbaPng, OcrMyPdfEngine.PngMediaType);
+
+        Assert.Equal(1, result.PageCount);
+        Assert.Contains(OcrSamples.GermanWord, result.Text, StringComparison.Ordinal);
+        await AssertIsPdfAAsync(output);
+    }
+
+    [Fact]
+    public async Task CreateArchive_ProcessesASignedPdf_AndLeavesTheOriginalUnchanged()
+    {
+        OcrSamples.SkipUnlessToolsInstalled();
+        Assert.SkipWhen(samples.SignedPdf is null, "pikepdf is not importable from python3 here; it comes with OCRmyPDF in CI and the Worker image.");
+        var before = await File.ReadAllBytesAsync(samples.SignedPdf, Ct);
+
+        var (result, output) = await CreateArchiveAsync(samples.SignedPdf, OcrMyPdfEngine.PdfMediaType);
+
+        Assert.Contains("Rechnung Stromanbieter Januar", result.Text, StringComparison.Ordinal);
+        await AssertIsPdfAAsync(output);
+        Assert.Equal(before, await File.ReadAllBytesAsync(samples.SignedPdf, Ct));
+    }
+
+    [Fact]
+    public async Task CreateArchive_FailsPermanently_ForAnEncryptedPdf_AndCleansUp()
+    {
+        OcrSamples.SkipUnlessToolsInstalled();
+        var work = samples.NewWorkFolder();
+        var input = Path.Combine(work, "original");
+        File.Copy(samples.EncryptedPdf, input);
+
+        var error = await Assert.ThrowsAsync<ExternalToolException>(
+            () => Engine().CreateArchiveAsync(input, OcrMyPdfEngine.PdfMediaType, Path.Combine(work, "archive.pdf"), Ct));
+
+        Assert.Equal(("ocrmypdf", 8, true), (error.Tool, error.ExitCode, error.IsPermanent));
+        Assert.Equal([input], Directory.GetFileSystemEntries(work));
+    }
+
+    [Theory]
+    [InlineData("ocrmypdf", 2, true)]
+    [InlineData("ocrmypdf", 8, true)]
+    [InlineData("ocrmypdf", 1, false)]
+    [InlineData("ocrmypdf", 7, false)]
+    [InlineData("ocrmypdf", 15, false)]
+    [InlineData("img2pdf", 2, false)]
+    [InlineData("pdftotext", 8, false)]
+    public void IsPermanentFailure_IsTrueOnlyForOcrMyPdfsInputErrors(string tool, int exitCode, bool permanent) =>
+        Assert.Equal(permanent, OcrMyPdfEngine.IsPermanentFailure(tool, exitCode));
+
+    [Fact]
     public async Task CreateArchive_RecognizesTheText_OfAHeicPhoto()
     {
         OcrSamples.SkipUnlessToolsInstalled();
@@ -71,7 +123,7 @@ public sealed class OcrMyPdfEngineTests(OcrSamples samples) : IClassFixture<OcrS
     }
 
     [Fact]
-    public async Task CreateArchive_ReportsToolAndExitCode_ForABrokenPdf_AndCleansUp()
+    public async Task CreateArchive_FailsPermanently_ForABrokenPdf_AndCleansUp()
     {
         OcrSamples.SkipUnlessToolsInstalled();
         var work = samples.NewWorkFolder();
@@ -81,8 +133,7 @@ public sealed class OcrMyPdfEngineTests(OcrSamples samples) : IClassFixture<OcrS
         var error = await Assert.ThrowsAsync<ExternalToolException>(
             () => Engine().CreateArchiveAsync(input, OcrMyPdfEngine.PdfMediaType, Path.Combine(work, "archive.pdf"), Ct));
 
-        Assert.Equal("ocrmypdf", error.Tool);
-        Assert.NotEqual(0, error.ExitCode);
+        Assert.Equal(("ocrmypdf", 2, true), (error.Tool, error.ExitCode, error.IsPermanent));
         Assert.Equal([input], Directory.GetFileSystemEntries(work));
     }
 

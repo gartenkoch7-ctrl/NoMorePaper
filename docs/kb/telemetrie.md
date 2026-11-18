@@ -54,12 +54,16 @@ Innerhalb eines Bereichs bekommt jedes Feature einen eigenen Hunderterblock (z. 
 | 2101 | Information | `Worker/Processing/ProcessingLog` | Dokument-Id wird verarbeitet, Versuch Nr. |
 | 2102 | Information | `Worker/Processing/ProcessingLog` | Dokument fertig: Dauer in ms, Seiten, Anzahl erkannter Zeichen |
 | 2103 | Warning | `Worker/Processing/ProcessingLog` | Versuch fehlgeschlagen: technischer Grund (Ausnahmetyp, ggf. Werkzeug + Exit-Code), Zeitpunkt des nächsten Versuchs |
-| 2104 | Error | `Worker/Processing/ProcessingLog` | Dokument endgültig `Failed` nach dem letzten Versuch, technischer Grund |
+| 2104 | Error | `Worker/Processing/ProcessingLog` | Dokument endgültig `Failed` nach dem letzten Versuch oder einem dauerhaften Fehler, technischer Grund |
 | 2105 | Warning | `Worker/Processing/ProcessingLog` | Job konnte nicht geholt werden (nur Ausnahmetyp; nur der erste Fehler eines Ausfalls) |
 | 2106 | Information | `Worker/Processing/ProcessingLog` | Jobs holen klappt nach einem Ausfall wieder |
 | 2107 | Error | `Worker/Processing/ProcessingLog` | Fehlschlag konnte nicht gespeichert werden; der Job läuft nach Ablauf seiner Sperre erneut |
-| 2108 | Information | `Worker/Processing/ProcessingLog` | Verarbeitung durch Herunterfahren abgebrochen; der Job läuft nach Ablauf seiner Sperre erneut |
-| 2109 | Warning | `Worker/Processing/ProcessingLog` | Arbeitskopie im Temp-Ordner nicht gelöscht (nur Ausnahmetyp); nur Platzverlust |
+| 2108 | Information | `Worker/Processing/ProcessingLog` | Verarbeitung durch Herunterfahren abgebrochen; der Job ist zurückgegeben und läuft beim nächsten Start ohne Versuchszählung |
+| 2109 | Warning | `Worker/Processing/ProcessingLog` | Arbeitsordner des Versuchs nicht gelöscht (nur Ausnahmetyp); ein Worker-Start nach einem Tag räumt ihn weg |
+| 2110 | Warning | `Worker/Processing/ProcessingLog` | Versuch hat seinen Job an einen anderen Worker verloren (Sperre abgelaufen); Ergebnis bzw. Fehlschlag wird verworfen |
+| 2111 | Warning | `Worker/Processing/ProcessingLog` | Job beim Herunterfahren nicht zurückgegeben (nur Ausnahmetyp); er läuft nach Ablauf seiner Sperre erneut |
+| 2112 | Information | `Worker/Processing/ProcessingLog` | Beim Start Reste älter als einen Tag aus dem Arbeitsordner `/data/tmp` entfernt: Anzahl |
+| 2113 | Warning | `Worker/Processing/ProcessingLog` | Rest im Arbeitsordner nicht entfernt (nur Ausnahmetyp); nur Platzverlust |
 | 3000 | Information | `Infrastructure/Persistence/PersistenceLog` | Migration beginnt, Anzahl bekannter Migrationen |
 | 3001 | Information | `Infrastructure/Persistence/PersistenceLog` | Schema aktuell, Dauer in ms |
 | 3002 | Error | `Infrastructure/Persistence/PersistenceLog` | Migration fehlgeschlagen |

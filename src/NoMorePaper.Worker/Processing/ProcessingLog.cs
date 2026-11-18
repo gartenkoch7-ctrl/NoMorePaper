@@ -4,7 +4,7 @@ using NoMorePaper.Worker.Telemetry;
 namespace NoMorePaper.Worker.Processing;
 
 /// <summary>
-/// Log events (Worker 2100–2119) and instruments of document processing (docs/kb/telemetrie.md).
+/// Log events (Worker 2100–2199) and instruments of document processing (docs/kb/telemetrie.md).
 /// Only ids, attempts, counts, durations and technical reasons; never titles, file names or text.
 /// </summary>
 internal static partial class ProcessingLog
@@ -45,9 +45,21 @@ internal static partial class ProcessingLog
     [LoggerMessage(EventId = 2107, Level = LogLevel.Error, Message = "Could not record the failure of document {DocumentId} ({ErrorType}); the job runs again when its lock expires")]
     public static partial void FailureNotRecorded(this ILogger logger, Guid documentId, string errorType);
 
-    [LoggerMessage(EventId = 2108, Level = LogLevel.Information, Message = "Processing of document {DocumentId} was interrupted by shutdown; the job runs again when its lock expires")]
+    [LoggerMessage(EventId = 2108, Level = LogLevel.Information, Message = "Processing of document {DocumentId} was interrupted by shutdown; the job was handed back and runs again on the next start")]
     public static partial void DocumentInterrupted(this ILogger logger, Guid documentId);
 
-    [LoggerMessage(EventId = 2109, Level = LogLevel.Warning, Message = "Could not delete the working copy of document {DocumentId} ({ErrorType}); only space is lost")]
+    [LoggerMessage(EventId = 2109, Level = LogLevel.Warning, Message = "Could not delete the working folder of document {DocumentId} ({ErrorType}); a Worker start a day later removes it")]
     public static partial void CleanupFailed(this ILogger logger, Guid documentId, string errorType);
+
+    [LoggerMessage(EventId = 2110, Level = LogLevel.Warning, Message = "Attempt {Attempt} for document {DocumentId} lost its claim to another Worker; its result is discarded")]
+    public static partial void ClaimLost(this ILogger logger, int attempt, Guid documentId);
+
+    [LoggerMessage(EventId = 2111, Level = LogLevel.Warning, Message = "Could not hand back document {DocumentId} on shutdown ({ErrorType}); the job runs again when its lock expires")]
+    public static partial void ReleaseFailed(this ILogger logger, Guid documentId, string errorType);
+
+    [LoggerMessage(EventId = 2112, Level = LogLevel.Information, Message = "Removed {Count} leftovers older than a day from the working folder")]
+    public static partial void LeftoversRemoved(this ILogger logger, int count);
+
+    [LoggerMessage(EventId = 2113, Level = LogLevel.Warning, Message = "Could not remove a leftover from the working folder ({ErrorType}); only space is lost")]
+    public static partial void LeftoverNotRemoved(this ILogger logger, string errorType);
 }

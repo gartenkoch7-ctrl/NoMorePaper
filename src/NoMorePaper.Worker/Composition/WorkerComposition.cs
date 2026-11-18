@@ -21,8 +21,21 @@ internal static class WorkerComposition
         // OCR runs only in the Worker, whose image contains the tools (Dockerfile.worker).
         builder.Services.AddSingleton<ExternalProcess>();
         builder.Services.AddSingleton<IOcrEngine, OcrMyPdfEngine>();
+        builder.Services.AddSingleton<DocumentPipeline>();
+
+        // Read when first resolved, like the data root of the storage (AddInfrastructure).
+        var configuration = builder.Configuration;
+        builder.Services.AddSingleton(provider => new WorkingFolder(
+            Path.Combine(DataPath(configuration), WorkingFolder.FolderName),
+            provider.GetRequiredService<TimeProvider>(),
+            provider.GetRequiredService<ILogger<WorkingFolder>>()));
         builder.Services.AddHostedService<DocumentProcessor>();
 
         return builder;
     }
+
+    private static string DataPath(ConfigurationManager configuration) =>
+        configuration[InfrastructureSettings.DataPathKey] is { } path && !string.IsNullOrWhiteSpace(path)
+            ? path
+            : InfrastructureSettings.DefaultDataPath;
 }

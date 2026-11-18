@@ -11,7 +11,7 @@ public interface IOcrEngine
     /// <param name="mediaType">Media type of the original, detected from its content: PDF, JPEG, PNG or HEIC.</param>
     /// <param name="outputPdfPath">Where the PDF/A is written; its folder is the caller's working folder.</param>
     /// <exception cref="NotSupportedException">The media type cannot be processed.</exception>
-    /// <exception cref="ExternalToolException">A processing step failed.</exception>
+    /// <exception cref="ExternalToolException">A processing step failed; <see cref="ExternalToolException.IsPermanent"/> when retrying cannot help.</exception>
     /// <exception cref="TimeoutException">Processing took longer than the time limit per document.</exception>
     Task<OcrResult> CreateArchiveAsync(string inputPath, string mediaType, string outputPdfPath, CancellationToken cancellationToken);
 }
