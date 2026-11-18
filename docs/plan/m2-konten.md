@@ -180,6 +180,43 @@ Schritt 0 (Aufgabe 0) ─┬─► Spur A (1, 2) ─┐
 Die Dateitabellen für P1 und P2 schreibt die steuernde Sitzung nach P0 (sie hängen an den neuen
 Ports). P3 hängt nicht an P0 und startet parallel dazu.
 
+### Paket P1 – Konten, Besitz, privat (Spur A) · Modell: **Opus** · Effort: `high`
+Grundlage: Ports und Anwendungsfälle aus P0 (`d39a281`), Betrieb aus P3 (`717ae11`).
+
+| Datei | neu/ändern | Was genau | Tests | ca. Zeilen |
+|---|---|---|---|---|
+| `src/NoMorePaper.Domain/Documents/Document.cs` | ändern | **Kein** eigenes Domain-Modell für Konten (Identity bleibt Infrastruktur); Domain bekommt nur `Document.OwnerId` (`Guid`) und `Document.IsPrivate` mit `MakePrivate(Guid actor)`/`Share(Guid actor)` (nur Besitzer, sonst `InvalidOperationException`) und `IsVisibleTo(Guid accountId)` | Domain.Tests | 40 |
+| `src/NoMorePaper.Application/Accounts/ICurrentAccount.cs` | neu | `Guid Id`, `bool IsAdmin` des angemeldeten Kontos (Server setzt es aus dem Cookie-Principal um) | – | 15 |
+| `src/NoMorePaper.Application/Accounts/IAccountStore.cs` + Anwendungsfälle `SetUpHousehold`, `InviteMember`, `AcceptInvitation`, `ListMembers`, `RemoveMember`, `CreateResetLink`, `ResetPassword`, `ResetWithEmergencyCode`, `ChangePassword` | neu | Ports + Ablauf-Regeln: Einrichtung nur ohne Konten (sonst Konflikt), Verwalter kann sich nicht entfernen, Tokens 32 Byte zufällig, nur SHA-256 gespeichert, Einladung 7 Tage einmalig, Rücksetzlink 24 h einmalig, Notfall-Code 20 Zeichen (Base32), nur Hash gespeichert, nach Benutzung neuer Code; Zeit über `TimeProvider` | Application.Tests | je < 150 |
+| `Application/Documents/*` (aus P0) | ändern | `ReceiveDocument` bekommt `bool isPrivate` und setzt `OwnerId = ICurrentAccount.Id`; `ListDocuments`, `GetDocument`, `OpenDocumentFile`, `SearchDocuments` filtern über den Port (`accountId`-Parameter); neuer Anwendungsfall `SetDocumentPrivacy` (nur Besitzer, sonst „nicht gefunden“) | Application.Tests | 80 |
+| `IDocumentRepository`, `ISearchIndex` | ändern | `ListAsync/GetAsync/SearchAsync(..., Guid viewerId, ...)`: Sichtbarkeit `owner_id = viewer OR NOT is_private` **im SQL**; `SetPrivacyAsync` | Infrastructure.Tests | 40 |
+| `src/NoMorePaper.Infrastructure/Accounts/*` | neu | ASP.NET Identity (`IdentityUser<Guid>`, Tabellen `users`, `user_claims`, … mit snake_case), `AccountStore` setzt `IAccountStore` um, Tabellen `invitations`, `password_reset_tokens`, Spalte `users.emergency_code_hash`, `users.is_admin`, `users.display_name`; Identity-Optionen: Passwort nur `RequiredLength = 10` (keine Zeichenklassen), Lockout 5 / 5 min, `RequireUniqueEmail = false` | Infrastructure.Tests | ~400 gesamt |
+| Migration `Accounts` | neu | Tabellen oben; `documents.owner_id uuid NULL`, `documents.is_private bool NOT NULL DEFAULT false`; `SetUpHousehold` setzt danach alle `owner_id IS NULL` auf den Verwalter (eine Transaktion) | MigrationTests | gen. |
+| `src/NoMorePaper.Server/Accounts/*` | neu | Endpunkte laut API-Vertrag; Cookie-Auth: Name `__Host-nmp`, `HttpOnly`, `SameSite=Strict`, `SecurePolicy = Always` außer `Development` (`SameAsRequest`), 30 Tage gleitend, bei API-Routen 401 statt Umleitung; `ICurrentAccount`-Umsetzung; Security-Stamp-Prüfung alle 5 min | Server.Tests | ~350 gesamt |
+| `Server/Documents/*`, `Server/Search/*` | ändern | `RequireAuthorization()` auf der Gruppe `/api` (Ausnahmen laut Vertrag `AllowAnonymous`), Upload-Feld `private`, `PATCH /api/documents/{id}` | Server.Tests | 40 |
+| `Server/Hosting/ForwardedHeadersRegistration.cs` | ändern | zusätzlich vertrauenswürdige Netze aus `NoMorePaper:TrustedProxies` (Liste CIDR, Werk leer); `docker-compose.yml` setzt `172.16.0.0/12` für den Server (Port ist nur an `127.0.0.1` gebunden, Docker-NAT liefert die Bridge-Adresse) | Server.Tests | 20 |
+| `Contracts/Accounts/*`, `Contracts/Documents/*` | neu/ändern | DTOs laut API-Vertrag; `DocumentSummaryDto`/`DocumentDetailDto` + `IsPrivate`, `IsMine` | – | 60 |
+| `tests/NoMorePaper.Server.Tests/Accounts/*` | neu | Einrichtung einmalig (409 danach), Anmeldung, falsches Passwort, Sperre 423 + `Retry-After`, Abmelden, überall abmelden (alter Cookie ungültig), Einladung gültig/benutzt/abgelaufen, Rücksetzlink, Notfall-Code (alter Code danach ungültig), Mitglied entfernen (Cookie danach ungültig), Rechte (Mitglied darf nicht einladen → 403), privat: fremd → 404 auf Detail/Datei/PATCH, nicht in Liste/Suche; M1-Dokumente gehören nach Einrichtung dem Verwalter | selbst | ~600 gesamt (mehrere Dateien) |
+- **Telemetrie:** Server 1300–1399 (Anmeldung ok/fehlgeschlagen/gesperrt nur mit Konto-Id, nie Benutzername/Passwort), Infrastructure 3400–3499 (3400/3401 sind belegt → ab 3410), Application 5100–5199
+- **Hinweis Hotspots:** `ServerFixture` (UI-Tests) gehört Spur B; `ApiFixture` (Server.Tests) gehört Spur A
+- **Akzeptanz:** alle Tests grün; ohne Anmeldung liefert keine geschützte Route Daten
+
+### Paket P2 – Konto-Seiten, Privat-Schalter (Spur B) · Modell: **Sonnet** · Effort: `medium`
+| Datei | neu/ändern | Was genau | Tests | ca. Zeilen |
+|---|---|---|---|---|
+| `src/NoMorePaper.Web.Client/Accounts/AccountApi.cs` | neu | typisierter Client für alle Konto-Routen (Header `X-NoMorePaper-Request: 1` bei Nicht-GET), `ProblemDetails`/423 → lokalisierte Meldung mit Wartezeit | UI.Tests | 150 |
+| `Accounts/AuthState.cs` | neu | Dienst: `me` laden, `IsSignedIn`, `IsAdmin`, Ereignis bei Änderung; 401 aus `DocumentApi`/`AccountApi` → Anmeldung | UI.Tests | 80 |
+| `Accounts/RequireSignIn.razor` | neu | um `Router`/Layout: nicht angemeldet → `/anmelden?ziel=<pfad>`; Einrichtung nötig → `/einrichten` | UI.Tests | 60 |
+| `Pages/Setup.razor` (`/einrichten`), `SignIn.razor` (`/anmelden`), `AcceptInvitation.razor` (`/einladung/{token}`), `ResetPassword.razor` (`/passwort/{token}`), `EmergencyReset.razor` (`/notfall`), `Account.razor` (`/konto`), `Members.razor` (`/mitglieder`, nur Verwalter) | neu | Formulare mit sichtbaren Labels, `autocomplete` (`username`, `current-password`, `new-password`), Schalter „Passwort anzeigen“ (`aria-pressed`), Fehler über `LiveRegion` + Fokus auf erstes fehlerhaftes Feld; Notfall-Code groß, kopierbar, mit Bestätigung „aufbewahrt“; Mitglieder: einladen → Link mit „Kopieren“-Knopf, Rücksetzlink, Entfernen mit Bestätigungsdialog | UI.Tests | je < 200 |
+| `Layout/MainLayout.razor` | ändern | Kontoname + „Konto“, „Mitglieder“ (nur Verwalter), „Abmelden“ in der Navigation | UI.Tests | 30 |
+| `Pages/Upload.razor`, `Pages/DocumentViewer.razor(.cs)`, `Pages/Documents.razor`, `Pages/Search.razor` | ändern | Schalter „Privat“ (Checkbox mit Label) beim Hochladen; im Viewer Schalter „Privat“ nur für eigene Dokumente; in Liste/Suche Kennzeichnung „Privat“ als Text + Symbol | UI.Tests | 60 |
+| `Documents/DocumentApi.cs` | ändern | Upload-Feld `private`, `SetPrivacyAsync` | – | 20 |
+| `Strings*.resx` | ändern | alle Texte DE/EN | – | 150 |
+| `tests/NoMorePaper.UI.Tests/Hosting/ServerFixture.cs` | ändern | richtet beim Start per API einen Haushalt ein (Verwalter `testadmin`) und meldet jede Sitzung an (Cookie per API-Login in den Browser-Kontext); Methode `OpenAsync(path, culture, signedIn: true)` | – | 50 |
+| `tests/NoMorePaper.UI.Tests/Accounts/*` | neu | axe 0 Verstöße auf allen neuen Seiten DE/EN; Anmelden/Abmelden per Tastatur; Sperre wird angesagt; Einladung annehmen; Notfall-Code-Seite; Privat-Schalter; Weiterleitung auf `/anmelden` ohne Sitzung | selbst | ~500 gesamt |
+- **Telemetrie:** Web.Client 4400–4499 (nie Benutzername, Passwort, Tokens)
+- **Akzeptanz:** alle UI-Tests grün (auch die bestehenden mit angemeldeter Fixture)
+
 ### Paket P3 – Betrieb (Spur C) · Modell: **Sonnet** · Effort: `medium`
 | Datei | neu/ändern | Was genau | Tests | ca. Zeilen |
 |---|---|---|---|---|
