@@ -11,7 +11,8 @@ Thematisch aufgeteilt, damit Agents nur laden, was sie brauchen. Jede Datei blei
 | [build-und-tooling.md](build-und-tooling.md) | Build, Tests, Analyzer, Werkzeuge |
 | [telemetrie.md](telemetrie.md) | Logs, Abläufe, Messwerte: EventId-Bereiche, Katalog |
 | [darstellung.md](darstellung.md) | PDF intelligent invertiert: Farbraum, Formeln, Foto-Erkennung, Schwellen, Messwerte, Empfehlungen für den Viewer |
-| [betrieb.md](betrieb.md) | Installation, Schlüsselring-Zertifikat, Tailscale-HTTPS, Prüfliste |
+| [betrieb.md](betrieb.md) | Installation, Schlüsselring-Zertifikat, Tailscale-HTTPS, vertrauenswürdige Proxys, Prüfliste |
+| [konten.md](konten.md) | Konten und Haushalt: Rollen, Anmeldung, Sitzung, Tokens, Notfall-Code, private Dokumente |
 | [verarbeitung.md](verarbeitung.md) | Pipeline vom Upload bis Done: Warteschlange, Werkzeuge, Zeitlimits, gemessene Zeiten, bekannte Lücken |
 
 Architekturentscheidungen: [../adr/](../adr/) · Roadmap & Meilensteine: [../plan/](../plan/README.md)

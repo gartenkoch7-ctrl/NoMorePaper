@@ -38,52 +38,52 @@ Entscheidungen (Grilling 2026-11-18):
       `Composition/`; Verhalten unverändert (alle bestehenden Tests grün)
 
 ### 1. Konten und Anmeldung (Backend)
-- [ ] ASP.NET Identity mit EF Core (eigene Tabellen `users`, …), Cookie-Anmeldung `SameSite=Strict`,
+- [x] ASP.NET Identity mit EF Core (eigene Tabellen `users`, …), Cookie-Anmeldung `SameSite=Strict`,
       `Secure`, `HttpOnly`, 30 Tage gleitend; Sperre 5 Fehlversuche / 5 Minuten; Passwort ≥ 10 Zeichen
-- [ ] Einrichtung beim ersten Start (nur solange es kein Konto gibt): Verwalter + Notfall-Code
+- [x] Einrichtung beim ersten Start (nur solange es kein Konto gibt): Verwalter + Notfall-Code
       (einmal angezeigt, nur Hash gespeichert); M1-Dokumente gehen an den Verwalter
-- [ ] Einladungen (Token nur als Hash, 7 Tage, einmalig), Mitglieder auflisten/entfernen,
+- [x] Einladungen (Token nur als Hash, 7 Tage, einmalig), Mitglieder auflisten/entfernen,
       Rücksetzlinks (Token als Hash, 24 Stunden), Notfall-Reset erzeugt neuen Notfall-Code
-- [ ] „Auf allen Geräten abmelden“ über den Security-Stamp
-- [ ] Jede `/api`-Route außer Einrichtung/Anmeldung/Einladung/Rücksetzen verlangt Anmeldung;
+- [x] „Auf allen Geräten abmelden“ über den Security-Stamp
+- [x] Jede `/api`-Route außer Einrichtung/Anmeldung/Einladung/Rücksetzen verlangt Anmeldung;
       `CrossSiteRequestGuard` bleibt
 
 ### 2. Besitz und „privat“
-- [ ] `documents.owner_id` (Pflicht nach Migration), `documents.is_private`
-- [ ] Liste, Detail, Dateien, Suche zeigen nur eigene + nicht private Dokumente; fremde private →
+- [x] `documents.owner_id` (Pflicht nach Migration), `documents.is_private`
+- [x] Liste, Detail, Dateien, Suche zeigen nur eigene + nicht private Dokumente; fremde private →
       404 (nicht 403, damit ihre Existenz nicht verraten wird)
-- [ ] Upload mit Feld `private`; `PATCH /api/documents/{id}` `{ isPrivate }` nur durch den Besitzer
-- [ ] Worker bleibt unberührt (verarbeitet alles); keine Besitzerdaten in Logs außer Konto-Id
+- [x] Upload mit Feld `private`; `PATCH /api/documents/{id}` `{ isPrivate }` nur durch den Besitzer
+- [x] Worker bleibt unberührt (verarbeitet alles); keine Besitzerdaten in Logs außer Konto-Id
 
 ### 3. Oberfläche
-- [ ] Seiten: Einrichten, Anmelden, Einladung annehmen, Passwort zurücksetzen, Notfall-Reset,
+- [x] Seiten: Einrichten, Anmelden, Einladung annehmen, Passwort zurücksetzen, Notfall-Reset,
       Konto (Passwort ändern, abmelden, überall abmelden), Mitglieder (nur Verwalter: einladen,
       Link kopieren, Rücksetzlink, entfernen mit Bestätigung)
-- [ ] Ohne Anmeldung leitet jede Seite auf „Anmelden“; nach Anmeldung zurück zur Zielseite
-- [ ] Schalter „Privat“ beim Hochladen und im Viewer; Kennzeichnung in Liste/Suche als Text + Symbol
-- [ ] Sperre und Fehler verständlich und per Live-Region angesagt; Passwortfelder mit
+- [x] Ohne Anmeldung leitet jede Seite auf „Anmelden“; nach Anmeldung zurück zur Zielseite
+- [x] Schalter „Privat“ beim Hochladen und im Viewer; Kennzeichnung in Liste/Suche als Text + Symbol
+- [x] Sperre und Fehler verständlich und per Live-Region angesagt; Passwortfelder mit
       Sichtbar-Schalter; `autocomplete`-Attribute für Passwortmanager
 
 ### 4. Betrieb: HTTPS über Tailscale, Schlüsselring
-- [ ] `docs/kb/betrieb.md`: `tailscale serve --bg --https=443 http://127.0.0.1:8080`, MagicDNS-Name,
+- [x] `docs/kb/betrieb.md`: `tailscale serve --bg --https=443 http://127.0.0.1:8080`, MagicDNS-Name,
       `AllowedHosts` per Umgebungsvariable um den Tailnet-Namen ergänzen; neues ADR-0020
       (ergänzt ADR-0002)
-- [ ] ADR-0015 umsetzen: `ProtectKeysWithCertificate` mit PFX-Datei (Bind-Mount, schreibgeschützt)
+- [x] ADR-0015 umsetzen: `ProtectKeysWithCertificate` mit PFX-Datei (Bind-Mount, schreibgeschützt)
       und Passwort aus `.env`; Skript `scripts/new-keyring-certificate.ps1`; ohne Zertifikat startet
       der Server nicht (außer `Development`)
-- [ ] Forwarded-Header von `tailscale serve` (nur von `127.0.0.1`) auswerten, damit Cookies `Secure` sind
+- [x] Forwarded-Header von `tailscale serve` (nur von `127.0.0.1`) auswerten, damit Cookies `Secure` sind
 
 ### 5. Tests und Doku
-- [ ] Server.Tests: alle Konto-Abläufe, Sperre, Rechte, privat → 404, Einladung abgelaufen/benutzt
-- [ ] UI.Tests: axe 0 Verstöße auf allen neuen Seiten DE/EN, Tastatur, Anmeldung/Abmeldung,
+- [x] Server.Tests: alle Konto-Abläufe, Sperre, Rechte, privat → 404, Einladung abgelaufen/benutzt
+- [x] UI.Tests: axe 0 Verstöße auf allen neuen Seiten DE/EN, Tastatur, Anmeldung/Abmeldung,
       privat-Schalter; bestehende UI-Tests melden sich per Fixture an
-- [ ] KB: `konten.md` (Rollen, Abläufe, Tokens), Telemetrie-Katalog; ADR-0021 (Identity + Cookies)
+- [x] KB: `konten.md` (Rollen, Abläufe, Tokens), Telemetrie-Katalog; ADR-0021 (Identity + Cookies)
 
 ## Akzeptanzkriterien
-- [ ] Ohne Anmeldung liefert keine Dokument-Route Daten
-- [ ] Mitglied sieht private Dokumente anderer nirgends (Liste, Suche, Viewer, Datei)
+- [x] Ohne Anmeldung liefert keine Dokument-Route Daten
+- [x] Mitglied sieht private Dokumente anderer nirgends (Liste, Suche, Viewer, Datei)
 - [ ] Zugriff vom iPhone über HTTPS im Tailnet funktioniert, Cookie ist `Secure`
-- [ ] Schlüsselring auf der Platte ist verschlüsselt
+- [x] Schlüsselring auf der Platte ist verschlüsselt
 - [ ] axe 0 Verstöße; NVDA-Sichtprüfung der Anmeldung durch den Nutzer
 - [ ] CI grün
 

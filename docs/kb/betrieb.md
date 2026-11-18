@@ -43,7 +43,12 @@ tailscale serve status
    `NOMOREPAPER_ALLOWED_HOSTS=localhost;127.0.0.1;host.tailnet-name.ts.net`, dann `docker compose up -d`.
 3. Kein `tailscale funnel`: der Dienst bleibt außerhalb des Tailnets unerreichbar.
 
-Der Server übernimmt `X-Forwarded-*` nur von `127.0.0.1`/`::1`. Siehe ADR-0020 zur Einschränkung bei NAT.
+## Vertrauenswürdige Proxys und Hostnamen
+- `X-Forwarded-*`-Header werden nur von `127.0.0.1`/`::1` und von Netzen aus `NoMorePaper__TrustedProxies` übernommen. Andere Absender werden ignoriert.
+- `compose` setzt `172.16.0.0/12` für den Server, weil Docker-NAT die Bridge-Adresse liefert. Der Port ist nur an `127.0.0.1` gebunden.
+- Der weitergeleitete Host muss in `AllowedHosts` stehen (`NOMOREPAPER_ALLOWED_HOSTS`, z. B. `localhost;127.0.0.1;nomorepaper.<tailnet>.ts.net`).
+- ⚠️ unverifiziert: Rancher Desktop unter Windows liefert Verbindungen von `192.168.127.1`. Proxmox/Linux mit echtem `tailscale serve` ist noch nicht getestet.
+- Siehe ADR-0020 (Grundsatz) und [konten.md](konten.md) (Cookies hängen an HTTPS).
 
 ## Prüfliste nach Änderungen
 - [ ] `docker compose ps`: `db`, `server`, `worker` healthy.
