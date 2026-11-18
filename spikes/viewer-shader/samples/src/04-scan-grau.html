@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<title>Grauer Scan (Testdokument)</title>
+<link rel="stylesheet" href="common.css">
+<style>
+  .page { padding: 0; }
+  img { display: block; width: 210mm; height: 297mm; }
+</style>
+<script src="synth.js"></script>
+</head>
+<body>
+<div class="page"><img id="scan" alt="Künstlich erzeugter grauer Scan eines Briefes"></div>
+<script>
+  const lines = [
+    { text: 'Hausverwaltung Beispiel & Muster', size: 31, bold: true },
+    { text: 'Teststraße 5 · 12345 Musterstadt' },
+    { text: '' }, { text: '' },
+    { text: 'Herrn' }, { text: 'Max Mustermann' }, { text: 'Musterweg 7' }, { text: '54321 Beispielhausen' },
+    { text: '' }, { text: '' },
+    { text: 'Nebenkostenabrechnung 2030', size: 29, bold: true },
+    { text: '' },
+    { text: 'Sehr geehrter Herr Mustermann,' },
+    { text: '' },
+    { text: 'anbei erhalten Sie die Abrechnung der Nebenkosten für das' },
+    { text: 'Jahr 2030. Dieses Blatt ist ein künstlich erzeugter Scan:' },
+    { text: 'graues Papier, ungleichmäßige Beleuchtung, Rauschen, leicht' },
+    { text: 'schiefe und unscharfe Schrift, Lochung und ein Stempel.' },
+    { text: '' },
+    { text: 'Heizung ................................ 612,40 EUR' },
+    { text: 'Wasser und Abwasser .................... 284,15 EUR' },
+    { text: 'Müllabfuhr ............................. 131,00 EUR' },
+    { text: 'Hausmeister ............................ 208,60 EUR' },
+    { text: 'Vorauszahlungen ...................... -1.140,00 EUR' },
+    { text: 'Nachzahlung ............................. 96,15 EUR', bold: true },
+    { text: '' },
+    { text: 'Bitte überweisen Sie den Betrag bis zum 15. April 2031.' },
+    { text: '' },
+    { text: 'Mit freundlichen Grüßen' },
+    { text: 'Ihre Hausverwaltung' },
+  ];
+  document.getElementById('scan').src = makeScan(1240, 1754, lines);
+</script>
+</body>
+</html>

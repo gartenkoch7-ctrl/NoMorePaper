@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<title>Scan mit Foto (Testdokument)</title>
+<link rel="stylesheet" href="common.css">
+<style>
+  .page { padding: 0; }
+  img { display: block; width: 210mm; height: 297mm; }
+</style>
+<script src="synth.js"></script>
+</head>
+<body>
+<!-- Sixth sample beyond the plan: a scanned page is one single image, so the photo on it can
+     only be found by the pixel mask. This is the case the mask exists for. -->
+<div class="page"><img id="scan" alt="Künstlich erzeugter Scan eines Blattes mit Foto"></div>
+<script>
+  const lines = [
+    { text: 'Gutachten zum Grundstück Musterweg 7', size: 31, bold: true },
+    { text: 'Sachverständigenbüro Beispiel · Testdokument' },
+    { text: '' },
+    { text: 'Das folgende Foto ist Teil des gescannten Blattes.' },
+    { text: 'Es soll in Originalfarben bleiben, der Text nicht.' },
+    { text: '' }, { text: '' }, { text: '' }, { text: '' }, { text: '' }, { text: '' }, { text: '' },
+    { text: '' }, { text: '' }, { text: '' }, { text: '' }, { text: '' }, { text: '' }, { text: '' },
+    { text: 'Bild 1: Ansicht von Süden mit Wolken, See und Weg.' },
+    { text: '' },
+    { text: 'Das Grundstück liegt am Ortsrand. Die Zufahrt erfolgt' },
+    { text: 'über einen befestigten Weg. Der Zustand ist gepflegt.' },
+    { text: 'Größe ................................... 812 m²' },
+    { text: 'Bodenrichtwert ...................... 145,00 EUR/m²' },
+    { text: 'Verkehrswert ....................... 117.740,00 EUR', bold: true },
+  ];
+  const photo = { canvas: makePhoto(900, 540, 7), x: 170, y: 425, width: 900, height: 540 };
+  document.getElementById('scan').src = makeScan(1240, 1754, lines, photo, 33);
+</script>
+</body>
+</html>

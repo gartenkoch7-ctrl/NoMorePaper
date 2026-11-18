@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<title>Dokument mit Foto (Testdokument)</title>
+<link rel="stylesheet" href="common.css">
+<style>
+  figure { margin: 5mm 0 6mm; }
+  figure img { display: block; width: 100%; }
+  figcaption { font-size: 9pt; color: #333; margin-top: 1.5mm; }
+  .row { display: flex; gap: 6mm; align-items: flex-start; }
+  .row img { width: 58mm; flex: none; }
+  h1 { color: #4527a0; }
+</style>
+<script src="synth.js"></script>
+</head>
+<body>
+<div class="page">
+  <h1>Schadensmeldung mit Foto</h1>
+  <p>Dieses frei erfundene Testdokument enthält ein künstlich erzeugtes Landschaftsbild. Das Foto soll
+  im Viewer in Originalfarben bleiben, während der Text darum herum weiß auf Schwarz erscheint.</p>
+  <figure>
+    <img id="big" alt="Künstliches Landschaftsfoto">
+    <figcaption>Abbildung 1: Blick vom Grundstück nach Süden (synthetisch erzeugt, mit Wolken, See und Weg).</figcaption>
+  </figure>
+  <p>Direkt unter und neben dem Foto steht Text. Die Bildunterschrift muss lesbar bleiben, und um das
+  Foto darf kein heller Rand stehen bleiben. Weiße Wolken und der graue Weg gehören zum Foto und
+  dürfen nicht umgekehrt werden.</p>
+  <div class="row">
+    <img id="small" alt="Kleines künstliches Foto">
+    <p>Ein zweites, kleineres Bild steht neben dem Fließtext. Franz jagt im komplett verwahrlosten Taxi
+    quer durch Bayern. Zwölf Boxkämpfer jagen Viktor quer über den großen Sylter Deich. Vogel Quax
+    zwickt Johnys Pferd Bim. Die heiße Zypernsonne quälte Max und Victoria ja böse auf dem Weg bis
+    zur Küste. Falsches Üben von Xylophonmusik quält jeden größeren Zwerg.</p>
+  </div>
+  <h2>Angaben zum Schaden</h2>
+  <p>Schadenstag: 12. März 2031 · Schadensnummer: S-000-4711 · Meldende Person: Erika Mustermann.</p>
+</div>
+<script>
+  document.getElementById('big').src = makePhoto(960, 560, 7).toDataURL('image/jpeg', 0.85);
+  document.getElementById('small').src = makePhoto(480, 360, 19).toDataURL('image/jpeg', 0.85);
+</script>
+</body>
+</html>

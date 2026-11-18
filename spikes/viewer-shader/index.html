@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Shader-Spike: intelligent invertieren</title>
+<style>
+  :root { color-scheme: dark; }
+  * { box-sizing: border-box; }
+  html, body { height: 100%; margin: 0; background: #000; color: #fff; font: 18px/1.4 "Segoe UI", Arial, sans-serif; }
+  body { display: grid; grid-template-columns: 400px 1fr; }
+  body.plain { grid-template-columns: 1fr; }
+  body.plain aside { display: none; }
+  aside { overflow-y: auto; padding: 16px; border-right: 2px solid #fff; }
+  h1 { font-size: 24px; margin: 0 0 12px; }
+  h2 { font-size: 20px; margin: 20px 0 8px; }
+  fieldset { border: 2px solid #888; margin: 0 0 14px; padding: 10px; }
+  legend { font-weight: bold; padding: 0 6px; }
+  label { display: block; margin: 8px 0 2px; }
+  input[type=range] { width: 100%; height: 28px; accent-color: #ffd400; }
+  input[type=checkbox], input[type=radio] { width: 22px; height: 22px; vertical-align: middle; accent-color: #ffd400; }
+  select, button { font: inherit; color: #fff; background: #000; border: 2px solid #fff; padding: 6px 12px; min-height: 44px; }
+  button:hover, select:hover { background: #333; }
+  :focus-visible { outline: 4px solid #ffd400; outline-offset: 2px; }
+  output { font-variant-numeric: tabular-nums; color: #ffd400; }
+  .row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+  .inline { display: inline-block; margin-right: 14px; }
+  #samples { display: grid; grid-template-columns: repeat(6, 1fr); gap: 6px; }
+  #samples button { padding: 2px; min-height: 0; }
+  #samples button[aria-pressed=true] { border-color: #ffd400; outline: 2px solid #ffd400; }
+  #samples canvas { display: block; width: 100%; }
+  #stage { position: relative; min-width: 0; min-height: 0; }
+  #gl, #scroller { position: absolute; inset: 0; width: 100%; height: 100%; }
+  #scroller { overflow: auto; }
+  /* Fallback without WebGL (ADR-0011): invert, then turn the hue back. */
+  #gl.css-fallback { filter: invert(1) hue-rotate(180deg); }
+  #status { margin-top: 12px; white-space: pre-wrap; font-size: 16px; }
+  pre { white-space: pre-wrap; font-size: 14px; }
+</style>
+</head>
+<body>
+<aside aria-label="Einstellungen">
+  <h1>Shader-Spike</h1>
+  <div id="samples" role="group" aria-label="Testdokument wählen"></div>
+  <p id="sample-name" aria-live="polite"></p>
+
+  <fieldset>
+    <legend>Darstellung</legend>
+    <div id="modes"></div>
+    <label class="inline"><input type="checkbox" id="photos" checked> Fotos original lassen</label>
+    <label class="inline"><input type="checkbox" id="frames" checked> Bildrahmen aus PDF.js nutzen</label>
+  </fieldset>
+
+  <fieldset>
+    <legend>Zoom</legend>
+    <div class="row">
+      <button id="zoom-out" aria-label="Verkleinern">−</button>
+      <select id="zoom" aria-label="Zoomstufe"></select>
+      <button id="zoom-in" aria-label="Vergrößern">+</button>
+    </div>
+    <p>Tasten: <kbd>+</kbd> <kbd>−</kbd> <kbd>0</kbd>, Strg + Mausrad.</p>
+  </fieldset>
+
+  <div id="sliders"></div>
+  <div class="row">
+    <button id="reset">Werte zurücksetzen</button>
+    <button id="bench">Messung starten</button>
+  </div>
+  <div id="status" role="status" aria-live="polite"></div>
+  <pre id="bench-result" tabindex="0" aria-label="Messergebnis"></pre>
+</aside>
+<main id="stage" aria-label="Dokument">
+  <canvas id="gl"></canvas>
+  <div id="scroller" tabindex="0" aria-label="Seite, mit Pfeiltasten bewegen"><div id="spacer"></div></div>
+</main>
+<script type="module" src="viewer.js"></script>
+</body>
+</html>

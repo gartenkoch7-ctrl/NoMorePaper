@@ -1,0 +1,372 @@
+{
+ "renderer": "ANGLE (NVIDIA, NVIDIA GeForce RTX 3060 Ti (0x00002489) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+ "devicePixelRatio": 1,
+ "viewport": [
+  1904,
+  985
+ ],
+ "runs": 9,
+ "samples": [
+  {
+   "file": "01-brief-logo.pdf",
+   "analysisRenderMs": 38.9,
+   "maskMs": 28.3,
+   "zooms": [
+    {
+     "zoom": 1,
+     "tile": [
+      793,
+      969
+     ],
+     "pdfMs": 7.2,
+     "uploadAndShaderMs": 5,
+     "shaderOnlyMs": 0.2,
+     "gpuTimerMs": 0.03
+    },
+    {
+     "zoom": 4,
+     "tile": [
+      1904,
+      985
+     ],
+     "pdfMs": 3.5,
+     "uploadAndShaderMs": 8.5,
+     "shaderOnlyMs": 0.3,
+     "gpuTimerMs": 0.06
+    },
+    {
+     "zoom": 16,
+     "tile": [
+      1904,
+      985
+     ],
+     "pdfMs": 3.4,
+     "uploadAndShaderMs": 8,
+     "shaderOnlyMs": 0.3,
+     "gpuTimerMs": 0.06
+    }
+   ],
+   "fullPage": [
+    {
+     "zoom": 1,
+     "size": [
+      793,
+      1123
+     ],
+     "pdfMs": 11.5,
+     "uploadMs": 5.2
+    },
+    {
+     "zoom": 4,
+     "size": [
+      3173,
+      4490
+     ],
+     "pdfMs": 26.4,
+     "uploadMs": 70
+    }
+   ]
+  },
+  {
+   "file": "02-rechnung-tabelle.pdf",
+   "analysisRenderMs": 30.4,
+   "maskMs": 21.5,
+   "zooms": [
+    {
+     "zoom": 1,
+     "tile": [
+      793,
+      969
+     ],
+     "pdfMs": 7.3,
+     "uploadAndShaderMs": 4.6,
+     "shaderOnlyMs": 0.2,
+     "gpuTimerMs": 0.03
+    },
+    {
+     "zoom": 4,
+     "tile": [
+      1904,
+      985
+     ],
+     "pdfMs": 2.8,
+     "uploadAndShaderMs": 9.1,
+     "shaderOnlyMs": 0.3,
+     "gpuTimerMs": 0.07
+    },
+    {
+     "zoom": 16,
+     "tile": [
+      1904,
+      985
+     ],
+     "pdfMs": 2.7,
+     "uploadAndShaderMs": 8.9,
+     "shaderOnlyMs": 0.3,
+     "gpuTimerMs": 0.07
+    }
+   ],
+   "fullPage": [
+    {
+     "zoom": 1,
+     "size": [
+      793,
+      1123
+     ],
+     "pdfMs": 10.7,
+     "uploadMs": 5.9
+    },
+    {
+     "zoom": 4,
+     "size": [
+      3173,
+      4490
+     ],
+     "pdfMs": 33.5,
+     "uploadMs": 76.1
+    }
+   ]
+  },
+  {
+   "file": "03-dokument-foto.pdf",
+   "analysisRenderMs": 27.9,
+   "maskMs": 69.3,
+   "zooms": [
+    {
+     "zoom": 1,
+     "tile": [
+      793,
+      969
+     ],
+     "pdfMs": 8.3,
+     "uploadAndShaderMs": 3.4,
+     "shaderOnlyMs": 0.3,
+     "gpuTimerMs": 0.04
+    },
+    {
+     "zoom": 4,
+     "tile": [
+      1904,
+      985
+     ],
+     "pdfMs": 8.4,
+     "uploadAndShaderMs": 3.5,
+     "shaderOnlyMs": 0.5,
+     "gpuTimerMs": 0.2
+    },
+    {
+     "zoom": 16,
+     "tile": [
+      1904,
+      985
+     ],
+     "pdfMs": 8.3,
+     "uploadAndShaderMs": 3,
+     "shaderOnlyMs": 0.4,
+     "gpuTimerMs": 0.19
+    }
+   ],
+   "fullPage": [
+    {
+     "zoom": 1,
+     "size": [
+      793,
+      1123
+     ],
+     "pdfMs": 11.2,
+     "uploadMs": 5.9
+    },
+    {
+     "zoom": 4,
+     "size": [
+      3173,
+      4490
+     ],
+     "pdfMs": 38.2,
+     "uploadMs": 46.8
+    }
+   ]
+  },
+  {
+   "file": "04-scan-grau.pdf",
+   "analysisRenderMs": 23.9,
+   "maskMs": 49.3,
+   "zooms": [
+    {
+     "zoom": 1,
+     "tile": [
+      793,
+      969
+     ],
+     "pdfMs": 8.1,
+     "uploadAndShaderMs": 3.6,
+     "shaderOnlyMs": 0.3,
+     "gpuTimerMs": 0.1
+    },
+    {
+     "zoom": 4,
+     "tile": [
+      1904,
+      985
+     ],
+     "pdfMs": 7.1,
+     "uploadAndShaderMs": 3.6,
+     "shaderOnlyMs": 0.4,
+     "gpuTimerMs": 0.2
+    },
+    {
+     "zoom": 16,
+     "tile": [
+      1904,
+      985
+     ],
+     "pdfMs": 6.8,
+     "uploadAndShaderMs": 4.6,
+     "shaderOnlyMs": 0.6,
+     "gpuTimerMs": 0.21
+    }
+   ],
+   "fullPage": [
+    {
+     "zoom": 1,
+     "size": [
+      793,
+      1123
+     ],
+     "pdfMs": 3.7,
+     "uploadMs": 5.9
+    },
+    {
+     "zoom": 4,
+     "size": [
+      3173,
+      4490
+     ],
+     "pdfMs": 39.3,
+     "uploadMs": 53.2
+    }
+   ]
+  },
+  {
+   "file": "05-text.pdf",
+   "analysisRenderMs": 28.5,
+   "maskMs": 32.3,
+   "zooms": [
+    {
+     "zoom": 1,
+     "tile": [
+      793,
+      969
+     ],
+     "pdfMs": 5.8,
+     "uploadAndShaderMs": 6,
+     "shaderOnlyMs": 0.4,
+     "gpuTimerMs": 0.14
+    },
+    {
+     "zoom": 4,
+     "tile": [
+      1904,
+      985
+     ],
+     "pdfMs": 3.1,
+     "uploadAndShaderMs": 11.5,
+     "shaderOnlyMs": 0.8,
+     "gpuTimerMs": 0.29
+    },
+    {
+     "zoom": 16,
+     "tile": [
+      1904,
+      985
+     ],
+     "pdfMs": 8,
+     "uploadAndShaderMs": 12.4,
+     "shaderOnlyMs": 1.1,
+     "gpuTimerMs": 0.29
+    }
+   ],
+   "fullPage": [
+    {
+     "zoom": 1,
+     "size": [
+      793,
+      1123
+     ],
+     "pdfMs": 9.6,
+     "uploadMs": 6
+    },
+    {
+     "zoom": 4,
+     "size": [
+      3173,
+      4490
+     ],
+     "pdfMs": 30.2,
+     "uploadMs": 76.1
+    }
+   ]
+  },
+  {
+   "file": "06-scan-foto.pdf",
+   "analysisRenderMs": 17.4,
+   "maskMs": 59.6,
+   "zooms": [
+    {
+     "zoom": 1,
+     "tile": [
+      793,
+      969
+     ],
+     "pdfMs": 6.9,
+     "uploadAndShaderMs": 4.1,
+     "shaderOnlyMs": 0.7,
+     "gpuTimerMs": 0.14
+    },
+    {
+     "zoom": 4,
+     "tile": [
+      1904,
+      985
+     ],
+     "pdfMs": 7,
+     "uploadAndShaderMs": 4.4,
+     "shaderOnlyMs": 0.8,
+     "gpuTimerMs": 0.28
+    },
+    {
+     "zoom": 16,
+     "tile": [
+      1904,
+      985
+     ],
+     "pdfMs": 7,
+     "uploadAndShaderMs": 3.7,
+     "shaderOnlyMs": 0.6,
+     "gpuTimerMs": 0.26
+    }
+   ],
+   "fullPage": [
+    {
+     "zoom": 1,
+     "size": [
+      793,
+      1123
+     ],
+     "pdfMs": 10.1,
+     "uploadMs": 6.1
+    },
+    {
+     "zoom": 4,
+     "size": [
+      3173,
+      4490
+     ],
+     "pdfMs": 39.2,
+     "uploadMs": 54.2
+    }
+   ]
+  }
+ ],
+ "browser": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/157.0.0.0 Safari/537.36"
+}
