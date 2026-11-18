@@ -1,0 +1,38 @@
+@inject IStringLocalizer<Strings> L
+@inject AccountApi Api
+@inject AuthState Auth
+@inject NavigationManager Navigation
+@inject ILogger<AccountMenu> Logger
+
+@* Who is signed in, and the way out. The name is text, not only an icon. *@
+<div class="account-menu">
+    @if (Auth.Me is { } me)
+    {
+        <span class="account-name">@L["SignedInAs", me.DisplayName]</span>
+    }
+    <button type="button" class="nmp-button" @onclick="SignOutAsync">@L["SignOut"]</button>
+    <LiveRegion @ref="_error" Assertive="true" Class="form-error" />
+</div>
+
+@code {
+    private LiveRegion? _error;
+
+    private async Task SignOutAsync()
+    {
+        var result = await Api.LogoutAsync(everywhere: false);
+        if (!result.IsSuccess)
+        {
+            // Staying signed in silently would be worse than saying it did not work.
+            if (_error is not null)
+            {
+                await _error.Announce(L["ErrorPrefix", result.Error!]);
+            }
+
+            return;
+        }
+
+        Logger.SignedOut(everywhere: false);
+        Auth.MarkSignedOut();
+        Navigation.NavigateTo("anmelden");
+    }
+}

@@ -1,0 +1,82 @@
+@page "/notfall"
+@inject IStringLocalizer<Strings> L
+@inject AccountApi Api
+@inject NavigationManager Navigation
+@inject IJSRuntime Js
+@inject ILogger<EmergencyReset> Logger
+
+<PageTitle>@L["EmergencyResetTitle"]</PageTitle>
+
+<MudText Typo="Typo.h1">@L["EmergencyResetHeading"]</MudText>
+
+@if (_newCode is not null)
+{
+    <div data-ready>
+        <p>@L["EmergencyResetDone"]</p>
+        <EmergencyCodeView Code="@_newCode" OnConfirmed="ToSignIn" />
+    </div>
+}
+else
+{
+    <p>@L["EmergencyResetIntro"]</p>
+    <form class="account-form" novalidate @onsubmit="SubmitAsync" data-ready>
+        <FormField Id="emergency-user" Label="@L["FieldUserName"]" Autocomplete="username"
+                   @bind-Value="_userName" Invalid='_form.IsInvalid("emergency-user")' />
+        <FormField Id="emergency-input" Label="@L["EmergencyCodeLabel"]" Autocomplete="off"
+                   @bind-Value="_code" Invalid='_form.IsInvalid("emergency-input")' />
+        <FormField Id="emergency-password" Label="@L["FieldNewPassword"]" Autocomplete="new-password" Password="true"
+                   Hint="@L["HintPasswordLength", FormValidation.MinPasswordLength]"
+                   @bind-Value="_password" Invalid='_form.IsInvalid("emergency-password")' />
+        <FormField Id="emergency-repeat" Label="@L["FieldRepeatPassword"]" Autocomplete="new-password" Password="true"
+                   @bind-Value="_repeat" Invalid='_form.IsInvalid("emergency-repeat")' />
+        <LiveRegion @ref="_error" Assertive="true" Class="form-error" />
+        <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" Color="Color.Primary" Disabled="_busy">@L["EmergencyResetButton"]</MudButton>
+    </form>
+}
+
+@code {
+    private FormValidation _form = default!;
+    private LiveRegion? _error;
+    private string _userName = string.Empty;
+    private string _code = string.Empty;
+    private string _password = string.Empty;
+    private string _repeat = string.Empty;
+    private string? _newCode;
+    private bool _busy;
+
+    protected override void OnInitialized() => _form = new FormValidation(L, Js);
+
+    private async Task SubmitAsync()
+    {
+        _form.Reset();
+        _form.Required("emergency-user", _userName, L["FieldUserName"]);
+        _form.Required("emergency-input", _code, L["EmergencyCodeLabel"]);
+        _form.NewPassword("emergency-password", _password, "emergency-repeat", _repeat, L["FieldNewPassword"]);
+        if (await _form.ReportAsync(_error))
+        {
+            return;
+        }
+
+        _busy = true;
+        var result = await Api.EmergencyResetAsync(new(_userName.Trim(), _code.Trim(), _password));
+        _busy = false;
+        if (!result.IsSuccess)
+        {
+            if (result.Field is null)
+            {
+                // A wrong code is typed again; a refused new password leaves the code as it is.
+                _code = string.Empty;
+            }
+
+            _form.Refused(result, "emergency-input", ("newPassword", "emergency-password"));
+            await _form.ReportAsync(_error);
+            return;
+        }
+
+        Logger.PasswordChanged("emergency-code");
+        _code = _password = _repeat = string.Empty;
+        _newCode = result.Value!.EmergencyCode;
+    }
+
+    private void ToSignIn() => Navigation.NavigateTo("anmelden");
+}

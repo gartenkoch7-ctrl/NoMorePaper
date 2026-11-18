@@ -1,0 +1,86 @@
+@implements IDisposable
+@inject AuthState Auth
+@inject NavigationManager Navigation
+@inject IStringLocalizer<Strings> L
+@inject ILogger<RequireSignIn> Logger
+
+@* Wraps the page content. Pages for people who are not signed in yet (sign-in, setup, invitation,
+   password reset, emergency reset) show always; every other page needs a session. While the
+   session is being asked, nothing is shown but a status text, so no protected page flashes up. *@
+@if (_allowed)
+{
+    @ChildContent
+}
+else if (Auth.Status == SessionStatus.Unavailable)
+{
+    <MudText Typo="Typo.h1">@L["SessionUnavailableHeading"]</MudText>
+    <div role="alert" class="error-box" data-ready>
+        <MudIcon Icon="@Icons.Material.Filled.Error" />
+        <span>@L["ErrorUnreachable"]</span>
+    </div>
+    <MudButton Variant="Variant.Outlined" Color="Color.Primary" OnClick="RetryAsync">@L["Retry"]</MudButton>
+}
+else
+{
+    <p role="status">@L["SessionLoading"]</p>
+}
+
+@code {
+    private static readonly string[] _publicPages = ["anmelden", "einrichten", "einladung", "passwort", "notfall"];
+
+    private bool _allowed;
+
+    [Parameter] public RenderFragment? ChildContent { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        Auth.Changed += OnAuthChanged;
+        Navigation.LocationChanged += OnLocationChanged;
+        await Auth.EnsureLoadedAsync();
+        Evaluate();
+    }
+
+    private Task RetryAsync() => Auth.RefreshAsync();
+
+    private void OnAuthChanged() => _ = InvokeAsync(() =>
+    {
+        Evaluate();
+        StateHasChanged();
+    });
+
+    private void OnLocationChanged(object? sender, LocationChangedEventArgs e) => _ = InvokeAsync(() =>
+    {
+        Evaluate();
+        StateHasChanged();
+    });
+
+    // Decides whether the current page may show; redirects when it may not.
+    private void Evaluate()
+    {
+        var relative = Navigation.ToBaseRelativePath(Navigation.Uri);
+        var page = relative.Split('?', '#')[0].Split('/')[0];
+        var isPublic = _publicPages.Contains(page, StringComparer.Ordinal);
+        _allowed = false;
+        switch (Auth.Status)
+        {
+            case SessionStatus.SetupNeeded when page != "einrichten":
+                Navigation.NavigateTo("einrichten", replace: true);
+                break;
+            case SessionStatus.SignedOut when !isPublic:
+                Logger.SignInRedirect();
+                Navigation.NavigateTo($"anmelden?ziel={Uri.EscapeDataString("/" + relative)}", replace: true);
+                break;
+            case SessionStatus.SignedIn:
+            case SessionStatus.SetupNeeded:
+            case SessionStatus.SignedOut:
+                _allowed = true;
+                break;
+        }
+    }
+
+    public void Dispose()
+    {
+        Auth.Changed -= OnAuthChanged;
+        Navigation.LocationChanged -= OnLocationChanged;
+    }
+}

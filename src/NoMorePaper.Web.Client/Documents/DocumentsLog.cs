@@ -40,6 +40,10 @@ internal static partial class DocumentsLog
         Message = "Search completed with {HitCount} hits")]
     public static partial void SearchCompleted(this ILogger logger, int hitCount);
 
+    [LoggerMessage(EventId = 4109, EventName = "PrivacyChanged", Level = LogLevel.Information,
+        Message = "A document was made private: {IsPrivate}")]
+    public static partial void PrivacyChanged(this ILogger logger, bool isPrivate);
+
     [LoggerMessage(EventId = 4108, EventName = "ListPollingStarted", Level = LogLevel.Debug,
         Message = "Polling the document list while documents are in progress")]
     public static partial void ListPollingStarted(this ILogger logger);

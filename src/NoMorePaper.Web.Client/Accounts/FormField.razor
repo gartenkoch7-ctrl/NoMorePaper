@@ -1,0 +1,59 @@
+@using System.Linq.Expressions
+@inject IStringLocalizer<Strings> L
+
+@* One labelled input. The label is always visible (never only a placeholder); a hint is read with
+   the field; an invalid field says so (aria-invalid) and the page's error text names the problem.
+   Password fields get a "show password" toggle that keeps its name and only changes aria-pressed. *@
+<div class="form-field">
+    <label for="@Id">@Label</label>
+    @if (Hint is not null)
+    {
+        <p id="@HintId" class="form-hint">@Hint</p>
+    }
+    <div class="form-field-row">
+        <input @ref="_input" id="@Id" class="form-input" type="@InputType" value="@Value"
+               @oninput="OnInputAsync" autocomplete="@Autocomplete"
+               autocapitalize="@(Autocomplete == "name" ? "words" : "off")" autocorrect="off" spellcheck="false"
+               aria-required="true" aria-invalid="@(Invalid ? "true" : null)"
+               aria-describedby="@(Hint is null ? null : HintId)" />
+        @if (Password)
+        {
+            <button type="button" class="form-toggle" aria-pressed="@(_visible ? "true" : "false")"
+                    aria-label="@L["ShowPasswordFor", Label]" @onclick="ToggleVisible">@L["ShowPassword"]</button>
+        }
+    </div>
+</div>
+
+@code {
+    private ElementReference _input;
+    private bool _visible;
+
+    [Parameter, EditorRequired] public string Id { get; set; } = string.Empty;
+
+    [Parameter, EditorRequired] public string Label { get; set; } = string.Empty;
+
+    [Parameter] public string Value { get; set; } = string.Empty;
+
+    [Parameter] public EventCallback<string> ValueChanged { get; set; }
+
+    [Parameter] public Expression<Func<string>>? ValueExpression { get; set; }
+
+    /// <summary>Value of the autocomplete attribute: password managers and browsers rely on it.</summary>
+    [Parameter] public string Autocomplete { get; set; } = "off";
+
+    [Parameter] public bool Password { get; set; }
+
+    [Parameter] public bool Invalid { get; set; }
+
+    [Parameter] public string? Hint { get; set; }
+
+    private string HintId => Id + "-hint";
+
+    private string InputType => Password && !_visible ? "password" : "text";
+
+    public ValueTask FocusAsync() => _input.FocusAsync();
+
+    private Task OnInputAsync(ChangeEventArgs args) => ValueChanged.InvokeAsync(args.Value?.ToString() ?? string.Empty);
+
+    private void ToggleVisible() => _visible = !_visible;
+}

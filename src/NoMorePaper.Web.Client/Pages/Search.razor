@@ -33,6 +33,10 @@ else if (_hits is not null)
         {
             <article class="search-hit" @key="hit.Id">
                 <MudText Typo="Typo.h2"><a href="@DocumentLinks.Viewer(hit.Id)">@hit.Title</a></MudText>
+                @if (hit.IsPrivate)
+                {
+                    <PrivateBadge />
+                }
                 @* Hits come from the OCR text, so the document is done and has its PDF/A. *@
                 <Thumbnail Source="@DocumentLinks.Archive(hit.Id)" Title="@hit.Title" />
                 @* The snippet is plain text from the server and is rendered as text, never as HTML. *@

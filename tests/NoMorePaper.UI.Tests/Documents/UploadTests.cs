@@ -121,7 +121,7 @@ public sealed class UploadTests(ServerFixture server)
         await Assertions.Expect(page.Locator(".upload-results")).Not.ToContainTextAsync("seite-21.pdf");
     }
 
-    // Needs the real API (track A): the document lands in the list as "Queued".
+    // Against the real API (signed in as the test administrator): the document lands in the list as "Queued".
     [Fact]
     public async Task Upload_AgainstRealApi_ShowsDocumentAsQueuedInList()
     {

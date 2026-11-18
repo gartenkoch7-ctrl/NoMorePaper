@@ -109,6 +109,7 @@ und Annahme (3200–3204) sind nach Application umgezogen und haben ihre Nummern
 | 4106 | Information | `Web.Client/Documents/DocumentsLog` | Dokument hat den Verarbeitungsstatus gewechselt (neuer Status) |
 | 4107 | Information | `Web.Client/Documents/DocumentsLog` | Suche beendet (Trefferzahl, ohne Suchbegriff) |
 | 4108 | Debug | `Web.Client/Documents/DocumentsLog` | Liste fragt alle 3 s nach, solange Dokumente in Arbeit sind |
+| 4109 | Information | `Web.Client/Documents/DocumentsLog` | Dokument privat gemacht oder wieder freigegeben (`true`/`false`) |
 | 4200 | Information | `Web.Client/Viewer/ViewerLog` | Viewer hat ein Dokument geöffnet (Seitenzahl, Renderer `webgl2`/`fallback`) |
 | 4201 | Warning | `Web.Client/Viewer/ViewerLog` | WebGL2 nicht nutzbar, Rückfall auf den CSS-Filter (Grund: `no-webgl2`, `shader-error`, `context-lost`, `restore-failed`) |
 | 4202 | Debug | `Web.Client/Viewer/ViewerLog` | sichtbarer Ausschnitt einer Seite gerendert (Dauer in ms, gerundet) |
@@ -121,6 +122,20 @@ und Annahme (3200–3204) sind nach Application umgezogen und haben ihre Nummern
 | 4209 | Warning | `Web.Client/Viewer/ViewerLog` | Vorschaubild konnte nicht gerendert werden (technischer Fehlername oder `interop`) |
 | 4210 | Warning | `Web.Client/Viewer/ViewerLog` | WebGL-Kontext verloren (z. B. GPU-Reset); Viewer versucht den Neuaufbau |
 | 4211 | Information | `Web.Client/Viewer/ViewerLog` | WebGL-Kontext wieder da, Seite neu gezeichnet |
+| 4400 | Information | `Web.Client/Accounts/AccountsLog` | Sitzungszustand geladen (`SignedIn`, `SignedOut`, `SetupNeeded`, `Unavailable`) |
+| 4401 | Information | `Web.Client/Accounts/AccountsLog` | Server antwortete 401, Sitzung vorbei |
+| 4402 | Information | `Web.Client/Accounts/AccountsLog` | angemeldet |
+| 4403 | Information | `Web.Client/Accounts/AccountsLog` | abgemeldet (überall: ja/nein) |
+| 4404 | Warning | `Web.Client/Accounts/AccountsLog` | Konto-Aufruf mit HTTP-Fehlercode beantwortet (Vorgang, Statuscode) |
+| 4405 | Warning | `Web.Client/Accounts/AccountsLog` | Konto-Aufruf nicht erreichbar oder unlesbare Antwort (Vorgang, Ausnahmetyp) |
+| 4406 | Information | `Web.Client/Accounts/AccountsLog` | Haushalt eingerichtet |
+| 4407 | Information | `Web.Client/Accounts/AccountsLog` | Einladungslink erzeugt (nie der Link) |
+| 4408 | Information | `Web.Client/Accounts/AccountsLog` | Einladung angenommen |
+| 4409 | Information | `Web.Client/Accounts/AccountsLog` | Rücksetzlink erzeugt (nie der Link) |
+| 4410 | Information | `Web.Client/Accounts/AccountsLog` | Mitglied entfernt |
+| 4411 | Information | `Web.Client/Accounts/AccountsLog` | Passwort geändert (Weg: `account`, `reset-link`, `emergency-code`) |
+| 4412 | Debug | `Web.Client/Accounts/AccountsLog` | nicht angemeldet, Weiterleitung zur Anmeldung |
+| 4413 | Warning | `Web.Client/Accounts/AccountsLog` | Kopieren in die Zwischenablage fehlgeschlagen (Ausnahmetyp) |
 | 5100 | Information | `Application/Accounts/AccountsLog` | Haushalt eingerichtet: Verwalter-Id, Anzahl übernommener Dokumente ohne Besitzer (M1) |
 | 5101 | Warning | `Application/Accounts/AccountsLog` | Einrichtung abgelehnt, Haushalt schon eingerichtet |
 | 5102 | Information | `Application/Accounts/AccountsLog` | Einladung erzeugt: Konto-Id des Verwalters, Ablaufzeit (nie der Link) |
