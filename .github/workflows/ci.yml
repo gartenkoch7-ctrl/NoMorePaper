@@ -1,0 +1,49 @@
+name: CI
+
+on:
+  push:
+    branches: [main, develop, "feat/**"]
+  pull_request:
+    branches: [main, develop]
+
+permissions:
+  contents: read
+
+jobs:
+  build-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # Cheap check first, so a too-long file is reported even when tests fail.
+      - name: Check file length (max 300 lines)
+        shell: pwsh
+        run: ./scripts/check-file-length.ps1
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          global-json-file: global.json
+
+      - name: Restore
+        run: dotnet restore NoMorePaper.slnx
+
+      - name: Build
+        run: dotnet build NoMorePaper.slnx -c Release --no-restore
+
+      - name: Install Playwright Chromium
+        shell: pwsh
+        run: |
+          $script = Get-ChildItem tests/NoMorePaper.UI.Tests/bin/Release -Recurse -Filter playwright.ps1 | Select-Object -First 1
+          if (-not $script) { throw 'playwright.ps1 not found in UI test build output' }
+          & $script.FullName install --with-deps chromium
+
+      - name: Test
+        run: dotnet test --solution NoMorePaper.slnx -c Release --no-build
+
+      - name: Upload test results
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results
+          path: "**/TestResults/**"
+          if-no-files-found: ignore

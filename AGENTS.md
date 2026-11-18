@@ -21,6 +21,7 @@ Lade nur die Dateien, die deine Aufgabe betreffen. Index: [docs/kb/README.md](do
 | Architektur & Schichten | [docs/kb/architektur.md](docs/kb/architektur.md) | du Code anlegst/verschiebst |
 | Build & Tooling | [docs/kb/build-und-tooling.md](docs/kb/build-und-tooling.md) | Build oder Tests nicht laufen |
 | Testumgebung | [docs/kb/testumgebung.md](docs/kb/testumgebung.md) | du testest oder misst |
+| Telemetrie (Katalog) | [docs/kb/telemetrie.md](docs/kb/telemetrie.md) | du ein Feature baust – jedes bringt Logs/Abläufe mit |
 | Architekturentscheidungen | [docs/adr/](docs/adr/) | du eine Entscheidung infrage stellst |
 | **Roadmap & Meilensteinpläne** | [docs/plan/README.md](docs/plan/README.md) | du eine Aufgabe beginnst – arbeite im aktuellen Meilenstein, hake erledigte Punkte ab |
 | Detailplan-Vorlage | [docs/plan/detailplan-vorlage.md](docs/plan/detailplan-vorlage.md) | du einen Plan in Pakete zerlegst und Modelle zuweist (§13) |
@@ -132,10 +133,11 @@ Neue Pakete nur mit kurzer Begründung im PR; keine Pakete mit Copyleft-Lizenz.
 
 ```powershell
 dotnet build NoMorePaper.slnx                 # Build
-dotnet test --solution NoMorePaper.slnx       # alle Tests
-docker compose up -d --build                  # Server, Worker, Postgres, Ollama starten
-./scripts/check-file-length.ps1               # 300-Zeilen-Regel prüfen
-# Befehle entstehen mit M0 – bis dahin gilt dieser Abschnitt als Zielbild.
+dotnet test --solution NoMorePaper.slnx       # alle Tests (Docker muss laufen)
+powershell -NoProfile -ExecutionPolicy Bypass -File tests/NoMorePaper.UI.Tests/bin/Debug/net10.0/playwright.ps1 install chromium   # einmal nach dem ersten Build
+cp .env.example .env                          # POSTGRES_PASSWORD setzen (nur Buchstaben und Ziffern)
+docker compose up -d --build                  # Server, Worker, Postgres starten
+powershell -NoProfile -ExecutionPolicy Bypass -File scripts/check-file-length.ps1   # 300-Zeilen-Regel prüfen
 git config core.hooksPath .githooks           # Pre-Commit-Hook aktivieren (einmalig)
 ```
 

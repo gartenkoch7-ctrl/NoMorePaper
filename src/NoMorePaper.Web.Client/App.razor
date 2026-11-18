@@ -1,0 +1,31 @@
+@implements IDisposable
+@inject NavigationManager Navigation
+
+<Router AppAssembly="typeof(App).Assembly" NotFoundPage="typeof(NotFound)">
+    <Found Context="routeData">
+        <RouteView RouteData="routeData" DefaultLayout="typeof(MainLayout)" />
+        @* Moves focus to the new page's heading so screen readers announce it. Not on the first
+           load: there the first Tab must still reach the skip link. *@
+        @if (_hasNavigated)
+        {
+            <FocusOnNavigate RouteData="routeData" Selector="h1" />
+        }
+    </Found>
+</Router>
+
+@code {
+    private bool _hasNavigated;
+
+    protected override void OnInitialized() => Navigation.LocationChanged += OnLocationChanged;
+
+    private void OnLocationChanged(object? sender, LocationChangedEventArgs e)
+    {
+        if (!_hasNavigated)
+        {
+            _hasNavigated = true;
+            StateHasChanged();
+        }
+    }
+
+    public void Dispose() => Navigation.LocationChanged -= OnLocationChanged;
+}

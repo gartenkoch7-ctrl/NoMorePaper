@@ -1,0 +1,29 @@
+# syntax=docker/dockerfile:1
+# NoMorePaper Server: API, health endpoint and the Blazor WASM client (ADR-0001, ADR-0006).
+
+# --- build: restore on the project files first so source edits keep the package layer cached ---
+FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
+WORKDIR /src
+COPY global.json Directory.Build.props Directory.Packages.props .editorconfig ./
+COPY src/NoMorePaper.Domain/NoMorePaper.Domain.csproj src/NoMorePaper.Domain/
+COPY src/NoMorePaper.Application/NoMorePaper.Application.csproj src/NoMorePaper.Application/
+COPY src/NoMorePaper.Infrastructure/NoMorePaper.Infrastructure.csproj src/NoMorePaper.Infrastructure/
+COPY src/NoMorePaper.Contracts/NoMorePaper.Contracts.csproj src/NoMorePaper.Contracts/
+COPY src/NoMorePaper.Web.Client/NoMorePaper.Web.Client.csproj src/NoMorePaper.Web.Client/
+COPY src/NoMorePaper.Server/NoMorePaper.Server.csproj src/NoMorePaper.Server/
+RUN dotnet restore src/NoMorePaper.Server/NoMorePaper.Server.csproj
+COPY src/ src/
+RUN dotnet publish src/NoMorePaper.Server/NoMorePaper.Server.csproj -c Release --no-restore -o /app -p:UseAppHost=false
+
+# --- runtime: small image, non-root user "app" (APP_UID) provided by the base image ---
+FROM mcr.microsoft.com/dotnet/aspnet:10.0-alpine AS final
+WORKDIR /app
+# Mount points owned by the app user: fresh named volumes inherit this ownership.
+RUN mkdir -p /data /dpkeys && chown "$APP_UID" /data /dpkeys
+# Binaries stay owned by root, so the app cannot modify itself.
+COPY --from=build /app .
+ENV ASPNETCORE_HTTP_PORTS=8080 \
+    NoMorePaper__DataProtectionPath=/dpkeys
+USER $APP_UID
+EXPOSE 8080
+ENTRYPOINT ["dotnet", "NoMorePaper.Server.dll"]

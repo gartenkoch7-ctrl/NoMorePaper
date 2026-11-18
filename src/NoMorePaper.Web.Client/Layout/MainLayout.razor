@@ -1,0 +1,42 @@
+@inherits LayoutComponentBase
+@inject IStringLocalizer<Strings> L
+@inject NavigationManager Navigation
+
+<MudThemeProvider Theme="_theme" IsDarkMode="true" />
+<MudPopoverProvider />
+
+@* First focusable element on every page (WCAG 2.4.1). Focus is moved by code because Blazor
+   would otherwise treat the fragment link as a navigation. *@
+<a class="skip-link" href="#main-content" @onclick="SkipToContentAsync" @onclick:preventDefault>
+    @L["SkipToContent"]
+</a>
+
+<header class="app-header">
+    <span class="app-name">NoMorePaper</span>
+    <nav class="app-nav" aria-label="@L["MainNavigation"]">
+        <ul>
+            <li><a href="" aria-current="@(IsHome ? "page" : null)">@L["NavHome"]</a></li>
+        </ul>
+    </nav>
+    <LanguageSwitch />
+</header>
+
+<main id="main-content" class="app-main" tabindex="-1" @ref="_main">
+    @Body
+</main>
+
+@code {
+    private readonly MudTheme _theme = ContrastTheme.Create();
+    private ElementReference _main;
+
+    private bool IsHome
+    {
+        get
+        {
+            var relative = Navigation.ToBaseRelativePath(Navigation.Uri);
+            return relative.Split('?', '#')[0].Length == 0;
+        }
+    }
+
+    private async Task SkipToContentAsync() => await _main.FocusAsync();
+}

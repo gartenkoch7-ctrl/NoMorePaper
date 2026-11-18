@@ -1,0 +1,16 @@
+<Project>
+  <!-- Shared build rules for all projects (AGENTS.md, section 4). -->
+  <PropertyGroup>
+    <LangVersion>latest</LangVersion>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <AnalysisLevel>latest-recommended</AnalysisLevel>
+    <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
+    <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
+    <Deterministic>true</Deterministic>
+    <Company>NoMorePaper contributors</Company>
+    <Product>NoMorePaper</Product>
+    <Copyright>Copyright (c) NoMorePaper contributors. MIT License.</Copyright>
+  </PropertyGroup>
+</Project>

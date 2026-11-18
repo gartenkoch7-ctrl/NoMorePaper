@@ -1,0 +1,15 @@
+# Keep the build context small and free of host build output (Windows obj/ breaks restore in Linux).
+**/bin/
+**/obj/
+**/.vs/
+**/TestResults/
+**/node_modules/
+**/*.user
+.git
+.claude/
+.github/
+.githooks/
+docs/
+scripts/
+tests/
+.env

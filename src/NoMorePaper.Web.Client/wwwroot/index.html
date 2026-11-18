@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="color-scheme" content="dark" />
+  <meta name="theme-color" content="#000000" />
+  <title>NoMorePaper</title>
+  <base href="/" />
+  <link rel="manifest" href="manifest.webmanifest" />
+  <link rel="icon" type="image/png" href="icons/icon-192.png" />
+  <link rel="apple-touch-icon" href="icons/icon-192.png" />
+  <link rel="stylesheet" href="_content/MudBlazor/MudBlazor.min.css" />
+  <link rel="stylesheet" href="css/app.css" />
+</head>
+<body>
+  <div id="app">
+    <main class="app-loading">
+      <p role="status">
+        <span lang="de">NoMorePaper wird geladen …</span>
+        <span lang="en">Loading NoMorePaper …</span>
+      </p>
+    </main>
+  </div>
+
+  <div id="blazor-error-ui" role="alert">
+    <span lang="de">Ein Fehler ist aufgetreten.</span>
+    <span lang="en">An error has occurred.</span>
+    <a href="." class="reload"><span lang="de">Neu laden</span> / <span lang="en">Reload</span></a>
+  </div>
+
+  <script src="_content/MudBlazor/MudBlazor.min.js"></script>
+  <script src="_framework/blazor.webassembly.js"></script>
+  <script src="js/register-service-worker.js"></script>
+</body>
+</html>

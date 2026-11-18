@@ -1,0 +1,27 @@
+# syntax=docker/dockerfile:1
+# NoMorePaper Worker: background processing with an internal health endpoint (ADR-0006).
+
+# --- build: restore on the project files first so source edits keep the package layer cached ---
+FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
+WORKDIR /src
+COPY global.json Directory.Build.props Directory.Packages.props .editorconfig ./
+COPY src/NoMorePaper.Domain/NoMorePaper.Domain.csproj src/NoMorePaper.Domain/
+COPY src/NoMorePaper.Application/NoMorePaper.Application.csproj src/NoMorePaper.Application/
+COPY src/NoMorePaper.Infrastructure/NoMorePaper.Infrastructure.csproj src/NoMorePaper.Infrastructure/
+COPY src/NoMorePaper.Worker/NoMorePaper.Worker.csproj src/NoMorePaper.Worker/
+RUN dotnet restore src/NoMorePaper.Worker/NoMorePaper.Worker.csproj
+COPY src/ src/
+RUN dotnet publish src/NoMorePaper.Worker/NoMorePaper.Worker.csproj -c Release --no-restore -o /app -p:UseAppHost=false
+
+# --- runtime: ASP.NET image because the Worker serves /health; non-root user "app" (APP_UID) ---
+FROM mcr.microsoft.com/dotnet/aspnet:10.0-alpine AS final
+WORKDIR /app
+# Mount points owned by the app user: fresh named volumes inherit this ownership.
+RUN mkdir -p /data /dpkeys && chown "$APP_UID" /data /dpkeys
+# Binaries stay owned by root, so the app cannot modify itself.
+COPY --from=build /app .
+ENV ASPNETCORE_HTTP_PORTS=8080 \
+    NoMorePaper__DataProtectionPath=/dpkeys
+USER $APP_UID
+EXPOSE 8080
+ENTRYPOINT ["dotnet", "NoMorePaper.Worker.dll"]
