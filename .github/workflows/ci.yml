@@ -38,7 +38,21 @@ jobs:
           & $script.FullName install --with-deps chromium
 
       - name: Test
-        run: dotnet test --solution NoMorePaper.slnx -c Release --no-build
+        run: dotnet test --solution NoMorePaper.slnx -c Release --no-build --report-xunit-trx
+
+      # Annotations are readable without signing in, unlike job logs and artifacts.
+      - name: Annotate failed tests
+        if: failure()
+        shell: pwsh
+        run: |
+          Get-ChildItem -Recurse -Filter *.trx | ForEach-Object {
+            [xml]$trx = Get-Content $_.FullName
+            $trx.TestRun.Results.UnitTestResult | Where-Object outcome -eq 'Failed' | ForEach-Object {
+              $message = "$($_.Output.ErrorInfo.Message)" -replace '\r?\n', ' '
+              if ($message.Length -gt 900) { $message = $message.Substring(0, 900) }
+              Write-Output "::error title=$($_.testName)::$message"
+            }
+          }
 
       - name: Upload test results
         if: failure()
