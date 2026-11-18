@@ -1,7 +1,5 @@
 using System.Collections.Concurrent;
 using System.Diagnostics;
-using System.Net;
-using System.Net.Sockets;
 
 namespace NoMorePaper.UI.Tests.Hosting;
 
@@ -12,23 +10,25 @@ namespace NoMorePaper.UI.Tests.Hosting;
 public sealed class ServerProcess : IAsyncDisposable
 {
     private const int MaxLoggedLines = 300;
+    private const string ListeningPrefix = "Now listening on: ";
 
     private readonly Process _process;
     private readonly ConcurrentQueue<string> _output = new();
+    private volatile Uri? _baseAddress;
 
-    private ServerProcess(Process process, Uri baseAddress)
-    {
-        _process = process;
-        BaseAddress = baseAddress;
-    }
+    private ServerProcess(Process process) => _process = process;
 
-    public Uri BaseAddress { get; }
+    /// <summary>The address Kestrel actually bound; known once <see cref="WaitUntilReadyAsync"/> returned.</summary>
+    public Uri BaseAddress => _baseAddress
+        ?? throw new InvalidOperationException("Server address not known yet; call WaitUntilReadyAsync first.");
 
-    /// <summary>Starts the server on a free loopback port with the given extra environment.</summary>
+    /// <summary>
+    /// Starts the server on a loopback port chosen by the OS (port 0), so no other process can take
+    /// the port between choosing and binding it.
+    /// </summary>
     public static ServerProcess Start(IReadOnlyDictionary<string, string> environment)
     {
         var (projectDirectory, assemblyPath) = LocateServer();
-        var baseAddress = new Uri($"http://127.0.0.1:{FindFreePort()}");
 
         var startInfo = new ProcessStartInfo("dotnet")
         {
@@ -39,7 +39,7 @@ public sealed class ServerProcess : IAsyncDisposable
         };
         startInfo.ArgumentList.Add(assemblyPath);
         startInfo.Environment["ASPNETCORE_ENVIRONMENT"] = "Development";
-        startInfo.Environment["ASPNETCORE_URLS"] = baseAddress.ToString();
+        startInfo.Environment["ASPNETCORE_URLS"] = "http://127.0.0.1:0";
         // Never ship test telemetry anywhere, even if the developer has an exporter configured.
         startInfo.Environment.Remove("OTEL_EXPORTER_OTLP_ENDPOINT");
         foreach (var (key, value) in environment)
@@ -48,7 +48,7 @@ public sealed class ServerProcess : IAsyncDisposable
         }
 
         var process = new Process { StartInfo = startInfo };
-        var server = new ServerProcess(process, baseAddress);
+        var server = new ServerProcess(process);
         process.OutputDataReceived += (_, e) => server.Record(e.Data);
         process.ErrorDataReceived += (_, e) => server.Record(e.Data);
         process.Start();
@@ -60,7 +60,7 @@ public sealed class ServerProcess : IAsyncDisposable
     /// <summary>Waits until the server answers the start page; migrations run before that.</summary>
     public async Task WaitUntilReadyAsync(TimeSpan timeout)
     {
-        using var client = new HttpClient { BaseAddress = BaseAddress, Timeout = TimeSpan.FromSeconds(5) };
+        using var client = new HttpClient { Timeout = TimeSpan.FromSeconds(5) };
         var deadline = DateTime.UtcNow + timeout;
         while (DateTime.UtcNow < deadline)
         {
@@ -70,9 +70,16 @@ public sealed class ServerProcess : IAsyncDisposable
                     $"Server exited with code {_process.ExitCode} before it was ready.{Environment.NewLine}{Output}");
             }
 
+            if (_baseAddress is not { } address)
+            {
+                // Kestrel has not reported its port yet (it logs it once migrations are done).
+                await Task.Delay(250);
+                continue;
+            }
+
             try
             {
-                using var response = await client.GetAsync(new Uri("/", UriKind.Relative));
+                using var response = await client.GetAsync(address);
                 if (response.IsSuccessStatusCode)
                 {
                     return;
@@ -114,6 +121,12 @@ public sealed class ServerProcess : IAsyncDisposable
             return;
         }
 
+        var listeningAt = line.IndexOf(ListeningPrefix, StringComparison.Ordinal);
+        if (listeningAt >= 0 && _baseAddress is null)
+        {
+            _baseAddress = new Uri(line[(listeningAt + ListeningPrefix.Length)..].Trim());
+        }
+
         _output.Enqueue(line);
         while (_output.Count > MaxLoggedLines && _output.TryDequeue(out _))
         {
@@ -148,12 +161,5 @@ public sealed class ServerProcess : IAsyncDisposable
         }
 
         return (projectDirectory, assemblyPath);
-    }
-
-    private static int FindFreePort()
-    {
-        using var listener = new TcpListener(IPAddress.Loopback, 0);
-        listener.Start();
-        return ((IPEndPoint)listener.LocalEndpoint).Port;
     }
 }

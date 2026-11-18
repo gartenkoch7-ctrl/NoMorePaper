@@ -26,10 +26,10 @@ internal sealed class MigrateOnStartup(IServiceScopeFactory scopes, TimeProvider
                 await migrator.MigrateAsync(cancellationToken).ConfigureAwait(false);
             }
         }
-        catch (Exception exception)
+        catch
         {
             activity?.SetStatus(ActivityStatusCode.Error);
-            logger.StartupFailed(exception);
+            logger.StartupFailed();
             throw;
         }
 

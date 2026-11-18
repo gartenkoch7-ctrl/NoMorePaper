@@ -15,6 +15,11 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      # Cheap check first, so a too-long file is reported even when tests fail.
+      - name: Check file length (max 300 lines)
+        shell: pwsh
+        run: ./scripts/check-file-length.ps1
+
       - uses: actions/setup-dotnet@v4
         with:
           global-json-file: global.json
@@ -34,10 +39,6 @@ jobs:
 
       - name: Test
         run: dotnet test --solution NoMorePaper.slnx -c Release --no-build
-
-      - name: Check file length (max 300 lines)
-        shell: pwsh
-        run: ./scripts/check-file-length.ps1
 
       - name: Upload test results
         if: failure()
