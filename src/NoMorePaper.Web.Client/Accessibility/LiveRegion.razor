@@ -1,0 +1,31 @@
+@* Announces messages to screen readers and shows them as text, so sighted users get them too.
+   role=status is polite (does not interrupt); role=alert (Assertive) interrupts and is for errors. *@
+<div class="live-region @Class" role="@(Assertive ? "alert" : "status")" aria-atomic="true">@_text</div>
+
+@code {
+    private string _text = string.Empty;
+
+    /// <summary>Interrupt the screen reader; use for errors only.</summary>
+    [Parameter] public bool Assertive { get; set; }
+
+    [Parameter] public string? Class { get; set; }
+
+    /// <summary>
+    /// Shows <paramref name="message"/>. The text is cleared first because screen readers only
+    /// announce a change: without it the same message twice in a row would stay silent.
+    /// </summary>
+    public async Task Announce(string message)
+    {
+        _text = string.Empty;
+        StateHasChanged();
+        await Task.Delay(50);
+        _text = message;
+        StateHasChanged();
+    }
+
+    public void Clear()
+    {
+        _text = string.Empty;
+        StateHasChanged();
+    }
+}

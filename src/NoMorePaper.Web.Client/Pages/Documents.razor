@@ -1,0 +1,156 @@
+@page "/dokumente"
+@using System.Globalization
+@implements IDisposable
+@inject IStringLocalizer<Strings> L
+@inject DocumentApi Api
+@inject ILogger<Documents> Logger
+
+<PageTitle>@L["DocumentsTitle"]</PageTitle>
+
+<MudText Typo="Typo.h1">@L["DocumentsHeading"]</MudText>
+
+<LiveRegion @ref="_changes" />
+
+@if (_loading)
+{
+    <p role="status">@L["DocumentsLoading"]</p>
+}
+else if (_error is not null)
+{
+    <div role="alert" class="error-box" data-ready>
+        <MudIcon Icon="@Icons.Material.Filled.Error" />
+        <span>@L["DocumentsLoadError", _error]</span>
+    </div>
+    <MudButton Variant="Variant.Outlined" Color="Color.Primary" OnClick="ReloadAsync">@L["Retry"]</MudButton>
+}
+else if (_documents.Length == 0)
+{
+    <p data-ready>@L["DocumentsEmpty"]</p>
+}
+else
+{
+    <table class="doc-table" data-ready>
+        <caption>@L["DocumentsCaption"]</caption>
+        <thead>
+            <tr>
+                <th scope="col">@L["ColTitle"]</th>
+                <th scope="col">@L["ColReceived"]</th>
+                <th scope="col">@L["ColStatus"]</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var document in _documents)
+            {
+                <tr id="@DocumentLinks.RowId(document.Id)">
+                    <th scope="row">@document.Title</th>
+                    <td><time datetime="@document.ReceivedAt.ToString("o", CultureInfo.InvariantCulture)">@document.ReceivedAt.ToLocalTime().ToString("g", CultureInfo.CurrentCulture)</time></td>
+                    <td>
+                        @* Symbol and text together: the state is never conveyed by an icon or colour alone. *@
+                        <MudIcon Icon="@IconFor(document.State)" />
+                        <span>@StateText(document.State)</span>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    private static readonly TimeSpan _pollInterval = TimeSpan.FromSeconds(3);
+
+    private readonly CancellationTokenSource _cts = new();
+    private DocumentSummaryDto[] _documents = [];
+    private Dictionary<Guid, DocumentProcessingState> _lastStates = [];
+    private LiveRegion? _changes;
+    private string? _error;
+    private bool _loading = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadAsync(announceChanges: false);
+        _loading = false;
+        _ = PollAsync();
+    }
+
+    private async Task ReloadAsync()
+    {
+        _loading = true;
+        await LoadAsync(announceChanges: false);
+        _loading = false;
+        _ = PollAsync();
+    }
+
+    private bool InProgress => _documents.Any(d => d.State is DocumentProcessingState.Queued or DocumentProcessingState.Processing);
+
+    private async Task LoadAsync(bool announceChanges)
+    {
+        var result = await Api.ListAsync(ct: _cts.Token);
+        if (!result.IsSuccess)
+        {
+            _error = result.Error;
+            return;
+        }
+
+        _error = null;
+        _documents = result.Value ?? [];
+        Logger.DocumentListLoaded(_documents.Length);
+        if (announceChanges)
+        {
+            await AnnounceChangesAsync();
+        }
+
+        _lastStates = _documents.ToDictionary(d => d.Id, d => d.State);
+    }
+
+    // Polls only while something is queued or processing; ends on its own when all is settled.
+    private async Task PollAsync()
+    {
+        if (!InProgress)
+        {
+            return;
+        }
+
+        Logger.ListPollingStarted();
+        using var timer = new PeriodicTimer(_pollInterval);
+        try
+        {
+            while (InProgress && await timer.WaitForNextTickAsync(_cts.Token))
+            {
+                await LoadAsync(announceChanges: true);
+                StateHasChanged();
+            }
+        }
+        catch (OperationCanceledException)
+        {
+            // The page was left.
+        }
+    }
+
+    private async Task AnnounceChangesAsync()
+    {
+        foreach (var document in _documents)
+        {
+            if (_lastStates.TryGetValue(document.Id, out var before) && before != document.State && _changes is not null)
+            {
+                Logger.DocumentStateChanged(document.State.ToString());
+                await _changes.Announce(L["StateChanged", document.Title, StateText(document.State)]);
+            }
+        }
+    }
+
+    private string StateText(DocumentProcessingState state) => L["State" + state];
+
+    private static string IconFor(DocumentProcessingState state) => state switch
+    {
+        DocumentProcessingState.Queued => Icons.Material.Filled.HourglassEmpty,
+        DocumentProcessingState.Processing => Icons.Material.Filled.Sync,
+        DocumentProcessingState.Done => Icons.Material.Filled.CheckCircle,
+        _ => Icons.Material.Filled.Error,
+    };
+
+    public void Dispose()
+    {
+        // Not disposed: a poll loop may still read the token while the page is being torn down.
+        _cts.Cancel();
+    }
+}
