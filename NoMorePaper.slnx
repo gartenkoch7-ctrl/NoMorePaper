@@ -12,6 +12,7 @@
     <Project Path="tests/NoMorePaper.Architecture.Tests/NoMorePaper.Architecture.Tests.csproj" />
     <Project Path="tests/NoMorePaper.Domain.Tests/NoMorePaper.Domain.Tests.csproj" />
     <Project Path="tests/NoMorePaper.Infrastructure.Tests/NoMorePaper.Infrastructure.Tests.csproj" />
+    <Project Path="tests/NoMorePaper.Server.Tests/NoMorePaper.Server.Tests.csproj" />
     <Project Path="tests/NoMorePaper.UI.Tests/NoMorePaper.UI.Tests.csproj" />
   </Folder>
 </Solution>

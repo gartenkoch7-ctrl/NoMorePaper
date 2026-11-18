@@ -1,0 +1,119 @@
+using System.Security.Cryptography;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging.Abstractions;
+using NoMorePaper.Domain.Documents;
+using NoMorePaper.Infrastructure.Documents;
+using NoMorePaper.Infrastructure.Persistence;
+using NoMorePaper.Infrastructure.Tests.Persistence;
+using Xunit;
+
+namespace NoMorePaper.Infrastructure.Tests.Documents;
+
+[Collection(SharedPostgres.Name)]
+public sealed class DocumentIntakeTests(PostgresFixture postgres) : IDisposable
+{
+    private static readonly byte[] s_content = [.. Enumerable.Range(0, 50_000).Select(i => (byte)(i % 241))];
+
+    private readonly DirectoryInfo _sandbox = Directory.CreateTempSubdirectory("nomorepaper-intake-");
+
+    private static CancellationToken Ct => TestContext.Current.CancellationToken;
+
+    public void Dispose() => _sandbox.Delete(recursive: true);
+
+    [Fact]
+    public async Task Receive_StoresTheFile_AndRecordsDocumentAndJobTogether()
+    {
+        await using var db = await MigratedContextAsync("intake_ok");
+        var intake = CreateIntake(db);
+
+        var id = await intake.ReceiveAsync("Zahnarzt 2026.PDF", "application/pdf", new MemoryStream(s_content), Ct);
+
+        await using var verify = postgres.CreateContext("intake_ok");
+        var document = await verify.Documents.SingleAsync(d => d.Id == id, Ct);
+        Assert.Equal("Zahnarzt 2026", document.Title);
+        Assert.Equal(ProcessingState.Queued, document.State);
+        Assert.Equal(7, document.Id.Version);
+        var original = Assert.Single(document.Files);
+        Assert.Equal(
+            (DocumentFileKind.Original, "Zahnarzt 2026.PDF", "application/pdf", (long)s_content.Length, Convert.ToHexStringLower(SHA256.HashData(s_content))),
+            (original.Kind, original.FileName, original.MediaType, original.SizeBytes, original.Sha256));
+
+        var job = await verify.ProcessingJobs.SingleAsync(j => j.DocumentId == id, Ct);
+        Assert.Equal(0, job.Attempt);
+        Assert.Null(job.LockedUntil);
+        Assert.True(job.NextAttemptAt <= DateTimeOffset.UtcNow);
+
+        Assert.Equal(s_content, await File.ReadAllBytesAsync(Path.Combine(_sandbox.FullName, "inbox", id.ToString(), "original.pdf"), Ct));
+    }
+
+    [Fact]
+    public async Task Receive_UsesTheClock_ForReceivedAtAndTheJobDueTime()
+    {
+        await using var db = await MigratedContextAsync("intake_clock");
+        var now = new DateTimeOffset(2026, 5, 6, 7, 8, 9, TimeSpan.Zero);
+        var intake = CreateIntake(db, new FixedClock(now));
+
+        var id = await intake.ReceiveAsync("a.png", "image/png", new MemoryStream(s_content), Ct);
+
+        await using var verify = postgres.CreateContext("intake_clock");
+        Assert.Equal(now, (await verify.Documents.SingleAsync(d => d.Id == id, Ct)).ReceivedAt);
+        Assert.Equal(now, (await verify.ProcessingJobs.SingleAsync(j => j.DocumentId == id, Ct)).NextAttemptAt);
+    }
+
+    [Fact]
+    public async Task Receive_NeverUsesDirectoriesOfTheReceivedName()
+    {
+        await using var db = await MigratedContextAsync("intake_path");
+
+        var id = await CreateIntake(db).ReceiveAsync("../../outside/secret.pdf", "application/pdf", new MemoryStream(s_content), Ct);
+
+        Assert.True(File.Exists(Path.Combine(_sandbox.FullName, "inbox", id.ToString(), "original.pdf")));
+        Assert.Equal("secret.pdf", (await db.Documents.AsNoTracking().SingleAsync(d => d.Id == id, Ct)).Files.Single().FileName);
+        Assert.Empty(Directory.GetFiles(Path.GetDirectoryName(_sandbox.FullName)!, "secret*"));
+    }
+
+    [Fact]
+    public async Task Receive_WhenTheDatabaseFails_RemovesTheStoredFile_AndRethrows()
+    {
+        // This database was never migrated, so saving the document fails.
+        await using var db = postgres.CreateContext("intake_unmigrated");
+        var intake = CreateIntake(db);
+
+        await Assert.ThrowsAnyAsync<Exception>(() =>
+            intake.ReceiveAsync("a.pdf", "application/pdf", new MemoryStream(s_content), Ct));
+
+        var inbox = Path.Combine(_sandbox.FullName, "inbox");
+        Assert.True(!Directory.Exists(inbox) || Directory.GetDirectories(inbox).Length == 0);
+    }
+
+    [Fact]
+    public async Task Receive_WhenReadingTheContentFails_LeavesNoDocumentBehind()
+    {
+        await using var db = await MigratedContextAsync("intake_failing_stream");
+
+        await Assert.ThrowsAsync<IOException>(() =>
+            CreateIntake(db).ReceiveAsync("a.pdf", "application/pdf", new FailingStream(s_content, 10_000), Ct));
+
+        Assert.Empty(await db.Documents.ToListAsync(Ct));
+        Assert.Empty(await db.ProcessingJobs.ToListAsync(Ct));
+    }
+
+    private DocumentIntake CreateIntake(AppDbContext db, TimeProvider? clock = null) => new(
+        db,
+        new FileSystemDocumentStorage(_sandbox.FullName, NullLogger<FileSystemDocumentStorage>.Instance),
+        clock ?? TimeProvider.System,
+        _sandbox.FullName,
+        NullLogger<DocumentIntake>.Instance);
+
+    private async Task<AppDbContext> MigratedContextAsync(string database)
+    {
+        var db = postgres.CreateContext(database);
+        await new DatabaseMigrator(db, TimeProvider.System, NullLogger<DatabaseMigrator>.Instance).MigrateAsync(Ct);
+        return db;
+    }
+
+    private sealed class FixedClock(DateTimeOffset now) : TimeProvider
+    {
+        public override DateTimeOffset GetUtcNow() => now;
+    }
+}

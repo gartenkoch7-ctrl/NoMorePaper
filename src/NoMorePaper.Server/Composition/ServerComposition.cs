@@ -1,4 +1,6 @@
+using Microsoft.AspNetCore.Http.Features;
 using NoMorePaper.Infrastructure.Composition;
+using NoMorePaper.Server.Documents;
 using NoMorePaper.Server.Health;
 using NoMorePaper.Server.Startup;
 using NoMorePaper.Server.Telemetry;
@@ -11,6 +13,10 @@ internal static class ServerComposition
     public static WebApplicationBuilder AddServer(this WebApplicationBuilder builder)
     {
         builder.Services.AddInfrastructure(builder.Configuration);
+        builder.Services.AddProblemDetails();
+
+        // Stated here so the 100 MB upload limit does not silently depend on a framework default.
+        builder.Services.Configure<FormOptions>(options => options.MultipartBodyLengthLimit = DocumentUpload.MaxRequestBytes);
 
         // Registered before the web host starts, so the schema is current before the first request.
         builder.Services.AddHostedService<MigrateOnStartup>();
