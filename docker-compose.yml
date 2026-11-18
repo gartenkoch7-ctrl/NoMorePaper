@@ -70,7 +70,8 @@ services:
         # The Server applies the migrations; a healthy Server means the schema is current.
         condition: service_healthy
     healthcheck:
-      test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://127.0.0.1:8080/health"]
+      # The Worker image is Ubuntu-based and has curl instead of wget (Dockerfile.worker).
+      test: ["CMD", "curl", "-fsS", "-o", "/dev/null", "http://127.0.0.1:8080/health"]
       interval: 10s
       timeout: 5s
       retries: 5

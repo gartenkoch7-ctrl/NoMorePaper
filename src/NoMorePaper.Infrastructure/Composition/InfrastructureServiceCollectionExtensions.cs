@@ -10,6 +10,7 @@ using NoMorePaper.Application.Documents;
 using NoMorePaper.Infrastructure.Documents;
 using NoMorePaper.Infrastructure.Heartbeat;
 using NoMorePaper.Infrastructure.Persistence;
+using NoMorePaper.Infrastructure.Processing;
 
 namespace NoMorePaper.Infrastructure.Composition;
 
@@ -28,6 +29,7 @@ public static class InfrastructureServiceCollectionExtensions
         services.AddDbContext<AppDbContext>(options => options.UseNpgsql(RequireConnectionString(configuration)));
         services.AddScoped<DatabaseMigrator>();
         services.AddScoped<HeartbeatStore>();
+        services.AddScoped<JobQueue>();
         services.AddSingleton<IDocumentStorage>(provider => new FileSystemDocumentStorage(
             DataPath(configuration),
             provider.GetRequiredService<ILogger<FileSystemDocumentStorage>>()));
