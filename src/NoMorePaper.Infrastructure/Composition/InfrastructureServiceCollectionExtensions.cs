@@ -6,6 +6,8 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Logging;
+using NoMorePaper.Application.Documents;
+using NoMorePaper.Infrastructure.Documents;
 using NoMorePaper.Infrastructure.Heartbeat;
 using NoMorePaper.Infrastructure.Persistence;
 
@@ -26,6 +28,9 @@ public static class InfrastructureServiceCollectionExtensions
         services.AddDbContext<AppDbContext>(options => options.UseNpgsql(RequireConnectionString(configuration)));
         services.AddScoped<DatabaseMigrator>();
         services.AddScoped<HeartbeatStore>();
+        services.AddSingleton<IDocumentStorage>(provider => new FileSystemDocumentStorage(
+            DataPath(configuration),
+            provider.GetRequiredService<ILogger<FileSystemDocumentStorage>>()));
 
         services.AddDataProtection().SetApplicationName(InfrastructureSettings.DataProtectionApplicationName);
         services.AddOptions<KeyManagementOptions>().Configure<ILoggerFactory>((options, loggerFactory) =>
@@ -40,6 +45,11 @@ public static class InfrastructureServiceCollectionExtensions
 
         return services;
     }
+
+    private static string DataPath(IConfiguration configuration) =>
+        configuration[InfrastructureSettings.DataPathKey] is { } path && !string.IsNullOrWhiteSpace(path)
+            ? path
+            : InfrastructureSettings.DefaultDataPath;
 
     private static string RequireConnectionString(IConfiguration configuration) =>
         configuration.GetConnectionString(InfrastructureSettings.ConnectionStringName) is { Length: > 0 } value

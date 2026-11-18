@@ -22,16 +22,16 @@ Entscheidungen (Grilling 2026-11-18):
 ## Aufgaben
 
 ### 1. Modell, Schema, Ablage (Schritt 0)
-- [ ] Domain: `Document` (Id, Titel, Eingangszeitpunkt, Status), `DocumentFile` (Art `Original`/`Archive`,
+- [x] Domain: `Document` (Id, Titel, Eingangszeitpunkt, Status), `DocumentFile` (Art `Original`/`Archive`,
       Dateiname, MIME-Typ, Größe, SHA-256), `ProcessingState` (`Queued`, `Processing`, `Done`, `Failed`)
-- [ ] Postgres: Tabellen `documents`, `document_files`, `processing_jobs` (Warteschlange mit
+- [x] Postgres: Tabellen `documents`, `document_files`, `processing_jobs` (Warteschlange mit
       `FOR UPDATE SKIP LOCKED`, Versuche, nächster Versuch), Spalte `content_text`
-- [ ] Suche: `search_vector` als generierte Spalte aus `to_tsvector('german')` und `to_tsvector('english')`,
+- [x] Suche: `search_vector` als generierte Spalte aus `to_tsvector('german')` und `to_tsvector('english')`,
       GIN-Index; Extension `pg_trgm` mit Trigramm-Index auf `content_text`
-- [ ] `IDocumentStorage` (Application) + Dateisystem-Umsetzung: `/data/inbox/<id>/`,
+- [x] `IDocumentStorage` (Application) + Dateisystem-Umsetzung: `/data/inbox/<id>/`,
       `/data/archive/<jjjj>/<mm>/<id>/original.<ext>` und `archive.pdf`; Schreiben atomar
       (temporäre Datei + Umbenennen)
-- [ ] Contracts: `DocumentSummaryDto`, `DocumentDetailDto`, `SearchHitDto`, `UploadResultDto`
+- [x] Contracts: `DocumentSummaryDto`, `DocumentDetailDto`, `SearchHitDto`, `UploadResultDto`
 
 ### 2. Upload, API und Suche (Server)
 - [ ] `POST /api/documents` (multipart, max. 100 MB, Typ nach **Dateisignatur** prüfen, nicht nach
