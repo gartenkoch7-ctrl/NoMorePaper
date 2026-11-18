@@ -8,7 +8,7 @@ vorführen** kann.
 
 | # | Meilenstein | Ergebnis (Demo) | Größe | Status |
 |---|---|---|---|---|
-| M0 | Fundament | Solution mit Schichten, Architekturtests, Zeilenprüfung, CI, Docker Compose (Server, Worker, Postgres) startet leer | S | offen |
+| M0 | [Fundament](m0-fundament.md) | Solution mit Schichten, Architekturtests, Zeilenprüfung, CI, Docker Compose (Server, Worker, Postgres) startet leer | S | offen |
 | M1 | Durchstich, Barrierefreiheit + iCloud-Spike | PDF hochladen → Worker → OCR → PDF/A → Volltextsuche; dunkle Kontrast-App, Viewer mit Shader „intelligent invertiert“, scharfer Zoom, Screenreader (ADR-0010/0011); Spike entscheidet, ob iCloud in .NET machbar ist (ADR-0005) | L+ | offen |
 | M2 | Konten & Haushalt | Anmeldung, Haushalt mit mehreren Konten, „privat“-Markierung, Betrieb über Tailscale, DE/EN | M | offen |
 | M3 | Erkennung & Ordnung | Ollama ordnet Absender, Art, Datum, Betrag, Tags zu; Korrektur in der UI; Filter; Duplikat-Erkennung | L | offen |
