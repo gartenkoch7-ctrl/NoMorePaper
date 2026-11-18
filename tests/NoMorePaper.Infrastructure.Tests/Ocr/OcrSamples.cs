@@ -1,3 +1,4 @@
+using System.ComponentModel;
 using Microsoft.Extensions.Logging.Abstractions;
 using NoMorePaper.Infrastructure.Ocr;
 using Xunit;
@@ -6,8 +7,9 @@ namespace NoMorePaper.Infrastructure.Tests.Ocr;
 
 /// <summary>
 /// Sample documents with known text, generated once per test class with Ghostscript (installed
-/// with OCRmyPDF) and img2pdf: a PDF with a text layer, scans as PNG and JPEG and an image-only
-/// two-page PDF. Nothing is generated where the OCR tools are missing; those tests are skipped.
+/// with OCRmyPDF), img2pdf and pikepdf: a PDF with a text layer, the same encrypted and marked as
+/// signed, scans as PNG (also with alpha channel) and JPEG and an image-only two-page PDF. Nothing
+/// is generated where the OCR tools are missing; those tests are skipped.
 /// </summary>
 public sealed class OcrSamples : IAsyncLifetime
 {
@@ -29,6 +31,15 @@ public sealed class OcrSamples : IAsyncLifetime
         showpage
         """;
 
+    // SigFlags 3: the file contains signatures and must only be appended to (PDF 32000-1, 12.7.2).
+    private const string MarkAsSigned =
+        """
+        import sys, pikepdf
+        with pikepdf.open(sys.argv[1]) as pdf:
+            pdf.Root.AcroForm = pdf.make_indirect(pikepdf.Dictionary(Fields=pikepdf.Array(), SigFlags=3))
+            pdf.save(sys.argv[2])
+        """;
+
     private static readonly TimeSpan s_timeout = TimeSpan.FromMinutes(2);
     private readonly ExternalProcess _process = new(TimeProvider.System, NullLogger<ExternalProcess>.Instance);
     private readonly DirectoryInfo _folder = Directory.CreateTempSubdirectory("nomorepaper-ocr-samples-");
@@ -48,6 +59,18 @@ public sealed class OcrSamples : IAsyncLifetime
     /// <summary>First page as a 300 dpi JPEG.</summary>
     public string Jpeg => Sample("page-1.jpg");
 
+    /// <summary>First page as a 300 dpi PNG with alpha channel (RGBA): black text on a transparent background.</summary>
+    public string RgbaPng => Sample("alpha-1.png");
+
+    /// <summary>The text PDF, encrypted with a user password.</summary>
+    public string EncryptedPdf => Sample("encrypted.pdf");
+
+    /// <summary>
+    /// The text PDF marked as signed (<c>/SigFlags</c> in the form dictionary, which is what OCRmyPDF
+    /// checks); <c>null</c> where pikepdf, which comes with OCRmyPDF, is not importable from <c>python3</c>.
+    /// </summary>
+    public string? SignedPdf { get; private set; }
+
     public static void SkipUnlessToolsInstalled() =>
         Assert.SkipUnless(ToolsInstalled, "ocrmypdf is not installed here; the OCR tests run in CI and in the Worker image.");
 
@@ -64,6 +87,23 @@ public sealed class OcrSamples : IAsyncLifetime
         await RunAsync("gs", [.. Ghostscript("png16m"), "-r300", "-o", Sample("page-%d.png"), source]);
         await RunAsync("gs", [.. Ghostscript("jpeg"), "-r300", "-o", Sample("page-%d.jpg"), source]);
         await RunAsync("img2pdf", [Png, Sample("page-2.png"), "-o", ScannedPdf]);
+        await RunAsync("gs", [.. Ghostscript("pngalpha"), "-r300", "-o", Sample("alpha-%d.png"), source]);
+        await RunAsync("gs", [.. Ghostscript("pdfwrite"), "-sOwnerPassword=owner", "-sUserPassword=user", "-o", EncryptedPdf, source]);
+
+        SignedPdf = await TryMarkAsSignedAsync(Sample("signed.pdf"));
+    }
+
+    private async Task<string?> TryMarkAsSignedAsync(string signed)
+    {
+        try
+        {
+            var (exitCode, _) = await _process.RunAsync("python3", ["-I", "-c", MarkAsSigned, TextPdf, signed], s_timeout, CancellationToken.None);
+            return exitCode == 0 ? signed : null;
+        }
+        catch (Win32Exception)
+        {
+            return null;
+        }
     }
 
     public ValueTask DisposeAsync()

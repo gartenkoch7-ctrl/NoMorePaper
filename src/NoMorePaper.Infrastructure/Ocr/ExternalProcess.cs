@@ -18,22 +18,33 @@ public sealed class ExternalProcess(TimeProvider time, ILogger<ExternalProcess> 
     // A killed tree closes its pipes at once; this only guards against a stuck grandchild.
     private static readonly TimeSpan s_drainAfterKill = TimeSpan.FromSeconds(5);
 
+    /// <summary>Runs the program with the inherited temporary folder.</summary>
+    /// <inheritdoc cref="RunAsync(string, IReadOnlyList{string}, string?, TimeSpan, CancellationToken)"/>
+    public Task<(int ExitCode, string StdErrTail)> RunAsync(
+        string fileName, IReadOnlyList<string> args, TimeSpan timeout, CancellationToken cancellationToken) =>
+        RunAsync(fileName, args, tempFolder: null, timeout, cancellationToken);
+
     /// <param name="fileName">Program name looked up on <c>PATH</c>, e.g. <c>ocrmypdf</c>.</param>
     /// <param name="args">Arguments, each passed as one argument exactly as given.</param>
+    /// <param name="tempFolder">
+    /// Passed to the program and its children as <c>TMPDIR</c>, so their temporary files land there
+    /// (and are removed with it) instead of in the RAM-backed <c>/tmp</c> of the container.
+    /// <c>null</c> keeps the inherited value.
+    /// </param>
     /// <param name="timeout">After this time the program and all its children are killed.</param>
     /// <returns>Exit code and the last <see cref="StdErrTailLength"/> characters of standard error.</returns>
     /// <exception cref="System.ComponentModel.Win32Exception">The program could not be started, e.g. it is not installed.</exception>
     /// <exception cref="TimeoutException">The program ran longer than <paramref name="timeout"/>.</exception>
     /// <exception cref="OperationCanceledException">Cancelled; the program was killed.</exception>
     public async Task<(int ExitCode, string StdErrTail)> RunAsync(
-        string fileName, IReadOnlyList<string> args, TimeSpan timeout, CancellationToken cancellationToken)
+        string fileName, IReadOnlyList<string> args, string? tempFolder, TimeSpan timeout, CancellationToken cancellationToken)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(fileName);
         ArgumentNullException.ThrowIfNull(args);
         ArgumentOutOfRangeException.ThrowIfLessThanOrEqual(timeout, TimeSpan.Zero);
         cancellationToken.ThrowIfCancellationRequested();
 
-        using var process = new Process { StartInfo = StartInfo(fileName, args) };
+        using var process = new Process { StartInfo = StartInfo(fileName, args, tempFolder) };
         var started = time.GetTimestamp();
         process.Start();
         process.StandardInput.Close();
@@ -72,7 +83,7 @@ public sealed class ExternalProcess(TimeProvider time, ILogger<ExternalProcess> 
         return (exitCode, await readErrors.ConfigureAwait(false));
     }
 
-    private static ProcessStartInfo StartInfo(string fileName, IReadOnlyList<string> args)
+    private static ProcessStartInfo StartInfo(string fileName, IReadOnlyList<string> args, string? tempFolder)
     {
         var startInfo = new ProcessStartInfo(fileName)
         {
@@ -86,6 +97,12 @@ public sealed class ExternalProcess(TimeProvider time, ILogger<ExternalProcess> 
         foreach (var arg in args)
         {
             startInfo.ArgumentList.Add(arg);
+        }
+
+        if (tempFolder is not null)
+        {
+            // TMPDIR is read by Python (OCRmyPDF), Tesseract and Ghostscript on Linux, the Worker's platform.
+            startInfo.Environment["TMPDIR"] = tempFolder;
         }
 
         return startInfo;

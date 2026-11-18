@@ -59,6 +59,20 @@ public sealed class ExternalProcessTests
     }
 
     [Fact]
+    public async Task Run_PassesTheTemporaryFolder_AsTmpdir()
+    {
+        var folder = Path.Combine(Path.GetTempPath(), "nomorepaper-tmpdir-test");
+        var (fileName, args) = OperatingSystem.IsWindows()
+            ? ("cmd", new[] { "/c", "echo %TMPDIR% 1>&2" })
+            : ("sh", new[] { "-c", "printf '%s' \"$TMPDIR\" >&2" });
+
+        var (exitCode, stdErrTail) = await _process.RunAsync(fileName, args, folder, s_timeout, Ct);
+
+        Assert.Equal(0, exitCode);
+        Assert.Equal(folder, stdErrTail.TrimEnd());
+    }
+
+    [Fact]
     public async Task Run_KillsTheProgram_WhenItExceedsTheTimeout()
     {
         var (fileName, args) = Sleeper();
