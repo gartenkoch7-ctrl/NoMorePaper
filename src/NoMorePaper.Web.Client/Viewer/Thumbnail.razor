@@ -1,0 +1,44 @@
+@* First page of a document, shown through the same shader as the viewer (ADR-0011). The box
+   keeps its size from the start, so the list does not jump; the image appears once it is drawn.
+   Until then (or if it fails) the canvas is hidden and not in the accessibility tree. *@
+@implements IDisposable
+@inject IStringLocalizer<Strings> L
+@inject ThumbnailRenderer Renderer
+@inject ViewerPreferences Preferences
+
+<span class="thumbnail" @ref="_box">
+    <canvas @ref="_canvas" role="img" aria-label="@L["ThumbnailAlt", Title]" hidden="@(!_shown)"></canvas>
+</span>
+
+@code {
+    private readonly CancellationTokenSource _cts = new();
+    private ElementReference _box;
+    private ElementReference _canvas;
+    private bool _shown;
+
+    /// <summary>URL of the PDF whose first page is shown (the archive PDF/A).</summary>
+    [Parameter, EditorRequired] public string Source { get; set; } = string.Empty;
+
+    [Parameter, EditorRequired] public string Title { get; set; } = string.Empty;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender)
+        {
+            return;
+        }
+
+        var originalColors = await Preferences.LoadOriginalColorsAsync();
+        _shown = await Renderer.ShowWhenVisibleAsync(_box, _canvas, Source, originalColors, _cts.Token);
+        if (_shown && !_cts.IsCancellationRequested)
+        {
+            StateHasChanged();
+        }
+    }
+
+    public void Dispose()
+    {
+        // Not disposed: the render loop may still read the token while the list is torn down.
+        _cts.Cancel();
+    }
+}

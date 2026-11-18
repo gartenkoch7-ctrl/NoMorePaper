@@ -41,8 +41,17 @@ else
         <tbody>
             @foreach (var document in _documents)
             {
-                <tr id="@DocumentLinks.RowId(document.Id)">
-                    <th scope="row">@document.Title</th>
+                <tr id="@DocumentLinks.RowId(document.Id)" @key="document.Id">
+                    <th scope="row">
+                        <span class="doc-title">
+                            @* Only a finished document has its PDF/A; that is what the thumbnail shows. *@
+                            @if (document.State == DocumentProcessingState.Done)
+                            {
+                                <Thumbnail Source="@DocumentLinks.Archive(document.Id)" Title="@document.Title" />
+                            }
+                            <a href="@DocumentLinks.Viewer(document.Id)">@document.Title</a>
+                        </span>
+                    </th>
                     <td><time datetime="@document.ReceivedAt.ToString("o", CultureInfo.InvariantCulture)">@document.ReceivedAt.ToLocalTime().ToString("g", CultureInfo.CurrentCulture)</time></td>
                     <td>
                         @* Symbol and text together: the state is never conveyed by an icon or colour alone. *@

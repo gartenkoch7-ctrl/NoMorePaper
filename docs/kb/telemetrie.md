@@ -88,9 +88,20 @@ Innerhalb eines Bereichs bekommt jedes Feature einen eigenen Hunderterblock (z. 
 | 4106 | Information | `Web.Client/Documents/DocumentsLog` | Dokument hat den Verarbeitungsstatus gewechselt (neuer Status) |
 | 4107 | Information | `Web.Client/Documents/DocumentsLog` | Suche beendet (Trefferzahl, ohne Suchbegriff) |
 | 4108 | Debug | `Web.Client/Documents/DocumentsLog` | Liste fragt alle 3 s nach, solange Dokumente in Arbeit sind |
+| 4200 | Information | `Web.Client/Viewer/ViewerLog` | Viewer hat ein Dokument geöffnet (Seitenzahl, Renderer `webgl2`/`fallback`) |
+| 4201 | Warning | `Web.Client/Viewer/ViewerLog` | WebGL2 nicht nutzbar, Rückfall auf den CSS-Filter (Grund: `no-webgl2`, `shader-error`) |
+| 4202 | Debug | `Web.Client/Viewer/ViewerLog` | sichtbarer Ausschnitt einer Seite gerendert (Dauer in ms, gerundet) |
+| 4203 | Warning | `Web.Client/Viewer/ViewerLog` | Viewer konnte das Dokument nicht öffnen (technischer Fehlername von PDF.js, z. B. `InvalidPDFException`) |
+| 4204 | Warning | `Web.Client/Viewer/ViewerLog` | Seite konnte nicht gerendert werden (technischer Fehlername) |
+| 4205 | Information | `Web.Client/Viewer/ViewerLog` | Dokument hat noch kein PDF zum Anzeigen (Verarbeitungsstatus) |
+| 4206 | Information | `Web.Client/Viewer/ViewerLog` | angezeigte Seite hat keine Textebene |
+| 4207 | Information | `Web.Client/Viewer/ViewerLog` | Schalter „Originalfarben“ umgestellt (`on`/`off`) |
+| 4208 | Warning | `Web.Client/Viewer/ViewerLog` | Browserspeicher für den Schalter „Originalfarben“ nicht nutzbar |
+| 4209 | Warning | `Web.Client/Viewer/ViewerLog` | Vorschaubild konnte nicht gerendert werden (technischer Fehlername oder `interop`) |
 
 Web.Client: Die Ereignisse erscheinen nur in der Browser-Konsole und enthalten nur Sprachkürzel,
-Größen, Anzahlen und Statuscodes – nie Dateinamen, Titel oder Suchbegriffe.
+Größen, Anzahlen, Statuscodes, Dauern und technische Fehlernamen – nie Dateinamen, Titel,
+Suchbegriffe oder Dokumentinhalte.
 In WASM gibt es keine `ActivitySource` und kein `Meter` (kein Exporter).
 
 ### Activities
