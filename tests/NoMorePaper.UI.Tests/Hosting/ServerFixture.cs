@@ -63,6 +63,9 @@ public sealed class ServerFixture : IAsyncLifetime
         {
             ["ConnectionStrings__NoMorePaper"] = _database.GetConnectionString(),
             ["NoMorePaper__DataProtectionPath"] = _dataProtectionPath,
+            // Without it the server falls back to /data, which is not writable on Linux CI runners.
+            // A subfolder of the same temp folder, so the cleanup below removes it too.
+            ["NoMorePaper__DataPath"] = Path.Combine(_dataProtectionPath, "data"),
         });
         await _server.WaitUntilReadyAsync(_serverStartTimeout);
     }
