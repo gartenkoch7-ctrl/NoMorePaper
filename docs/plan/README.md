@@ -8,11 +8,11 @@ vorführen** kann.
 
 | # | Meilenstein | Ergebnis (Demo) | Größe | Status |
 |---|---|---|---|---|
-| M0 | [Fundament](m0-fundament.md) | Solution mit Schichten, Architekturtests, Zeilenprüfung, CI, Docker Compose (Server, Worker, Postgres) startet leer | S | offen |
+| M0 | [Fundament](m0-fundament.md) | Solution mit Schichten, Architekturtests, Zeilenprüfung, CI, Docker Compose (Server, Worker, Postgres) startet leer | S | erledigt 2026-11-18 – CI auf GitHub nach Push prüfen |
 | M1 | Durchstich, Barrierefreiheit + iCloud-Spike | PDF hochladen → Worker → OCR → PDF/A → Volltextsuche; dunkle Kontrast-App, Viewer mit Shader „intelligent invertiert“, scharfer Zoom, Screenreader (ADR-0010/0011); Spike entscheidet, ob iCloud in .NET machbar ist (ADR-0005) | L+ | offen |
 | M2 | Konten & Haushalt | Anmeldung, Haushalt mit mehreren Konten, „privat“-Markierung, Betrieb über Tailscale, DE/EN | M | offen |
 | M3 | Erkennung & Ordnung | Ollama ordnet Absender, Art, Datum, Betrag, Tags zu; Korrektur in der UI; Filter; Duplikat-Erkennung | L | offen |
-| M4 | Eingänge & Scan-Bearbeitung | PWA-Kamera mit Kantenerkennung, Scanner-Ordner, IMAP, iCloud-Sync; Seiten drehen/löschen/umsortieren/zuschneiden, zusammenfügen/teilen, Stapel-Trennung als Vorschlag, Versionen + Papierkorb (ADR-0013) | L+ | offen |
+| M4 | Eingänge & Scan-Bearbeitung | **vorher: HTTPS-Zugang entscheiden, Schlüsselring verschlüsseln (ADR-0015)**; PWA-Kamera mit Kantenerkennung, Scanner-Ordner, IMAP, iCloud-Sync; Seiten drehen/löschen/umsortieren/zuschneiden, zusammenfügen/teilen, Stapel-Trennung als Vorschlag, Versionen + Papierkorb (ADR-0013) | L+ | offen |
 | M5 | Fristen, Kalender & Home Assistant | Fristen erkennen und auflisten, Fristarten mit Übernahme-/Vorlauf-Einstellung, iCloud-Kalender per CalDAV (ADR-0012), API-Token, HA-Integration (HACS) mit Sensoren und Erinnerungen | L | offen |
 | M6 | Verträge & Kosten | Verträge mit LLM-Vorschlag, Kostenübersicht nach Kategorie und Jahr, Kündigungsfrist → Frist, Preiserhöhung erkennen (ADR-0014) | M | offen |
 | M7 | Backup, Steuer-Export & Release 1.0 | Verschlüsseltes Backup mit getestetem Restore, Steuer-Export, Doku, Tag `v1.0.0` | M | offen |

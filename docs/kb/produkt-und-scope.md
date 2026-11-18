@@ -55,3 +55,6 @@ zugeordnet, mit Erinnerung an Fristen – ohne dass ein Dokument das eigene Netz
   im Hintergrund.
 - **Shader-Darstellung:** Foto-Erkennung und Schwellen im Browser auf schwächeren Handys ⚠️ unverifiziert – Spike in M1.
 - **PWA auf iOS:** kein Web Share Target; Kamera per `getUserMedia` funktioniert.
+- **HTTPS über Tailscale:** Kamera (`getUserMedia`), Service Worker und PWA-Installation brauchen
+  einen sicheren Kontext. Der Zugriff per `http://` über Tailscale reicht nicht – Lösung (z. B.
+  `tailscale serve`) wird spätestens vor M4 entschieden (Review M0).
