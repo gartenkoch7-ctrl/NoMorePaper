@@ -92,6 +92,6 @@ public sealed class RealApiAccountTests(ServerFixture server)
             MimeType = "application/pdf",
             Buffer = SampleDocuments.MinimalPdf(),
         });
-        await Assertions.Expect(page.Locator("main [role=status]")).ToContainTextAsync($"{name} wurde hochgeladen");
+        await Assertions.Expect(page.Locator("main [role=status]")).ToContainTextAsync($"{name} wurde {(isPrivate ? "privat" : "geteilt")} hochgeladen");
     }
 }

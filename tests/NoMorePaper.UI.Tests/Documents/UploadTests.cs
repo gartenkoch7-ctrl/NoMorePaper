@@ -26,21 +26,23 @@ public sealed class UploadTests(ServerFixture server)
         await Assertions.Expect(page.Locator("#upload-hint")).ToContainTextAsync("100 MB");
     }
 
+    // Choosing a file uploads it at once, so the "Private" switch must come first when tabbing.
     [Fact]
-    public async Task FileInput_IsReachableByTab_WithVisibleFocus()
+    public async Task PrivateSwitch_ComesRightBeforeTheFileInput_BothWithVisibleFocus()
     {
         await using var session = await server.OpenAsync("/hochladen", SupportedCultures.German);
         var page = session.Page;
 
-        FocusState focus = new();
-        for (var i = 0; i < 15 && focus.Id != "upload-input"; i++)
+        var stops = new List<FocusState>();
+        for (var i = 0; i < 15 && (stops.Count == 0 || stops[^1].Id != "upload-input"); i++)
         {
             await page.Keyboard.PressAsync("Tab");
-            focus = await FocusState.ReadAsync(page);
+            stops.Add(await FocusState.ReadAsync(page));
         }
 
-        Assert.Equal("upload-input", focus.Id);
-        Assert.True(focus.IndicatorWidth >= 3, $"Focus indicator {focus.IndicatorWidth}px");
+        Assert.Equal("upload-input", stops[^1].Id);
+        Assert.Equal("upload-private", stops[^2].Id);
+        Assert.All(stops[^2..], focus => Assert.True(focus.IndicatorWidth >= 3, $"Focus indicator {focus.IndicatorWidth}px on {focus.Id}"));
     }
 
     [Fact]
@@ -59,7 +61,8 @@ public sealed class UploadTests(ServerFixture server)
         });
 
         var status = page.Locator("main [role=status]");
-        await Assertions.Expect(status).ToContainTextAsync("brief.pdf wurde hochgeladen und wartet auf die Verarbeitung.");
+        await Assertions.Expect(status).ToContainTextAsync("brief.pdf wurde geteilt hochgeladen und wartet auf die Verarbeitung.");
+        await Assertions.Expect(page.Locator(".upload-results li")).ToContainTextAsync("brief.pdf wurde geteilt hochgeladen");
         await Assertions.Expect(page.GetByRole(AriaRole.Link, new PageGetByRoleOptions { Name = "brief.pdf in der Dokumentenliste zeigen" }))
             .ToHaveAttributeAsync("href", $"dokumente#doc-{id:N}");
     }
@@ -135,7 +138,7 @@ public sealed class UploadTests(ServerFixture server)
             MimeType = "application/pdf",
             Buffer = SampleDocuments.MinimalPdf(),
         });
-        await Assertions.Expect(page.Locator("main [role=status]")).ToContainTextAsync("wurde hochgeladen");
+        await Assertions.Expect(page.Locator("main [role=status]")).ToContainTextAsync("wurde geteilt hochgeladen");
 
         await page.GetByRole(AriaRole.Link, new PageGetByRoleOptions { Name = "Dokumente", Exact = true }).ClickAsync();
         var row = page.Locator("tbody tr").Filter(new LocatorFilterOptions { HasText = Path.GetFileNameWithoutExtension(name) });

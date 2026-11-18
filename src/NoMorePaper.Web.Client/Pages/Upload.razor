@@ -6,6 +6,15 @@
 
 <MudText Typo="Typo.h1">@L["UploadHeading"]</MudText>
 
+@* Applies to the files chosen next. It comes before the file input in reading and tab order:
+   choosing a file starts the upload at once, so a screen reader user must meet this switch first.
+   A native checkbox with a visible label and a hint that says what "private" means. *@
+<div class="form-check">
+    <input id="upload-private" type="checkbox" @bind="_private" aria-describedby="upload-private-hint" />
+    <label for="upload-private">@L["PrivateLabel"]</label>
+</div>
+<p id="upload-private-hint" class="form-hint">@L["UploadPrivateHint"]</p>
+
 @* Dropping a file on the field is only an extra: the file input itself is the real control and
    works with keyboard and screen reader alone. *@
 <div class="drop-zone">
@@ -15,14 +24,6 @@
                aria-describedby="upload-hint" />
     <p id="upload-hint" class="drop-zone-hint">@L["UploadHint"]</p>
 </div>
-
-@* Applies to the files chosen next. A native checkbox with a visible label and a hint that says
-   what "private" means, so it is clear before anything is uploaded. *@
-<div class="form-check">
-    <input id="upload-private" type="checkbox" @bind="_private" aria-describedby="upload-private-hint" />
-    <label for="upload-private">@L["PrivateLabel"]</label>
-</div>
-<p id="upload-private-hint" class="form-hint">@L["UploadPrivateHint"]</p>
 
 <LiveRegion @ref="_progress" />
 
@@ -55,7 +56,7 @@
                 @if (result.Id is { } id)
                 {
                     <MudIcon Icon="@Icons.Material.Filled.CheckCircle" />
-                    <span>@L["UploadSuccess", result.FileName]</span>
+                    <span>@SuccessText(result)</span>
                     <a href="@DocumentLinks.Of(id)">@L["UploadShowInList", result.FileName]</a>
                 }
                 else
@@ -88,10 +89,13 @@
         var batch = files.Take(MaxFiles).ToList();
         _skipped = Skipped([.. files.Skip(MaxFiles).Select(file => file.Name)]);
         var announcement = _skipped is null ? null : $"{_skipped.Notice} {SkippedNamesAnnouncement(_skipped.Names)}";
+
+        // The switch applies to the files chosen now, even if it is changed while they go up.
+        var isPrivate = _private;
         for (var i = 0; i < batch.Count; i++)
         {
             // The notice joins the last announcement; a separate one right after would cut it off.
-            await UploadOneAsync(batch[i], i == batch.Count - 1 ? announcement : null);
+            await UploadOneAsync(batch[i], isPrivate, i == batch.Count - 1 ? announcement : null);
         }
     }
 
@@ -109,17 +113,21 @@
         return L["UploadSkippedNames", rest > 0 ? L["UploadSkippedMore", list, rest].Value : list];
     }
 
-    private async Task UploadOneAsync(IBrowserFile file, string? notice)
+    private async Task UploadOneAsync(IBrowserFile file, bool isPrivate, string? notice)
     {
         await AnnounceAsync(L["UploadInProgress", file.Name]);
-        var result = await Api.UploadAsync(file, _private);
-        var outcome = new UploadOutcome(file.Name, result.Value?.Id, result.Error);
+        var result = await Api.UploadAsync(file, isPrivate);
+        var outcome = new UploadOutcome(file.Name, result.Value?.Id, result.Error, isPrivate);
         _results.Insert(0, outcome);
         string message = outcome.Id is null
             ? L["UploadFailed", file.Name, outcome.Error ?? string.Empty]
-            : L["UploadSuccess", file.Name];
+            : SuccessText(outcome);
         await AnnounceAsync(notice is null ? message : $"{message} {notice}");
     }
+
+    // Says whether the file went up private or shared, so a mistake is noticed right away.
+    private string SuccessText(UploadOutcome outcome)
+        => L[outcome.IsPrivate ? "UploadSuccessPrivate" : "UploadSuccessShared", outcome.FileName];
 
     private async Task AnnounceAsync(string message)
     {
@@ -129,7 +137,7 @@
         }
     }
 
-    private sealed record UploadOutcome(string FileName, Guid? Id, string? Error);
+    private sealed record UploadOutcome(string FileName, Guid? Id, string? Error, bool IsPrivate);
 
     private sealed record SkippedFiles(string Notice, IReadOnlyList<string> Names);
 }

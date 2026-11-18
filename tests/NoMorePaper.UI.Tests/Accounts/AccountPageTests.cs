@@ -12,11 +12,13 @@ public sealed class AccountPageTests(ServerFixture server)
     private const string Current = "Das-alte-Passwort";
     private const string New = "Das-neue-Passwort";
 
-    private Task<BrowserSession> OpenAsync(FakeAccounts fake, int passwordStatus = 204, object? passwordAnswer = null)
-        => server.OpenAsync("/konto", SupportedCultures.German, signedIn: true, async page =>
+    private Task<BrowserSession> OpenAsync(
+        FakeAccounts fake, int passwordStatus = 204, object? passwordAnswer = null,
+        string culture = SupportedCultures.German, IDictionary<string, string>? passwordHeaders = null)
+        => server.OpenAsync("/konto", culture, signedIn: true, async page =>
         {
             await fake.InstallAsync(page, signedIn: true);
-            await fake.Mocks.RespondAsync(page, "POST", "/api/account/password", passwordStatus, passwordAnswer);
+            await fake.Mocks.RespondAsync(page, "POST", "/api/account/password", passwordStatus, passwordAnswer, passwordHeaders);
         });
 
     // The validation problem the server sends for refused input.
@@ -86,6 +88,24 @@ public sealed class AccountPageTests(ServerFixture server)
 
         await Assertions.Expect(page.Locator("main .form-error").First).ToHaveTextAsync("Fehler: Das Passwort braucht mindestens 10 Zeichen.");
         await Assertions.Expect(page.Locator("#account-new")).ToBeFocusedAsync();
+    }
+
+    // Wrong current passwords count towards the same lock as sign-in; the server then answers 423.
+    [Theory]
+    [InlineData(SupportedCultures.German, "300", "Fehler: Zu viele Fehlversuche. Das Konto ist gesperrt. Bitte versuche es in 5 Minuten wieder.")]
+    [InlineData(SupportedCultures.English, "300", "Error: Too many failed attempts. The account is locked. Please try again in 5 minutes.")]
+    [InlineData(SupportedCultures.German, "30", "Fehler: Zu viele Fehlversuche. Das Konto ist gesperrt. Bitte versuche es in 1 Minute wieder.")]
+    public async Task ChangePassword_WhileLocked_AnnouncesTheWaitingTime_AndFocusesTheCurrentPassword(
+        string culture, string retryAfter, string expected)
+    {
+        var headers = new Dictionary<string, string> { ["Retry-After"] = retryAfter };
+        await using var session = await OpenAsync(new FakeAccounts(), 423, null, culture, headers);
+        var page = session.Page;
+
+        await FillAsync(page, Current, New, New);
+
+        await Assertions.Expect(page.Locator("main [role=alert].form-error").First).ToHaveTextAsync(expected);
+        await Assertions.Expect(page.Locator("#account-current")).ToBeFocusedAsync();
     }
 
     [Fact]

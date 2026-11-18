@@ -90,6 +90,9 @@ public sealed class SignInTests(ServerFixture server)
     [Theory]
     [InlineData("https://boese.example/")]
     [InlineData("//boese.example/")]
+    // Sent as %2F%09%2Fevil.example; browsers drop the tab and would read "//evil.example".
+    [InlineData("/\t/evil.example")]
+    [InlineData("/\n/evil.example")]
     public async Task SignIn_NeverLeavesTheApp_ThroughTheTargetParameter(string target)
     {
         var fake = new FakeAccounts();
@@ -101,6 +104,20 @@ public sealed class SignInTests(ServerFixture server)
         await page.Keyboard.PressAsync("Enter");
 
         await Assertions.Expect(page.Locator(".account-name")).ToBeVisibleAsync();
+        Assert.Equal(new Uri(server.BaseAddress, "/"), new Uri(page.Url.Split('?')[0]));
+    }
+
+    [Theory]
+    [InlineData("%2F%09%2Fevil.example")]
+    [InlineData("https%3A%2F%2Fevil.example")]
+    public async Task AlreadySignedIn_TheTargetParameter_StillStaysOnTheSite(string target)
+    {
+        var fake = new FakeAccounts();
+        await using var session = await server.OpenAsync($"/anmelden?ziel={target}", SupportedCultures.German, signedIn: true,
+            page => fake.InstallAsync(page, signedIn: true));
+        var page = session.Page;
+
+        await Assertions.Expect(page.Locator("h1")).ToHaveTextAsync("NoMorePaper");
         Assert.Equal(new Uri(server.BaseAddress, "/"), new Uri(page.Url.Split('?')[0]));
     }
 

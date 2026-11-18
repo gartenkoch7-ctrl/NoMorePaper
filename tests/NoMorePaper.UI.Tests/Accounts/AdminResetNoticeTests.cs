@@ -51,6 +51,36 @@ public sealed class AdminResetNoticeTests(ServerFixture server)
         await Assertions.Expect(page.Locator(".reset-notice")).ToHaveCountAsync(0);
     }
 
+    // Browser mocks: "who am I" reports two resets that were not confirmed yet.
+    [Theory]
+    [InlineData(SupportedCultures.German, "2-mal", "3. November 2026", "Verstanden")]
+    [InlineData(SupportedCultures.English, "2 times", "November 3, 2026", "Got it")]
+    public async Task SeveralResets_AreAllListed_UntilConfirmed(string culture, string count, string laterDay, string button)
+    {
+        var fake = new FakeAccounts
+        {
+            AdminResets = [new DateTimeOffset(2026, 11, 1, 12, 0, 0, TimeSpan.Zero), new DateTimeOffset(2026, 11, 3, 12, 0, 0, TimeSpan.Zero)],
+        };
+        await using var session = await server.OpenAsync("/", culture, signedIn: true, async page =>
+        {
+            await fake.InstallAsync(page, signedIn: true);
+            await fake.Mocks.RespondAsync(page, "POST", "/api/account/acknowledge-reset", 204);
+        });
+        var page = session.Page;
+
+        var notice = page.Locator("main [role=alert].reset-notice-text");
+        await Assertions.Expect(notice).ToContainTextAsync(count);
+        await Assertions.Expect(notice.Locator("li")).ToHaveCountAsync(2);
+        await Assertions.Expect(notice.Locator("li").Nth(1)).ToContainTextAsync(laterDay);
+        await Assertions.Expect(notice).ToBeFocusedAsync();
+        await AxeCheck.NoViolationsAsync(page);
+
+        await page.GetByRole(AriaRole.Button, new() { Name = button, Exact = true }).ClickAsync();
+
+        await Assertions.Expect(notice).ToHaveCountAsync(0);
+        Assert.True(fake.Mocks.WasCalled("POST", "/api/account/acknowledge-reset"));
+    }
+
     [Fact]
     public async Task WithoutAReset_ThereIsNoNotice()
     {

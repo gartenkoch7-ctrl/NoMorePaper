@@ -40,7 +40,7 @@
         // Someone who is signed in already (e.g. a bookmark of this page) has nothing to do here.
         if (Auth.IsSignedIn)
         {
-            Navigation.NavigateTo(SafeTarget(Target), replace: true);
+            Navigation.NavigateTo(SafeTarget(), replace: true);
         }
     }
 
@@ -71,12 +71,8 @@
         await Auth.RefreshAsync();
 
         // The notice about an administrator's reset is on the start page; it comes before the target.
-        Navigation.NavigateTo(Auth.Me?.AdminResetAt is null ? SafeTarget(Target) : "/");
+        Navigation.NavigateTo(Auth.AdminResets.Count == 0 ? SafeTarget() : SignInTarget.Fallback);
     }
 
-    internal static string SafeTarget(string? target) =>
-        !string.IsNullOrEmpty(target) && target[0] == '/' && !target.StartsWith("//", StringComparison.Ordinal)
-        && !target.Contains('\\', StringComparison.Ordinal)
-            ? target
-            : "/";
+    private string SafeTarget() => SignInTarget.Safe(Target, Navigation.BaseUri);
 }
