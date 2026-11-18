@@ -45,7 +45,9 @@ jobs:
           sudo apt-get install -y --no-install-recommends ocrmypdf tesseract-ocr-deu tesseract-ocr-eng img2pdf libheif-examples libheif-plugin-libde265 libheif-plugin-x265 poppler-utils
 
       - name: Test
-        run: dotnet test --solution NoMorePaper.slnx -c Release --no-build --report-xunit-trx
+        # One test project at a time: the real OCR tests (only here, not on Windows) keep the
+        # 2-core runner busy, and a UI test booting the WASM app in parallel missed its 60 s timeout.
+        run: dotnet test --solution NoMorePaper.slnx -c Release --no-build --report-xunit-trx --max-parallel-test-modules 1
 
       # Annotations are readable without signing in, unlike job logs and artifacts.
       - name: Annotate failed tests
