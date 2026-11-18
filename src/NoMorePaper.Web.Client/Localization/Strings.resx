@@ -255,6 +255,15 @@
   <data name="UploadSkippedOne" xml:space="preserve">
     <value>1 Datei wurde nicht hochgeladen, weil höchstens {0} auf einmal gehen. Wähle sie danach noch einmal aus.</value>
   </data>
+  <data name="UploadSkippedListLabel" xml:space="preserve">
+    <value>Nicht hochgeladen:</value>
+  </data>
+  <data name="UploadSkippedNames" xml:space="preserve">
+    <value>Nicht hochgeladen: {0}.</value>
+  </data>
+  <data name="UploadSkippedMore" xml:space="preserve">
+    <value>{0} und {1} weitere</value>
+  </data>
   <data name="ViewerRendererLost" xml:space="preserve">
     <value>Die Darstellung wurde unterbrochen und wird neu aufgebaut.</value>
   </data>

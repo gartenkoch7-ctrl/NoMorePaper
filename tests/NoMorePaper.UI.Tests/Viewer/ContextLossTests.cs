@@ -22,6 +22,41 @@ public sealed class ContextLossTests(ServerFixture server)
 
     private const string RestoreContext = "() => window.loseContextExtension.restoreContext()";
 
+    // Holds the analysis renders (the only ones recording images): page 2 until the context is
+    // back, page 1 until finishPageOneAnalysis(). That one returns whether page 1 was analysed
+    // again, once the analysis is through and the viewer has used or dropped it.
+    private const string HoldAnalyses = """
+        async (url) => {
+          const { openDocument } = await import('/js/viewer/pdf-document.js');
+          const loading = openDocument(url);
+          const proto = Object.getPrototypeOf(await (await loading.promise).getPage(1));
+          await loading.destroy();
+          const canvas = document.querySelector('.viewer-canvas canvas');
+          const restored = new Promise((resolve) => canvas.addEventListener('webglcontextrestored', resolve, { once: true }));
+          let release;
+          const released = new Promise((resolve) => { release = resolve; });
+          let pageOneDone = null;
+          window.finishPageOneAnalysis = async () => {
+            release();
+            if (!pageOneDone) return false;
+            await pageOneDone;
+            await new Promise((resolve) => setTimeout(resolve, 0));
+            return true;
+          };
+          const render = proto.render;
+          proto.render = function (params) {
+            const task = render.call(this, params);
+            if (params.recordImages) {
+              const gate = this.pageNumber === 1 ? released : restored;
+              const done = task.promise.then(async (value) => { await gate; return value; });
+              if (this.pageNumber === 1) pageOneDone = done;
+              Object.defineProperty(task, 'promise', { value: done });
+            }
+            return task;
+          };
+        }
+        """;
+
     [Fact]
     public async Task LostContext_IsAnnounced_AndThePageIsDrawnAgainWhenItIsBack()
     {
@@ -87,10 +122,32 @@ public sealed class ContextLossTests(ServerFixture server)
         BlueBoxColours.AssertShader(colours[0], colours[1]);
     }
 
-    private async Task<ViewerSession> OpenAsync()
+    [Fact]
+    public async Task ContextBackDuringAPageChange_DrawsTheNewPageWithItsOwnAnalysis()
+    {
+        await using var viewer = await OpenAsync(ViewerPdfs.GreyPaperThenBlueBox());
+        var page = viewer.Page;
+        await page.EvaluateAsync(HoldAnalyses, $"api/documents/{viewer.Id}/files/archive");
+        await page.EvaluateAsync(LoseContext);
+        await Assertions.Expect(ViewerPages.Announcement(page)).ToContainTextAsync("Die Darstellung wurde unterbrochen");
+
+        // The page change starts while the context is lost; the restore then re-analyses the
+        // page still shown (page 1), and that analysis finishes only after page 2 is on screen.
+        await page.Locator(ViewerPages.Scroller).FocusAsync();
+        await page.Keyboard.PressAsync("PageDown");
+        await page.EvaluateAsync(RestoreContext);
+        await Assertions.Expect(page.Locator(".viewer-page")).ToHaveTextAsync("Seite 2 von 2");
+        Assert.True(await page.EvaluateAsync<bool>("() => window.finishPageOneAnalysis()"), "Page 1 was not analysed again");
+
+        await NextFrameAsync(page);
+        var colours = await ScreenPixels.ReadAsync(page, ViewerPdfs.BoxPoint, ViewerPdfs.PaperPoint);
+        BlueBoxColours.AssertShader(colours[0], colours[1]);
+    }
+
+    private async Task<ViewerSession> OpenAsync(byte[]? pdf = null)
     {
         // Tall enough that the whole page is inside the screenshot.
-        var viewer = await ViewerPages.OpenAsync(server, SupportedCultures.German, ViewerPdfs.BlueBox(595, 842),
+        var viewer = await ViewerPages.OpenAsync(server, SupportedCultures.German, pdf ?? ViewerPdfs.BlueBox(595, 842),
             prepare: page => page.SetViewportSizeAsync(1280, 1600));
         await ViewerPages.WaitUntilShownAsync(viewer.Page);
         return viewer;

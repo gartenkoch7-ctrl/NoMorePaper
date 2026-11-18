@@ -208,6 +208,11 @@ a {
     font-weight: 700;
 }
 
+/* A notice with a list of names: the symbol stays next to its first line. */
+.upload-skipped {
+    align-items: flex-start;
+}
+
 .doc-table {
     width: 100%;
     border-collapse: collapse;
