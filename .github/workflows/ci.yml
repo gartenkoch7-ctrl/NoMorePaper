@@ -37,6 +37,13 @@ jobs:
           if (-not $script) { throw 'playwright.ps1 not found in UI test build output' }
           & $script.FullName install --with-deps chromium
 
+      # The OCR tests skip themselves without these tools; here they run with the Worker image's packages.
+      # libheif-plugin-libde265 decodes HEIC like the Worker; libheif-plugin-x265 only lets the tests encode a HEIC sample.
+      - name: Install OCR tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends ocrmypdf tesseract-ocr-deu tesseract-ocr-eng img2pdf libheif-examples libheif-plugin-libde265 libheif-plugin-x265 poppler-utils
+
       - name: Test
         run: dotnet test --solution NoMorePaper.slnx -c Release --no-build --report-xunit-trx
 

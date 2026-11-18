@@ -1,6 +1,9 @@
 using Microsoft.AspNetCore.Builder;
+using NoMorePaper.Application.Processing;
 using NoMorePaper.Infrastructure.Composition;
+using NoMorePaper.Infrastructure.Ocr;
 using NoMorePaper.Worker.Heartbeat;
+using NoMorePaper.Worker.Processing;
 using NoMorePaper.Worker.Telemetry;
 
 namespace NoMorePaper.Worker.Composition;
@@ -14,6 +17,11 @@ internal static class WorkerComposition
         builder.Services.AddHostedService<HeartbeatWriter>();
         builder.Services.AddHealthChecks().AddCheck<HeartbeatHealthCheck>("heartbeat");
         builder.AddWorkerTelemetry();
+
+        // OCR runs only in the Worker, whose image contains the tools (Dockerfile.worker).
+        builder.Services.AddSingleton<ExternalProcess>();
+        builder.Services.AddSingleton<IOcrEngine, OcrMyPdfEngine>();
+        builder.Services.AddHostedService<DocumentProcessor>();
 
         return builder;
     }

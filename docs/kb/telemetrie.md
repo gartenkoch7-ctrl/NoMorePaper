@@ -49,6 +49,16 @@ Innerhalb eines Bereichs bekommt jedes Feature einen eigenen Hunderterblock (z. 
 | 2000 | Information | `Worker/Heartbeat/HeartbeatLog` | Heartbeat gestartet, Intervall in s |
 | 2001 | Warning | `Worker/Heartbeat/HeartbeatLog` | Heartbeat nicht geschrieben (nur der erste Fehler eines Ausfalls) |
 | 2002 | Information | `Worker/Heartbeat/HeartbeatLog` | Heartbeat nach einem Ausfall wieder geschrieben |
+| 2100 | Information | `Worker/Processing/ProcessingLog` | Verarbeitung gestartet, Abfrageintervall in s |
+| 2101 | Information | `Worker/Processing/ProcessingLog` | Dokument-Id wird verarbeitet, Versuch Nr. |
+| 2102 | Information | `Worker/Processing/ProcessingLog` | Dokument fertig: Dauer in ms, Seiten, Anzahl erkannter Zeichen |
+| 2103 | Warning | `Worker/Processing/ProcessingLog` | Versuch fehlgeschlagen: technischer Grund (Ausnahmetyp, ggf. Werkzeug + Exit-Code), Zeitpunkt des nächsten Versuchs |
+| 2104 | Error | `Worker/Processing/ProcessingLog` | Dokument endgültig `Failed` nach dem letzten Versuch, technischer Grund |
+| 2105 | Warning | `Worker/Processing/ProcessingLog` | Job konnte nicht geholt werden (nur Ausnahmetyp; nur der erste Fehler eines Ausfalls) |
+| 2106 | Information | `Worker/Processing/ProcessingLog` | Jobs holen klappt nach einem Ausfall wieder |
+| 2107 | Error | `Worker/Processing/ProcessingLog` | Fehlschlag konnte nicht gespeichert werden; der Job läuft nach Ablauf seiner Sperre erneut |
+| 2108 | Information | `Worker/Processing/ProcessingLog` | Verarbeitung durch Herunterfahren abgebrochen; der Job läuft nach Ablauf seiner Sperre erneut |
+| 2109 | Warning | `Worker/Processing/ProcessingLog` | Arbeitskopie im Temp-Ordner nicht gelöscht (nur Ausnahmetyp); nur Platzverlust |
 | 3000 | Information | `Infrastructure/Persistence/PersistenceLog` | Migration beginnt, Anzahl bekannter Migrationen |
 | 3001 | Information | `Infrastructure/Persistence/PersistenceLog` | Schema aktuell, Dauer in ms |
 | 3002 | Error | `Infrastructure/Persistence/PersistenceLog` | Migration fehlgeschlagen |
@@ -60,6 +70,11 @@ Innerhalb eines Bereichs bekommt jedes Feature einen eigenen Hunderterblock (z. 
 | 3201 | Error | `Infrastructure/Documents/DocumentIntakeLog` | Annahme fehlgeschlagen (nur Ausnahmetyp); die Eingangsdatei wurde verworfen |
 | 3202 | Warning | `Infrastructure/Documents/DocumentIntakeLog` | Eingangsdatei nach einem Fehler nicht entfernbar; nur Platzverlust |
 | 3210 | Information | `Infrastructure/Search/SearchLog` | Suche beantwortet: Trefferzahl, Dauer in ms, ob der Ähnlichkeits-Rückfall nötig war (nie die Anfrage) |
+| 3300 | Debug | `Infrastructure/Ocr/OcrLog` | Werkzeug (`ocrmypdf`, `img2pdf`, `heif-convert`, `pdftotext`) beendet: Exit-Code, Dauer in ms |
+| 3301 | Warning | `Infrastructure/Ocr/OcrLog` | Werkzeug hat sein Zeitlimit überschritten und wurde samt Kindprozessen beendet |
+| 3302 | Information | `Infrastructure/Ocr/OcrLog` | Werkzeug wegen Abbruch (Herunterfahren) beendet |
+| 3303 | Information | `Infrastructure/Ocr/OcrLog` | Erkannter Text auf die Höchstlänge (Zeichen) gekürzt |
+| 3304 | Warning | `Infrastructure/Ocr/OcrLog` | OCR-Arbeitsordner nicht gelöscht (nur Ausnahmetyp); nur Platzverlust |
 | 4000 | Information | `Web.Client/Telemetry/WebClientLog` | Kultur (Sprache) angewendet |
 | 4001 | Warning | `Web.Client/Telemetry/WebClientLog` | Gespeicherte Sprache wird nicht unterstützt, Standard wird genommen |
 | 4002 | Warning | `Web.Client/Telemetry/WebClientLog` | Sprachpräferenz nicht lesbar oder nicht speicherbar |
@@ -89,6 +104,7 @@ In WASM gibt es keine `ActivitySource` und kein `Meter` (kein Exporter).
 | `nomorepaper.documents.receive` | `NoMorePaper.Infrastructure` | ein Dokument annehmen: Eingang speichern, Dokument und Auftrag eintragen |
 | `nomorepaper.search.query` | `NoMorePaper.Infrastructure` | eine Suche ausführen (Stämme, ggf. Ähnlichkeits-Rückfall) |
 | `nomorepaper.worker.heartbeat` | `NoMorePaper.Worker` | ein Heartbeat in `worker_heartbeats` schreiben |
+| `nomorepaper.processing.document` | `NoMorePaper.Worker` | ein Verarbeitungsversuch eines Dokuments (OCR, Archiv speichern, abschließen); Tag `nomorepaper.processing.attempt` |
 
 ### Messwerte
 
@@ -99,9 +115,13 @@ In WASM gibt es keine `ActivitySource` und kein `Meter` (kein Exporter).
 | `nomorepaper.documents.received` | Counter | `NoMorePaper.Infrastructure` | angenommene Dokumente |
 | `nomorepaper.search.duration` | Histogramm (ms) | `NoMorePaper.Infrastructure` | Dauer einer Suche |
 | `nomorepaper.storage.stored_bytes` | Counter (By) | `NoMorePaper.Infrastructure` | in die Dokumentablage geschriebene Bytes, Tag `nomorepaper.storage.kind` (`Original`/`Archive`) |
+| `nomorepaper.processing.completed` | Counter | `NoMorePaper.Worker` | erfolgreich verarbeitete Dokumente |
+| `nomorepaper.processing.failed` | Counter | `NoMorePaper.Worker` | fehlgeschlagene Versuche, Tag `nomorepaper.processing.outcome` (`retry`/`failed` = aufgegeben) |
+| `nomorepaper.processing.duration` | Histogram (s) | `NoMorePaper.Worker` | Dauer eines Versuchs, Tag `nomorepaper.processing.outcome` (`done`/`retry`/`failed`) |
 
 ## Health
 - **Server** `/health`: 200, wenn die Datenbank erreichbar ist, sonst 503.
 - **Worker** `/health` (interner Port 8080, nicht veröffentlicht): 200, wenn der letzte Heartbeat
   in der Datenbank höchstens 60 s alt ist (Intervall 15 s). Prüft so Schleife und Datenbank.
-- Docker-Healthchecks rufen beide Endpunkte per `wget` im Container auf (`docker-compose.yml`).
+- Docker-Healthchecks rufen beide Endpunkte im Container auf (`docker-compose.yml`): der Server
+  (Alpine) per `wget`, der Worker (Ubuntu-Image wegen OCRmyPDF) per `curl`.
