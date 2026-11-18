@@ -14,13 +14,13 @@ Playwright + axe-core ab M0.
 ## Aufgaben
 
 ### 1. Build-Konfiguration
-- [ ] `global.json` – SDK `10.0.100`, `rollForward: latestFeature`, Test-Runner MTP
-- [ ] `Directory.Build.props` – `Nullable`, `TreatWarningsAsErrors`, `ImplicitUsings`,
+- [x] `global.json` – SDK `10.0.100`, `rollForward: latestFeature`, Test-Runner MTP
+- [x] `Directory.Build.props` – `Nullable`, `TreatWarningsAsErrors`, `ImplicitUsings`,
       `LangVersion=latest`, `AnalysisLevel=latest-recommended`, `EnforceCodeStyleInBuild`,
       Central Package Management
-- [ ] `Directory.Packages.props` – zentrale Paketversionen
-- [ ] `.editorconfig`, `.gitattributes` (`eol=crlf`, Shell/Hook `eol=lf`), `.gitignore`
-- [ ] `LICENSE` (MIT), `README.md` (Kurzbeschreibung, Start, Badge)
+- [x] `Directory.Packages.props` – zentrale Paketversionen
+- [x] `.editorconfig`, `.gitattributes` (`eol=crlf`, Shell/Hook `eol=lf`), `.gitignore`
+- [x] `LICENSE` (MIT), `README.md` (Kurzbeschreibung, Start, Badge)
 
 ### 2. Projekte (nach [architektur.md](../kb/architektur.md))
 | Projekt | SDK / TFM | Pakete |
@@ -37,59 +37,59 @@ Playwright + axe-core ab M0.
 | `tests/NoMorePaper.Infrastructure.Tests` | `net10.0` | Testcontainers.PostgreSql |
 | `tests/NoMorePaper.UI.Tests` | `net10.0` | Microsoft.Playwright, Deque.AxeCore.Playwright |
 
-- [ ] `NoMorePaper.slnx` mit allen Projekten, Referenzen exakt nach AGENTS.md §2.2
+- [x] `NoMorePaper.slnx` mit allen Projekten, Referenzen exakt nach AGENTS.md §2.2
 
 ### 3. Architekturtests
-- [ ] Domain hängt von keinem anderen Projekt und keinem `Microsoft.EntityFrameworkCore`/`Microsoft.AspNetCore`/`System.Net.Http`/`System.IO`-Dateizugriff ab
-- [ ] Application kennt nur Domain; Infrastructure nicht Server/Worker
-- [ ] Web.Client kennt nur Contracts
-- [ ] Keine Namespaces/Ordner `Services`, `Helpers`, `Utils`
-- [ ] Gegenprobe: absichtlich falsche Referenz → Test rot (danach entfernt)
+- [x] Domain hängt von keinem anderen Projekt und keinem `Microsoft.EntityFrameworkCore`/`Microsoft.AspNetCore`/`System.Net.Http`/`System.IO`-Dateizugriff ab
+- [x] Application kennt nur Domain; Infrastructure nicht Server/Worker
+- [x] Web.Client kennt nur Contracts
+- [x] Keine Namespaces/Ordner `Services`, `Helpers`, `Utils`
+- [x] Gegenprobe: absichtlich falsche Referenz → Test rot (danach entfernt)
 
 ### 4. Laufzeit-Grundgerüst
-- [ ] `AppDbContext` (leer) + erste Migration; Server wendet Migrationen beim Start an
-- [ ] `/health` in Server und Worker (Worker: Heartbeat-Tabelle oder eigener Port)
-- [ ] Telemetrie nach AGENTS.md §2.3: `[LoggerMessage]`-Klassen, `ActivitySource`/`Meter` je
+- [x] `AppDbContext` (leer) + erste Migration; Server wendet Migrationen beim Start an
+- [x] `/health` in Server und Worker (Worker: Heartbeat-Tabelle oder eigener Port)
+- [x] Telemetrie nach AGENTS.md §2.3: `[LoggerMessage]`-Klassen, `ActivitySource`/`Meter` je
       Projekt, OTLP-Export nur wenn `OTEL_EXPORTER_OTLP_ENDPOINT` gesetzt; Katalog
       `docs/kb/telemetrie.md` mit EventId-Bereichen je Projekt
-- [ ] Datenschutz-Grundlage: ASP.NET Data Protection mit persistentem Schlüssel-Volume
+- [x] Datenschutz-Grundlage: ASP.NET Data Protection mit persistentem Schlüssel-Volume
 
 ### 5. Web-App-Grundgerüst (barrierefrei)
-- [ ] MudBlazor-Theme dunkel mit hohem Kontrast (WCAG AAA-Kontrast für Text), große
+- [x] MudBlazor-Theme dunkel mit hohem Kontrast (WCAG AAA-Kontrast für Text), große
       Grundschrift, deutlicher Fokusrahmen, kein Hell-Modus ab Werk
-- [ ] Startseite „NoMorePaper“ mit Sprachumschaltung DE/EN (`IStringLocalizer`, `.resx`)
-- [ ] Landmarks (`header`, `main`, `nav`), Überschriftenhierarchie, „Zum Inhalt springen“-Link
-- [ ] PWA-Manifest und Service Worker (Grundgerüst, noch ohne Offline-Logik)
-- [ ] UI-Tests: Playwright startet den Server, axe-core prüft jede Seite (0 Verstöße),
+- [x] Startseite „NoMorePaper“ mit Sprachumschaltung DE/EN (`IStringLocalizer`, `.resx`)
+- [x] Landmarks (`header`, `main`, `nav`), Überschriftenhierarchie, „Zum Inhalt springen“-Link
+- [x] PWA-Manifest und Service Worker (Grundgerüst, noch ohne Offline-Logik)
+- [x] UI-Tests: Playwright startet den Server, axe-core prüft jede Seite (0 Verstöße),
       Tastaturtest (Tab-Reihenfolge, sichtbarer Fokus)
 
 ### 6. Docker
-- [ ] `Dockerfile` je Server und Worker (Multi-Stage, Nicht-Root-Benutzer)
-- [ ] `docker-compose.yml`: `server` (nur `127.0.0.1`), `worker`, `db` (postgres:17) mit
+- [x] `Dockerfile` je Server und Worker (Multi-Stage, Nicht-Root-Benutzer)
+- [x] `docker-compose.yml`: `server` (nur `127.0.0.1`), `worker`, `db` (postgres:17) mit
       Healthchecks; Volumes `data`, `pgdata`, `dpkeys`; `.env.example` ohne Geheimnisse
-- [ ] Ollama-Container kommt erst mit M1/M3 (nicht in M0)
+- [x] Ollama-Container kommt erst mit M1/M3 (nicht in M0)
 
 ### 7. Qualitätsprüfungen und CI
-- [ ] `scripts/check-file-length.ps1` (Endungen `.cs`, `.razor`, `.ps1`, `.js`, `.css`;
+- [x] `scripts/check-file-length.ps1` (Endungen `.cs`, `.razor`, `.ps1`, `.js`, `.css`;
       generierte Dateien und Migrationen ausgenommen)
-- [ ] `.githooks/pre-commit` ruft die Zeilenprüfung auf
-- [ ] `.github/workflows/ci.yml` auf `ubuntu-latest`: Build, alle Tests (Docker für
+- [x] `.githooks/pre-commit` ruft die Zeilenprüfung auf
+- [x] `.github/workflows/ci.yml` auf `ubuntu-latest`: Build, alle Tests (Docker für
       Testcontainers vorhanden), `playwright install --with-deps chromium`, Zeilenprüfung (pwsh)
 - [ ] Remote `origin` = `https://github.com/gartenkoch7-ctrl/NoMorePaper.git`, Branch `develop`
       von `main`; Push von `main`/`develop` nur mit Freigabe (AGENTS.md §8)
 
 ### 8. Doku
-- [ ] `docs/kb/build-und-tooling.md`: Befehle, MTP, Testcontainers (Docker/Rancher Desktop),
+- [x] `docs/kb/build-und-tooling.md`: Befehle, MTP, Testcontainers (Docker/Rancher Desktop),
       Playwright-Installation
-- [ ] `docs/kb/testumgebung.md`: Rechner, Docker, Browser, Screenreader (VoiceOver/NVDA)
-- [ ] `docs/kb/telemetrie.md`: EventId-Bereiche, Namenskonventionen
-- [ ] AGENTS.md §6 Befehle an die Wirklichkeit anpassen, KB-Index ergänzen
+- [x] `docs/kb/testumgebung.md`: Rechner, Docker, Browser, Screenreader (VoiceOver/NVDA)
+- [x] `docs/kb/telemetrie.md`: EventId-Bereiche, Namenskonventionen
+- [x] AGENTS.md §6 Befehle an die Wirklichkeit anpassen, KB-Index ergänzen
 
 ## Akzeptanzkriterien
-- [ ] Clean Clone → `dotnet build` + `dotnet test --solution NoMorePaper.slnx` grün (Docker läuft)
-- [ ] `docker compose up -d --build` → `server` und `worker` healthy, Web-App erreichbar
-- [ ] axe-core: 0 Verstöße auf allen Seiten; Bedienung nur per Tastatur möglich
-- [ ] Architektur-Gegenprobe erfolgreich
+- [x] Clean Clone → `dotnet build` + `dotnet test --solution NoMorePaper.slnx` grün (Docker läuft)
+- [x] `docker compose up -d --build` → `server` und `worker` healthy, Web-App erreichbar
+- [x] axe-core: 0 Verstöße auf allen Seiten; Bedienung nur per Tastatur möglich
+- [x] Architektur-Gegenprobe erfolgreich
 - [ ] CI auf GitHub grün
 
 ## Parallelisierung

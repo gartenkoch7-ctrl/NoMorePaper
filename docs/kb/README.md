@@ -9,6 +9,7 @@ Thematisch aufgeteilt, damit Agents nur laden, was sie brauchen. Jede Datei blei
 | [architektur.md](architektur.md) | Projekte, Schichten, Ordnerstruktur, Datenfluss |
 | [testumgebung.md](testumgebung.md) | Vorhandene Hardware, Teststrategie, was ungetestet bleibt |
 | [build-und-tooling.md](build-und-tooling.md) | Build, Tests, Analyzer, Werkzeuge |
+| [telemetrie.md](telemetrie.md) | Logs, Abläufe, Messwerte: EventId-Bereiche, Katalog |
 
 Architekturentscheidungen: [../adr/](../adr/) · Roadmap & Meilensteine: [../plan/](../plan/README.md)
 
