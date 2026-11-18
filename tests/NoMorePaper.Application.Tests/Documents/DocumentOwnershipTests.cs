@@ -48,11 +48,29 @@ public sealed class DocumentOwnershipTests
         var privacy = new SetDocumentPrivacy(_documents, _current, log);
         var id = Guid.CreateVersion7();
 
-        Assert.True(await privacy.SetAsync(id, isPrivate: true, Ct));
+        Assert.Equal(PrivacyChange.Changed, await privacy.SetAsync(id, isPrivate: true, Ct));
         Assert.Equal((id, _current.Id, true), _documents.LastPrivacy);
 
         _documents.PrivacyResult = false;
-        Assert.False(await privacy.SetAsync(id, isPrivate: false, Ct));
+        Assert.Equal(PrivacyChange.NotFound, await privacy.SetAsync(id, isPrivate: false, Ct));
         Assert.Equal([5120], log.EventIds);
+    }
+
+    [Fact]
+    public async Task ARemovedAccount_WithAStillValidCookie_ChangesNothing()
+    {
+        _current.Exists = false;
+        var privacyLog = new RecordingLogger<SetDocumentPrivacy>();
+        var receive = new ReceiveDocument(_documents, _storage, TimeProvider.System, _current, NullLogger<ReceiveDocument>.Instance);
+
+        var received = await receive.ReceiveAsync("a.pdf", "application/pdf", new MemoryStream([1]), isPrivate: false, Ct);
+        var privacy = await new SetDocumentPrivacy(_documents, _current, privacyLog).SetAsync(Guid.CreateVersion7(), true, Ct);
+
+        Assert.Null(received);
+        Assert.Empty(_documents.Added);
+        Assert.Empty(_storage.Inbox);
+        Assert.Equal(PrivacyChange.AccountGone, privacy);
+        Assert.Null(_documents.LastPrivacy);
+        Assert.Equal([5113], privacyLog.EventIds);
     }
 }

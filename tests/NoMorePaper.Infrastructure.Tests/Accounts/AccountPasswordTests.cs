@@ -18,16 +18,21 @@ public sealed class AccountPasswordTests(PostgresFixture postgres)
         var admin = await database.AddAdminAsync();
         var member = await database.AddMemberAsync(admin.Id, "stolen-session");
 
-        for (var i = 0; i < 5; i++)
+        for (var i = 0; i < 4; i++)
         {
             var wrong = await database.Store().ChangePasswordAsync(member.Id, "guess-number-" + i, "new-passphrase", Ct);
             Assert.Equal([AccountProblem.CurrentPasswordWrong], wrong.Problems);
         }
 
+        // Like at sign-in, the guess that locks the account is answered with the lockout.
+        var fifth = await database.Store().ChangePasswordAsync(member.Id, "guess-number-5", "new-passphrase", Ct);
         var right = await database.Store().ChangePasswordAsync(member.Id, "member-passphrase", "new-passphrase", Ct);
         var signIn = await database.Store().CheckPasswordAsync("stolen-session", "member-passphrase", Ct);
 
-        Assert.Equal([AccountProblem.CurrentPasswordWrong], right.Problems);
+        Assert.Equal(AccountStatus.LockedOut, fifth.Status);
+        Assert.Equal(AccountStatus.LockedOut, right.Status);
+        Assert.Empty(right.Problems);
+        Assert.InRange(right.LockedUntil!.Value - DateTimeOffset.UtcNow, TimeSpan.FromMinutes(4), AccountRules.LockoutDuration);
         Assert.Equal(PasswordCheckStatus.LockedOut, signIn.Status);
     }
 

@@ -43,13 +43,21 @@ public sealed class ReceiveDocument
     /// <param name="mediaType">The detected type of the content, not what the uploader claimed.</param>
     /// <param name="isPrivate">Whether only the signed-in account, which becomes the owner, may see it.</param>
     /// <param name="cancellationToken">Cancels storing the file; once the file is stored, the commit runs to its end.</param>
-    /// <returns>The id of the new, queued document.</returns>
-    public async Task<Guid> ReceiveAsync(
+    /// <returns>The id of the new, queued document; <c>null</c> if the signed-in account was removed (nothing is stored).</returns>
+    public async Task<Guid?> ReceiveAsync(
         string fileName, string mediaType, Stream content, bool isPrivate, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(content);
         ArgumentException.ThrowIfNullOrWhiteSpace(mediaType);
         using var activity = ApplicationTelemetry.Source.StartActivity("nomorepaper.documents.receive");
+
+        // A member removed in the last minutes still has a valid cookie (ADR-0021); it must not add
+        // documents. Removal right after this check is the same as removal right after the upload.
+        if (!await _current.ExistsAsync(cancellationToken).ConfigureAwait(false))
+        {
+            _logger.AccountGone(_current.Id, "upload");
+            return null;
+        }
 
         var now = _clock.GetUtcNow();
         var cleanName = DocumentNames.FileName(fileName);

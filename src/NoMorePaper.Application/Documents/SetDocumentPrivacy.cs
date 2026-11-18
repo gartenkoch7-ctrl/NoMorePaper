@@ -9,15 +9,20 @@ namespace NoMorePaper.Application.Documents;
 /// </summary>
 public sealed class SetDocumentPrivacy(IDocumentRepository documents, ICurrentAccount current, ILogger<SetDocumentPrivacy> logger)
 {
-    /// <returns><c>false</c> if the document does not exist or belongs to another account.</returns>
-    public async Task<bool> SetAsync(Guid id, bool isPrivate, CancellationToken cancellationToken)
+    public async Task<PrivacyChange> SetAsync(Guid id, bool isPrivate, CancellationToken cancellationToken)
     {
-        var changed = await documents.SetPrivacyAsync(id, current.Id, isPrivate, cancellationToken).ConfigureAwait(false);
-        if (changed)
+        if (!await current.ExistsAsync(cancellationToken).ConfigureAwait(false))
         {
-            logger.PrivacyChanged(id, isPrivate, current.Id);
+            logger.AccountGone(current.Id, "set-privacy");
+            return PrivacyChange.AccountGone;
         }
 
-        return changed;
+        if (!await documents.SetPrivacyAsync(id, current.Id, isPrivate, cancellationToken).ConfigureAwait(false))
+        {
+            return PrivacyChange.NotFound;
+        }
+
+        logger.PrivacyChanged(id, isPrivate, current.Id);
+        return PrivacyChange.Changed;
     }
 }

@@ -129,8 +129,9 @@ public sealed class ReceiveDocumentTests
         Assert.Equal([ReceiveFailed, DiscardFailed], _log.EventIds);
     }
 
-    private Task<Guid> ReceiveAsync(string fileName, bool isPrivate = false) =>
-        Receive().ReceiveAsync(fileName, "application/pdf", new MemoryStream([1, 2, 3]), isPrivate, Ct);
+    private async Task<Guid> ReceiveAsync(string fileName, bool isPrivate = false) =>
+        await Receive().ReceiveAsync(fileName, "application/pdf", new MemoryStream([1, 2, 3]), isPrivate, Ct)
+            ?? throw new InvalidOperationException("The signed-in account exists in these tests.");
 
     private ReceiveDocument Receive() => new(_documents, _storage, new FixedClock(s_now), _current, _log);
 

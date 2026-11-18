@@ -2,6 +2,7 @@ using System.Diagnostics.Metrics;
 using Microsoft.AspNetCore.Http.Features;
 using NoMorePaper.Contracts.Documents;
 using NoMorePaper.Application.Documents;
+using NoMorePaper.Server.Accounts;
 using NoMorePaper.Server.Telemetry;
 
 namespace NoMorePaper.Server.Documents;
@@ -9,10 +10,10 @@ namespace NoMorePaper.Server.Documents;
 /// <summary>
 /// <c>POST /api/documents</c>: checks size and real file type before anything is stored. The uploader
 /// becomes the owner; form field <c>private</c> (<c>true</c>/<c>false</c>) hides it from everybody else.
-/// Errors are ProblemDetails: 400 nothing usable sent, 413 too large, 415 type not allowed. Scoped,
-/// like the <see cref="ReceiveDocument"/> use case it hands the file to.
+/// Errors are ProblemDetails: 400 nothing usable sent, 413 too large, 415 type not allowed, 401 the
+/// account was removed. Scoped, like the <see cref="ReceiveDocument"/> use case it hands the file to.
 /// </summary>
-internal sealed class DocumentUpload(ReceiveDocument receive, ILogger<DocumentUpload> logger)
+internal sealed class DocumentUpload(ReceiveDocument receive, AccountSessions sessions, ILogger<DocumentUpload> logger)
 {
     public const long MaxFileBytes = 100L * 1024 * 1024;
 
@@ -87,7 +88,12 @@ internal sealed class DocumentUpload(ReceiveDocument receive, ILogger<DocumentUp
         var content = file.OpenReadStream();
         await using (content.ConfigureAwait(false))
         {
-            var id = await receive.ReceiveAsync(file.FileName, mediaType, content, isPrivate, cancellationToken).ConfigureAwait(false);
+            var received = await receive.ReceiveAsync(file.FileName, mediaType, content, isPrivate, cancellationToken).ConfigureAwait(false);
+            if (received is not { } id)
+            {
+                return await sessions.EndRemovedAsync(request.HttpContext).ConfigureAwait(false);
+            }
+
             logger.UploadAccepted(id, file.Length, mediaType);
             return Results.Accepted($"/api/documents/{id}", new UploadResultDto(id));
         }

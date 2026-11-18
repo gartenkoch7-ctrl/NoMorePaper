@@ -19,4 +19,7 @@ public enum AccountStatus
 
     /// <summary>User name or emergency code wrong.</summary>
     Unauthorized,
+
+    /// <summary>Too many wrong passwords in a row; see <see cref="AccountResult.LockedUntil"/>.</summary>
+    LockedOut,
 }

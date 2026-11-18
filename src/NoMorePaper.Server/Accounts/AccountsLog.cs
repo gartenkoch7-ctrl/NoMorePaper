@@ -23,4 +23,7 @@ internal static partial class AccountsLog
 
     [LoggerMessage(EventId = 1305, Level = LogLevel.Information, Message = "Session of account {AccountId} ended: the account was removed or signed out everywhere")]
     public static partial void SessionEnded(this ILogger logger, Guid accountId);
+
+    [LoggerMessage(EventId = 1306, Level = LogLevel.Warning, Message = "Password change of account {AccountId} refused: locked for {RetryAfterSeconds} s")]
+    public static partial void PasswordChangeLocked(this ILogger logger, Guid accountId, long retryAfterSeconds);
 }

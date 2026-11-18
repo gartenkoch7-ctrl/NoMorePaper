@@ -59,6 +59,7 @@ und Annahme (3200–3204) sind nach Application umgezogen und haben ihre Nummern
 | 1303 | Warning | `Server/Accounts/AccountsLog` | Anmeldung abgelehnt, Konto gesperrt: Konto-Id, Restsperre in s (`Retry-After`) |
 | 1304 | Information | `Server/Accounts/AccountsLog` | Konto abgemeldet: Konto-Id |
 | 1305 | Information | `Server/Accounts/AccountsLog` | Sitzung beendet, weil das Konto entfernt oder sein Security-Stamp erneuert wurde: Konto-Id |
+| 1306 | Warning | `Server/Accounts/AccountsLog` | Passwortänderung abgelehnt, weil das Konto gesperrt ist (423): Konto-Id, `Retry-After` in Sekunden |
 | 2000 | Information | `Worker/Heartbeat/HeartbeatLog` | Heartbeat gestartet, Intervall in s |
 | 2001 | Warning | `Worker/Heartbeat/HeartbeatLog` | Heartbeat nicht geschrieben (nur der erste Fehler eines Ausfalls) |
 | 2002 | Information | `Worker/Heartbeat/HeartbeatLog` | Heartbeat nach einem Ausfall wieder geschrieben |
@@ -96,6 +97,7 @@ und Annahme (3200–3204) sind nach Application umgezogen und haben ihre Nummern
 | 3304 | Warning | `Infrastructure/Ocr/OcrLog` | OCR-Arbeitsordner nicht gelöscht (nur Ausnahmetyp); nur Platzverlust |
 | 3400 | Information | `Infrastructure/Composition/KeyRingCertificateGuard` | Schlüsselring mit Zertifikat verschlüsselt, Fingerabdruck (kein Geheimnis) |
 | 3401 | Warning | `Infrastructure/Composition/KeyRingCertificateGuard` | Kein Zertifikat konfiguriert, Schlüsselring unverschlüsselt (nur Development) |
+| 3410 | Warning | `Infrastructure/Composition/UnencryptedKeyRevocation` | Unverschlüsselte Schlüssel von vor dem Zertifikat (vor M2) widerrufen: Anzahl; alle Sitzungen enden einmal |
 | 4000 | Information | `Web.Client/Telemetry/WebClientLog` | Kultur (Sprache) angewendet |
 | 4001 | Warning | `Web.Client/Telemetry/WebClientLog` | Gespeicherte Sprache wird nicht unterstützt, Standard wird genommen |
 | 4002 | Warning | `Web.Client/Telemetry/WebClientLog` | Sprachpräferenz nicht lesbar oder nicht speicherbar |
@@ -150,6 +152,7 @@ und Annahme (3200–3204) sind nach Application umgezogen und haben ihre Nummern
 | 5110 | Information | `Application/Accounts/AccountsLog` | „Auf allen Geräten abmelden“: Konto-Id |
 | 5111 | Warning | `Application/Accounts/AccountsLog` | Verwalter-Aktion eines Mitglieds abgelehnt (403): Konto-Id, Aktion (`invite`, `list-members`, `remove-member`, `reset-link`) |
 | 5112 | Information | `Application/Accounts/AccountsLog` | Hinweis auf Zurücksetzen durch den Verwalter bestätigt: Konto-Id |
+| 5113 | Warning | `Application/Accounts/AccountsLog` | Änderung abgelehnt, weil das angemeldete Konto entfernt wurde (Cookie noch nicht geprüft): Konto-Id, Vorgang (`upload`, `set-privacy`, `change-password`, `acknowledge-reset`) |
 | 5120 | Information | `Application/Documents/DocumentPrivacyLog` | Besitzer hat „privat“ umgestellt: Dokument-Id, neuer Wert, Konto-Id |
 
 Web.Client: Die Ereignisse erscheinen nur in der Browser-Konsole und enthalten nur Sprachkürzel,

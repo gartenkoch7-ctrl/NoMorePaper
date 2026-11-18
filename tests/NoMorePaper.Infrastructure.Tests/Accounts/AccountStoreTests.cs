@@ -120,9 +120,12 @@ public sealed class AccountStoreTests(PostgresFixture postgres)
         Assert.NotEqual(member.SecurityStamp, renewed!.SecurityStamp);
         Assert.Equal([AccountProblem.CurrentPasswordWrong], wrong.Problems);
         Assert.NotEqual(renewed.SecurityStamp, changed.Value!.SecurityStamp);
+        Assert.True(await database.Store().ExistsAsync(member.Id, Ct));
         Assert.True(await database.Store().RemoveAsync(member.Id, Ct));
         Assert.False(await database.Store().RemoveAsync(member.Id, Ct));
         Assert.Null(await database.Store().FindAsync(member.Id, Ct));
+        Assert.False(await database.Store().ExistsAsync(member.Id, Ct));
+        Assert.Equal(AccountStatus.NotFound, (await database.Store().ChangePasswordAsync(member.Id, "new-passphrase", "x-passphrase", Ct)).Status);
         Assert.Empty(await database.Db().PasswordResetTokens.ToListAsync(Ct));
         Assert.False(await database.Store().RenewSecurityStampAsync(member.Id, Ct));
         Assert.Equal([admin.Id], (await database.Store().ListAsync(Ct)).Select(account => account.Id));

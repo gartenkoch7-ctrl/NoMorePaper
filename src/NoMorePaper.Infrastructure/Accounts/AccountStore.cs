@@ -9,7 +9,7 @@ namespace NoMorePaper.Infrastructure.Accounts;
 /// <summary>
 /// Accounts in Postgres through ASP.NET Identity. Every change that checks something first runs in
 /// one transaction with a lock, so concurrent requests cannot both pass the check. Invitations and
-/// reset links: <see cref="AccountLinkStore"/>.
+/// reset links: <see cref="AccountLinkStore"/>; forgotten passwords: <see cref="AccountResets"/>.
 /// </summary>
 public sealed class AccountStore : IAccountStore
 {
@@ -20,6 +20,7 @@ public sealed class AccountStore : IAccountStore
     private readonly UserManager<AccountUser> _users;
     private readonly AccountPasswords _passwords;
     private readonly AccountLinkStore _links;
+    private readonly AccountResets _resets;
 
     public AccountStore(AppDbContext db, UserManager<AccountUser> users, TimeProvider clock)
     {
@@ -27,6 +28,7 @@ public sealed class AccountStore : IAccountStore
         _users = users;
         _passwords = new AccountPasswords(db, users);
         _links = new AccountLinkStore(db, clock);
+        _resets = new AccountResets(db, _passwords, _links);
     }
 
     public Task<bool> AnyAccountAsync(CancellationToken cancellationToken) => _db.Users.AnyAsync(cancellationToken);
@@ -80,6 +82,9 @@ public sealed class AccountStore : IAccountStore
         var user = await _db.Users.AsNoTracking().SingleOrDefaultAsync(found => found.Id == id, cancellationToken).ConfigureAwait(false);
         return user is null ? null : IdentityOutcome.ToAccount(user);
     }
+
+    public Task<bool> ExistsAsync(Guid id, CancellationToken cancellationToken) =>
+        _db.Users.AnyAsync(user => user.Id == id, cancellationToken);
 
     public async Task<IReadOnlyList<Account>> ListAsync(CancellationToken cancellationToken)
     {
@@ -171,71 +176,18 @@ public sealed class AccountStore : IAccountStore
     public Task<bool> AddResetTokenAsync(Guid accountId, string tokenHash, DateTimeOffset expiresAt, CancellationToken cancellationToken) =>
         _links.AddResetTokenAsync(accountId, tokenHash, expiresAt, cancellationToken);
 
-    public async Task<AccountResult<Guid>> ResetPasswordAsync(
-        string tokenHash, DateTimeOffset now, string newPassword, CancellationToken cancellationToken)
-    {
-        var transaction = await _db.Database.BeginTransactionAsync(cancellationToken).ConfigureAwait(false);
-        await using (transaction.ConfigureAwait(false))
-        {
-            var userId = await _links.UseResetTokenAsync(tokenHash, now, cancellationToken).ConfigureAwait(false);
-            var user = userId is { } found
-                ? await _passwords.LockByIdAsync(found, cancellationToken).ConfigureAwait(false)
-                : null;
-            if (user is null)
-            {
-                return AccountResult.Fail<Guid>(AccountStatus.NotFound);
-            }
+    public Task<AccountResult<Guid>> ResetPasswordAsync(string tokenHash, DateTimeOffset now, string newPassword, CancellationToken cancellationToken) =>
+        _resets.ResetPasswordAsync(tokenHash, now, newPassword, cancellationToken);
 
-            // On refusal the transaction is rolled back, so the link stays usable for a second try.
-            var problems = await _passwords.ValidateAsync(user, newPassword).ConfigureAwait(false);
-            if (problems.Length > 0)
-            {
-                return AccountResult.Invalid<Guid>(problems);
-            }
+    public Task<IReadOnlyList<AdminReset>> ListAdminResetsAsync(Guid id, CancellationToken cancellationToken) =>
+        _resets.ListAdminResetsAsync(id, cancellationToken);
 
-            // Only this path records it: an own change or the emergency code is no news to the account.
-            user.PasswordResetByAdminAt = now;
-            await _passwords.ApplyAsync(user, newPassword, cancellationToken).ConfigureAwait(false);
-            await transaction.CommitAsync(cancellationToken).ConfigureAwait(false);
-            return AccountResult.Success(user.Id);
-        }
-    }
+    public Task<bool> AcknowledgeAdminResetsAsync(Guid id, DateTimeOffset now, CancellationToken cancellationToken) =>
+        _resets.AcknowledgeAdminResetsAsync(id, now, cancellationToken);
 
-    public async Task<bool> ClearAdminResetAsync(Guid id, CancellationToken cancellationToken) =>
-        await _db.Users
-            .Where(user => user.Id == id)
-            .ExecuteUpdateAsync(setters => setters.SetProperty(user => user.PasswordResetByAdminAt, (DateTimeOffset?)null), cancellationToken)
-            .ConfigureAwait(false) > 0;
-
-    public async Task<AccountResult<Guid>> ResetWithEmergencyCodeAsync(
-        string userName, string codeHash, string newPassword, string newCodeHash, CancellationToken cancellationToken)
-    {
-        var transaction = await _db.Database.BeginTransactionAsync(cancellationToken).ConfigureAwait(false);
-        await using (transaction.ConfigureAwait(false))
-        {
-            var user = await _passwords.LockByNameAsync(userName, cancellationToken).ConfigureAwait(false);
-
-            // Constant-time comparison; an unknown name or an account without code compares against a
-            // placeholder, so every refusal takes the same path.
-            var stored = user?.EmergencyCodeHash;
-            var matches = SecretHash.AreEqual(stored ?? new string('0', SecretHash.Length), codeHash);
-            if (user is null || stored is null || !matches)
-            {
-                return AccountResult.Fail<Guid>(AccountStatus.Unauthorized);
-            }
-
-            var problems = await _passwords.ValidateAsync(user, newPassword).ConfigureAwait(false);
-            if (problems.Length > 0)
-            {
-                return AccountResult.Invalid<Guid>(problems);
-            }
-
-            user.EmergencyCodeHash = newCodeHash;
-            await _passwords.ApplyAsync(user, newPassword, cancellationToken).ConfigureAwait(false);
-            await transaction.CommitAsync(cancellationToken).ConfigureAwait(false);
-            return AccountResult.Success(user.Id);
-        }
-    }
+    public Task<AccountResult<Guid>> ResetWithEmergencyCodeAsync(
+        string userName, string codeHash, string newPassword, string newCodeHash, CancellationToken cancellationToken) =>
+        _resets.ResetWithEmergencyCodeAsync(userName, codeHash, newPassword, newCodeHash, cancellationToken);
 
     private static AccountUser NewUser(NewAccount account, bool isAdmin) => new()
     {

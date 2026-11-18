@@ -64,6 +64,26 @@ public sealed class SessionTests(ApiFixture api)
     }
 
     [Fact]
+    public async Task ChangePassword_WhileLocked_Answers423WithRetryAfter_LikeSignIn()
+    {
+        var (member, _) = await api.CreateMemberAsync("locked-changer", Ct);
+        var statuses = new List<HttpStatusCode>();
+        for (var attempt = 0; attempt < 5; attempt++)
+        {
+            using var wrong = await member.PostAsJsonAsync("/api/account/password", new ChangePasswordDto("falsch-falsch", "neues-passwort"), Ct);
+            statuses.Add(wrong.StatusCode);
+        }
+
+        using var right = await member.PostAsJsonAsync("/api/account/password", new ChangePasswordDto(Password, "neues-passwort"), Ct);
+
+        Assert.Equal([.. Enumerable.Repeat(HttpStatusCode.BadRequest, 4), HttpStatusCode.Locked], statuses);
+        Assert.Equal(HttpStatusCode.Locked, right.StatusCode);
+        Assert.Equal("application/problem+json", right.Content.Headers.ContentType?.MediaType);
+        Assert.InRange(right.Headers.RetryAfter!.Delta!.Value, TimeSpan.FromSeconds(1), TimeSpan.FromMinutes(5));
+        Assert.Equal(HttpStatusCode.OK, (await member.GetAsync("/api/auth/me", Ct)).StatusCode);
+    }
+
+    [Fact]
     public async Task RemovingAMember_EndsItsSessions_AndItCannotSignInAgain()
     {
         var (_, id) = await api.CreateMemberAsync("removed-member", Ct);

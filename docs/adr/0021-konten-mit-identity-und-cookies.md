@@ -21,7 +21,12 @@ Es gibt keine E-Mail-Adressen und keinen Mailversand. Der Zugriff bleibt auf das
   nach Benutzung neu erzeugt.
 - **Passwort vergessen:** Rücksetzlink durch den Verwalter; der Verwalter selbst nutzt den Notfall-Code.
 - **Bekannte Lücke:** Der Verwalter kann per Rücksetzlink ein Konto übernehmen. Das Mitglied wird beim nächsten
-  Anmelden darüber informiert (`users.password_reset_by_admin_at`).
+  Anmelden darüber informiert. Jede Rücksetzung ist eine Zeile in `admin_password_resets`, die nie gelöscht wird;
+  solange eine unbestätigt ist, zeigt der Hinweis alle, damit eine vom Verwalter selbst bestätigte nicht verschwindet.
+- **Besitzer von Dokumenten:** `documents.owner_id` bleibt nullable, ohne Fremdschlüssel. Dokumente, die vor der
+  Einrichtung ankamen (M1), haben keinen Besitzer und müssen trotzdem vom Worker geladen werden; die Einrichtung
+  gibt sie in derselben Transaktion dem Verwalter. Danach hat jedes Dokument einen Besitzer (jeder Upload setzt
+  das angemeldete Konto); geprüft durch einen Test. Kein Fremdschlüssel, weil Dokumente entfernter Mitglieder bleiben.
 
 ## Verworfene Alternativen
 - **Passkeys:** verworfen auf Wunsch des Nutzers (Passwort-Anmeldung).
@@ -32,6 +37,7 @@ Es gibt keine E-Mail-Adressen und keinen Mailversand. Der Zugriff bleibt auf das
 - Keine E-Mail-Adressen, kein Mailversand. Rücksetzung ist nur über den Verwalter oder den Notfall-Code möglich.
 - Der Verwalter ist vertrauenswürdig. Er kann Konten von Mitgliedern übernehmen; das Mitglied wird informiert.
 - Sitzungen, die gesperrt oder entfernt werden, sind bis zu **5 Minuten** lang noch gültig (Prüfintervall des
-  Security-Stamps).
+  Security-Stamps). Ändern kann ein entferntes Konto in dieser Zeit nichts: ändernde Anwendungsfälle fragen
+  vorher, ob das Konto noch existiert (401 sonst).
 - Private Dokumente sind für den Verwalter ebenfalls verborgen. Filterung im SQL, nicht in der Oberfläche.
 - Details: [docs/kb/konten.md](../kb/konten.md).

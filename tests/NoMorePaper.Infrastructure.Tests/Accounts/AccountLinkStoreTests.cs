@@ -67,25 +67,29 @@ public sealed class AccountLinkStoreTests(PostgresFixture postgres)
     }
 
     [Fact]
-    public async Task ResetLink_RecordsWhenItSetThePassword_UntilCleared()
+    public async Task ResetLink_AppendsAReset_ThatAcknowledgingMarksButNeverDeletes()
     {
         await using var database = await AccountDatabase.CreateAsync(postgres, "links_reset_notice");
         var admin = await database.AddAdminAsync();
         var member = await database.AddMemberAsync(admin.Id, "told");
-        var now = new DateTimeOffset(2026, 11, 18, 20, 15, 30, TimeSpan.Zero);
-        Assert.True(await database.Store().AddResetTokenAsync(member.Id, s_reset, now.AddHours(1), Ct));
+        var first = new DateTimeOffset(2026, 11, 18, 20, 15, 30, TimeSpan.Zero);
+        var seen = first.AddMinutes(5);
+        var second = first.AddDays(1);
+        await database.Store().AddResetTokenAsync(member.Id, s_reset, first.AddHours(1), Ct);
 
-        await database.Store().ResetPasswordAsync(s_reset, now, "kurz", Ct);
-        var refused = (await database.Store().FindAsync(member.Id, Ct))!.AdminResetAt;
-        await database.Store().ResetPasswordAsync(s_reset, now, "new-passphrase", Ct);
-        var recorded = (await database.Store().FindAsync(member.Id, Ct))!.AdminResetAt;
-        var cleared = await database.Store().ClearAdminResetAsync(member.Id, Ct);
+        await database.Store().ResetPasswordAsync(s_reset, first, "kurz", Ct);
+        var refused = await database.Store().ListAdminResetsAsync(member.Id, Ct);
+        await database.Store().ResetPasswordAsync(s_reset, first, "new-passphrase", Ct);
+        Assert.True(await database.Store().AcknowledgeAdminResetsAsync(member.Id, seen, Ct));
+        await database.Store().AddResetTokenAsync(member.Id, SecretHash.Of("second"), second.AddHours(1), Ct);
+        await database.Store().ResetPasswordAsync(SecretHash.Of("second"), second, "third-passphrase", Ct);
+        var resets = await database.Store().ListAdminResetsAsync(member.Id, Ct);
 
-        Assert.Null(refused);
-        Assert.Equal(now, recorded);
-        Assert.True(cleared);
-        Assert.Null((await database.Store().FindAsync(member.Id, Ct))!.AdminResetAt);
-        Assert.False(await database.Store().ClearAdminResetAsync(Guid.CreateVersion7(), Ct));
+        Assert.Empty(refused);
+        Assert.Equal([new AdminReset(first, seen), new AdminReset(second, null)], resets);
+        Assert.Equal([first, second], AdminResetNotice.From(resets).Resets);
+        Assert.False(await database.Store().AcknowledgeAdminResetsAsync(Guid.CreateVersion7(), seen, Ct));
+        Assert.Empty(await database.Store().ListAdminResetsAsync(admin.Id, Ct));
     }
 
     [Fact]
