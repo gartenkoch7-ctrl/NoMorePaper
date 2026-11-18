@@ -96,9 +96,6 @@
   <data name="UploadInProgress" xml:space="preserve">
     <value>{0} wird hochgeladen …</value>
   </data>
-  <data name="UploadSuccess" xml:space="preserve">
-    <value>{0} wurde hochgeladen und wartet auf die Verarbeitung.</value>
-  </data>
   <data name="UploadFailed" xml:space="preserve">
     <value>{0} konnte nicht hochgeladen werden. {1}</value>
   </data>
@@ -620,5 +617,17 @@
   </data>
   <data name="ViewerNowShared" xml:space="preserve">
     <value>Das Dokument ist nicht mehr privat.</value>
+  </data>
+  <data name="UploadSuccessPrivate" xml:space="preserve">
+    <value>{0} wurde privat hochgeladen und wartet auf die Verarbeitung.</value>
+  </data>
+  <data name="UploadSuccessShared" xml:space="preserve">
+    <value>{0} wurde geteilt hochgeladen und wartet auf die Verarbeitung.</value>
+  </data>
+  <data name="AdminResetNoticeMany" xml:space="preserve">
+    <value>Dein Passwort wurde {0}-mal über einen Rücksetzlink des Verwalters geändert, an diesen Tagen:</value>
+  </data>
+  <data name="AdminResetNoticeAdvice" xml:space="preserve">
+    <value>Warst du das nicht, sprich mit dem Verwalter.</value>
   </data>
 </root>

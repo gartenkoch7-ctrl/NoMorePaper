@@ -96,9 +96,6 @@
   <data name="UploadInProgress" xml:space="preserve">
     <value>Uploading {0} …</value>
   </data>
-  <data name="UploadSuccess" xml:space="preserve">
-    <value>{0} was uploaded and is waiting to be processed.</value>
-  </data>
   <data name="UploadFailed" xml:space="preserve">
     <value>{0} could not be uploaded. {1}</value>
   </data>
@@ -620,5 +617,17 @@
   </data>
   <data name="ViewerNowShared" xml:space="preserve">
     <value>The document is no longer private.</value>
+  </data>
+  <data name="UploadSuccessPrivate" xml:space="preserve">
+    <value>{0} was uploaded as private and is waiting to be processed.</value>
+  </data>
+  <data name="UploadSuccessShared" xml:space="preserve">
+    <value>{0} was uploaded as shared and is waiting to be processed.</value>
+  </data>
+  <data name="AdminResetNoticeMany" xml:space="preserve">
+    <value>Your password was changed {0} times through a reset link from the administrator, on these days:</value>
+  </data>
+  <data name="AdminResetNoticeAdvice" xml:space="preserve">
+    <value>If that was not you, talk to the administrator.</value>
   </data>
 </root>

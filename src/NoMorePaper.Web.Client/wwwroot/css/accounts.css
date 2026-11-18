@@ -173,3 +173,8 @@
     border: 3px solid var(--nmp-text);
     font-weight: 700;
 }
+
+.reset-notice-text p,
+.reset-notice-dates {
+    margin: 0.25rem 0;
+}

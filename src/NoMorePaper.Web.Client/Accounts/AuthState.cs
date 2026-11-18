@@ -3,21 +3,6 @@ using NoMorePaper.Contracts.Accounts;
 
 namespace NoMorePaper.Web.Client.Accounts;
 
-/// <summary>What the browser knows about its session.</summary>
-public enum SessionStatus
-{
-    /// <summary>Not asked yet.</summary>
-    Unknown,
-    SignedIn,
-    SignedOut,
-
-    /// <summary>No account exists yet: the household must be set up first.</summary>
-    SetupNeeded,
-
-    /// <summary>The server could not be asked (offline, error).</summary>
-    Unavailable,
-}
-
 /// <summary>
 /// The signed-in account for all pages and the layout. Loaded once on demand, refreshed after
 /// sign-in, and reset when the server answers 401. <see cref="Changed"/> lets the layout and the
@@ -29,6 +14,7 @@ public sealed class AuthState : IDisposable
     private readonly SessionSignal _signal;
     private readonly ILogger<AuthState> _logger;
     private Task? _loading;
+    private SignedInAccount? _me;
 
     public AuthState(AccountApi api, SessionSignal signal, ILogger<AuthState> logger)
     {
@@ -42,7 +28,10 @@ public sealed class AuthState : IDisposable
 
     public SessionStatus Status { get; private set; }
 
-    public AccountDto? Me { get; private set; }
+    public AccountDto? Me => _me?.Account;
+
+    /// <summary>Resets by the administrator's link not confirmed yet, oldest first; empty when there is none.</summary>
+    public IReadOnlyList<DateTimeOffset> AdminResets => _me?.AdminResets ?? [];
 
     public bool IsSignedIn => Status == SessionStatus.SignedIn;
 
@@ -70,9 +59,9 @@ public sealed class AuthState : IDisposable
     /// <summary>The notice about the administrator's reset was confirmed: forget it without asking the server.</summary>
     public void MarkAdminResetSeen()
     {
-        if (Me is { AdminResetAt: not null } me)
+        if (_me is { } me && (me.AdminResets.Count > 0 || me.Account.AdminResetAt is not null))
         {
-            Me = me with { AdminResetAt = null };
+            _me = me with { Account = me.Account with { AdminResetAt = null }, AdminResets = [] };
             Changed?.Invoke();
         }
     }
@@ -89,10 +78,10 @@ public sealed class AuthState : IDisposable
         }
     }
 
-    private void Set(SessionStatus status, AccountDto? me)
+    private void Set(SessionStatus status, SignedInAccount? me)
     {
         Status = status;
-        Me = me;
+        _me = me;
         _logger.SessionLoaded(status);
         Changed?.Invoke();
     }

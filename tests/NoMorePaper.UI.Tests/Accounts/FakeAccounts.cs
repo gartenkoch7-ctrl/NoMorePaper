@@ -26,6 +26,9 @@ internal sealed class FakeAccounts
 
     public string? RetryAfterSeconds { get; set; }
 
+    /// <summary>Unconfirmed resets by the administrator's link that "who am I" reports (<c>adminResets</c>).</summary>
+    public IReadOnlyList<DateTimeOffset>? AdminResets { get; init; }
+
     /// <summary>What the server does with a successful setup or accepted invitation: it signs the account in.</summary>
     public void MarkSignedIn() => _signedIn = true;
 
@@ -43,7 +46,7 @@ internal sealed class FakeAccounts
                 Status = _signedIn ? 200 : 401,
                 ContentType = _signedIn ? "application/json" : "application/problem+json",
                 Body = _signedIn
-                    ? JsonSerializer.Serialize(Me, _json)
+                    ? MeJson()
                     : "{}",
             }));
         await Mocks.RespondAsync(page, "POST", "/api/auth/login", LoginStatus, null,
@@ -51,4 +54,9 @@ internal sealed class FakeAccounts
             () => _signedIn = LoginStatus == 204);
         await Mocks.RespondAsync(page, "POST", "/api/auth/logout(-everywhere)?", 204, onCall: () => _signedIn = false);
     }
+
+    // With resets, the answer also carries the oldest one as adminResetAt, as the server does.
+    private string MeJson() => AdminResets is not { Count: > 0 } resets
+        ? JsonSerializer.Serialize(Me, _json)
+        : JsonSerializer.Serialize(new { Me.Id, Me.UserName, Me.DisplayName, Me.IsAdmin, AdminResetAt = resets.Min(), AdminResets = resets }, _json);
 }

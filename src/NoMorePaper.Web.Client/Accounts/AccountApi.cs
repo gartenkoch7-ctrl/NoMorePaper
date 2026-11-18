@@ -1,3 +1,4 @@
+using System.Text.Json;
 using Microsoft.Extensions.Localization;
 using Microsoft.Extensions.Logging;
 using NoMorePaper.Contracts.Accounts;
@@ -14,9 +15,13 @@ namespace NoMorePaper.Web.Client.Accounts;
 public sealed class AccountApi
 {
     private readonly AccountHttp _http;
+    private readonly IStringLocalizer<Strings> _localizer;
 
     public AccountApi(HttpClient http, IStringLocalizer<Strings> localizer, ILogger<AccountApi> logger)
-        => _http = new AccountHttp(http, localizer, logger);
+    {
+        _http = new AccountHttp(http, localizer, logger);
+        _localizer = localizer;
+    }
 
     public Task<ApiResult<SetupStatusDto>> GetSetupAsync(CancellationToken ct = default)
         => _http.SendAsync<SetupStatusDto>(HttpMethod.Get, "api/setup", null, "setup-status", ct);
@@ -31,8 +36,19 @@ public sealed class AccountApi
         => _http.SendAsync<bool>(
             HttpMethod.Post, everywhere ? "api/auth/logout-everywhere" : "api/auth/logout", null, "logout", ct);
 
-    public Task<ApiResult<AccountDto>> GetMeAsync(CancellationToken ct = default)
-        => _http.SendAsync<AccountDto>(HttpMethod.Get, "api/auth/me", null, "me", ct);
+    public async Task<ApiResult<SignedInAccount>> GetMeAsync(CancellationToken ct = default)
+    {
+        // Read as JSON first: the list of administrator resets is taken from it tolerantly.
+        var answer = await _http.SendAsync<JsonElement>(HttpMethod.Get, "api/auth/me", null, "me", ct);
+        if (!answer.IsSuccess)
+        {
+            return new ApiResult<SignedInAccount>(default, answer.Error, answer.Field);
+        }
+
+        return SignedInAccount.Read(answer.Value) is { } me
+            ? new ApiResult<SignedInAccount>(me, null)
+            : new ApiResult<SignedInAccount>(default, _localizer["ErrorUnreachable"]);
+    }
 
     public Task<ApiResult<bool>> ChangePasswordAsync(ChangePasswordDto request, CancellationToken ct = default)
         => _http.SendAsync<bool>(HttpMethod.Post, "api/account/password", request, "change-password", ct);

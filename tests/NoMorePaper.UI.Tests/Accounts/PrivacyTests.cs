@@ -51,10 +51,35 @@ public sealed class PrivacyTests(ServerFixture server)
             MimeType = "application/pdf",
             Buffer = SampleDocuments.MinimalPdf(),
         });
-        await Assertions.Expect(page.Locator("main [role=status]")).ToContainTextAsync("geheim.pdf wurde hochgeladen");
+        await Assertions.Expect(page.Locator("main [role=status]")).ToContainTextAsync("geheim.pdf wurde privat hochgeladen");
+        await Assertions.Expect(page.Locator(".upload-results li")).ToContainTextAsync("geheim.pdf wurde privat hochgeladen");
 
         Assert.NotNull(sent);
         Assert.Matches(new Regex("name=\"?private\"?\\s+true"), sent);
+    }
+
+    // The announcement and the result say which way each file went, in both languages.
+    [Theory]
+    [InlineData(SupportedCultures.German, true, "a.pdf wurde privat hochgeladen")]
+    [InlineData(SupportedCultures.German, false, "a.pdf wurde geteilt hochgeladen")]
+    [InlineData(SupportedCultures.English, true, "a.pdf was uploaded as private")]
+    [InlineData(SupportedCultures.English, false, "a.pdf was uploaded as shared")]
+    public async Task UploadResult_SaysPrivateOrShared(string culture, bool isPrivate, string expected)
+    {
+        await using var session = await server.OpenAsync("/hochladen", culture);
+        var page = session.Page;
+        await ApiMocks.UploadAsync(page, new { id = Guid.NewGuid() });
+
+        await page.Locator("#upload-private").SetCheckedAsync(isPrivate);
+        await page.Locator("#upload-input").SetInputFilesAsync(new FilePayload
+        {
+            Name = "a.pdf",
+            MimeType = "application/pdf",
+            Buffer = SampleDocuments.MinimalPdf(),
+        });
+
+        await Assertions.Expect(page.Locator("main [role=status]")).ToContainTextAsync(expected);
+        await Assertions.Expect(page.Locator(".upload-results li")).ToContainTextAsync(expected);
     }
 
     [Fact]

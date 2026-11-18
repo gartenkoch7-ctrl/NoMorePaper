@@ -7,13 +7,30 @@
 
 @* After the administrator's reset link set the password, the member is told at the next sign-in:
    someone else may have used the link. The text is an alert and takes focus, so a screen reader
-   reads it first; it stays until "Got it" is pressed. *@
-@if (Auth.Me?.AdminResetAt is { } resetAt)
+   reads it first; it stays until "Got it" is pressed. Several resets are each named with date
+   and time, so two on the same day stay apart. *@
+@if (Auth.AdminResets is { Count: > 0 } resets)
 {
     <section class="reset-notice">
         <div class="reset-notice-text" role="alert" tabindex="-1" @ref="_text">
             <MudIcon Icon="@Icons.Material.Filled.Warning" />
-            <span>@L["AdminResetNotice", resetAt.ToLocalTime().ToString("D", CultureInfo.CurrentCulture)]</span>
+            @if (resets.Count == 1)
+            {
+                <span>@L["AdminResetNotice", resets[0].ToLocalTime().ToString("D", CultureInfo.CurrentCulture)]</span>
+            }
+            else
+            {
+                <div>
+                    <p>@L["AdminResetNoticeMany", resets.Count]</p>
+                    <ul class="reset-notice-dates">
+                        @foreach (var resetAt in resets)
+                        {
+                            <li>@resetAt.ToLocalTime().ToString("f", CultureInfo.CurrentCulture)</li>
+                        }
+                    </ul>
+                    <p>@L["AdminResetNoticeAdvice"]</p>
+                </div>
+            }
         </div>
         <MudButton Variant="Variant.Filled" Color="Color.Primary" Disabled="_busy" OnClick="AcknowledgeAsync">@L["AdminResetAcknowledge"]</MudButton>
         <LiveRegion @ref="_error" Assertive="true" Class="form-error" />
@@ -28,7 +45,7 @@
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        if (!_focused && Auth.Me?.AdminResetAt is not null)
+        if (!_focused && Auth.AdminResets.Count > 0)
         {
             _focused = true;
             await _text.FocusAsync();
