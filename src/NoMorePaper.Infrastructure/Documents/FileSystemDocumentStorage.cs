@@ -91,6 +91,15 @@ public sealed class FileSystemDocumentStorage : IDocumentStorage
         return Task.CompletedTask;
     }
 
+    public void DiscardInbox(Guid id)
+    {
+        var folder = _paths.InboxFolder(id);
+        if (Directory.Exists(folder))
+        {
+            Directory.Delete(folder, recursive: true);
+        }
+    }
+
     public Stream OpenRead(Guid id, DocumentFileKind kind)
     {
         var archive = _paths.ArchiveFolder(id);

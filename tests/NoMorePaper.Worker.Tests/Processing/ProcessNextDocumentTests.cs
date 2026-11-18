@@ -7,7 +7,7 @@ using Xunit;
 namespace NoMorePaper.Worker.Tests.Processing;
 
 [Collection(SharedPostgres.Name)]
-public sealed class DocumentProcessorTests(PostgresFixture postgres)
+public sealed class ProcessNextDocumentTests(PostgresFixture postgres)
 {
     private static readonly DateTimeOffset s_start = ProcessorHarness.Start;
 

@@ -1,10 +1,11 @@
 using Microsoft.Extensions.Logging;
 
-namespace NoMorePaper.Infrastructure.Documents;
+namespace NoMorePaper.Application.Documents;
 
 /// <summary>
-/// Log events of document intake (Infrastructure 3200–3299, docs/kb/telemetrie.md).
-/// Only ids, sizes and exception types: no file names or titles.
+/// Log events of document intake (docs/kb/telemetrie.md). The ids 3200–3204 come from the
+/// Infrastructure range, where intake lived in M1, and stay stable. Only ids, sizes and exception
+/// types: no file names or titles.
 /// </summary>
 internal static partial class DocumentIntakeLog
 {

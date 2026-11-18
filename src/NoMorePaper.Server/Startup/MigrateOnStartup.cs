@@ -1,5 +1,5 @@
 using System.Diagnostics;
-using NoMorePaper.Infrastructure.Persistence;
+using NoMorePaper.Application.Persistence;
 using NoMorePaper.Server.Telemetry;
 
 namespace NoMorePaper.Server.Startup;
@@ -22,7 +22,7 @@ internal sealed class MigrateOnStartup(IServiceScopeFactory scopes, TimeProvider
             var scope = scopes.CreateAsyncScope();
             await using (scope.ConfigureAwait(false))
             {
-                var migrator = scope.ServiceProvider.GetRequiredService<DatabaseMigrator>();
+                var migrator = scope.ServiceProvider.GetRequiredService<ISchemaMigrator>();
                 await migrator.MigrateAsync(cancellationToken).ConfigureAwait(false);
             }
         }

@@ -1,4 +1,3 @@
-using NoMorePaper.Infrastructure.Telemetry;
 using OpenTelemetry;
 using OpenTelemetry.Logs;
 using OpenTelemetry.Metrics;
@@ -12,7 +11,8 @@ internal static class ServerTelemetryRegistration
 {
     private const string OtlpEndpointKey = "OTEL_EXPORTER_OTLP_ENDPOINT";
 
-    public static void AddServerTelemetry(this WebApplicationBuilder builder)
+    /// <param name="libraryNames">Activity sources and meters of the libraries the Server runs, named by the composition root.</param>
+    public static void AddServerTelemetry(this WebApplicationBuilder builder, params string[] libraryNames)
     {
         // No endpoint, no exporter: by default nothing leaves the host (AGENTS.md 2.4).
         if (string.IsNullOrWhiteSpace(builder.Configuration[OtlpEndpointKey]))
@@ -20,14 +20,15 @@ internal static class ServerTelemetryRegistration
             return;
         }
 
+        string[] names = [ServerTelemetry.Name, .. libraryNames];
         builder.Services.AddOpenTelemetry()
             .ConfigureResource(resource => resource.AddService("nomorepaper-server"))
             .WithTracing(tracing => tracing
-                .AddSource(ServerTelemetry.Name, InfrastructureTelemetry.Name)
+                .AddSource(names)
                 .AddAspNetCoreInstrumentation(options =>
                     options.Filter = context => !context.Request.Path.StartsWithSegments("/health", StringComparison.Ordinal)))
             .WithMetrics(metrics => metrics
-                .AddMeter(ServerTelemetry.Name, InfrastructureTelemetry.Name)
+                .AddMeter(names)
                 .AddAspNetCoreInstrumentation())
             .WithLogging()
             .UseOtlpExporter();

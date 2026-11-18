@@ -2,6 +2,7 @@ using System.Security.Cryptography;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.Logging.Abstractions;
+using NoMorePaper.Application.Documents;
 using NoMorePaper.Domain.Documents;
 using NoMorePaper.Infrastructure.Documents;
 using NoMorePaper.Infrastructure.Persistence;
@@ -11,7 +12,7 @@ using Xunit;
 namespace NoMorePaper.Infrastructure.Tests.Documents;
 
 [Collection(SharedPostgres.Name)]
-public sealed class DocumentIntakeTests(PostgresFixture postgres) : IDisposable
+public sealed class ReceiveDocumentTests(PostgresFixture postgres) : IDisposable
 {
     private static readonly byte[] s_content = [.. Enumerable.Range(0, 50_000).Select(i => (byte)(i % 241))];
 
@@ -141,12 +142,11 @@ public sealed class DocumentIntakeTests(PostgresFixture postgres) : IDisposable
         Assert.Empty(await db.ProcessingJobs.ToListAsync(Ct));
     }
 
-    private DocumentIntake CreateIntake(AppDbContext db, TimeProvider? clock = null) => new(
-        db,
+    private ReceiveDocument CreateIntake(AppDbContext db, TimeProvider? clock = null) => new(
+        new EfDocumentRepository(db),
         new FileSystemDocumentStorage(_sandbox.FullName, new RecordingDirectorySync(), NullLogger<FileSystemDocumentStorage>.Instance),
         clock ?? TimeProvider.System,
-        _sandbox.FullName,
-        NullLogger<DocumentIntake>.Instance);
+        NullLogger<ReceiveDocument>.Instance);
 
     private string[] InboxFolders()
     {

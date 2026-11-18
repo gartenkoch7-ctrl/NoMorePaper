@@ -9,6 +9,7 @@
     <Project Path="src/NoMorePaper.Worker/NoMorePaper.Worker.csproj" />
   </Folder>
   <Folder Name="/tests/">
+    <Project Path="tests/NoMorePaper.Application.Tests/NoMorePaper.Application.Tests.csproj" />
     <Project Path="tests/NoMorePaper.Architecture.Tests/NoMorePaper.Architecture.Tests.csproj" />
     <Project Path="tests/NoMorePaper.Domain.Tests/NoMorePaper.Domain.Tests.csproj" />
     <Project Path="tests/NoMorePaper.Infrastructure.Tests/NoMorePaper.Infrastructure.Tests.csproj" />

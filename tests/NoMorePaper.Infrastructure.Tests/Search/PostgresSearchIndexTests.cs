@@ -1,4 +1,5 @@
 using Microsoft.Extensions.Logging.Abstractions;
+using NoMorePaper.Application.Search;
 using NoMorePaper.Domain.Documents;
 using NoMorePaper.Infrastructure.Persistence;
 using NoMorePaper.Infrastructure.Search;
@@ -8,7 +9,7 @@ using Xunit;
 namespace NoMorePaper.Infrastructure.Tests.Search;
 
 [Collection(SharedPostgres.Name)]
-public sealed class DocumentSearchTests(PostgresFixture postgres)
+public sealed class PostgresSearchIndexTests(PostgresFixture postgres)
 {
     private static readonly DateTimeOffset s_received = new(2026, 11, 18, 12, 0, 0, TimeSpan.Zero);
 
@@ -137,8 +138,8 @@ public sealed class DocumentSearchTests(PostgresFixture postgres)
         Assert.Equal(5, (await SearchAsync(db, "Rechnung", limit: 5000)).Count);
     }
 
-    private static Task<IReadOnlyList<NoMorePaper.Application.Search.SearchHit>> SearchAsync(AppDbContext db, string query, int limit = 20) =>
-        new DocumentSearch(db, NullLogger<DocumentSearch>.Instance).SearchAsync(query, limit, Ct);
+    private static Task<IReadOnlyList<SearchHit>> SearchAsync(AppDbContext db, string query, int limit = 20) =>
+        new SearchDocuments(new PostgresSearchIndex(db, NullLogger<PostgresSearchIndex>.Instance)).SearchAsync(query, limit, Ct);
 
     private static async Task<Guid> AddAsync(AppDbContext db, string title, string text)
     {

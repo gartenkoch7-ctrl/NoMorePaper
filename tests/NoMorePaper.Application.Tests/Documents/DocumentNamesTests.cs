@@ -1,8 +1,8 @@
+using NoMorePaper.Application.Documents;
 using NoMorePaper.Domain.Documents;
-using NoMorePaper.Infrastructure.Documents;
 using Xunit;
 
-namespace NoMorePaper.Infrastructure.Tests.Documents;
+namespace NoMorePaper.Application.Tests.Documents;
 
 public sealed class DocumentNamesTests
 {

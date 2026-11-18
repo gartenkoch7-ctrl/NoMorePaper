@@ -1,4 +1,5 @@
 using Microsoft.Extensions.Logging.Abstractions;
+using NoMorePaper.Application.Documents;
 using NoMorePaper.Domain.Documents;
 using NoMorePaper.Infrastructure.Documents;
 using NoMorePaper.Infrastructure.Persistence;
@@ -8,7 +9,7 @@ using Xunit;
 namespace NoMorePaper.Infrastructure.Tests.Documents;
 
 [Collection(SharedPostgres.Name)]
-public sealed class DocumentQueriesTests(PostgresFixture postgres)
+public sealed class EfDocumentRepositoryTests(PostgresFixture postgres)
 {
     private const string Sha256 = "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855";
     private static readonly DateTimeOffset s_start = new(2026, 11, 18, 12, 0, 0, TimeSpan.Zero);
@@ -25,7 +26,7 @@ public sealed class DocumentQueriesTests(PostgresFixture postgres)
             ids.Add(await AddAsync(db, $"Dokument {i}", s_start.AddMinutes(i)));
         }
 
-        var queries = new DocumentQueries(db);
+        var queries = new ListDocuments(new EfDocumentRepository(db));
         var first = await queries.ListAsync(1, 2, Ct);
         var second = await queries.ListAsync(2, 2, Ct);
         var last = await queries.ListAsync(3, 2, Ct);
@@ -45,7 +46,7 @@ public sealed class DocumentQueriesTests(PostgresFixture postgres)
             await AddAsync(db, $"Dokument {i}", s_start.AddMinutes(i));
         }
 
-        var queries = new DocumentQueries(db);
+        var queries = new ListDocuments(new EfDocumentRepository(db));
 
         Assert.Single(await queries.ListAsync(0, 0, Ct));
         Assert.Single(await queries.ListAsync(-7, -1, Ct));
@@ -65,7 +66,7 @@ public sealed class DocumentQueriesTests(PostgresFixture postgres)
         await db.SaveChangesAsync(Ct);
 
         await using var read = postgres.CreateContext("queries_get");
-        var detail = await new DocumentQueries(read).GetAsync(id, Ct);
+        var detail = await new GetDocument(new EfDocumentRepository(read)).GetAsync(id, Ct);
 
         Assert.NotNull(detail);
         Assert.Equal((id, "Brief", ProcessingState.Done, null), (detail.Id, detail.Title, detail.State, detail.FailureReason));
@@ -83,7 +84,7 @@ public sealed class DocumentQueriesTests(PostgresFixture postgres)
         document.Fail("OCR timed out");
         await db.SaveChangesAsync(Ct);
 
-        var detail = await new DocumentQueries(db).GetAsync(id, Ct);
+        var detail = await new GetDocument(new EfDocumentRepository(db)).GetAsync(id, Ct);
 
         Assert.Null(detail!.Archive);
         Assert.Equal((ProcessingState.Failed, "OCR timed out"), (detail.State, detail.FailureReason));
@@ -94,7 +95,7 @@ public sealed class DocumentQueriesTests(PostgresFixture postgres)
     {
         await using var db = await MigratedContextAsync("queries_unknown");
 
-        Assert.Null(await new DocumentQueries(db).GetAsync(Guid.CreateVersion7(), Ct));
+        Assert.Null(await new GetDocument(new EfDocumentRepository(db)).GetAsync(Guid.CreateVersion7(), Ct));
     }
 
     private static async Task<Guid> AddAsync(AppDbContext db, string title, DateTimeOffset receivedAt)

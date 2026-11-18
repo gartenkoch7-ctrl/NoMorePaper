@@ -25,13 +25,13 @@ Entscheidungen (Grilling 2026-11-18):
 ## Aufgaben
 
 ### 0. Anwendungsfälle nach Application (Schritt 0)
-- [ ] Ports in Application: `IDocumentRepository` (anlegen inkl. Job, Liste, Detail, Existenz),
+- [x] Ports in Application: `IDocumentRepository` (anlegen inkl. Job, Liste, Detail, Existenz),
       `ISearchIndex`, `IJobQueue` (Claim/Start/Complete/Fail/Release mit `JobClaim`), bestehend
       `IDocumentStorage`, `IOcrEngine`
-- [ ] Anwendungsfälle in Application: `ReceiveDocument`, `ListDocuments`, `GetDocument`,
+- [x] Anwendungsfälle in Application: `ReceiveDocument`, `ListDocuments`, `GetDocument`,
       `SearchDocuments`, `ProcessNextDocument` (heute `Worker/Processing/DocumentPipeline`)
-- [ ] Infrastructure setzt nur noch Ports um; Server-Endpunkte und Worker rufen nur Anwendungsfälle
-- [ ] Architekturtest: Server und Worker referenzieren keine konkreten Infrastructure-Typen außer in
+- [x] Infrastructure setzt nur noch Ports um; Server-Endpunkte und Worker rufen nur Anwendungsfälle
+- [x] Architekturtest: Server und Worker referenzieren keine konkreten Infrastructure-Typen außer in
       `Composition/`; Verhalten unverändert (alle bestehenden Tests grün)
 
 ### 1. Konten und Anmeldung (Backend)

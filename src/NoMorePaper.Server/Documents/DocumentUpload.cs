@@ -1,7 +1,7 @@
 using System.Diagnostics.Metrics;
 using Microsoft.AspNetCore.Http.Features;
 using NoMorePaper.Contracts.Documents;
-using NoMorePaper.Infrastructure.Documents;
+using NoMorePaper.Application.Documents;
 using NoMorePaper.Server.Telemetry;
 
 namespace NoMorePaper.Server.Documents;
@@ -9,9 +9,9 @@ namespace NoMorePaper.Server.Documents;
 /// <summary>
 /// <c>POST /api/documents</c>: checks size and real file type before anything is stored. Errors are
 /// ProblemDetails: 400 nothing usable sent, 413 too large, 415 type not allowed. Scoped, like the
-/// <see cref="DocumentIntake"/> it hands the file to.
+/// <see cref="ReceiveDocument"/> use case it hands the file to.
 /// </summary>
-internal sealed class DocumentUpload(DocumentIntake intake, ILogger<DocumentUpload> logger)
+internal sealed class DocumentUpload(ReceiveDocument receive, ILogger<DocumentUpload> logger)
 {
     public const long MaxFileBytes = 100L * 1024 * 1024;
 
@@ -77,7 +77,7 @@ internal sealed class DocumentUpload(DocumentIntake intake, ILogger<DocumentUplo
         var content = file.OpenReadStream();
         await using (content.ConfigureAwait(false))
         {
-            var id = await intake.ReceiveAsync(file.FileName, mediaType, content, cancellationToken).ConfigureAwait(false);
+            var id = await receive.ReceiveAsync(file.FileName, mediaType, content, cancellationToken).ConfigureAwait(false);
             logger.UploadAccepted(id, file.Length, mediaType);
             return Results.Accepted($"/api/documents/{id}", new UploadResultDto(id));
         }

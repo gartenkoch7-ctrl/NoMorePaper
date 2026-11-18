@@ -1,15 +1,11 @@
 using System.Data.Common;
 using System.Diagnostics;
 using System.Diagnostics.Metrics;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using NoMorePaper.Application.Documents;
+using NoMorePaper.Application.Telemetry;
 using NoMorePaper.Domain.Documents;
-using NoMorePaper.Infrastructure.Persistence;
-using NoMorePaper.Infrastructure.Processing;
-using NoMorePaper.Infrastructure.Telemetry;
 
-namespace NoMorePaper.Infrastructure.Documents;
+namespace NoMorePaper.Application.Documents;
 
 /// <summary>
 /// Accepts a new document: stores the original in the inbox, records document, file and queue entry
@@ -17,25 +13,22 @@ namespace NoMorePaper.Infrastructure.Documents;
 /// file is left that no document refers to. It is only removed once it is certain that no document
 /// refers to it: a lost original is worse than a leftover file.
 /// </summary>
-public sealed class DocumentIntake
+public sealed class ReceiveDocument
 {
-    private static readonly Counter<long> s_received = InfrastructureTelemetry.Meter.CreateCounter<long>(
+    private static readonly Counter<long> s_received = ApplicationTelemetry.Meter.CreateCounter<long>(
         "nomorepaper.documents.received", description: "Documents accepted by the intake");
 
-    private readonly AppDbContext _db;
+    private readonly IDocumentRepository _documents;
     private readonly IDocumentStorage _storage;
     private readonly TimeProvider _clock;
-    private readonly DocumentPaths _paths;
-    private readonly ILogger<DocumentIntake> _logger;
+    private readonly ILogger<ReceiveDocument> _logger;
 
-    /// <param name="dataRoot">The storage root; used only to remove the inbox folder after a failure.</param>
-    public DocumentIntake(
-        AppDbContext db, IDocumentStorage storage, TimeProvider clock, string dataRoot, ILogger<DocumentIntake> logger)
+    public ReceiveDocument(
+        IDocumentRepository documents, IDocumentStorage storage, TimeProvider clock, ILogger<ReceiveDocument> logger)
     {
-        _db = db;
+        _documents = documents;
         _storage = storage;
         _clock = clock;
-        _paths = new DocumentPaths(dataRoot);
         _logger = logger;
     }
 
@@ -47,7 +40,7 @@ public sealed class DocumentIntake
     {
         ArgumentNullException.ThrowIfNull(content);
         ArgumentException.ThrowIfNullOrWhiteSpace(mediaType);
-        using var activity = InfrastructureTelemetry.Source.StartActivity("nomorepaper.documents.receive");
+        using var activity = ApplicationTelemetry.Source.StartActivity("nomorepaper.documents.receive");
 
         var now = _clock.GetUtcNow();
         var cleanName = DocumentNames.FileName(fileName);
@@ -57,13 +50,11 @@ public sealed class DocumentIntake
         {
             var stored = await _storage.SaveInboxAsync(document.Id, cleanName, content, cancellationToken).ConfigureAwait(false);
             document.AttachFile(new DocumentFile(DocumentFileKind.Original, cleanName, mediaType, stored.SizeBytes, stored.Sha256));
-            _db.Documents.Add(document);
-            _db.ProcessingJobs.Add(new ProcessingJob { DocumentId = document.Id, Attempt = 0, NextAttemptAt = now });
 
             // A dropped request must not cancel a commit that may already have reached the database:
             // the caller would see a failure for a document that exists, and its file would be discarded.
             committing = true;
-            await _db.SaveChangesAsync(CancellationToken.None).ConfigureAwait(false);
+            await _documents.AddReceivedAsync(document, CancellationToken.None).ConfigureAwait(false);
 
             s_received.Add(1);
             _logger.Received(document.Id, stored.SizeBytes, mediaType);
@@ -91,8 +82,7 @@ public sealed class DocumentIntake
     {
         try
         {
-            var recorded = await _db.Documents.AsNoTracking()
-                .AnyAsync(d => d.Id == id, CancellationToken.None).ConfigureAwait(false);
+            var recorded = await _documents.ExistsAsync(id, CancellationToken.None).ConfigureAwait(false);
             if (recorded)
             {
                 _logger.KeptRecorded(id);
@@ -111,11 +101,7 @@ public sealed class DocumentIntake
     {
         try
         {
-            var folder = _paths.InboxFolder(id);
-            if (Directory.Exists(folder))
-            {
-                Directory.Delete(folder, recursive: true);
-            }
+            _storage.DiscardInbox(id);
         }
         catch (Exception exception) when (exception is IOException or UnauthorizedAccessException)
         {

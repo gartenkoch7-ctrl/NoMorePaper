@@ -1,7 +1,6 @@
 using NoMorePaper.Application.Documents;
 using NoMorePaper.Contracts.Documents;
 using NoMorePaper.Domain.Documents;
-using NoMorePaper.Infrastructure.Documents;
 
 namespace NoMorePaper.Server.Documents;
 
@@ -25,21 +24,21 @@ internal static class DocumentEndpoints
     }
 
     private static async Task<IResult> ListAsync(
-        DocumentQueries queries, CancellationToken cancellationToken, int page = 1, int pageSize = DefaultPageSize)
+        ListDocuments list, CancellationToken cancellationToken, int page = 1, int pageSize = DefaultPageSize)
     {
-        var documents = await queries.ListAsync(page, pageSize, cancellationToken).ConfigureAwait(false);
+        var documents = await list.ListAsync(page, pageSize, cancellationToken).ConfigureAwait(false);
         return Results.Ok(documents.Select(document => document.ToDto()));
     }
 
-    private static async Task<IResult> GetAsync(Guid id, DocumentQueries queries, CancellationToken cancellationToken)
+    private static async Task<IResult> GetAsync(Guid id, GetDocument get, CancellationToken cancellationToken)
     {
-        var detail = await queries.GetAsync(id, cancellationToken).ConfigureAwait(false);
+        var detail = await get.GetAsync(id, cancellationToken).ConfigureAwait(false);
         return detail is null ? NotFound() : Results.Ok(detail.ToDto());
     }
 
     // The bytes are served as stored: same SHA-256 as at upload, never converted (ADR-0003).
     private static async Task<IResult> DownloadAsync(
-        Guid id, string kind, HttpContext context, DocumentQueries queries, IDocumentStorage storage, CancellationToken cancellationToken)
+        Guid id, string kind, HttpContext context, OpenDocumentFile open, CancellationToken cancellationToken)
     {
         var fileKind = kind.ToLowerInvariant() switch
         {
@@ -52,26 +51,15 @@ internal static class DocumentEndpoints
             return NotFound();
         }
 
-        var detail = await queries.GetAsync(id, cancellationToken).ConfigureAwait(false);
-        var file = fileKind == DocumentFileKind.Original ? detail?.Original : detail?.Archive;
-        if (file is null)
-        {
-            return NotFound();
-        }
-
-        Stream stream;
-        try
-        {
-            stream = storage.OpenRead(id, fileKind.Value);
-        }
-        catch (FileNotFoundException)
+        var opened = await open.OpenAsync(id, fileKind.Value, cancellationToken).ConfigureAwait(false);
+        if (opened is null)
         {
             return NotFound();
         }
 
         // The type was detected from the content at upload; nosniff keeps browsers from second-guessing it.
         context.Response.Headers.XContentTypeOptions = "nosniff";
-        return Results.File(stream, file.MediaType, file.FileName, enableRangeProcessing: true);
+        return Results.File(opened.Content, opened.File.MediaType, opened.File.FileName, enableRangeProcessing: true);
     }
 
     private static IResult NotFound() => Results.Problem(title: "Not found.", statusCode: StatusCodes.Status404NotFound);

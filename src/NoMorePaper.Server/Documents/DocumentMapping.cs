@@ -5,7 +5,7 @@ using NoMorePaper.Domain.Documents;
 
 namespace NoMorePaper.Server.Documents;
 
-/// <summary>Maps the read models of Infrastructure to the Contracts DTOs of the HTTP API. Pure logic.</summary>
+/// <summary>Maps the Application read models to the Contracts DTOs of the HTTP API. Pure logic.</summary>
 internal static class DocumentMapping
 {
     public static DocumentSummaryDto ToDto(this DocumentSummary summary) =>

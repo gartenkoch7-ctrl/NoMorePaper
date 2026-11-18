@@ -1,6 +1,6 @@
-namespace NoMorePaper.Infrastructure.Processing;
+namespace NoMorePaper.Application.Processing;
 
-/// <summary>What <see cref="JobQueue.FailAsync"/> did with a failed attempt.</summary>
+/// <summary>What <see cref="IJobQueue.FailAsync"/> did with a failed attempt.</summary>
 public enum FailureOutcome
 {
     /// <summary>The job runs again at <see cref="RecordedFailure.NextAttemptAt"/>.</summary>

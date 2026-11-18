@@ -1,7 +1,6 @@
 using NoMorePaper.Application.Processing;
 using NoMorePaper.Domain.Documents;
 using NoMorePaper.Infrastructure.Processing;
-using NoMorePaper.Worker.Processing;
 using NoMorePaper.Worker.Tests.Persistence;
 using Xunit;
 
@@ -9,7 +8,7 @@ namespace NoMorePaper.Worker.Tests.Processing;
 
 /// <summary>Attempts that do not end on their own: the Worker stops, or another Worker takes the job over.</summary>
 [Collection(SharedPostgres.Name)]
-public sealed class DocumentProcessorInterruptionTests(PostgresFixture postgres)
+public sealed class ProcessNextDocumentInterruptionTests(PostgresFixture postgres)
 {
     private const int DocumentInterrupted = 2108;
     private const int ClaimLost = 2110;
@@ -111,9 +110,9 @@ public sealed class DocumentProcessorInterruptionTests(PostgresFixture postgres)
     // The attempt outlived its lock, and another Worker claimed the job as attempt 2.
     private static async Task TakeOverAsync(ProcessorHarness harness)
     {
-        harness.Time.Now = ProcessorHarness.Start + DocumentProcessor.LockFor + TimeSpan.FromSeconds(1);
+        harness.Time.Now = ProcessorHarness.Start + ProcessNextDocument.LockFor + TimeSpan.FromSeconds(1);
         await using var db = harness.OtherWorkerContext();
-        var claimed = await new JobQueue(db, harness.Time).ClaimNextAsync(DocumentProcessor.LockFor, Ct);
+        var claimed = await new JobQueue(db, harness.Time).ClaimNextAsync(ProcessNextDocument.LockFor, Ct);
         Assert.Equal(2, claimed?.Attempt);
     }
 }

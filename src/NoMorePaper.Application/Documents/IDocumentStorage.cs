@@ -24,6 +24,14 @@ public interface IDocumentStorage
     /// </summary>
     Task ArchiveOriginalAsync(Guid id, CancellationToken cancellationToken);
 
+    /// <summary>
+    /// Removes what the inbox holds for a document whose intake failed; does nothing when there is
+    /// nothing. Only for originals that no recorded document refers to.
+    /// </summary>
+    /// <exception cref="IOException">The inbox folder could not be removed.</exception>
+    /// <exception cref="UnauthorizedAccessException">The inbox folder could not be removed.</exception>
+    void DiscardInbox(Guid id);
+
     /// <summary>Opens a stored file for reading; the original is found in the archive or, before processing, in the inbox.</summary>
     /// <exception cref="FileNotFoundException">No such file is stored.</exception>
     Stream OpenRead(Guid id, DocumentFileKind kind);

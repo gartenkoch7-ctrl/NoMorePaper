@@ -1,9 +1,7 @@
 using NoMorePaper.Application.Documents;
-using NoMorePaper.Application.Processing;
 using NoMorePaper.Domain.Documents;
-using NoMorePaper.Infrastructure.Processing;
 
-namespace NoMorePaper.Worker.Processing;
+namespace NoMorePaper.Application.Processing;
 
 /// <summary>
 /// One processing attempt of a claimed job: marks the document as processing, runs OCR on a
@@ -11,11 +9,11 @@ namespace NoMorePaper.Worker.Processing;
 /// completes the document. Every database step checks the claim, so a Worker that lost its job to
 /// another one stops without changing it.
 /// </summary>
-internal sealed class DocumentPipeline(IDocumentStorage storage, IOcrEngine ocr)
+internal sealed class ProcessingAttempt(IDocumentStorage storage, IOcrEngine ocr, IWorkingFolder workingFolder)
 {
     /// <param name="work">Empty working folder of this attempt; the caller deletes it.</param>
     /// <returns>The OCR result, or <c>null</c> when the claim was lost and the result is discarded.</returns>
-    public async Task<OcrResult?> RunAsync(JobQueue queue, JobClaim claim, string work, CancellationToken stoppingToken)
+    public async Task<OcrResult?> RunAsync(IJobQueue queue, JobClaim claim, string work, CancellationToken stoppingToken)
     {
         ArgumentNullException.ThrowIfNull(queue);
         ArgumentNullException.ThrowIfNull(claim);
@@ -30,15 +28,11 @@ internal sealed class DocumentPipeline(IDocumentStorage storage, IOcrEngine ocr)
             ?? throw new InvalidOperationException("The document has no original file.");
 
         // The working copy has a fixed name: the received name never reaches a tool's command line.
-        var input = Path.Combine(work, "original");
+        string input;
         var source = storage.OpenRead(id, DocumentFileKind.Original);
         await using (source.ConfigureAwait(false))
         {
-            var copy = File.Create(input);
-            await using (copy.ConfigureAwait(false))
-            {
-                await source.CopyToAsync(copy, stoppingToken).ConfigureAwait(false);
-            }
+            input = await workingFolder.WriteFileAsync(work, "original", source, stoppingToken).ConfigureAwait(false);
         }
 
         var output = Path.Combine(work, "archive.pdf");
@@ -47,7 +41,7 @@ internal sealed class DocumentPipeline(IDocumentStorage storage, IOcrEngine ocr)
         // Files are not guarded by the claim: only a Worker far past its lock (longer than OCR's time
         // limit) could still replace the archive PDF here, and its completion is then rejected.
         StoredFile archive;
-        var pdf = File.OpenRead(output);
+        var pdf = workingFolder.OpenRead(output);
         await using (pdf.ConfigureAwait(false))
         {
             archive = await storage.SaveArchiveAsync(id, DocumentFileKind.Archive, pdf, stoppingToken).ConfigureAwait(false);

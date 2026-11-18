@@ -1,6 +1,6 @@
 using NoMorePaper.Domain.Documents;
 
-namespace NoMorePaper.Infrastructure.Documents;
+namespace NoMorePaper.Application.Documents;
 
 /// <summary>
 /// Turns a name supplied by an uploader into something safe to store and show: no directories, no
