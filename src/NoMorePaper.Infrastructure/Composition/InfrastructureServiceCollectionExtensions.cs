@@ -10,6 +10,7 @@ using NoMorePaper.Application.Documents;
 using NoMorePaper.Infrastructure.Documents;
 using NoMorePaper.Infrastructure.Heartbeat;
 using NoMorePaper.Infrastructure.Persistence;
+using NoMorePaper.Infrastructure.Search;
 
 namespace NoMorePaper.Infrastructure.Composition;
 
@@ -31,6 +32,14 @@ public static class InfrastructureServiceCollectionExtensions
         services.AddSingleton<IDocumentStorage>(provider => new FileSystemDocumentStorage(
             DataPath(configuration),
             provider.GetRequiredService<ILogger<FileSystemDocumentStorage>>()));
+        services.AddScoped(provider => new DocumentIntake(
+            provider.GetRequiredService<AppDbContext>(),
+            provider.GetRequiredService<IDocumentStorage>(),
+            provider.GetRequiredService<TimeProvider>(),
+            DataPath(configuration),
+            provider.GetRequiredService<ILogger<DocumentIntake>>()));
+        services.AddScoped<DocumentQueries>();
+        services.AddScoped<DocumentSearch>();
 
         services.AddDataProtection().SetApplicationName(InfrastructureSettings.DataProtectionApplicationName);
         services.AddOptions<KeyManagementOptions>().Configure<ILoggerFactory>((options, loggerFactory) =>
