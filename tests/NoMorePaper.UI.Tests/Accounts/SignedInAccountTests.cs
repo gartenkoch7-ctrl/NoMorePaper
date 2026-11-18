@@ -51,12 +51,8 @@ public sealed class SignedInAccountTests
     }
 
     [Fact]
-    public void UnreadableEntries_AreSkipped()
-    {
-        var me = Read(""", "adminResets": ["gestern", 7, "2026-11-01T08:00:00+00:00"] """)!;
-
-        Assert.Single(me.AdminResets);
-    }
+    public void UnreadableAnswer_IsNull() =>
+        Assert.Null(Read(""", "adminResets": ["gestern", 7] """));
 
     [Theory]
     [InlineData("null")]
