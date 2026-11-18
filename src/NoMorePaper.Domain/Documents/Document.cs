@@ -15,11 +15,13 @@ public sealed class Document
 
     private readonly List<DocumentFile> _files = [];
 
-    private Document(Guid id, string title, DateTimeOffset receivedAt)
+    private Document(Guid id, string title, DateTimeOffset receivedAt, Guid? ownerId, bool isPrivate)
     {
         Id = id;
         Title = title;
         ReceivedAt = receivedAt;
+        OwnerId = ownerId;
+        IsPrivate = isPrivate;
         State = ProcessingState.Queued;
     }
 
@@ -33,6 +35,15 @@ public sealed class Document
 
     public ProcessingState State { get; private set; }
 
+    /// <summary>
+    /// Account that received the document. <c>null</c> only for documents from before accounts existed
+    /// (M1) until the household is set up, which hands them to the administrator.
+    /// </summary>
+    public Guid? OwnerId { get; private set; }
+
+    /// <summary>A private document is visible to its owner only, not even to the administrator.</summary>
+    public bool IsPrivate { get; private set; }
+
     /// <summary>Recognized text; <c>null</c> until processing is done, empty when the document has no text.</summary>
     public string? ContentText { get; private set; }
 
@@ -42,11 +53,37 @@ public sealed class Document
     public IReadOnlyList<DocumentFile> Files => _files.AsReadOnly();
 
     /// <summary>Creates a queued document; the time comes from the caller's clock.</summary>
-    public static Document Receive(string title, DateTimeOffset receivedAt)
+    /// <param name="ownerId">The account that received it.</param>
+    /// <param name="isPrivate">Whether only <paramref name="ownerId"/> may see it.</param>
+    public static Document Receive(string title, DateTimeOffset receivedAt, Guid ownerId, bool isPrivate)
     {
         RequireTitle(title);
+        if (ownerId == Guid.Empty)
+        {
+            throw new ArgumentException("A document needs an owner.", nameof(ownerId));
+        }
+
         var utc = receivedAt.ToUniversalTime();
-        return new Document(Guid.CreateVersion7(utc), title, utc);
+        return new Document(Guid.CreateVersion7(utc), title, utc, ownerId, isPrivate);
+    }
+
+    /// <summary>Whether the account may see this document: its owner always, everybody else only when it is not private.</summary>
+    public bool IsVisibleTo(Guid accountId) => !IsPrivate || OwnerId == accountId;
+
+    /// <summary>Hides the document from everybody but its owner.</summary>
+    /// <exception cref="InvalidOperationException"><paramref name="actor"/> is not the owner.</exception>
+    public void MakePrivate(Guid actor)
+    {
+        RequireOwner(actor);
+        IsPrivate = true;
+    }
+
+    /// <summary>Shows the document to every member of the household again.</summary>
+    /// <exception cref="InvalidOperationException"><paramref name="actor"/> is not the owner.</exception>
+    public void Share(Guid actor)
+    {
+        RequireOwner(actor);
+        IsPrivate = false;
     }
 
     /// <summary>Returns the file of the given kind, or <c>null</c> if it has not been stored yet.</summary>
@@ -93,6 +130,15 @@ public sealed class Document
         if (!allowed.Contains(State))
         {
             throw new InvalidOperationException($"{operation} is not allowed for document {Id} in state {State}.");
+        }
+    }
+
+    // A document without owner (M1, before setup) has nobody who may change it.
+    private void RequireOwner(Guid actor)
+    {
+        if (OwnerId is not { } owner || owner != actor)
+        {
+            throw new InvalidOperationException($"Only the owner may change who sees document {Id}.");
         }
     }
 

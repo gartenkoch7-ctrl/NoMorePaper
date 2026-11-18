@@ -3,6 +3,7 @@ using NoMorePaper.Application.Search;
 using NoMorePaper.Domain.Documents;
 using NoMorePaper.Infrastructure.Persistence;
 using NoMorePaper.Infrastructure.Search;
+using NoMorePaper.Infrastructure.Tests.Accounts;
 using NoMorePaper.Infrastructure.Tests.Persistence;
 using Xunit;
 
@@ -12,6 +13,7 @@ namespace NoMorePaper.Infrastructure.Tests.Search;
 public sealed class PostgresSearchIndexTests(PostgresFixture postgres)
 {
     private static readonly DateTimeOffset s_received = new(2026, 11, 18, 12, 0, 0, TimeSpan.Zero);
+    private static readonly Guid s_owner = Guid.CreateVersion7();
 
     private static CancellationToken Ct => TestContext.Current.CancellationToken;
 
@@ -83,11 +85,11 @@ public sealed class PostgresSearchIndexTests(PostgresFixture postgres)
     public async Task Search_DoesNotFindDocumentsThatAreNotDone()
     {
         await using var db = await MigratedContextAsync("search_state");
-        db.Documents.Add(Document.Receive("Rechnung", s_received));
-        var processing = Document.Receive("Rechnung in Arbeit", s_received);
+        db.Documents.Add(Document.Receive("Rechnung", s_received, s_owner, isPrivate: false));
+        var processing = Document.Receive("Rechnung in Arbeit", s_received, s_owner, isPrivate: false);
         processing.StartProcessing();
         db.Documents.Add(processing);
-        var failed = Document.Receive("Rechnung kaputt", s_received);
+        var failed = Document.Receive("Rechnung kaputt", s_received, s_owner, isPrivate: false);
         failed.StartProcessing();
         failed.Fail("OCR timed out");
         db.Documents.Add(failed);
@@ -139,11 +141,11 @@ public sealed class PostgresSearchIndexTests(PostgresFixture postgres)
     }
 
     private static Task<IReadOnlyList<SearchHit>> SearchAsync(AppDbContext db, string query, int limit = 20) =>
-        new SearchDocuments(new PostgresSearchIndex(db, NullLogger<PostgresSearchIndex>.Instance)).SearchAsync(query, limit, Ct);
+        new SearchDocuments(new PostgresSearchIndex(db, NullLogger<PostgresSearchIndex>.Instance), new FakeCurrentAccount(s_owner)).SearchAsync(query, limit, Ct);
 
     private static async Task<Guid> AddAsync(AppDbContext db, string title, string text)
     {
-        var document = Document.Receive(title, s_received);
+        var document = Document.Receive(title, s_received, s_owner, isPrivate: false);
         document.StartProcessing();
         document.Complete(text);
         db.Documents.Add(document);

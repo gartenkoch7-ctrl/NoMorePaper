@@ -20,19 +20,22 @@ public sealed class PostgresSearchIndex(AppDbContext db, ILogger<PostgresSearchI
     private static readonly Histogram<double> s_duration = InfrastructureTelemetry.Meter.CreateHistogram<double>(
         "nomorepaper.search.duration", unit: "ms", description: "Time to answer a search");
 
-    /// <returns>Best hits first. Only documents in state <c>Done</c> are searched.</returns>
-    public async Task<IReadOnlyList<SearchHit>> SearchAsync(string text, int limit, CancellationToken cancellationToken)
+    /// <returns>
+    /// Best hits first. Only documents in state <c>Done</c> that <paramref name="viewerId"/> may see are
+    /// searched; the visibility filter is part of the SQL, like everywhere else.
+    /// </returns>
+    public async Task<IReadOnlyList<SearchHit>> SearchAsync(string text, Guid viewerId, int limit, CancellationToken cancellationToken)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(text);
         ArgumentOutOfRangeException.ThrowIfLessThan(limit, 1);
         using var activity = InfrastructureTelemetry.Source.StartActivity("nomorepaper.search.query");
         var started = Stopwatch.GetTimestamp();
 
-        var hits = await StemSearchAsync(text, limit, cancellationToken).ConfigureAwait(false);
+        var hits = await StemSearchAsync(text, viewerId, limit, cancellationToken).ConfigureAwait(false);
         var fallback = hits.Count == 0;
         if (fallback)
         {
-            hits = await SimilaritySearchAsync(text, limit, cancellationToken).ConfigureAwait(false);
+            hits = await SimilaritySearchAsync(text, viewerId, limit, cancellationToken).ConfigureAwait(false);
         }
 
         var elapsed = Stopwatch.GetElapsedTime(started);
@@ -42,16 +45,17 @@ public sealed class PostgresSearchIndex(AppDbContext db, ILogger<PostgresSearchI
     }
 
     // Snippets use the German configuration; they are the start of the text when only the English stem matched.
-    private async Task<List<SearchHit>> StemSearchAsync(string text, int limit, CancellationToken cancellationToken)
+    private async Task<List<SearchHit>> StemSearchAsync(string text, Guid viewerId, int limit, CancellationToken cancellationToken)
     {
         var rows = await db.Database.SqlQuery<SearchRow>($"""
             WITH q AS (SELECT websearch_to_tsquery('german', {text}) || websearch_to_tsquery('english', {text}) AS tsq)
             SELECT d.id AS "Id", d.title AS "Title", d.received_at AS "ReceivedAt",
                    ts_headline('german', d.content_text, q.tsq,
                        'StartSel=, StopSel=, MaxWords=30, MinWords=15, MaxFragments=1') AS "Snippet",
-                   ts_rank(d.search_vector, q.tsq)::float8 AS "Rank"
+                   ts_rank(d.search_vector, q.tsq)::float8 AS "Rank",
+                   d.is_private AS "IsPrivate", d.owner_id IS NOT DISTINCT FROM {viewerId} AS "IsMine"
             FROM documents d CROSS JOIN q
-            WHERE d.state = 'Done' AND d.search_vector @@ q.tsq
+            WHERE d.state = 'Done' AND (d.owner_id = {viewerId} OR NOT d.is_private) AND d.search_vector @@ q.tsq
             ORDER BY "Rank" DESC, d.received_at DESC
             LIMIT {limit}
             """).ToListAsync(cancellationToken).ConfigureAwait(false);
@@ -61,7 +65,7 @@ public sealed class PostgresSearchIndex(AppDbContext db, ILogger<PostgresSearchI
 
     // Only the operator form (<%) can use the trigram index; a word_similarity(...) > x filter reads
     // every row. The operator takes its threshold from the setting, so it is set for this transaction only.
-    private async Task<List<SearchHit>> SimilaritySearchAsync(string text, int limit, CancellationToken cancellationToken)
+    private async Task<List<SearchHit>> SimilaritySearchAsync(string text, Guid viewerId, int limit, CancellationToken cancellationToken)
     {
         var transaction = await db.Database.BeginTransactionAsync(cancellationToken).ConfigureAwait(false);
         await using (transaction.ConfigureAwait(false))
@@ -70,9 +74,10 @@ public sealed class PostgresSearchIndex(AppDbContext db, ILogger<PostgresSearchI
             var rows = await db.Database.SqlQuery<SearchRow>($"""
                 SELECT d.id AS "Id", d.title AS "Title", d.received_at AS "ReceivedAt",
                        left(d.content_text, 200) AS "Snippet",
-                       word_similarity({text}, d.content_text)::float8 AS "Rank"
+                       word_similarity({text}, d.content_text)::float8 AS "Rank",
+                       d.is_private AS "IsPrivate", d.owner_id IS NOT DISTINCT FROM {viewerId} AS "IsMine"
                 FROM documents d
-                WHERE d.state = 'Done' AND {text} <% d.content_text
+                WHERE d.state = 'Done' AND (d.owner_id = {viewerId} OR NOT d.is_private) AND {text} <% d.content_text
                 ORDER BY {text} <<-> d.content_text, d.received_at DESC
                 LIMIT {limit}
                 """).ToListAsync(cancellationToken).ConfigureAwait(false);
@@ -83,5 +88,6 @@ public sealed class PostgresSearchIndex(AppDbContext db, ILogger<PostgresSearchI
     }
 
     private static List<SearchHit> ToHits(List<SearchRow> rows) =>
-        [.. rows.Select(row => new SearchHit(row.Id, row.Title, row.ReceivedAt, row.Snippet ?? string.Empty, row.Rank))];
+        [.. rows.Select(row =>
+            new SearchHit(row.Id, row.Title, row.ReceivedAt, row.Snippet ?? string.Empty, row.Rank, row.IsPrivate, row.IsMine))];
 }

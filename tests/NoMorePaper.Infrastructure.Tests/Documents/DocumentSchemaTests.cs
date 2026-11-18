@@ -13,6 +13,7 @@ public sealed class DocumentSchemaTests(PostgresFixture postgres)
 {
     private const string Sha256 = "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855";
     private static readonly DateTimeOffset s_received = new(2026, 11, 18, 12, 0, 0, TimeSpan.Zero);
+    private static readonly Guid s_owner = Guid.CreateVersion7();
 
     private static CancellationToken Ct => TestContext.Current.CancellationToken;
 
@@ -20,7 +21,7 @@ public sealed class DocumentSchemaTests(PostgresFixture postgres)
     public async Task Document_RoundTripsWithItsFilesAndJob()
     {
         const string database = "documents_roundtrip";
-        var document = Document.Receive("Brief", s_received);
+        var document = Document.Receive("Brief", s_received, s_owner, isPrivate: false);
         document.AttachFile(new DocumentFile(DocumentFileKind.Original, "Scan 1.jpg", "image/jpeg", 1234, Sha256));
         await using (var db = await MigratedContextAsync(database))
         {
@@ -59,7 +60,7 @@ public sealed class DocumentSchemaTests(PostgresFixture postgres)
     public async Task Deleting_ADocument_RemovesItsFilesAndJob()
     {
         await using var db = await MigratedContextAsync("documents_cascade");
-        var document = Document.Receive("Brief", s_received);
+        var document = Document.Receive("Brief", s_received, s_owner, isPrivate: false);
         document.AttachFile(new DocumentFile(DocumentFileKind.Original, "a.pdf", "application/pdf", 1, Sha256));
         db.Documents.Add(document);
         db.ProcessingJobs.Add(new ProcessingJob { DocumentId = document.Id, NextAttemptAt = s_received });
@@ -102,7 +103,7 @@ public sealed class DocumentSchemaTests(PostgresFixture postgres)
 
     private static async Task<Guid> AddDoneDocumentAsync(AppDbContext db, string title, string text)
     {
-        var document = Document.Receive(title, s_received);
+        var document = Document.Receive(title, s_received, s_owner, isPrivate: false);
         document.StartProcessing();
         document.Complete(text);
         db.Documents.Add(document);

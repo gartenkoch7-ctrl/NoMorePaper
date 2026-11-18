@@ -15,6 +15,8 @@ internal sealed class QueueDatabase(PostgresFixture postgres, string database)
 
     public static readonly DateTimeOffset Start = new(2026, 11, 18, 12, 0, 0, TimeSpan.Zero);
 
+    private static readonly Guid s_owner = Guid.CreateVersion7();
+
     public static readonly TimeSpan LockFor = TimeSpan.FromMinutes(15);
 
     public ManualTimeProvider Time { get; } = new(Start);
@@ -36,7 +38,7 @@ internal sealed class QueueDatabase(PostgresFixture postgres, string database)
     public async Task<Guid> AddQueuedDocumentAsync(DateTimeOffset nextAttemptAt, string fileName = "Scan 1.jpg")
     {
         await using var db = Context();
-        var document = Document.Receive("Scan 1", Start);
+        var document = Document.Receive("Scan 1", Start, s_owner, isPrivate: false);
         document.AttachFile(new DocumentFile(DocumentFileKind.Original, fileName, "image/jpeg", 10, Sha256));
         db.Documents.Add(document);
         db.ProcessingJobs.Add(new ProcessingJob { DocumentId = document.Id, NextAttemptAt = nextAttemptAt });

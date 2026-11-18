@@ -6,11 +6,12 @@ namespace NoMorePaper.Domain.Tests.Documents;
 public sealed class DocumentTests
 {
     private static readonly DateTimeOffset s_receivedAt = new(2026, 11, 18, 12, 30, 0, TimeSpan.Zero);
+    private static readonly Guid s_owner = Guid.CreateVersion7();
 
     [Fact]
     public void Receive_CreatesAQueuedDocument_WithAVersion7IdFromTheGivenTime()
     {
-        var document = Document.Receive("Letter", s_receivedAt);
+        var document = Document.Receive("Letter", s_receivedAt, s_owner, isPrivate: false);
 
         Assert.Equal(7, document.Id.Version);
         Assert.Equal(s_receivedAt.ToUnixTimeMilliseconds(), UnixMillisecondsOf(document.Id));
@@ -25,7 +26,7 @@ public sealed class DocumentTests
     [Fact]
     public void Receive_StoresTheTimeInUtc()
     {
-        var document = Document.Receive("Letter", s_receivedAt.ToOffset(TimeSpan.FromHours(1)));
+        var document = Document.Receive("Letter", s_receivedAt.ToOffset(TimeSpan.FromHours(1)), s_owner, isPrivate: false);
 
         Assert.Equal(TimeSpan.Zero, document.ReceivedAt.Offset);
         Assert.Equal(s_receivedAt, document.ReceivedAt);
@@ -35,14 +36,14 @@ public sealed class DocumentTests
     [InlineData("")]
     [InlineData("   ")]
     public void Receive_RejectsAnEmptyTitle(string title) =>
-        Assert.ThrowsAny<ArgumentException>(() => Document.Receive(title, s_receivedAt));
+        Assert.ThrowsAny<ArgumentException>(() => Document.Receive(title, s_receivedAt, s_owner, isPrivate: false));
 
     [Fact]
     public void Receive_RejectsATooLongTitle()
     {
-        Document.Receive(new string('a', Document.MaxTitleLength), s_receivedAt);
+        Document.Receive(new string('a', Document.MaxTitleLength), s_receivedAt, s_owner, isPrivate: false);
 
-        Assert.Throws<ArgumentException>(() => Document.Receive(new string('a', Document.MaxTitleLength + 1), s_receivedAt));
+        Assert.Throws<ArgumentException>(() => Document.Receive(new string('a', Document.MaxTitleLength + 1), s_receivedAt, s_owner, isPrivate: false));
     }
 
     [Fact]
@@ -131,7 +132,7 @@ public sealed class DocumentTests
     [Fact]
     public void AttachFile_AddsOneFilePerKind()
     {
-        var document = Document.Receive("Letter", s_receivedAt);
+        var document = Document.Receive("Letter", s_receivedAt, s_owner, isPrivate: false);
         var original = DocumentFileTests.File(DocumentFileKind.Original);
         var archive = DocumentFileTests.File(DocumentFileKind.Archive);
 
@@ -146,7 +147,7 @@ public sealed class DocumentTests
     [Fact]
     public void AttachFile_RejectsASecondFileOfTheSameKind()
     {
-        var document = Document.Receive("Letter", s_receivedAt);
+        var document = Document.Receive("Letter", s_receivedAt, s_owner, isPrivate: false);
         document.AttachFile(DocumentFileTests.File(DocumentFileKind.Original));
 
         Assert.Throws<InvalidOperationException>(() => document.AttachFile(DocumentFileTests.File(DocumentFileKind.Original)));
@@ -155,11 +156,11 @@ public sealed class DocumentTests
 
     [Fact]
     public void FindFile_IsNull_WhenTheKindIsMissing() =>
-        Assert.Null(Document.Receive("Letter", s_receivedAt).FindFile(DocumentFileKind.Archive));
+        Assert.Null(Document.Receive("Letter", s_receivedAt, s_owner, isPrivate: false).FindFile(DocumentFileKind.Archive));
 
     private static Document Started()
     {
-        var document = Document.Receive("Letter", s_receivedAt);
+        var document = Document.Receive("Letter", s_receivedAt, s_owner, isPrivate: false);
         document.StartProcessing();
         return document;
     }
@@ -168,7 +169,7 @@ public sealed class DocumentTests
     {
         if (state == ProcessingState.Queued)
         {
-            return Document.Receive("Letter", s_receivedAt);
+            return Document.Receive("Letter", s_receivedAt, s_owner, isPrivate: false);
         }
 
         var document = Started();

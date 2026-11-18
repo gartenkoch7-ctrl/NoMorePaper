@@ -3,6 +3,7 @@ using NoMorePaper.Application.Composition;
 using NoMorePaper.Application.Telemetry;
 using NoMorePaper.Infrastructure.Composition;
 using NoMorePaper.Infrastructure.Telemetry;
+using NoMorePaper.Server.Accounts;
 using NoMorePaper.Server.Documents;
 using NoMorePaper.Server.Health;
 using NoMorePaper.Server.Hosting;
@@ -20,7 +21,9 @@ internal static class ServerComposition
     public static WebApplicationBuilder AddServer(this WebApplicationBuilder builder)
     {
         builder.Services.AddInfrastructure(builder.Configuration);
+        builder.Services.AddAccountStore();
         builder.Services.AddApplication();
+        builder.Services.AddServerAccounts();
         builder.Services.AddProblemDetails();
         builder.Services.AddServerForwardedHeaders();
 

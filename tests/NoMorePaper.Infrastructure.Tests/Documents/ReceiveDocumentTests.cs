@@ -6,6 +6,7 @@ using NoMorePaper.Application.Documents;
 using NoMorePaper.Domain.Documents;
 using NoMorePaper.Infrastructure.Documents;
 using NoMorePaper.Infrastructure.Persistence;
+using NoMorePaper.Infrastructure.Tests.Accounts;
 using NoMorePaper.Infrastructure.Tests.Persistence;
 using Xunit;
 
@@ -28,7 +29,7 @@ public sealed class ReceiveDocumentTests(PostgresFixture postgres) : IDisposable
         await using var db = await MigratedContextAsync("intake_ok");
         var intake = CreateIntake(db);
 
-        var id = await intake.ReceiveAsync("Zahnarzt 2026.PDF", "application/pdf", new MemoryStream(s_content), Ct);
+        var id = await intake.ReceiveAsync("Zahnarzt 2026.PDF", "application/pdf", new MemoryStream(s_content), isPrivate: false, Ct);
 
         await using var verify = postgres.CreateContext("intake_ok");
         var document = await verify.Documents.SingleAsync(d => d.Id == id, Ct);
@@ -55,7 +56,7 @@ public sealed class ReceiveDocumentTests(PostgresFixture postgres) : IDisposable
         var now = new DateTimeOffset(2026, 5, 6, 7, 8, 9, TimeSpan.Zero);
         var intake = CreateIntake(db, new FixedClock(now));
 
-        var id = await intake.ReceiveAsync("a.png", "image/png", new MemoryStream(s_content), Ct);
+        var id = await intake.ReceiveAsync("a.png", "image/png", new MemoryStream(s_content), isPrivate: false, Ct);
 
         await using var verify = postgres.CreateContext("intake_clock");
         Assert.Equal(now, (await verify.Documents.SingleAsync(d => d.Id == id, Ct)).ReceivedAt);
@@ -67,7 +68,7 @@ public sealed class ReceiveDocumentTests(PostgresFixture postgres) : IDisposable
     {
         await using var db = await MigratedContextAsync("intake_path");
 
-        var id = await CreateIntake(db).ReceiveAsync("../../outside/secret.pdf", "application/pdf", new MemoryStream(s_content), Ct);
+        var id = await CreateIntake(db).ReceiveAsync("../../outside/secret.pdf", "application/pdf", new MemoryStream(s_content), isPrivate: false, Ct);
 
         Assert.True(File.Exists(Path.Combine(_sandbox.FullName, "inbox", id.ToString(), "original.pdf")));
         Assert.Equal("secret.pdf", (await db.Documents.AsNoTracking().SingleAsync(d => d.Id == id, Ct)).Files.Single().FileName);
@@ -86,7 +87,7 @@ public sealed class ReceiveDocumentTests(PostgresFixture postgres) : IDisposable
             Ct);
 
         await Assert.ThrowsAnyAsync<DbUpdateException>(() =>
-            CreateIntake(db).ReceiveAsync("a.pdf", "application/pdf", new MemoryStream(s_content), Ct));
+            CreateIntake(db).ReceiveAsync("a.pdf", "application/pdf", new MemoryStream(s_content), isPrivate: false, Ct));
 
         Assert.Empty(await db.Documents.AsNoTracking().ToListAsync(Ct));
         Assert.Empty(InboxFolders());
@@ -98,7 +99,7 @@ public sealed class ReceiveDocumentTests(PostgresFixture postgres) : IDisposable
         await using var db = await MigratedContextAsync("intake_applied", new FailAfterSave());
 
         await Assert.ThrowsAsync<OperationCanceledException>(() =>
-            CreateIntake(db).ReceiveAsync("a.pdf", "application/pdf", new MemoryStream(s_content), Ct));
+            CreateIntake(db).ReceiveAsync("a.pdf", "application/pdf", new MemoryStream(s_content), isPrivate: false, Ct));
 
         var document = await db.Documents.AsNoTracking().SingleAsync(Ct);
         Assert.Equal(s_content, await File.ReadAllBytesAsync(Path.Combine(InboxFolders().Single(), "original.pdf"), Ct));
@@ -112,7 +113,7 @@ public sealed class ReceiveDocumentTests(PostgresFixture postgres) : IDisposable
         await using var db = postgres.CreateContext("intake_unmigrated");
 
         await Assert.ThrowsAnyAsync<Exception>(() =>
-            CreateIntake(db).ReceiveAsync("a.pdf", "application/pdf", new MemoryStream(s_content), Ct));
+            CreateIntake(db).ReceiveAsync("a.pdf", "application/pdf", new MemoryStream(s_content), isPrivate: false, Ct));
 
         Assert.Single(InboxFolders());
     }
@@ -123,7 +124,7 @@ public sealed class ReceiveDocumentTests(PostgresFixture postgres) : IDisposable
         using var request = CancellationTokenSource.CreateLinkedTokenSource(Ct);
         await using var db = await MigratedContextAsync("intake_cancel_commit", new CancelBeforeSave(request));
 
-        var id = await CreateIntake(db).ReceiveAsync("a.pdf", "application/pdf", new MemoryStream(s_content), request.Token);
+        var id = await CreateIntake(db).ReceiveAsync("a.pdf", "application/pdf", new MemoryStream(s_content), isPrivate: false, request.Token);
 
         Assert.True(request.IsCancellationRequested);
         Assert.True(await db.ProcessingJobs.AsNoTracking().AnyAsync(j => j.DocumentId == id, Ct));
@@ -136,7 +137,7 @@ public sealed class ReceiveDocumentTests(PostgresFixture postgres) : IDisposable
         await using var db = await MigratedContextAsync("intake_failing_stream");
 
         await Assert.ThrowsAsync<IOException>(() =>
-            CreateIntake(db).ReceiveAsync("a.pdf", "application/pdf", new FailingStream(s_content, 10_000), Ct));
+            CreateIntake(db).ReceiveAsync("a.pdf", "application/pdf", new FailingStream(s_content, 10_000), isPrivate: false, Ct));
 
         Assert.Empty(await db.Documents.ToListAsync(Ct));
         Assert.Empty(await db.ProcessingJobs.ToListAsync(Ct));
@@ -146,6 +147,7 @@ public sealed class ReceiveDocumentTests(PostgresFixture postgres) : IDisposable
         new EfDocumentRepository(db),
         new FileSystemDocumentStorage(_sandbox.FullName, new RecordingDirectorySync(), NullLogger<FileSystemDocumentStorage>.Instance),
         clock ?? TimeProvider.System,
+        new FakeCurrentAccount(Guid.CreateVersion7()),
         NullLogger<ReceiveDocument>.Instance);
 
     private string[] InboxFolders()

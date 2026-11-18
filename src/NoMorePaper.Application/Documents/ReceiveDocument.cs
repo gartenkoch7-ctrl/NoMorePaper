@@ -2,6 +2,7 @@ using System.Data.Common;
 using System.Diagnostics;
 using System.Diagnostics.Metrics;
 using Microsoft.Extensions.Logging;
+using NoMorePaper.Application.Accounts;
 using NoMorePaper.Application.Telemetry;
 using NoMorePaper.Domain.Documents;
 
@@ -21,22 +22,30 @@ public sealed class ReceiveDocument
     private readonly IDocumentRepository _documents;
     private readonly IDocumentStorage _storage;
     private readonly TimeProvider _clock;
+    private readonly ICurrentAccount _current;
     private readonly ILogger<ReceiveDocument> _logger;
 
     public ReceiveDocument(
-        IDocumentRepository documents, IDocumentStorage storage, TimeProvider clock, ILogger<ReceiveDocument> logger)
+        IDocumentRepository documents,
+        IDocumentStorage storage,
+        TimeProvider clock,
+        ICurrentAccount current,
+        ILogger<ReceiveDocument> logger)
     {
         _documents = documents;
         _storage = storage;
         _clock = clock;
+        _current = current;
         _logger = logger;
     }
 
     /// <param name="fileName">Name the file was received with; cleaned here, so callers may pass it unchecked.</param>
     /// <param name="mediaType">The detected type of the content, not what the uploader claimed.</param>
+    /// <param name="isPrivate">Whether only the signed-in account, which becomes the owner, may see it.</param>
     /// <param name="cancellationToken">Cancels storing the file; once the file is stored, the commit runs to its end.</param>
     /// <returns>The id of the new, queued document.</returns>
-    public async Task<Guid> ReceiveAsync(string fileName, string mediaType, Stream content, CancellationToken cancellationToken)
+    public async Task<Guid> ReceiveAsync(
+        string fileName, string mediaType, Stream content, bool isPrivate, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(content);
         ArgumentException.ThrowIfNullOrWhiteSpace(mediaType);
@@ -44,7 +53,7 @@ public sealed class ReceiveDocument
 
         var now = _clock.GetUtcNow();
         var cleanName = DocumentNames.FileName(fileName);
-        var document = Document.Receive(DocumentNames.Title(fileName), now);
+        var document = Document.Receive(DocumentNames.Title(fileName), now, _current.Id, isPrivate);
         var committing = false;
         try
         {

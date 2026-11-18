@@ -1,4 +1,6 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.Extensions.Logging.Abstractions;
 using NoMorePaper.Infrastructure.Persistence;
 using Xunit;
@@ -58,6 +60,23 @@ public sealed class MigrationTests(PostgresFixture postgres)
         Assert.Contains("pg_trgm", extensions);
         Assert.Contains(indexes, definition => definition.Contains("USING gin (search_vector)", StringComparison.Ordinal));
         Assert.Contains(indexes, definition => definition.Contains("USING gin (content_text gin_trgm_ops)", StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public async Task Migrate_FromM1_KeepsDocumentsWithoutOwner_Shared_AndLoadable()
+    {
+        await using var db = postgres.CreateContext("migration_from_m1");
+        await db.GetService<IMigrator>().MigrateAsync("20261118195546_ProcessingJobClaimId", TestContext.Current.CancellationToken);
+        var id = Guid.CreateVersion7();
+        await db.Database.ExecuteSqlAsync(
+            $"INSERT INTO documents (id, title, received_at, state) VALUES ({id}, 'alt', now(), 'Queued')",
+            TestContext.Current.CancellationToken);
+
+        await Migrator(db).MigrateAsync(TestContext.Current.CancellationToken);
+
+        // The Worker loads such documents to process them before the household is set up.
+        var document = await db.Documents.AsNoTracking().SingleAsync(d => d.Id == id, TestContext.Current.CancellationToken);
+        Assert.Equal((null, false), (document.OwnerId, document.IsPrivate));
     }
 
     private static DatabaseMigrator Migrator(AppDbContext db) =>

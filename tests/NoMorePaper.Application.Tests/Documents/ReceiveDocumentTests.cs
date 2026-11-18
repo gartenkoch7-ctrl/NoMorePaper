@@ -1,4 +1,5 @@
 using System.Data.Common;
+using NoMorePaper.Application.Tests.Accounts;
 using NoMorePaper.Application.Documents;
 using NoMorePaper.Domain.Documents;
 using Xunit;
@@ -19,6 +20,7 @@ public sealed class ReceiveDocumentTests
     private readonly FakeDocumentRepository _documents = new();
     private readonly FakeDocumentStorage _storage = new();
     private readonly RecordingLogger<ReceiveDocument> _log = new();
+    private readonly FakeCurrentAccount _current = new();
 
     private static CancellationToken Ct => TestContext.Current.CancellationToken;
 
@@ -42,7 +44,7 @@ public sealed class ReceiveDocumentTests
     {
         using var request = CancellationTokenSource.CreateLinkedTokenSource(Ct);
 
-        await Receive().ReceiveAsync("a.pdf", "application/pdf", new MemoryStream([1]), request.Token);
+        await Receive().ReceiveAsync("a.pdf", "application/pdf", new MemoryStream([1]), isPrivate: false, request.Token);
 
         Assert.False(_documents.AddToken?.CanBeCanceled);
     }
@@ -127,10 +129,10 @@ public sealed class ReceiveDocumentTests
         Assert.Equal([ReceiveFailed, DiscardFailed], _log.EventIds);
     }
 
-    private Task<Guid> ReceiveAsync(string fileName) =>
-        Receive().ReceiveAsync(fileName, "application/pdf", new MemoryStream([1, 2, 3]), Ct);
+    private Task<Guid> ReceiveAsync(string fileName, bool isPrivate = false) =>
+        Receive().ReceiveAsync(fileName, "application/pdf", new MemoryStream([1, 2, 3]), isPrivate, Ct);
 
-    private ReceiveDocument Receive() => new(_documents, _storage, new FixedClock(s_now), _log);
+    private ReceiveDocument Receive() => new(_documents, _storage, new FixedClock(s_now), _current, _log);
 
     private sealed class FixedClock(DateTimeOffset now) : TimeProvider
     {

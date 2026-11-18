@@ -4,23 +4,27 @@ using NoMorePaper.Domain.Documents;
 
 namespace NoMorePaper.Server.Documents;
 
-/// <summary>Routes under <c>/api/documents</c>: upload, list, detail and file download.</summary>
+/// <summary>
+/// Routes under <c>/api/documents</c>, signed in only: upload, list, detail, file download and privacy.
+/// A private document of another account answers 404 everywhere, like one that does not exist.
+/// </summary>
 internal static class DocumentEndpoints
 {
     private const int DefaultPageSize = 50;
 
-    public static IEndpointRouteBuilder MapDocumentEndpoints(this IEndpointRouteBuilder routes)
+    public static RouteGroupBuilder MapDocumentEndpoints(this RouteGroupBuilder api)
     {
-        var group = routes.MapGroup("/api/documents");
+        var group = api.MapGroup("/documents");
 
-        // No antiforgery: the form is bound by hand, the API has no cookies or sessions to ride on, and
-        // CrossSiteRequestGuard refuses posts from other sites.
+        // No antiforgery token: the form is bound by hand, the sign-in cookie is SameSite=Strict, and
+        // CrossSiteRequestGuard refuses changing requests from other sites.
         group.MapPost("/", (HttpRequest request, DocumentUpload upload, CancellationToken cancellationToken) =>
             upload.HandleAsync(request, cancellationToken));
         group.MapGet("/", ListAsync);
         group.MapGet("/{id:guid}", GetAsync);
         group.MapGet("/{id:guid}/files/{kind}", DownloadAsync);
-        return routes;
+        group.MapPatch("/{id:guid}", SetPrivacyAsync);
+        return api;
     }
 
     private static async Task<IResult> ListAsync(
@@ -61,6 +65,10 @@ internal static class DocumentEndpoints
         context.Response.Headers.XContentTypeOptions = "nosniff";
         return Results.File(opened.Content, opened.File.MediaType, opened.File.FileName, enableRangeProcessing: true);
     }
+
+    private static async Task<IResult> SetPrivacyAsync(
+        Guid id, DocumentPrivacyDto body, SetDocumentPrivacy privacy, CancellationToken cancellationToken) =>
+        await privacy.SetAsync(id, body.IsPrivate, cancellationToken).ConfigureAwait(false) ? Results.NoContent() : NotFound();
 
     private static IResult NotFound() => Results.Problem(title: "Not found.", statusCode: StatusCodes.Status404NotFound);
 }

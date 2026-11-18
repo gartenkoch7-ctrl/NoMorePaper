@@ -1,7 +1,12 @@
+using NoMorePaper.Application.Accounts;
+
 namespace NoMorePaper.Application.Search;
 
-/// <summary>Searches the finished documents; the query is plain text, never SQL or query syntax.</summary>
-public sealed class SearchDocuments(ISearchIndex index)
+/// <summary>
+/// Searches the finished documents the signed-in account may see; the query is plain text, never SQL
+/// or query syntax.
+/// </summary>
+public sealed class SearchDocuments(ISearchIndex index, ICurrentAccount current)
 {
     public const int MaxLimit = 50;
 
@@ -15,7 +20,7 @@ public sealed class SearchDocuments(ISearchIndex index)
         var text = Normalize(query);
         return text.Length == 0
             ? Task.FromResult<IReadOnlyList<SearchHit>>([])
-            : index.SearchAsync(text, Math.Clamp(limit, 1, MaxLimit), cancellationToken);
+            : index.SearchAsync(text, current.Id, Math.Clamp(limit, 1, MaxLimit), cancellationToken);
     }
 
     // NUL cannot be stored in Postgres text and would fail the whole request.

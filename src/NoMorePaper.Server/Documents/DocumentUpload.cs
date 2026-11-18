@@ -7,9 +7,10 @@ using NoMorePaper.Server.Telemetry;
 namespace NoMorePaper.Server.Documents;
 
 /// <summary>
-/// <c>POST /api/documents</c>: checks size and real file type before anything is stored. Errors are
-/// ProblemDetails: 400 nothing usable sent, 413 too large, 415 type not allowed. Scoped, like the
-/// <see cref="ReceiveDocument"/> use case it hands the file to.
+/// <c>POST /api/documents</c>: checks size and real file type before anything is stored. The uploader
+/// becomes the owner; form field <c>private</c> (<c>true</c>/<c>false</c>) hides it from everybody else.
+/// Errors are ProblemDetails: 400 nothing usable sent, 413 too large, 415 type not allowed. Scoped,
+/// like the <see cref="ReceiveDocument"/> use case it hands the file to.
 /// </summary>
 internal sealed class DocumentUpload(ReceiveDocument receive, ILogger<DocumentUpload> logger)
 {
@@ -19,6 +20,9 @@ internal sealed class DocumentUpload(ReceiveDocument receive, ILogger<DocumentUp
     public const long MaxRequestBytes = MaxFileBytes + (1024 * 1024);
 
     public const string FormField = "file";
+
+    /// <summary>Optional form field: <c>true</c> keeps the document visible to the uploader only.</summary>
+    public const string PrivateField = "private";
 
     private static readonly Counter<long> s_rejected = ServerTelemetry.Meter.CreateCounter<long>(
         "nomorepaper.upload.rejected", description: "Uploads refused, by reason");
@@ -56,6 +60,12 @@ internal sealed class DocumentUpload(ReceiveDocument receive, ILogger<DocumentUp
             return Reject("malformed", StatusCodes.Status400BadRequest, "The upload could not be read.", 0);
         }
 
+        // Anything but true or false is refused: a typo must not silently share a private document.
+        if (!TryReadPrivate(form, out var isPrivate))
+        {
+            return Reject("malformed", StatusCodes.Status400BadRequest, "Field 'private' must be true or false.", 0);
+        }
+
         if (form.Files.GetFile(FormField) is not { Length: > 0 } file)
         {
             return Reject("empty", StatusCodes.Status400BadRequest, "No file was sent, or it is empty.", 0);
@@ -77,10 +87,23 @@ internal sealed class DocumentUpload(ReceiveDocument receive, ILogger<DocumentUp
         var content = file.OpenReadStream();
         await using (content.ConfigureAwait(false))
         {
-            var id = await receive.ReceiveAsync(file.FileName, mediaType, content, cancellationToken).ConfigureAwait(false);
+            var id = await receive.ReceiveAsync(file.FileName, mediaType, content, isPrivate, cancellationToken).ConfigureAwait(false);
             logger.UploadAccepted(id, file.Length, mediaType);
             return Results.Accepted($"/api/documents/{id}", new UploadResultDto(id));
         }
+    }
+
+    private static bool TryReadPrivate(IFormCollection form, out bool isPrivate)
+    {
+        var values = form[PrivateField];
+        if (values.Count == 0)
+        {
+            isPrivate = false;
+            return true;
+        }
+
+        isPrivate = false;
+        return values.Count == 1 && bool.TryParse(values[0], out isPrivate);
     }
 
     private static async Task<string?> DetectAsync(IFormFile file, CancellationToken cancellationToken)

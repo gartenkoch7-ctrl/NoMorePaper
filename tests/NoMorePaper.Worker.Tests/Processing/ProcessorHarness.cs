@@ -22,6 +22,8 @@ internal sealed class ProcessorHarness : IAsyncDisposable
 
     public static readonly DateTimeOffset Start = new(2026, 11, 18, 12, 0, 0, TimeSpan.Zero);
 
+    private static readonly Guid s_owner = Guid.CreateVersion7();
+
     private readonly PostgresFixture _postgres;
     private readonly string _database;
     private readonly ServiceProvider _services;
@@ -73,7 +75,7 @@ internal sealed class ProcessorHarness : IAsyncDisposable
     /// <returns>The id of the new document.</returns>
     public async Task<Guid> AddQueuedDocumentAsync(int attemptsSoFar = 0)
     {
-        var document = Document.Receive("Scan 1", Start);
+        var document = Document.Receive("Scan 1", Start, s_owner, isPrivate: false);
         using var content = new MemoryStream("%PDF-1.7 original"u8.ToArray());
         var stored = await Storage.SaveInboxAsync(document.Id, FileName, content, Ct);
         document.AttachFile(new DocumentFile(DocumentFileKind.Original, FileName, "application/pdf", stored.SizeBytes, stored.Sha256));
