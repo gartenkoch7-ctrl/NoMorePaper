@@ -61,6 +61,8 @@ services:
       context: .
       dockerfile: Dockerfile.worker
     image: nomorepaper-worker:local
+    # /tmp is RAM here too: working copies and the OCR tools' temporary files go to /data/tmp on
+    # the data volume instead (docs/kb/verarbeitung.md); the Worker creates and cleans it.
     environment:
       ConnectionStrings__NoMorePaper: Host=db;Port=5432;Database=nomorepaper;Username=nomorepaper;Password=${POSTGRES_PASSWORD};GSS Encryption Mode=Disable
       OTEL_EXPORTER_OTLP_ENDPOINT: ${OTEL_EXPORTER_OTLP_ENDPOINT:-}
@@ -70,7 +72,8 @@ services:
         # The Server applies the migrations; a healthy Server means the schema is current.
         condition: service_healthy
     healthcheck:
-      test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://127.0.0.1:8080/health"]
+      # The Worker image is Ubuntu-based and has curl instead of wget (Dockerfile.worker).
+      test: ["CMD", "curl", "-fsS", "-o", "/dev/null", "http://127.0.0.1:8080/health"]
       interval: 10s
       timeout: 5s
       retries: 5

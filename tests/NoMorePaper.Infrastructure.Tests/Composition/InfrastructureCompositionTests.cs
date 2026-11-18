@@ -2,7 +2,9 @@ using Microsoft.AspNetCore.DataProtection;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using NoMorePaper.Application.Documents;
 using NoMorePaper.Infrastructure.Composition;
+using NoMorePaper.Infrastructure.Documents;
 using NoMorePaper.Infrastructure.Persistence;
 using Xunit;
 
@@ -58,6 +60,46 @@ public sealed class InfrastructureCompositionTests
         var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
 
         Assert.Contains("late", db.Database.GetConnectionString(), StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public async Task DocumentStorage_WritesBelowTheConfiguredDataPath()
+    {
+        var data = Directory.CreateTempSubdirectory("nomorepaper-data-");
+        try
+        {
+            using var provider = Provider(Configuration(new() { [InfrastructureSettings.DataPathKey] = data.FullName }));
+            var storage = provider.GetRequiredService<IDocumentStorage>();
+            var id = Guid.CreateVersion7();
+
+            await storage.SaveInboxAsync(id, "a.pdf", new MemoryStream([1]), TestContext.Current.CancellationToken);
+
+            Assert.True(File.Exists(Path.Combine(data.FullName, "inbox", id.ToString(), "original.pdf")));
+            Assert.Same(storage, provider.GetRequiredService<IDocumentStorage>());
+        }
+        finally
+        {
+            data.Delete(recursive: true);
+        }
+    }
+
+    [Fact]
+    public void DirectorySync_IsChosenByTheOperatingSystem_AndFlushesARealFolder()
+    {
+        var folder = Directory.CreateTempSubdirectory("nomorepaper-sync-");
+        try
+        {
+            using var provider = Provider(Configuration([]));
+            var sync = provider.GetRequiredService<IDirectorySync>();
+
+            // Only Linux needs the folder flushed; the libc call itself runs in CI.
+            Assert.Equal(OperatingSystem.IsLinux() ? "LibcDirectorySync" : "NoDirectorySync", sync.GetType().Name);
+            sync.Flush(folder.FullName);
+        }
+        finally
+        {
+            folder.Delete(recursive: true);
+        }
     }
 
     private static IConfiguration Configuration(Dictionary<string, string?> values) =>

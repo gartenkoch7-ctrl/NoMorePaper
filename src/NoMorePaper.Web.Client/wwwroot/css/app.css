@@ -124,3 +124,124 @@ a {
     color: var(--nmp-text);
     border-top: 3px solid var(--nmp-accent);
 }
+
+/* ---- Documents, upload and search (M1) ---------------------------------------------------- */
+
+.header-search {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+/* Native inputs: high contrast border, never colour alone, large enough to hit. */
+.search-input,
+.drop-zone input[type="file"] {
+    box-sizing: border-box;
+    min-height: 2.75rem;
+    padding: 0.5rem 0.75rem;
+    background-color: var(--nmp-background);
+    color: var(--nmp-text);
+    border: 2px solid var(--nmp-text);
+    border-radius: 4px;
+    font: inherit;
+}
+
+.search-input {
+    min-width: 12rem;
+}
+
+.drop-zone input[type="file"]::file-selector-button {
+    margin-inline-end: 1rem;
+    padding: 0.5rem 1rem;
+    background-color: var(--nmp-background);
+    color: var(--nmp-text);
+    border: 2px solid var(--nmp-text);
+    border-radius: 4px;
+    font: inherit;
+    font-weight: 700;
+}
+
+.drop-zone {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-bottom: 1.5rem;
+    padding: 1.5rem;
+    border: 3px dashed var(--nmp-text);
+}
+
+.drop-zone-label {
+    font-weight: 700;
+}
+
+.drop-zone-hint {
+    margin: 0;
+}
+
+.live-region {
+    min-height: 1.6em;
+    margin: 1rem 0;
+    font-weight: 700;
+}
+
+.upload-results {
+    padding: 0;
+    list-style: none;
+}
+
+.upload-results li {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.25rem 0.75rem;
+    margin-bottom: 0.75rem;
+}
+
+.error-box {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin: 1rem 0;
+    padding: 1rem;
+    border: 3px solid var(--nmp-text);
+    font-weight: 700;
+}
+
+/* A notice with a list of names: the symbol stays next to its first line. */
+.upload-skipped {
+    align-items: flex-start;
+}
+
+.doc-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.doc-table caption {
+    margin-bottom: 0.5rem;
+    text-align: start;
+    font-weight: 700;
+}
+
+.doc-table th,
+.doc-table td {
+    padding: 0.75rem;
+    border-bottom: 1px solid var(--nmp-text);
+    text-align: start;
+}
+
+.doc-table td .mud-icon-root {
+    margin-inline-end: 0.5rem;
+    vertical-align: middle;
+}
+
+.search-hit {
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--nmp-text);
+}
+
+.search-hit p {
+    margin: 0.5rem 0;
+}

@@ -1,6 +1,6 @@
 # ADR-0011: PDF-Darstellung: intelligent invertieren per WebGL-Shader
 
-- **Status:** Angenommen
+- **Status:** Angenommen, ergänzt durch [ADR-0019](0019-darstellung-werte-aus-spike.md)
 - **Datum:** 2026-11-18
 
 ## Kontext

@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<title>Rechnung mit farbiger Tabelle (Testdokument)</title>
+<link rel="stylesheet" href="common.css">
+<style>
+  .bar { background: #00695c; color: #fff; padding: 5mm 6mm; display: flex; justify-content: space-between; align-items: baseline; }
+  .bar b { font-size: 18pt; }
+  table { width: 100%; border-collapse: collapse; margin: 8mm 0 4mm; font-size: 10pt; }
+  th { background: #1a237e; color: #fff; text-align: left; padding: 2.2mm 2.5mm; }
+  td { padding: 2mm 2.5mm; border-bottom: 0.2mm solid #9fa8da; }
+  tr:nth-child(even) td { background: #e3f2fd; }
+  tr.hint td { background: #fff9c4; }
+  tr.due td { background: #ffebee; color: #b71c1c; }
+  tr.sum td { background: #c8e6c9; font-weight: bold; border-top: 0.6mm solid #2e7d32; }
+  .num { text-align: right; font-variant-numeric: tabular-nums; }
+  .box { border: 0.5mm solid #ef6c00; background: #fff3e0; padding: 3mm 4mm; margin-top: 6mm; }
+  .box b { color: #e65100; }
+  .meta { display: flex; justify-content: space-between; margin-top: 10mm; }
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="bar"><b>Rechnung</b><span>Beispiel Energie AG · Testdokument</span></div>
+  <div class="meta">
+    <div>Max Mustermann<br>Musterweg 7<br>54321 Beispielhausen</div>
+    <div class="right">Rechnungsnummer: R-2031-000123<br>Rechnungsdatum: 14.03.2031<br>Kundennummer: 000-4711</div>
+  </div>
+  <table>
+    <thead>
+      <tr><th>Pos.</th><th>Beschreibung</th><th class="num">Menge</th><th class="num">Einzelpreis</th><th class="num">Betrag</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>1</td><td>Grundpreis Strom, Januar bis März</td><td class="num">3</td><td class="num">12,50 €</td><td class="num">37,50 €</td></tr>
+      <tr><td>2</td><td>Arbeitspreis 812 kWh</td><td class="num">812</td><td class="num">0,3210 €</td><td class="num">260,65 €</td></tr>
+      <tr><td>3</td><td>Zählermiete</td><td class="num">3</td><td class="num">2,10 €</td><td class="num">6,30 €</td></tr>
+      <tr><td>4</td><td>Bearbeitung Tarifwechsel</td><td class="num">1</td><td class="num">9,90 €</td><td class="num">9,90 €</td></tr>
+      <tr class="hint"><td>5</td><td>Gutschrift Treuebonus (gelb markiert)</td><td class="num">1</td><td class="num">−15,00 €</td><td class="num">−15,00 €</td></tr>
+      <tr><td>6</td><td>Stromsteuer</td><td class="num">812</td><td class="num">0,0205 €</td><td class="num">16,65 €</td></tr>
+      <tr class="due"><td>7</td><td>Offener Betrag aus Vorrechnung (überfällig)</td><td class="num">1</td><td class="num">48,20 €</td><td class="num">48,20 €</td></tr>
+      <tr><td>8</td><td>Umsatzsteuer 19 %</td><td class="num"></td><td class="num"></td><td class="num">69,20 €</td></tr>
+      <tr class="sum"><td></td><td>Gesamtbetrag</td><td class="num"></td><td class="num"></td><td class="num">433,40 €</td></tr>
+    </tbody>
+  </table>
+  <div class="box"><b>Zahlbar bis 28.03.2031.</b> Bitte überweisen Sie den Gesamtbetrag unter Angabe der
+  Rechnungsnummer. Dieser Kasten hat einen hellen orangefarbenen Hintergrund mit dichtem Text, damit
+  sich prüfen lässt, dass farbige Flächen mit Schrift nicht als Foto gelten.</div>
+  <p style="margin-top:8mm">Die Tabelle wechselt zwischen weißen und hellblauen Zeilen. Kopfzeile und Balken
+  sind dunkel mit weißer Schrift, die Summenzeile ist grün hinterlegt.</p>
+  <p class="small">Beispiel Energie AG · Teststraße 1 · 12345 Musterstadt · IBAN DE00 0000 0000 0000 0000 00 ·
+  Alle Angaben sind frei erfunden.</p>
+</div>
+</body>
+</html>

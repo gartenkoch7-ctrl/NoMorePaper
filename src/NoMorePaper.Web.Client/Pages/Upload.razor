@@ -1,0 +1,126 @@
+@page "/hochladen"
+@inject IStringLocalizer<Strings> L
+@inject DocumentApi Api
+
+<PageTitle>@L["UploadTitle"]</PageTitle>
+
+<MudText Typo="Typo.h1">@L["UploadHeading"]</MudText>
+
+@* Dropping a file on the field is only an extra: the file input itself is the real control and
+   works with keyboard and screen reader alone. *@
+<div class="drop-zone">
+    <label for="upload-input" class="drop-zone-label">@L["UploadFileLabel"]</label>
+    <InputFile id="upload-input" OnChange="OnFilesChangedAsync" multiple
+               accept=".pdf,.jpg,.jpeg,.png,.heic,application/pdf,image/jpeg,image/png,image/heic"
+               aria-describedby="upload-hint" />
+    <p id="upload-hint" class="drop-zone-hint">@L["UploadHint"]</p>
+</div>
+
+<LiveRegion @ref="_progress" />
+
+@if (_skipped is not null)
+{
+    @* Stays on the page after the announcement, with a symbol and in words, and names every
+       file left out (the announcement names only the first few). *@
+    <div class="error-box upload-skipped">
+        <MudIcon Icon="@Icons.Material.Filled.Warning" />
+        <div>
+            <p>@_skipped.Notice</p>
+            <p>@L["UploadSkippedListLabel"]</p>
+            <ul class="upload-skipped-names">
+                @foreach (var name in _skipped.Names)
+                {
+                    <li>@name</li>
+                }
+            </ul>
+        </div>
+    </div>
+}
+
+@if (_results.Count > 0)
+{
+    <MudText Typo="Typo.h2">@L["UploadResultsHeading"]</MudText>
+    <ul class="upload-results">
+        @foreach (var result in _results)
+        {
+            <li>
+                @if (result.Id is { } id)
+                {
+                    <MudIcon Icon="@Icons.Material.Filled.CheckCircle" />
+                    <span>@L["UploadSuccess", result.FileName]</span>
+                    <a href="@DocumentLinks.Of(id)">@L["UploadShowInList", result.FileName]</a>
+                }
+                else
+                {
+                    <MudIcon Icon="@Icons.Material.Filled.Error" />
+                    <span>@L["UploadFailed", result.FileName, result.Error ?? string.Empty]</span>
+                }
+            </li>
+        }
+    </ul>
+}
+
+@code {
+    // Many files at once are fine, but each one is read in the browser: keep the batch bounded.
+    private const int MaxFiles = 20;
+
+    // More names would make the announcement too long to follow; the page lists them all.
+    private const int MaxAnnouncedNames = 10;
+
+    private readonly List<UploadOutcome> _results = [];
+    private LiveRegion? _progress;
+    private SkippedFiles? _skipped;
+
+    private async Task OnFilesChangedAsync(InputFileChangeEventArgs args)
+    {
+        // GetMultipleFiles throws when more files are chosen than it may return: take them all,
+        // upload the first MaxFiles and say which were left out.
+        var files = args.GetMultipleFiles(Math.Max(args.FileCount, 1));
+        var batch = files.Take(MaxFiles).ToList();
+        _skipped = Skipped([.. files.Skip(MaxFiles).Select(file => file.Name)]);
+        var announcement = _skipped is null ? null : $"{_skipped.Notice} {SkippedNamesAnnouncement(_skipped.Names)}";
+        for (var i = 0; i < batch.Count; i++)
+        {
+            // The notice joins the last announcement; a separate one right after would cut it off.
+            await UploadOneAsync(batch[i], i == batch.Count - 1 ? announcement : null);
+        }
+    }
+
+    private SkippedFiles? Skipped(IReadOnlyList<string> names) => names.Count switch
+    {
+        0 => null,
+        1 => new SkippedFiles(L["UploadSkippedOne", MaxFiles], names),
+        _ => new SkippedFiles(L["UploadSkipped", names.Count, MaxFiles], names),
+    };
+
+    private string SkippedNamesAnnouncement(IReadOnlyList<string> names)
+    {
+        var list = string.Join(", ", names.Take(MaxAnnouncedNames));
+        var rest = names.Count - MaxAnnouncedNames;
+        return L["UploadSkippedNames", rest > 0 ? L["UploadSkippedMore", list, rest].Value : list];
+    }
+
+    private async Task UploadOneAsync(IBrowserFile file, string? notice)
+    {
+        await AnnounceAsync(L["UploadInProgress", file.Name]);
+        var result = await Api.UploadAsync(file);
+        var outcome = new UploadOutcome(file.Name, result.Value?.Id, result.Error);
+        _results.Insert(0, outcome);
+        string message = outcome.Id is null
+            ? L["UploadFailed", file.Name, outcome.Error ?? string.Empty]
+            : L["UploadSuccess", file.Name];
+        await AnnounceAsync(notice is null ? message : $"{message} {notice}");
+    }
+
+    private async Task AnnounceAsync(string message)
+    {
+        if (_progress is not null)
+        {
+            await _progress.Announce(message);
+        }
+    }
+
+    private sealed record UploadOutcome(string FileName, Guid? Id, string? Error);
+
+    private sealed record SkippedFiles(string Notice, IReadOnlyList<string> Names);
+}

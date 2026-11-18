@@ -32,6 +32,14 @@ docker compose up -d --build
 - Die UI-Tests starten Postgres über Testcontainers und den echten Server.
 - Optional: Die Umgebungsvariable `NOMOREPAPER_UI_TESTS_BASE_URL` lässt die Tests gegen einen
   bereits laufenden Server laufen.
+- **WebGL im headless Chromium (Viewer, Pixeltest):** Playwright startet Chromium schon mit
+  `--enable-unsafe-swiftshader`; WebGL2 läuft dann ohne GPU über SwiftShader (ANGLE/Vulkan), lokal
+  unter Windows genauso wie in CI auf `ubuntu-latest`. Eigene Startoptionen braucht
+  `ServerFixture` dafür nicht. Gemessen 2026-11-18: SwiftShader und RTX 3060 Ti (D3D11, nur mit
+  `--use-angle=d3d11 --enable-gpu --ignore-gpu-blocklist`) liefern dieselben Pixel
+  (Weiß → `#000000`, Rot `#c62828` → `#fe7368`, Foto unverändert).
+- In headless Chromium kommt `Strg` + Mausrad aus Playwright (`Mouse.WheelAsync` bei gedrückter
+  Taste) nicht bei der Seite an; der Viewer-Test schickt das `WheelEvent` deshalb per Skript.
 
 ## EF-Migrationen
 - Liegen in [src/NoMorePaper.Infrastructure/Persistence/Migrations](../../src/NoMorePaper.Infrastructure/Persistence/Migrations/).
@@ -67,3 +75,8 @@ Schritte:
 3. Playwright-Chromium mit Abhängigkeiten installieren (`install --with-deps chromium`)
 4. `dotnet test` in Release
 5. Zeilenprüfung (maximal 300 Zeilen je Datei)
+
+## Worker-Image und OCR lokal
+- OCR-Tests werden auf Windows übersprungen, weil dort kein `ocrmypdf` installiert ist. Sie laufen in der CI.
+- Das Worker-Image ist jetzt Ubuntu-basiert (`aspnet:10.0`, siehe [ADR-0016](../adr/0016-ocrmypdf-und-ubuntu-worker-image.md)). Der Hinweis zu Alpine und ICU gilt nur für das Server-Image.
+- Der Server puffert Uploads über 64 KB in `/tmp`. In `docker-compose` ist `/tmp` ein tmpfs. Der Platz muss für 100 MB reichen.

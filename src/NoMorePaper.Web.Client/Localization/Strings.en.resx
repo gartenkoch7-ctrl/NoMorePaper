@@ -42,4 +42,235 @@
   <data name="NotFoundBackLink" xml:space="preserve">
     <value>Go to the home page</value>
   </data>
+  <data name="NavUpload" xml:space="preserve">
+    <value>Upload</value>
+  </data>
+  <data name="NavDocuments" xml:space="preserve">
+    <value>Documents</value>
+  </data>
+  <data name="NavSearch" xml:space="preserve">
+    <value>Search</value>
+  </data>
+  <data name="SearchLabel" xml:space="preserve">
+    <value>Search documents</value>
+  </data>
+  <data name="SearchButton" xml:space="preserve">
+    <value>Search</value>
+  </data>
+  <data name="SearchTitle" xml:space="preserve">
+    <value>Search – NoMorePaper</value>
+  </data>
+  <data name="SearchHeading" xml:space="preserve">
+    <value>Search</value>
+  </data>
+  <data name="SearchPrompt" xml:space="preserve">
+    <value>Enter a search term in the "Search documents" field in the header. Tip: the slash key jumps to the search field.</value>
+  </data>
+  <data name="SearchRunning" xml:space="preserve">
+    <value>Searching for "{0}" …</value>
+  </data>
+  <data name="SearchCount" xml:space="preserve">
+    <value>{0} results for "{1}"</value>
+  </data>
+  <data name="SearchCountOne" xml:space="preserve">
+    <value>1 result for "{0}"</value>
+  </data>
+  <data name="SearchError" xml:space="preserve">
+    <value>The search failed. {0}</value>
+  </data>
+  <data name="SearchReceived" xml:space="preserve">
+    <value>Received: {0}</value>
+  </data>
+  <data name="UploadTitle" xml:space="preserve">
+    <value>Upload – NoMorePaper</value>
+  </data>
+  <data name="UploadHeading" xml:space="preserve">
+    <value>Upload a document</value>
+  </data>
+  <data name="UploadFileLabel" xml:space="preserve">
+    <value>Choose a file</value>
+  </data>
+  <data name="UploadHint" xml:space="preserve">
+    <value>PDF, JPG, PNG and HEIC are allowed, up to 100 MB. The file is uploaded as soon as you choose it. You can also drag files onto this field.</value>
+  </data>
+  <data name="UploadInProgress" xml:space="preserve">
+    <value>Uploading {0} …</value>
+  </data>
+  <data name="UploadSuccess" xml:space="preserve">
+    <value>{0} was uploaded and is waiting to be processed.</value>
+  </data>
+  <data name="UploadFailed" xml:space="preserve">
+    <value>{0} could not be uploaded. {1}</value>
+  </data>
+  <data name="UploadResultsHeading" xml:space="preserve">
+    <value>Result</value>
+  </data>
+  <data name="UploadShowInList" xml:space="preserve">
+    <value>Show {0} in the document list</value>
+  </data>
+  <data name="DocumentsTitle" xml:space="preserve">
+    <value>Documents – NoMorePaper</value>
+  </data>
+  <data name="DocumentsHeading" xml:space="preserve">
+    <value>Documents</value>
+  </data>
+  <data name="DocumentsCaption" xml:space="preserve">
+    <value>All documents, newest first</value>
+  </data>
+  <data name="DocumentsLoading" xml:space="preserve">
+    <value>Loading documents …</value>
+  </data>
+  <data name="DocumentsEmpty" xml:space="preserve">
+    <value>No documents yet. Upload the first one on the "Upload" page.</value>
+  </data>
+  <data name="DocumentsLoadError" xml:space="preserve">
+    <value>The documents could not be loaded. {0}</value>
+  </data>
+  <data name="Retry" xml:space="preserve">
+    <value>Try again</value>
+  </data>
+  <data name="ColTitle" xml:space="preserve">
+    <value>Title</value>
+  </data>
+  <data name="ColReceived" xml:space="preserve">
+    <value>Received</value>
+  </data>
+  <data name="ColStatus" xml:space="preserve">
+    <value>Status</value>
+  </data>
+  <data name="StateQueued" xml:space="preserve">
+    <value>Queued</value>
+  </data>
+  <data name="StateProcessing" xml:space="preserve">
+    <value>Processing</value>
+  </data>
+  <data name="StateDone" xml:space="preserve">
+    <value>Done</value>
+  </data>
+  <data name="StateFailed" xml:space="preserve">
+    <value>Failed</value>
+  </data>
+  <data name="StateChanged" xml:space="preserve">
+    <value>{0}: status {1}</value>
+  </data>
+  <data name="ErrorEmpty" xml:space="preserve">
+    <value>The file is empty.</value>
+  </data>
+  <data name="ErrorTooLarge" xml:space="preserve">
+    <value>The file is larger than 100 MB.</value>
+  </data>
+  <data name="ErrorType" xml:space="preserve">
+    <value>This file type is not allowed. Allowed are PDF, JPG, PNG and HEIC.</value>
+  </data>
+  <data name="ErrorNotFound" xml:space="preserve">
+    <value>The document was not found.</value>
+  </data>
+  <data name="ErrorServer" xml:space="preserve">
+    <value>The server reported an error (code {0}).</value>
+  </data>
+  <data name="ErrorUnreachable" xml:space="preserve">
+    <value>The server cannot be reached or answered unexpectedly.</value>
+  </data>
+  <data name="ViewerTitle" xml:space="preserve">
+    <value>{0} – NoMorePaper</value>
+  </data>
+  <data name="ViewerTitleLoading" xml:space="preserve">
+    <value>Document – NoMorePaper</value>
+  </data>
+  <data name="ViewerHeading" xml:space="preserve">
+    <value>Document</value>
+  </data>
+  <data name="ViewerLoading" xml:space="preserve">
+    <value>Loading document …</value>
+  </data>
+  <data name="ViewerLoadError" xml:space="preserve">
+    <value>The document could not be loaded. {0}</value>
+  </data>
+  <data name="ViewerStatus" xml:space="preserve">
+    <value>Status: {0}</value>
+  </data>
+  <data name="ViewerDownloads" xml:space="preserve">
+    <value>Download</value>
+  </data>
+  <data name="DownloadOriginal" xml:space="preserve">
+    <value>Download original</value>
+  </data>
+  <data name="DownloadArchive" xml:space="preserve">
+    <value>Download archive PDF (PDF/A)</value>
+  </data>
+  <data name="ViewerNotYet" xml:space="preserve">
+    <value>The document is still being processed. It will be shown here once it is done. You can already download the original.</value>
+  </data>
+  <data name="ViewerFailed" xml:space="preserve">
+    <value>The document could not be processed and therefore cannot be shown. You can download the original.</value>
+  </data>
+  <data name="ViewerShowError" xml:space="preserve">
+    <value>The document could not be shown. You can download it.</value>
+  </data>
+  <data name="ViewerToolbar" xml:space="preserve">
+    <value>View</value>
+  </data>
+  <data name="ViewerPages" xml:space="preserve">
+    <value>Pages</value>
+  </data>
+  <data name="ZoomOut" xml:space="preserve">
+    <value>Zoom out</value>
+  </data>
+  <data name="ZoomIn" xml:space="preserve">
+    <value>Zoom in</value>
+  </data>
+  <data name="ZoomReset" xml:space="preserve">
+    <value>100 %</value>
+  </data>
+  <data name="FitWidth" xml:space="preserve">
+    <value>Fit width</value>
+  </data>
+  <data name="OriginalColors" xml:space="preserve">
+    <value>Original colours</value>
+  </data>
+  <data name="PreviousPage" xml:space="preserve">
+    <value>Previous page</value>
+  </data>
+  <data name="NextPage" xml:space="preserve">
+    <value>Next page</value>
+  </data>
+  <data name="ViewerZoom" xml:space="preserve">
+    <value>Zoom {0} %</value>
+  </data>
+  <data name="ViewerPageOf" xml:space="preserve">
+    <value>Page {0} of {1}</value>
+  </data>
+  <data name="ViewerNoText" xml:space="preserve">
+    <value>This page has no text that a screen reader can read.</value>
+  </data>
+  <data name="ViewerRegion" xml:space="preserve">
+    <value>Document page</value>
+  </data>
+  <data name="ViewerKeys" xml:space="preserve">
+    <value>Keys in the document page: Ctrl + Plus and Ctrl + Minus zoom, Ctrl + 0 shows 100 %. The arrow keys move the page, Page Up and Page Down turn pages. Ctrl + mouse wheel zooms around the mouse pointer.</value>
+  </data>
+  <data name="UploadSkipped" xml:space="preserve">
+    <value>{0} files were not uploaded because at most {1} can be uploaded at once. Choose them again afterwards.</value>
+  </data>
+  <data name="UploadSkippedOne" xml:space="preserve">
+    <value>1 file was not uploaded because at most {0} can be uploaded at once. Choose it again afterwards.</value>
+  </data>
+  <data name="UploadSkippedListLabel" xml:space="preserve">
+    <value>Not uploaded:</value>
+  </data>
+  <data name="UploadSkippedNames" xml:space="preserve">
+    <value>Not uploaded: {0}.</value>
+  </data>
+  <data name="UploadSkippedMore" xml:space="preserve">
+    <value>{0} and {1} more</value>
+  </data>
+  <data name="ViewerRendererLost" xml:space="preserve">
+    <value>The display was interrupted and is being rebuilt.</value>
+  </data>
+  <data name="ViewerRendererRestored" xml:space="preserve">
+    <value>The display is back.</value>
+  </data>
+  <data name="ViewerRendererFallback" xml:space="preserve">
+    <value>The display now runs in simple mode. Photos are inverted too.</value>
+  </data>
 </root>
