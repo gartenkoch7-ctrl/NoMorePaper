@@ -14,8 +14,10 @@ internal static class DocumentEndpoints
     {
         var group = routes.MapGroup("/api/documents");
 
-        // No antiforgery: the form is bound by hand, and the API has no cookies or sessions to ride on.
-        group.MapPost("/", DocumentUpload.HandleAsync);
+        // No antiforgery: the form is bound by hand, the API has no cookies or sessions to ride on, and
+        // CrossSiteRequestGuard refuses posts from other sites.
+        group.MapPost("/", (HttpRequest request, DocumentUpload upload, CancellationToken cancellationToken) =>
+            upload.HandleAsync(request, cancellationToken));
         group.MapGet("/", ListAsync);
         group.MapGet("/{id:guid}", GetAsync);
         group.MapGet("/{id:guid}/files/{kind}", DownloadAsync);

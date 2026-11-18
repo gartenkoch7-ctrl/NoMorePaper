@@ -41,6 +41,7 @@ public sealed class DocumentApi(HttpClient http, IStringLocalizer<Strings> local
                 ? type
                 : new MediaTypeHeaderValue("application/octet-stream");
             using var form = new MultipartFormDataContent { { part, "file", file.Name } };
+            form.Headers.Add("X-NoMorePaper-Request", "1");
             using var response = await http.PostAsync("api/documents", form, ct);
             var result = await ReadAsync<UploadResultDto>(response, "upload", ct);
             if (result.IsSuccess)

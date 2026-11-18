@@ -1,5 +1,6 @@
 using System.Security.Cryptography;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.Logging.Abstractions;
 using NoMorePaper.Domain.Documents;
 using NoMorePaper.Infrastructure.Documents;
@@ -73,17 +74,59 @@ public sealed class DocumentIntakeTests(PostgresFixture postgres) : IDisposable
     }
 
     [Fact]
-    public async Task Receive_WhenTheDatabaseFails_RemovesTheStoredFile_AndRethrows()
+    public async Task Receive_WhenTheDatabaseRefuses_RemovesTheStoredFile_AndRethrows()
     {
-        // This database was never migrated, so saving the document fails.
+        await using var db = await MigratedContextAsync("intake_refused");
+        await db.Database.ExecuteSqlRawAsync(
+            """
+            CREATE FUNCTION refuse() RETURNS trigger LANGUAGE plpgsql AS $$ BEGIN RAISE EXCEPTION 'refused'; END $$;
+            CREATE TRIGGER refuse BEFORE INSERT ON processing_jobs FOR EACH ROW EXECUTE FUNCTION refuse();
+            """,
+            Ct);
+
+        await Assert.ThrowsAnyAsync<DbUpdateException>(() =>
+            CreateIntake(db).ReceiveAsync("a.pdf", "application/pdf", new MemoryStream(s_content), Ct));
+
+        Assert.Empty(await db.Documents.AsNoTracking().ToListAsync(Ct));
+        Assert.Empty(InboxFolders());
+    }
+
+    [Fact]
+    public async Task Receive_WhenTheCommitReportsAFailureAfterItWasApplied_KeepsTheFile()
+    {
+        await using var db = await MigratedContextAsync("intake_applied", new FailAfterSave());
+
+        await Assert.ThrowsAsync<OperationCanceledException>(() =>
+            CreateIntake(db).ReceiveAsync("a.pdf", "application/pdf", new MemoryStream(s_content), Ct));
+
+        var document = await db.Documents.AsNoTracking().SingleAsync(Ct);
+        Assert.Equal(s_content, await File.ReadAllBytesAsync(Path.Combine(InboxFolders().Single(), "original.pdf"), Ct));
+        Assert.EndsWith(document.Id.ToString(), InboxFolders().Single(), StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public async Task Receive_WhenTheRecordCannotBeChecked_KeepsTheFile()
+    {
+        // This database was never created, so both saving and the check afterwards fail.
         await using var db = postgres.CreateContext("intake_unmigrated");
-        var intake = CreateIntake(db);
 
         await Assert.ThrowsAnyAsync<Exception>(() =>
-            intake.ReceiveAsync("a.pdf", "application/pdf", new MemoryStream(s_content), Ct));
+            CreateIntake(db).ReceiveAsync("a.pdf", "application/pdf", new MemoryStream(s_content), Ct));
 
-        var inbox = Path.Combine(_sandbox.FullName, "inbox");
-        Assert.True(!Directory.Exists(inbox) || Directory.GetDirectories(inbox).Length == 0);
+        Assert.Single(InboxFolders());
+    }
+
+    [Fact]
+    public async Task Receive_WhenTheRequestIsCancelledDuringTheCommit_StillCommits()
+    {
+        using var request = CancellationTokenSource.CreateLinkedTokenSource(Ct);
+        await using var db = await MigratedContextAsync("intake_cancel_commit", new CancelBeforeSave(request));
+
+        var id = await CreateIntake(db).ReceiveAsync("a.pdf", "application/pdf", new MemoryStream(s_content), request.Token);
+
+        Assert.True(request.IsCancellationRequested);
+        Assert.True(await db.ProcessingJobs.AsNoTracking().AnyAsync(j => j.DocumentId == id, Ct));
+        Assert.Single(InboxFolders());
     }
 
     [Fact]
@@ -105,9 +148,18 @@ public sealed class DocumentIntakeTests(PostgresFixture postgres) : IDisposable
         _sandbox.FullName,
         NullLogger<DocumentIntake>.Instance);
 
-    private async Task<AppDbContext> MigratedContextAsync(string database)
+    private string[] InboxFolders()
     {
-        var db = postgres.CreateContext(database);
+        var inbox = Path.Combine(_sandbox.FullName, "inbox");
+        return Directory.Exists(inbox) ? Directory.GetDirectories(inbox) : [];
+    }
+
+    private async Task<AppDbContext> MigratedContextAsync(string database, params IInterceptor[] interceptors)
+    {
+        var db = new AppDbContext(new DbContextOptionsBuilder<AppDbContext>()
+            .UseNpgsql(postgres.ConnectionString(database))
+            .AddInterceptors(interceptors)
+            .Options);
         await new DatabaseMigrator(db, TimeProvider.System, NullLogger<DatabaseMigrator>.Instance).MigrateAsync(Ct);
         return db;
     }
@@ -115,5 +167,24 @@ public sealed class DocumentIntakeTests(PostgresFixture postgres) : IDisposable
     private sealed class FixedClock(DateTimeOffset now) : TimeProvider
     {
         public override DateTimeOffset GetUtcNow() => now;
+    }
+
+    /// <summary>The rows are committed, but the caller hears of a cancellation, like a lost answer.</summary>
+    private sealed class FailAfterSave : SaveChangesInterceptor
+    {
+        public override ValueTask<int> SavedChangesAsync(
+            SaveChangesCompletedEventData eventData, int result, CancellationToken cancellationToken = default) =>
+            throw new OperationCanceledException();
+    }
+
+    /// <summary>The upload is aborted just as the commit starts.</summary>
+    private sealed class CancelBeforeSave(CancellationTokenSource request) : SaveChangesInterceptor
+    {
+        public override async ValueTask<InterceptionResult<int>> SavingChangesAsync(
+            DbContextEventData eventData, InterceptionResult<int> result, CancellationToken cancellationToken = default)
+        {
+            await request.CancelAsync();
+            return result;
+        }
     }
 }

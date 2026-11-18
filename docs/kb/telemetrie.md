@@ -46,6 +46,7 @@ Innerhalb eines Bereichs bekommt jedes Feature einen eigenen Hunderterblock (z. 
 | 1001 | Critical | `Server/Startup/StartupLog` | Start-Aufgaben fehlgeschlagen, der Host beendet sich |
 | 1100 | Information | `Server/Documents/DocumentsLog` | Upload angenommen: Dokument-Id, Größe, Medientyp (ohne Dateinamen) |
 | 1101 | Warning | `Server/Documents/DocumentsLog` | Upload abgelehnt: Grund (`too-large`, `empty`, `type-not-allowed`, `not-multipart`, `malformed`) und Größe |
+| 1200 | Warning | `Server/Security/SecurityLog` | Ändernde API-Anfrage abgelehnt, mögliche fremde Seite: `Sec-Fetch-Site` als festes Wort (`cross-site`, `same-site`, `none`, `absent`, `other`) |
 | 2000 | Information | `Worker/Heartbeat/HeartbeatLog` | Heartbeat gestartet, Intervall in s |
 | 2001 | Warning | `Worker/Heartbeat/HeartbeatLog` | Heartbeat nicht geschrieben (nur der erste Fehler eines Ausfalls) |
 | 2002 | Information | `Worker/Heartbeat/HeartbeatLog` | Heartbeat nach einem Ausfall wieder geschrieben |
@@ -67,8 +68,10 @@ Innerhalb eines Bereichs bekommt jedes Feature einen eigenen Hunderterblock (z. 
 | 3102 | Information | `Infrastructure/Documents/DocumentStorageLog` | Original vom Eingang ins Archiv verschoben |
 | 3103 | Warning | `Infrastructure/Documents/DocumentStorageLog` | Aufräumen (temporäre Datei, alter Eingangsordner) fehlgeschlagen; nur Platzverlust |
 | 3200 | Information | `Infrastructure/Documents/DocumentIntakeLog` | Dokument angenommen und eingereiht: Id, Größe, Medientyp |
-| 3201 | Error | `Infrastructure/Documents/DocumentIntakeLog` | Annahme fehlgeschlagen (nur Ausnahmetyp); die Eingangsdatei wurde verworfen |
+| 3201 | Error | `Infrastructure/Documents/DocumentIntakeLog` | Annahme fehlgeschlagen (nur Ausnahmetyp); die Eingangsdatei wird verworfen, außer 3203/3204 folgen |
 | 3202 | Warning | `Infrastructure/Documents/DocumentIntakeLog` | Eingangsdatei nach einem Fehler nicht entfernbar; nur Platzverlust |
+| 3203 | Warning | `Infrastructure/Documents/DocumentIntakeLog` | Speichern meldete einen Fehler, das Dokument steht aber in der Datenbank; die Eingangsdatei bleibt |
+| 3204 | Warning | `Infrastructure/Documents/DocumentIntakeLog` | Nach einem Fehler nicht prüfbar, ob das Dokument gespeichert ist (nur Ausnahmetyp); die Eingangsdatei bleibt |
 | 3210 | Information | `Infrastructure/Search/SearchLog` | Suche beantwortet: Trefferzahl, Dauer in ms, ob der Ähnlichkeits-Rückfall nötig war (nie die Anfrage) |
 | 3300 | Debug | `Infrastructure/Ocr/OcrLog` | Werkzeug (`ocrmypdf`, `img2pdf`, `heif-convert`, `pdftotext`) beendet: Exit-Code, Dauer in ms |
 | 3301 | Warning | `Infrastructure/Ocr/OcrLog` | Werkzeug hat sein Zeitlimit überschritten und wurde samt Kindprozessen beendet |
@@ -123,6 +126,7 @@ In WASM gibt es keine `ActivitySource` und kein `Meter` (kein Exporter).
 |---|---|---|---|
 | `nomorepaper.worker.heartbeat_failures` | Counter | `NoMorePaper.Worker` | nicht geschriebene Heartbeats |
 | `nomorepaper.upload.rejected` | Counter | `NoMorePaper.Server` | abgelehnte Uploads, Tag `nomorepaper.upload.reason` (siehe Ereignis 1101) |
+| `nomorepaper.request_guard.rejected` | Counter | `NoMorePaper.Server` | abgelehnte ändernde API-Anfragen, Tag `nomorepaper.request_guard.fetch_site` (siehe Ereignis 1200) |
 | `nomorepaper.documents.received` | Counter | `NoMorePaper.Infrastructure` | angenommene Dokumente |
 | `nomorepaper.search.duration` | Histogramm (ms) | `NoMorePaper.Infrastructure` | Dauer einer Suche |
 | `nomorepaper.storage.stored_bytes` | Counter (By) | `NoMorePaper.Infrastructure` | in die Dokumentablage geschriebene Bytes, Tag `nomorepaper.storage.kind` (`Original`/`Archive`) |
