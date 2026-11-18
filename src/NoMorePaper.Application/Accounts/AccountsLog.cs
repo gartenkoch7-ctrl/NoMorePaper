@@ -43,4 +43,7 @@ internal static partial class AccountsLog
 
     [LoggerMessage(EventId = 5111, Level = LogLevel.Warning, Message = "Account {AccountId} is not the administrator and was refused: {Action}")]
     public static partial void AdministratorOnly(this ILogger logger, Guid accountId, string action);
+
+    [LoggerMessage(EventId = 5112, Level = LogLevel.Information, Message = "Account {AccountId} acknowledged that its password was reset with a reset link")]
+    public static partial void AdminResetAcknowledged(this ILogger logger, Guid accountId);
 }

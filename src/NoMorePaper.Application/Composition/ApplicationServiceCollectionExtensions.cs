@@ -34,6 +34,7 @@ public static class ApplicationServiceCollectionExtensions
         services.AddScoped<SignIn>();
         services.AddScoped<GetAccount>();
         services.AddScoped<SignOutEverywhere>();
+        services.AddScoped<AcknowledgeAdminReset>();
         services.AddScoped<ChangePassword>();
         services.AddScoped<InviteMember>();
         services.AddScoped<AcceptInvitation>();

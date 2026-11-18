@@ -94,6 +94,12 @@ internal sealed class FakeAccountStore : IAccountStore
         return Task.FromResult(ResetResult);
     }
 
+    public Task<bool> ClearAdminResetAsync(Guid id, CancellationToken cancellationToken)
+    {
+        Calls.Add(nameof(ClearAdminResetAsync));
+        return Task.FromResult(KnownAccount);
+    }
+
     public Task<AccountResult<Guid>> ResetWithEmergencyCodeAsync(
         string userName, string codeHash, string newPassword, string newCodeHash, CancellationToken cancellationToken)
     {

@@ -64,4 +64,8 @@ internal static partial class AccountsLog
     [LoggerMessage(EventId = 4413, EventName = "CopyFailed", Level = LogLevel.Warning,
         Message = "Copying to the clipboard failed: {ExceptionType}")]
     public static partial void CopyFailed(this ILogger logger, string exceptionType);
+
+    [LoggerMessage(EventId = 4414, EventName = "AdminResetAcknowledged", Level = LogLevel.Information,
+        Message = "Notice about the administrator's password reset confirmed")]
+    public static partial void AdminResetAcknowledged(this ILogger logger);
 }

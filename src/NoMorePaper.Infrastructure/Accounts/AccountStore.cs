@@ -193,11 +193,19 @@ public sealed class AccountStore : IAccountStore
                 return AccountResult.Invalid<Guid>(problems);
             }
 
+            // Only this path records it: an own change or the emergency code is no news to the account.
+            user.PasswordResetByAdminAt = now;
             await _passwords.ApplyAsync(user, newPassword, cancellationToken).ConfigureAwait(false);
             await transaction.CommitAsync(cancellationToken).ConfigureAwait(false);
             return AccountResult.Success(user.Id);
         }
     }
+
+    public async Task<bool> ClearAdminResetAsync(Guid id, CancellationToken cancellationToken) =>
+        await _db.Users
+            .Where(user => user.Id == id)
+            .ExecuteUpdateAsync(setters => setters.SetProperty(user => user.PasswordResetByAdminAt, (DateTimeOffset?)null), cancellationToken)
+            .ConfigureAwait(false) > 0;
 
     public async Task<AccountResult<Guid>> ResetWithEmergencyCodeAsync(
         string userName, string codeHash, string newPassword, string newCodeHash, CancellationToken cancellationToken)

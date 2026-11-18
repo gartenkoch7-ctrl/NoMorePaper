@@ -34,7 +34,11 @@ internal static class AccountResponses
         };
     }
 
+    /// <summary>A member as others see it.</summary>
     public static AccountDto ToDto(this Account account) => new(account.Id, account.UserName, account.DisplayName, account.IsAdmin);
+
+    /// <summary>The signed-in account as it sees itself, with the notice about an administrator's reset.</summary>
+    public static AccountDto ToOwnDto(this Account account) => account.ToDto() with { AdminResetAt = account.AdminResetAt };
 
     private static Dictionary<string, string[]> Errors(IEnumerable<AccountProblem> problems, string passwordField) =>
         problems

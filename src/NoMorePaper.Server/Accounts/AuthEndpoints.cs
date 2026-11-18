@@ -3,7 +3,7 @@ using NoMorePaper.Contracts.Accounts;
 
 namespace NoMorePaper.Server.Accounts;
 
-/// <summary>Sign-in, sign-out, "who am I" and password change, below the <c>/api</c> group.</summary>
+/// <summary>Sign-in, sign-out, "who am I", password change and the reset notice, below the <c>/api</c> group.</summary>
 internal static class AuthEndpoints
 {
     public static RouteGroupBuilder MapAuthEndpoints(this RouteGroupBuilder api)
@@ -15,6 +15,7 @@ internal static class AuthEndpoints
         api.MapPost("/auth/logout-everywhere", SignOutEverywhereAsync);
         api.MapGet("/auth/me", MeAsync);
         api.MapPost("/account/password", ChangePasswordAsync);
+        api.MapPost("/account/acknowledge-reset", AcknowledgeResetAsync);
         return api;
     }
 
@@ -49,8 +50,14 @@ internal static class AuthEndpoints
             return AccountResponses.SignInRequired();
         }
 
-        return Results.Ok(account.ToDto());
+        return Results.Ok(account.ToOwnDto());
     }
+
+    // The account saw the notice that the administrator's reset link changed its password.
+    private static async Task<IResult> AcknowledgeResetAsync(AcknowledgeAdminReset acknowledge, CancellationToken cancellationToken) =>
+        await acknowledge.AcknowledgeAsync(cancellationToken).ConfigureAwait(false)
+            ? Results.NoContent()
+            : AccountResponses.SignInRequired();
 
     // The security stamp changed with the password: this device gets a fresh cookie, all others end.
     private static async Task<IResult> ChangePasswordAsync(

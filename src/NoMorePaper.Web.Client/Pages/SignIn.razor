@@ -69,7 +69,9 @@
         Logger.SignedIn();
         _password = string.Empty;
         await Auth.RefreshAsync();
-        Navigation.NavigateTo(SafeTarget(Target));
+
+        // The notice about an administrator's reset is on the start page; it comes before the target.
+        Navigation.NavigateTo(Auth.Me?.AdminResetAt is null ? SafeTarget(Target) : "/");
     }
 
     internal static string SafeTarget(string? target) =>

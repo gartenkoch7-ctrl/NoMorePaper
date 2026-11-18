@@ -158,3 +158,18 @@
     border-radius: 4px;
     font-weight: 700;
 }
+
+/* The notice after an administrator's reset: boxed and bold like an error, it waits for "Got it". */
+.reset-notice {
+    margin: 1rem 0;
+}
+
+.reset-notice-text {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 0.75rem;
+    padding: 1rem;
+    border: 3px solid var(--nmp-text);
+    font-weight: 700;
+}

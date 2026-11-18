@@ -67,6 +67,16 @@ public sealed class AuthState : IDisposable
         Set(status, null);
     }
 
+    /// <summary>The notice about the administrator's reset was confirmed: forget it without asking the server.</summary>
+    public void MarkAdminResetSeen()
+    {
+        if (Me is { AdminResetAt: not null } me)
+        {
+            Me = me with { AdminResetAt = null };
+            Changed?.Invoke();
+        }
+    }
+
     /// <summary>After sign-out (or 401): forget the account without asking the server.</summary>
     public void MarkSignedOut() => Set(SessionStatus.SignedOut, null);
 

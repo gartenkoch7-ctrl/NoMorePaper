@@ -37,6 +37,10 @@ public sealed class AccountApi
     public Task<ApiResult<bool>> ChangePasswordAsync(ChangePasswordDto request, CancellationToken ct = default)
         => _http.SendAsync<bool>(HttpMethod.Post, "api/account/password", request, "change-password", ct);
 
+    /// <summary>Confirms the notice that the administrator's reset link changed the password.</summary>
+    public Task<ApiResult<bool>> AcknowledgeResetAsync(CancellationToken ct = default)
+        => _http.SendAsync<bool>(HttpMethod.Post, "api/account/acknowledge-reset", null, "acknowledge-reset", ct);
+
     public Task<ApiResult<LinkDto>> InviteAsync(CancellationToken ct = default)
         => _http.SendAsync<LinkDto>(HttpMethod.Post, "api/invitations", null, "invite", ct);
 

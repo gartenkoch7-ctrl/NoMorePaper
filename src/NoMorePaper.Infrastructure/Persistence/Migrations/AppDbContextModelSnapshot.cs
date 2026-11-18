@@ -223,6 +223,10 @@ namespace NoMorePaper.Infrastructure.Persistence.Migrations
                         .HasColumnType("text")
                         .HasColumnName("password_hash");
 
+                    b.Property<DateTimeOffset?>("PasswordResetByAdminAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("password_reset_by_admin_at");
+
                     b.Property<string>("PhoneNumber")
                         .HasColumnType("text")
                         .HasColumnName("phone_number");

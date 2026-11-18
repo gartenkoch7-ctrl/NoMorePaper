@@ -20,6 +20,9 @@ Entscheidungen (Grilling 2026-11-18):
   durch den Besitzer
 - Nach **5 Fehlversuchen 5 Minuten Sperre**, Passwort mindestens 10 Zeichen, keine weiteren Regeln
 - Dokumente aus M1 (ohne Besitzer) gehören nach der Einrichtung dem Verwalter, nicht privat
+- Nachtrag 2026-11-18: Setzt ein Rücksetzlink des Verwalters das Passwort, sieht das Mitglied bei der
+  nächsten Anmeldung auf der Startseite einen Hinweis (mit Datum), bis es „Verstanden“ drückt
+  (`users.password_reset_by_admin_at`); eigene Änderung und Notfall-Code lösen ihn nicht aus
 - Aus dem M1-Review: **Schritt 0 verschiebt die Anwendungsfälle nach Application** (AGENTS.md §2.2)
 
 ## Aufgaben
@@ -118,7 +121,8 @@ Schritt 0 (Aufgabe 0) ─┬─► Spur A (1, 2) ─┐
 | `POST /api/setup` `{ userName, displayName, password }` | 200 `{ emergencyCode }`; 409 wenn schon eingerichtet |
 | `POST /api/auth/login` `{ userName, password }` | 204; 401; 423 + `Retry-After` |
 | `POST /api/auth/logout`, `POST /api/auth/logout-everywhere` | 204 |
-| `GET /api/auth/me` | `{ id, userName, displayName, isAdmin }`; 401 |
+| `GET /api/auth/me` | `{ id, userName, displayName, isAdmin, adminResetAt? }`; 401 |
+| `POST /api/account/acknowledge-reset` | 204 (Hinweis gesehen) |
 | `POST /api/account/password` `{ currentPassword, newPassword }` | 204; 400 |
 | `POST /api/invitations` (Verwalter) | `{ link, expiresAt }` |
 | `GET /api/invitations/{token}` | 200 `{ expiresAt }`; 404 ungültig/benutzt/abgelaufen |

@@ -67,6 +67,28 @@ public sealed class AccountLinkStoreTests(PostgresFixture postgres)
     }
 
     [Fact]
+    public async Task ResetLink_RecordsWhenItSetThePassword_UntilCleared()
+    {
+        await using var database = await AccountDatabase.CreateAsync(postgres, "links_reset_notice");
+        var admin = await database.AddAdminAsync();
+        var member = await database.AddMemberAsync(admin.Id, "told");
+        var now = new DateTimeOffset(2026, 11, 18, 20, 15, 30, TimeSpan.Zero);
+        Assert.True(await database.Store().AddResetTokenAsync(member.Id, s_reset, now.AddHours(1), Ct));
+
+        await database.Store().ResetPasswordAsync(s_reset, now, "kurz", Ct);
+        var refused = (await database.Store().FindAsync(member.Id, Ct))!.AdminResetAt;
+        await database.Store().ResetPasswordAsync(s_reset, now, "new-passphrase", Ct);
+        var recorded = (await database.Store().FindAsync(member.Id, Ct))!.AdminResetAt;
+        var cleared = await database.Store().ClearAdminResetAsync(member.Id, Ct);
+
+        Assert.Null(refused);
+        Assert.Equal(now, recorded);
+        Assert.True(cleared);
+        Assert.Null((await database.Store().FindAsync(member.Id, Ct))!.AdminResetAt);
+        Assert.False(await database.Store().ClearAdminResetAsync(Guid.CreateVersion7(), Ct));
+    }
+
+    [Fact]
     public async Task EmergencyCode_WorksForTheAdministratorOnly_AndIsReplaced()
     {
         await using var database = await AccountDatabase.CreateAsync(postgres, "links_emergency");

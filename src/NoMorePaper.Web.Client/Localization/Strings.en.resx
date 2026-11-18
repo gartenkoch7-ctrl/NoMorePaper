@@ -378,6 +378,12 @@
   <data name="ErrorRemoveSelf" xml:space="preserve">
     <value>You cannot remove yourself.</value>
   </data>
+  <data name="AdminResetNotice" xml:space="preserve">
+    <value>Your password was changed on {0} through a reset link from the administrator. If that was not you, talk to the administrator.</value>
+  </data>
+  <data name="AdminResetAcknowledge" xml:space="preserve">
+    <value>Got it</value>
+  </data>
   <data name="ErrorForbidden" xml:space="preserve">
     <value>Only the administrator may do this.</value>
   </data>
