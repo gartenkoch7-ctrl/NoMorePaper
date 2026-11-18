@@ -16,4 +16,10 @@
     <PackageReference Include="Deque.AxeCore.Playwright" />
     <PackageReference Include="Testcontainers.PostgreSql" />
   </ItemGroup>
+
+  <ItemGroup>
+    <!-- Every UI test opens a fresh browser context and boots the whole WASM app; in parallel this
+         overloads small CI runners (2 cores) until a page misses its 60 s timeout. -->
+    <Content Include="xunit.runner.json" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
 </Project>
