@@ -20,7 +20,7 @@ public sealed class FileSystemDocumentStorageTests : IDisposable
     {
         // The root is one level down, so files escaping it would still land inside the sandbox.
         _root = Path.Combine(_sandbox.FullName, "data");
-        _storage = new FileSystemDocumentStorage(_root, NullLogger<FileSystemDocumentStorage>.Instance);
+        _storage = new FileSystemDocumentStorage(_root, new RecordingDirectorySync(), NullLogger<FileSystemDocumentStorage>.Instance);
     }
 
     private static CancellationToken Ct => TestContext.Current.CancellationToken;

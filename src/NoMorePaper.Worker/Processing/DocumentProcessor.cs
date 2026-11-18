@@ -53,10 +53,10 @@ internal sealed class DocumentProcessor(
         await using (scope.ConfigureAwait(false))
         {
             var queue = scope.ServiceProvider.GetRequiredService<JobQueue>();
-            ProcessingJob? job;
+            JobClaim? claim;
             try
             {
-                job = await queue.ClaimNextAsync(LockFor, stoppingToken).ConfigureAwait(false);
+                claim = await queue.ClaimNextAsync(LockFor, stoppingToken).ConfigureAwait(false);
             }
             catch (Exception exception) when (!stoppingToken.IsCancellationRequested)
             {
@@ -76,29 +76,29 @@ internal sealed class DocumentProcessor(
                 _claimFailing = false;
             }
 
-            if (job is null)
+            if (claim is null)
             {
                 return false;
             }
 
-            await ProcessAsync(queue, job, stoppingToken).ConfigureAwait(false);
+            await ProcessAsync(queue, claim, stoppingToken).ConfigureAwait(false);
             return true;
         }
     }
 
-    private async Task ProcessAsync(JobQueue queue, ProcessingJob job, CancellationToken stoppingToken)
+    private async Task ProcessAsync(JobQueue queue, JobClaim claim, CancellationToken stoppingToken)
     {
         using var activity = WorkerTelemetry.Source.StartActivity("nomorepaper.processing.document");
-        activity?.SetTag("nomorepaper.processing.attempt", job.Attempt);
+        activity?.SetTag("nomorepaper.processing.attempt", claim.Attempt);
         var started = time.GetTimestamp();
-        var id = job.DocumentId;
-        logger.DocumentStarted(id, job.Attempt);
+        var id = claim.DocumentId;
+        logger.DocumentStarted(id, claim.Attempt);
 
-        if (job.Attempt > RetryPolicy.MaxAttempts)
+        if (claim.Attempt > RetryPolicy.MaxAttempts)
         {
             // Only possible when the Worker was killed during every attempt (crash, out of memory).
             activity?.SetStatus(ActivityStatusCode.Error);
-            await RecordFailureAsync(queue, job, "Processing was interrupted in every attempt", permanent: false, started, stoppingToken)
+            await RecordFailureAsync(queue, claim, "Processing was interrupted in every attempt", permanent: false, started, stoppingToken)
                 .ConfigureAwait(false);
             return;
         }
@@ -106,28 +106,38 @@ internal sealed class DocumentProcessor(
         var work = workingFolder.CreateAttemptFolder();
         try
         {
-            var result = await pipeline.RunAsync(queue, job, work.FullName, stoppingToken).ConfigureAwait(false);
-            if (result is null)
+            try
             {
-                logger.ClaimLost(job.Attempt, id);
-                return;
+                var result = await pipeline.RunAsync(queue, claim, work.FullName, stoppingToken).ConfigureAwait(false);
+                if (result is null)
+                {
+                    logger.ClaimLost(claim.Attempt, id);
+                    return;
+                }
+
+                var elapsed = time.GetElapsedTime(started);
+                ProcessingLog.Completed.Add(1);
+                ProcessingLog.Duration.Record(elapsed.TotalSeconds, new KeyValuePair<string, object?>(ProcessingLog.OutcomeTag, "done"));
+                logger.DocumentDone(id, (long)elapsed.TotalMilliseconds, result.PageCount, result.Text.Length);
+            }
+            catch (Exception exception) when (!stoppingToken.IsCancellationRequested)
+            {
+                activity?.SetStatus(ActivityStatusCode.Error);
+                await RecordFailureAsync(queue, claim, TechnicalReason(exception), IsPermanent(exception), started, stoppingToken)
+                    .ConfigureAwait(false);
+            }
+        }
+        catch (Exception exception) when (stoppingToken.IsCancellationRequested)
+        {
+            // Whatever failed while stopping (often a tool or the database cut off by the stop
+            // itself) is no real failure of the document: hand the job back instead of recording it.
+            await ReleaseAsync(claim).ConfigureAwait(false);
+            if (exception is OperationCanceledException)
+            {
+                throw;
             }
 
-            var elapsed = time.GetElapsedTime(started);
-            ProcessingLog.Completed.Add(1);
-            ProcessingLog.Duration.Record(elapsed.TotalSeconds, new KeyValuePair<string, object?>(ProcessingLog.OutcomeTag, "done"));
-            logger.DocumentDone(id, (long)elapsed.TotalMilliseconds, result.PageCount, result.Text.Length);
-        }
-        catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested)
-        {
-            await ReleaseAsync(job).ConfigureAwait(false);
-            throw;
-        }
-        catch (Exception exception)
-        {
-            activity?.SetStatus(ActivityStatusCode.Error);
-            await RecordFailureAsync(queue, job, TechnicalReason(exception), IsPermanent(exception), started, stoppingToken)
-                .ConfigureAwait(false);
+            throw new OperationCanceledException("The Worker stopped during the attempt.", exception, stoppingToken);
         }
         finally
         {
@@ -136,7 +146,7 @@ internal sealed class DocumentProcessor(
     }
 
     // A fresh scope: the interrupted attempt's database context may be in the middle of a command.
-    private async Task ReleaseAsync(ProcessingJob job)
+    private async Task ReleaseAsync(JobClaim claim)
     {
         try
         {
@@ -145,32 +155,32 @@ internal sealed class DocumentProcessor(
             await using (scope.ConfigureAwait(false))
             {
                 var queue = scope.ServiceProvider.GetRequiredService<JobQueue>();
-                if (await queue.ReleaseAsync(job.DocumentId, job.Attempt, timeout.Token).ConfigureAwait(false))
+                if (await queue.ReleaseAsync(claim, timeout.Token).ConfigureAwait(false))
                 {
-                    logger.DocumentInterrupted(job.DocumentId);
+                    logger.DocumentInterrupted(claim.DocumentId);
                 }
                 else
                 {
-                    logger.ClaimLost(job.Attempt, job.DocumentId);
+                    logger.ClaimLost(claim.Attempt, claim.DocumentId);
                 }
             }
         }
         catch (Exception exception)
         {
-            logger.ReleaseFailed(job.DocumentId, exception.GetType().Name);
+            logger.ReleaseFailed(claim.DocumentId, exception.GetType().Name);
         }
     }
 
     private async Task RecordFailureAsync(
-        JobQueue queue, ProcessingJob job, string reason, bool permanent, long started, CancellationToken stoppingToken)
+        JobQueue queue, JobClaim claim, string reason, bool permanent, long started, CancellationToken stoppingToken)
     {
-        var id = job.DocumentId;
+        var id = claim.DocumentId;
         try
         {
-            var recorded = await queue.FailAsync(id, job.Attempt, reason, permanent, time.GetUtcNow(), stoppingToken).ConfigureAwait(false);
+            var recorded = await queue.FailAsync(claim, reason, permanent, time.GetUtcNow(), stoppingToken).ConfigureAwait(false);
             if (recorded.Outcome == FailureOutcome.ClaimLost)
             {
-                logger.ClaimLost(job.Attempt, id);
+                logger.ClaimLost(claim.Attempt, id);
                 return;
             }
 
@@ -180,11 +190,11 @@ internal sealed class DocumentProcessor(
                 time.GetElapsedTime(started).TotalSeconds, new KeyValuePair<string, object?>(ProcessingLog.OutcomeTag, outcome));
             if (recorded.NextAttemptAt is { } nextAttemptAt)
             {
-                logger.AttemptFailed(job.Attempt, id, reason, nextAttemptAt);
+                logger.AttemptFailed(claim.Attempt, id, reason, nextAttemptAt);
             }
             else
             {
-                logger.DocumentFailed(id, job.Attempt, reason);
+                logger.DocumentFailed(id, claim.Attempt, reason);
             }
         }
         catch (Exception exception) when (!stoppingToken.IsCancellationRequested)

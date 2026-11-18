@@ -31,7 +31,7 @@ public sealed class DocumentProcessorInterruptionTests(PostgresFixture postgres)
         await Assert.ThrowsAnyAsync<OperationCanceledException>(() => run);
         var job = await harness.JobAsync(id);
         Assert.Equal((0, (DateTimeOffset?)null, ProcessorHarness.Start), (job!.Attempt, job.LockedUntil, job.NextAttemptAt));
-        Assert.Null(job.LastError);
+        Assert.Equal(((Guid?)null, (string?)null), (job.ClaimId, job.LastError));
         Assert.Contains(DocumentInterrupted, harness.Log.EventIds);
         Assert.Empty(harness.WorkingFolderEntries());
 
@@ -39,6 +39,33 @@ public sealed class DocumentProcessorInterruptionTests(PostgresFixture postgres)
         harness.Ocr.Behavior = FakeOcrEngine.WriteArchiveAsync;
         Assert.True(await harness.Processor.ProcessNextAsync(Ct));
         Assert.Equal(ProcessingState.Done, (await harness.DocumentAsync(id)).State);
+    }
+
+    [Fact]
+    public async Task Shutdown_HandsTheJobBack_WhenTheStopMakesTheToolFail()
+    {
+        await using var harness = await ProcessorHarness.CreateAsync(postgres, "processor_shutdown_tool_fails");
+        var id = await harness.AddQueuedDocumentAsync();
+
+        // A killed tool reports an exit code, not a cancellation.
+        harness.Ocr.Behavior = async (input, output, cancellationToken) =>
+        {
+            await Task.Delay(Timeout.Infinite, cancellationToken).ConfigureAwait(ConfigureAwaitOptions.SuppressThrowing);
+            throw new ExternalToolException("ocrmypdf", 137, isPermanent: true);
+        };
+        using var stopping = CancellationTokenSource.CreateLinkedTokenSource(Ct);
+
+        var run = harness.Processor.ProcessNextAsync(stopping.Token);
+        await harness.Ocr.Started.Task.WaitAsync(Ct);
+        await stopping.CancelAsync();
+
+        var stopped = await Assert.ThrowsAnyAsync<OperationCanceledException>(() => run);
+        Assert.IsType<ExternalToolException>(stopped.InnerException);
+        var job = await harness.JobAsync(id);
+        Assert.Equal((0, (DateTimeOffset?)null, (Guid?)null, (string?)null), (job!.Attempt, job.LockedUntil, job.ClaimId, job.LastError));
+        Assert.Equal(ProcessingState.Processing, (await harness.DocumentAsync(id)).State);
+        Assert.Contains(DocumentInterrupted, harness.Log.EventIds);
+        Assert.Empty(harness.WorkingFolderEntries());
     }
 
     [Fact]

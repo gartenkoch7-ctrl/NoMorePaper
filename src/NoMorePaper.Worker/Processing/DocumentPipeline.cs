@@ -15,12 +15,12 @@ internal sealed class DocumentPipeline(IDocumentStorage storage, IOcrEngine ocr)
 {
     /// <param name="work">Empty working folder of this attempt; the caller deletes it.</param>
     /// <returns>The OCR result, or <c>null</c> when the claim was lost and the result is discarded.</returns>
-    public async Task<OcrResult?> RunAsync(JobQueue queue, ProcessingJob job, string work, CancellationToken stoppingToken)
+    public async Task<OcrResult?> RunAsync(JobQueue queue, JobClaim claim, string work, CancellationToken stoppingToken)
     {
         ArgumentNullException.ThrowIfNull(queue);
-        ArgumentNullException.ThrowIfNull(job);
-        var id = job.DocumentId;
-        var document = await queue.StartAsync(id, job.Attempt, stoppingToken).ConfigureAwait(false);
+        ArgumentNullException.ThrowIfNull(claim);
+        var id = claim.DocumentId;
+        var document = await queue.StartAsync(claim, stoppingToken).ConfigureAwait(false);
         if (document is null)
         {
             return null;
@@ -55,7 +55,7 @@ internal sealed class DocumentPipeline(IDocumentStorage storage, IOcrEngine ocr)
 
         // Moving the original and completing are both safe to repeat if the attempt fails in between.
         await storage.ArchiveOriginalAsync(id, stoppingToken).ConfigureAwait(false);
-        var completed = await queue.CompleteAsync(id, job.Attempt, result.Text, archive, stoppingToken).ConfigureAwait(false);
+        var completed = await queue.CompleteAsync(claim, result.Text, archive, stoppingToken).ConfigureAwait(false);
         return completed ? result : null;
     }
 }

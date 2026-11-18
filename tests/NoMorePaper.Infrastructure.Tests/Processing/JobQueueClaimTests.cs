@@ -34,8 +34,8 @@ public sealed class JobQueueClaimTests(PostgresFixture postgres)
         Assert.NotNull(job);
         Assert.Equal(earliest, job.DocumentId);
         Assert.Equal(1, job.Attempt);
-        Assert.Equal(s_start + QueueDatabase.LockFor, job.LockedUntil);
-        Assert.Equal(s_start + QueueDatabase.LockFor, (await data.JobAsync(earliest))!.LockedUntil);
+        var stored = await data.JobAsync(earliest);
+        Assert.Equal((s_start + QueueDatabase.LockFor, job.ClaimId), (stored!.LockedUntil, stored.ClaimId));
     }
 
     [Fact]
@@ -46,15 +46,16 @@ public sealed class JobQueueClaimTests(PostgresFixture postgres)
         await using var db = data.Context();
         var queue = data.Queue(db);
 
-        Assert.NotNull(await queue.ClaimNextAsync(QueueDatabase.LockFor, Ct));
+        var first = await queue.ClaimNextAsync(QueueDatabase.LockFor, Ct);
+        Assert.NotNull(first);
         Assert.Null(await queue.ClaimNextAsync(QueueDatabase.LockFor, Ct));
 
         // The Worker holding it crashed: once the lock has expired, another one takes over.
         data.Time.Now = s_start + QueueDatabase.LockFor + TimeSpan.FromSeconds(1);
         var retaken = await queue.ClaimNextAsync(QueueDatabase.LockFor, Ct);
 
-        Assert.Equal(id, retaken?.DocumentId);
-        Assert.Equal(2, retaken?.Attempt);
+        Assert.Equal((id, 2), (retaken?.DocumentId, retaken?.Attempt));
+        Assert.NotEqual(first.ClaimId, retaken?.ClaimId);
     }
 
     [Fact]

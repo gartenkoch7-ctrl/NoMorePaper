@@ -4,6 +4,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using NoMorePaper.Application.Documents;
 using NoMorePaper.Infrastructure.Composition;
+using NoMorePaper.Infrastructure.Documents;
 using NoMorePaper.Infrastructure.Persistence;
 using Xunit;
 
@@ -79,6 +80,25 @@ public sealed class InfrastructureCompositionTests
         finally
         {
             data.Delete(recursive: true);
+        }
+    }
+
+    [Fact]
+    public void DirectorySync_IsChosenByTheOperatingSystem_AndFlushesARealFolder()
+    {
+        var folder = Directory.CreateTempSubdirectory("nomorepaper-sync-");
+        try
+        {
+            using var provider = Provider(Configuration([]));
+            var sync = provider.GetRequiredService<IDirectorySync>();
+
+            // Only Linux needs the folder flushed; the libc call itself runs in CI.
+            Assert.Equal(OperatingSystem.IsLinux() ? "LibcDirectorySync" : "NoDirectorySync", sync.GetType().Name);
+            sync.Flush(folder.FullName);
+        }
+        finally
+        {
+            folder.Delete(recursive: true);
         }
     }
 

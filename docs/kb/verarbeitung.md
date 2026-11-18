@@ -24,14 +24,22 @@ Beschreibt, wie ein Dokument im Worker verarbeitet wird. Entscheidung und Begrü
 
 ## Besitz eines Jobs
 
-- Die Versuchsnummer, die das Holen zurückgibt, ist der Ausweis des Workers. Starten,
-  Abschließen, Fehlschlag und Zurückgeben wirken nur, solange der Job noch diese Nummer hat
-  (`WHERE document_id = … AND attempt = …`, Zeile mit `FOR UPDATE` gesperrt).
+- Jedes Holen schreibt eine neue, zufällige `claim_id` (uuid) in den Job. Sie ist der Ausweis
+  des Workers. Starten, Abschließen, Fehlschlag und Zurückgeben wirken nur, solange der Job noch
+  diese `claim_id` hat (`WHERE document_id = … AND claim_id = …`, Zeile mit `FOR UPDATE`
+  gesperrt). Ein geplanter neuer Versuch und das Zurückgeben setzen sie auf `NULL`.
+- `attempt` zählt nur die Versuche und ist kein Ausweis, denn die Nummer kann sich wiederholen
+  (siehe Zurückgeben). Eine `claim_id` wiederholt sich nie.
 - Läuft die Sperre ab und holt ein anderer Worker den Job, zählt er einen neuen Versuch. Der alte
   Worker ändert danach nichts mehr an Job und Dokument, sein Ergebnis wird verworfen (Log 2110).
+  Das gilt auch, wenn der neue Besitzer den Job zurückgibt und ein dritter ihn holt.
 - **Herunterfahren:** Wird der Worker mitten in einem Dokument beendet, gibt er den Job zurück:
-  `locked_until = NULL`, `attempt - 1`. Der Job ist sofort wieder fällig und der abgebrochene
-  Versuch zählt nicht. Dafür bleiben höchstens 5 Sekunden.
+  `claim_id = NULL`, `locked_until = NULL`, `attempt - 1`. Der Job ist sofort wieder fällig und
+  der abgebrochene Versuch zählt nicht. Das geht nur einmal je Holen, weil die `claim_id` dabei
+  verschwindet. Dafür bleiben höchstens 5 Sekunden.
+- Endet der Versuch beim Herunterfahren mit irgendeinem Fehler (z. B. ein abgebrochenes
+  Werkzeug mit Exit-Code), gilt das nicht als Fehlschlag: Der Job wird ebenso zurückgegeben.
+- Ein Absturz gibt nichts zurück. Der Versuch bleibt gezählt (siehe Bekannte Lücken).
 
 ## Arbeitsordner
 

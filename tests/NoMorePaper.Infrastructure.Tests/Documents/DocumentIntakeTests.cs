@@ -143,7 +143,7 @@ public sealed class DocumentIntakeTests(PostgresFixture postgres) : IDisposable
 
     private DocumentIntake CreateIntake(AppDbContext db, TimeProvider? clock = null) => new(
         db,
-        new FileSystemDocumentStorage(_sandbox.FullName, NullLogger<FileSystemDocumentStorage>.Instance),
+        new FileSystemDocumentStorage(_sandbox.FullName, new RecordingDirectorySync(), NullLogger<FileSystemDocumentStorage>.Instance),
         clock ?? TimeProvider.System,
         _sandbox.FullName,
         NullLogger<DocumentIntake>.Instance);

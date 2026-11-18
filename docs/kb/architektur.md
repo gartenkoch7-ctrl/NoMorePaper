@@ -43,8 +43,9 @@ Handy/PC ──Tailscale──► server ──► postgres ◄── worker ─
   hinterlässt keine halbe Datei. Das Original wandert per `ArchiveOriginalAsync` (Umbenennen,
   wiederholbar) vom Eingang ins Archiv.
 - **Dauerhaft:** Unter Linux überlebt ein umbenannter Eintrag einen Stromausfall erst, wenn auch
-  der Ordner geflusht ist. `DirectorySync` ruft nach jedem Umbenennen `fsync` auf Zielordner und
-  dessen Elternordner auf (libc, unter glibc und musl/Alpine geprüft); unter Windows tut es nichts.
+  der Ordner geflusht ist. `IDirectorySync` ruft nach jedem Umbenennen `fsync` auf Zielordner und
+  dessen Elternordner auf (`LibcDirectorySync`, unter glibc und musl/Alpine geprüft); unter Windows
+  wählt `AddInfrastructure` `NoDirectorySync`, das nichts tut.
 - **Annahme:** `DocumentIntake` committet mit `CancellationToken.None` – ein abgebrochener Upload
   darf einen schon laufenden Commit nicht abbrechen. Nach einem Fehler beim Commit wird die
   Eingangsdatei nur gelöscht, wenn sicher keine Zeile in `documents` existiert (Ereignisse 3203/3204).
