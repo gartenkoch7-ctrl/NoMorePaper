@@ -1356,9 +1356,6 @@
   <data name="MailSecurityStartTls" xml:space="preserve">
     <value>STARTTLS</value>
   </data>
-  <data name="MailSecurityNone" xml:space="preserve">
-    <value>Keine (nur im eigenen Netz)</value>
-  </data>
   <data name="MailFieldUser" xml:space="preserve">
     <value>Benutzername</value>
   </data>
@@ -1562,5 +1559,26 @@
   </data>
   <data name="CamHintLabel" xml:space="preserve">
     <value>Hinweis: {0}</value>
+  </data>
+  <data name="MailErrorPasswordAgain" xml:space="preserve">
+    <value>Server, Port, Verschlüsselung oder Benutzername wurden geändert. Gib dafür das Passwort neu ein – das gespeicherte gilt nur für den bisherigen Zugang.</value>
+  </data>
+  <data name="MailErrorUnencrypted" xml:space="preserve">
+    <value>Eine Verbindung ohne Verschlüsselung ist nicht erlaubt. Wähle TLS oder STARTTLS.</value>
+  </data>
+  <data name="MailHintPasswordAgain" xml:space="preserve">
+    <value>Server oder Benutzer wurden geändert: Gib das Passwort neu ein.</value>
+  </data>
+  <data name="CamPrivateUnknown" xml:space="preserve">
+    <value>Stand unbekannt: Deine Konto-Einstellung ließ sich nicht laden. Ohne Änderung wird das Dokument nach deiner Konto-Einstellung privat oder geteilt abgelegt.</value>
+  </data>
+  <data name="CamSavedByAccount" xml:space="preserve">
+    <value>Das Dokument wurde nach deiner Konto-Einstellung gespeichert und wartet auf die Verarbeitung. Seiten: {0}.</value>
+  </data>
+  <data name="InpICloudPending" xml:space="preserve">
+    <value>iCloud folgt – wartet auf den Test mit Apple-ID.</value>
+  </data>
+  <data name="InpErrorSendersFull" xml:space="preserve">
+    <value>Es sind höchstens {0} Absender-Adressen möglich. Entferne zuerst eine.</value>
   </data>
 </root>

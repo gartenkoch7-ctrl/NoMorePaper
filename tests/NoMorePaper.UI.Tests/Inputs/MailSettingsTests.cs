@@ -15,11 +15,12 @@ public sealed class MailSettingsTests(ServerFixture server)
 
     private static readonly MailSettingsDto s_stored = new("imap.haushalt.example", 993, "ssl", "dokumente", "mx.haushalt.example", true);
 
-    private Task<BrowserSession> OpenAsync(AccountMocks mocks, string culture = SupportedCultures.German, int testStatus = 204, MailSettingsDto? stored = null)
+    private Task<BrowserSession> OpenAsync(
+        AccountMocks mocks, string culture = SupportedCultures.German, int testStatus = 204, MailSettingsDto? stored = null, object? refusal = null)
         => server.OpenAsync("/eingaenge/mail", culture, prepare: async page =>
         {
             await mocks.RespondAsync(page, "GET", Path, 200, stored ?? s_stored);
-            await mocks.RespondAsync(page, "PUT", Path, 204);
+            await mocks.RespondAsync(page, "PUT", Path, refusal is null ? 204 : 400, refusal);
             await mocks.RespondAsync(page, "POST", Path + "/test", testStatus, testStatus == 204 ? null : new { status = testStatus });
         });
 
@@ -99,6 +100,59 @@ public sealed class MailSettingsTests(ServerFixture server)
 
         await Assertions.Expect(page.Locator("main [role=alert]").First).ToHaveTextAsync("Fehler: Der Port muss eine Zahl von 1 bis 65535 sein.");
         await Assertions.Expect(page.Locator("#mail-port")).ToBeFocusedAsync();
+    }
+
+    [Fact]
+    public async Task AnotherServer_NeedsThePasswordAgain_SaidAsText_WithFocusOnTheField()
+    {
+        var mocks = new AccountMocks();
+        await using var session = await OpenAsync(mocks);
+        var page = session.Page;
+
+        await page.Locator("#mail-host").FillAsync("imap.anderer.example");
+        await Assertions.Expect(page.Locator("#mail-password-hint")).ToHaveTextAsync("Server oder Benutzer wurden geändert: Gib das Passwort neu ein.");
+        await page.GetByRole(AriaRole.Button, new() { Name = "Verbindung testen" }).ClickAsync();
+
+        await Assertions.Expect(page.Locator("main [role=alert]").First).ToContainTextAsync("Gib dafür das Passwort neu ein");
+        await Assertions.Expect(page.Locator("#mail-password")).ToBeFocusedAsync();
+        await Assertions.Expect(page.Locator("#mail-password")).ToHaveAttributeAsync("aria-required", "true");
+        Assert.False(mocks.WasCalled("POST", Path + "/test"));
+        await Assertions.Expect(page.Locator("#mail-security option")).ToHaveTextAsync(["SSL/TLS", "STARTTLS"]);
+    }
+
+    [Theory]
+    [InlineData("password", "required", "#mail-password", "Gib dafür das Passwort neu ein")]
+    [InlineData("security", "unencrypted", "#mail-security", "Eine Verbindung ohne Verschlüsselung ist nicht erlaubt.")]
+    public async Task ARefusalOfTheServer_IsSaidAsText_AndFocusesItsField(string field, string word, string focused, string text)
+    {
+        var refusal = new { status = 400, errors = new Dictionary<string, string[]> { [field] = [word] } };
+        await using var session = await OpenAsync(new AccountMocks(), refusal: refusal);
+        var page = session.Page;
+
+        await page.GetByRole(AriaRole.Button, new() { Name = "Speichern" }).ClickAsync();
+
+        await Assertions.Expect(page.Locator("main [role=alert]").First).ToContainTextAsync(text);
+        await Assertions.Expect(page.Locator(focused)).ToBeFocusedAsync();
+        await Assertions.Expect(page.Locator(focused)).ToHaveAttributeAsync("aria-invalid", "true");
+    }
+
+    [Fact]
+    public async Task SaveAndTest_KeepTheKeyboardFocusOnTheirButton()
+    {
+        await using var session = await OpenAsync(new AccountMocks());
+        var page = session.Page;
+        var save = page.GetByRole(AriaRole.Button, new() { Name = "Speichern" });
+        var test = page.GetByRole(AriaRole.Button, new() { Name = "Verbindung testen" });
+
+        await save.FocusAsync();
+        await page.Keyboard.PressAsync("Enter");
+        await Assertions.Expect(page.Locator("main [role=status]").First).ToHaveTextAsync("Einstellungen des Postfachs gespeichert.");
+        await Assertions.Expect(save).ToBeFocusedAsync();
+
+        await test.FocusAsync();
+        await page.Keyboard.PressAsync("Enter");
+        await Assertions.Expect(page.Locator("main [role=status]").First).ToHaveTextAsync("Verbindung klappt: Anmeldung am Mailserver erfolgreich.");
+        await Assertions.Expect(test).ToBeFocusedAsync();
     }
 
     [Fact]

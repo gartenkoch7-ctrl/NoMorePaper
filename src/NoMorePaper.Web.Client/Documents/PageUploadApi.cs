@@ -19,18 +19,23 @@ public sealed class PageUploadApi(HttpClient http, IStringLocalizer<Strings> loc
 {
     private const string Operation = "pages";
 
+    /// <param name="isPrivate">The person's own choice; <c>null</c> sends none, and the server takes the account's setting.</param>
     /// <param name="takenAt">When the first page was taken, in the phone's local time; names the document.</param>
     public async Task<ApiResult<UploadResultDto>> UploadPagesAsync(
-        IReadOnlyList<byte[]> jpegs, bool isPrivate, DateTimeOffset takenAt, CancellationToken ct = default)
+        IReadOnlyList<byte[]> jpegs, bool? isPrivate, DateTimeOffset takenAt, CancellationToken ct = default)
     {
         ArgumentNullException.ThrowIfNull(jpegs);
         try
         {
             using var form = new MultipartFormDataContent
             {
-                { new StringContent(isPrivate ? "true" : "false"), "private" },
                 { new StringContent(takenAt.ToString("yyyy-MM-dd'T'HH:mm:sszzz", CultureInfo.InvariantCulture)), "takenAt" },
             };
+            if (isPrivate is { } choice)
+            {
+                form.Add(new StringContent(choice ? "true" : "false"), "private");
+            }
+
             for (var i = 0; i < jpegs.Count; i++)
             {
                 var part = new ByteArrayContent(jpegs[i]);

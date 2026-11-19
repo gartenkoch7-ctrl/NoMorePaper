@@ -64,9 +64,10 @@ internal sealed class ScannerFolderHarness(AccountDatabase database) : IDisposab
         return source.RunAsync(cancellationToken);
     }
 
-    /// <summary>The files left in the scanner folder, relative and with forward slashes.</summary>
+    /// <summary>The files left in the scanner folder, relative and with forward slashes; the owner marks left out.</summary>
     public string[] Files() =>
         [.. Directory.EnumerateFiles(Root, "*", SearchOption.AllDirectories)
+            .Where(path => Path.GetFileName(path) != AccountFolders.OwnerMarkName)
             .Select(path => Path.GetRelativePath(Root, path).Replace('\\', '/'))
             .Order(StringComparer.Ordinal)];
 

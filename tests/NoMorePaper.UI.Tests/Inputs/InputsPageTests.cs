@@ -50,7 +50,7 @@ public sealed class InputsPageTests(ServerFixture server)
     }
 
     [Fact]
-    public async Task Administrator_GetsTheMailSettingsLink_AndTheICloudLink()
+    public async Task Administrator_GetsTheMailSettingsLink_AndICloudSaysItFollows_WithoutLink()
     {
         var fake = Admin();
         fake.Rows.RemoveAll(row => row.Kind == "icloud");
@@ -58,12 +58,15 @@ public sealed class InputsPageTests(ServerFixture server)
         var page = session.Page;
 
         await Assertions.Expect(page.GetByRole(AriaRole.Link, new() { Name = "Mail-Einstellungen" })).ToHaveAttributeAsync("href", "eingaenge/mail");
-        await Assertions.Expect(page.GetByRole(AriaRole.Link, new() { Name = "iCloud einrichten" })).ToHaveAttributeAsync("href", "eingaenge/icloud");
-        await Assertions.Expect(page.GetByRole(AriaRole.Region, new() { Name = "iCloud Drive" })).ToContainTextAsync("Noch nicht eingerichtet.");
+        var icloud = page.GetByRole(AriaRole.Region, new() { Name = "iCloud Drive" });
+        await Assertions.Expect(icloud).ToContainTextAsync("Noch nicht eingerichtet.");
+        // The page /eingaenge/icloud comes with track D; until then no link leads to "not found".
+        await Assertions.Expect(page.Locator("#inputs-icloud-action")).ToHaveTextAsync("iCloud folgt – wartet auf den Test mit Apple-ID.");
+        await Assertions.Expect(icloud.GetByRole(AriaRole.Link)).ToHaveCountAsync(0);
     }
 
     [Fact]
-    public async Task Member_HasNoMailSettings_ButCanRenewItsOwnICloudCode()
+    public async Task Member_HasNoMailSettings_AndNoICloudLinkYet()
     {
         var fake = new FakeInputs
         {
@@ -75,7 +78,8 @@ public sealed class InputsPageTests(ServerFixture server)
 
         await Assertions.Expect(page.GetByRole(AriaRole.Region, new() { Name = "Mail" })).ToContainTextAsync("Das Postfach richtet der Verwalter ein.");
         await Assertions.Expect(page.GetByRole(AriaRole.Link, new() { Name = "Mail-Einstellungen" })).ToHaveCountAsync(0);
-        await Assertions.Expect(page.GetByRole(AriaRole.Link, new() { Name = "Code erneuern" })).ToHaveAttributeAsync("href", "eingaenge/icloud");
+        await Assertions.Expect(page.GetByRole(AriaRole.Link, new() { Name = "Code erneuern" })).ToHaveCountAsync(0);
+        await Assertions.Expect(page.Locator("#inputs-icloud-action")).ToHaveTextAsync("iCloud folgt – wartet auf den Test mit Apple-ID.");
     }
 
     [Fact]
@@ -109,6 +113,24 @@ public sealed class InputsPageTests(ServerFixture server)
         await page.GetByRole(AriaRole.Button, new() { Name = "Erneut versuchen" }).ClickAsync();
 
         await Assertions.Expect(page.GetByRole(AriaRole.Heading, new() { Level = 2 })).ToHaveTextAsync(["Scanner-Ordner", "Mail", "iCloud Drive"]);
+    }
+
+    [Fact]
+    public async Task TheSameLoadErrorAgain_AfterRetry_IsAnnouncedInTheLiveRegion()
+    {
+        var fake = Admin();
+        fake.InputsStatus = 500;
+        await using var session = await fake.OpenAsync(server, "/eingaenge");
+        var page = session.Page;
+        await Assertions.Expect(page.Locator("main .error-box")).ToContainTextAsync("Die Eingänge konnten nicht geladen werden");
+        await Assertions.Expect(page.Locator("main [role=status].live-region")).ToHaveTextAsync(string.Empty);
+
+        await page.Locator("#inputs-retry").FocusAsync();
+        await page.Keyboard.PressAsync("Enter");
+
+        // The alert box is unchanged and says nothing again: the status region says it.
+        await Assertions.Expect(page.Locator("main [role=status].live-region")).ToContainTextAsync("Die Eingänge konnten nicht geladen werden");
+        await Assertions.Expect(page.Locator("#inputs-retry")).ToBeFocusedAsync();
     }
 
     [Fact]

@@ -11,4 +11,10 @@ public enum SeenList
 
     /// <summary>Failed; the row counts the failures.</summary>
     Failed,
+
+    /// <summary>
+    /// Judged as spam, but not yet in the spam folder (its move failed): the next run only retries the move,
+    /// without a second LLM check, and the mail is not taken as one moved back from the spam folder.
+    /// </summary>
+    SpamMovePending,
 }

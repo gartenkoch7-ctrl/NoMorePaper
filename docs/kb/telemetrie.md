@@ -67,8 +67,8 @@ Die Annahme behält 3200/3201 und nennt dort die Quelle.
 | 1304 | Information | `Server/Accounts/AccountsLog` | Konto abgemeldet: Konto-Id |
 | 1305 | Information | `Server/Accounts/AccountsLog` | Sitzung beendet, weil das Konto entfernt oder sein Security-Stamp erneuert wurde: Konto-Id |
 | 1306 | Warning | `Server/Accounts/AccountsLog` | Passwortänderung abgelehnt, weil das Konto gesperrt ist (423): Konto-Id, `Retry-After` in Sekunden |
-| 1400 | Information | `Server/Inputs/MailSettingsLog` | Postfach eingerichtet (`PUT /api/inputs/mail`): Konto-Id, Verschlüsselung (`Ssl`, `StartTls`, `None`), ob ein neues Passwort kam – nie Host, Benutzer, authserv-id oder Passwort |
-| 1401 | Warning | `Server/Inputs/MailSettingsLog` | Postfach-Einrichtung abgelehnt: Konto-Id, Grund (`invalid`, `password-missing`, `not-administrator`) |
+| 1400 | Information | `Server/Inputs/MailSettingsLog` | Postfach eingerichtet (`PUT /api/inputs/mail`): Konto-Id, Verschlüsselung (`Ssl`, `StartTls`), ob ein neues Passwort kam – nie Host, Benutzer, authserv-id oder Passwort |
+| 1401 | Warning | `Server/Inputs/MailSettingsLog` | Postfach-Einrichtung abgelehnt: Konto-Id, Grund (`invalid`, `unencrypted`, `password-missing` – auch bei geändertem Server/Benutzer ohne neues Passwort –, `not-administrator`) |
 | 1402 | Information | `Server/Inputs/MailSettingsLog` | Verbindung getestet (`POST /api/inputs/mail/test`): Konto-Id, Ergebnis (`Ok`, `SignInFailed`, `Unreachable`) |
 | 1410 | Information | `Server/Inputs/InputsLog` | Einstellungen gespeichert (`PUT /api/account/preferences`): Konto-Id, Anzahl Absender-Adressen – nie die Adressen |
 | 1411 | Warning | `Server/Inputs/InputsLog` | Einstellungen abgelehnt: Konto-Id, Grund (`empty`, `invalid`, `sender-taken`) |
@@ -144,6 +144,8 @@ Die Annahme behält 3200/3201 und nennt dort die Quelle.
 | 3607 | Information | `Infrastructure/Inputs/ScannerFolder/ScannerFolderLog` | Datei hat sich während der Annahme geändert; sie bleibt und wird neu gelesen |
 | 3608 | Warning | `Infrastructure/Inputs/ScannerFolder/ScannerFolderLog` | Unterordner eines Kontos nicht anlegbar (Konto-Id, Ausnahmetyp) |
 | 3609 | Warning | `Infrastructure/Inputs/ScannerFolder/ScannerFolderLog` | Datei nicht nach `Fehler/` verschiebbar (Ausnahmetyp oder `NameTaken`); sie bleibt |
+| 3610 | Warning | `Infrastructure/Inputs/ScannerFolder/ScannerFolderLog` | Unterordner trägt die Besitzermarke eines anderen (entfernten) Kontos: Konto-Id des Namens; nicht gelesen, Dateien bleiben (Problem `UnknownFolder`) |
+| 3611 | Information | `Infrastructure/Inputs/ScannerFolder/ScannerFolderLog` | Unterordner von vor der Besitzermarke für das Konto seines Namens markiert (Konto-Id) |
 | 3700 | Information | `Infrastructure/Inputs/Mail/ImapLog` | Am Postfach angemeldet: Dauer in ms (Verbinden + Anmelden) |
 | 3701 | Warning | `Infrastructure/Inputs/Mail/ImapLog` | Mailserver hat die Anmeldung abgelehnt (oder das gespeicherte Passwort ist nicht lesbar) |
 | 3702 | Warning | `Infrastructure/Inputs/Mail/ImapLog` | Mailserver nicht erreichbar: Ausnahmetyp – nie der Host |
@@ -278,7 +280,7 @@ Die Annahme behält 3200/3201 und nennt dort die Quelle.
 | 5301 | Warning | `Application/Documents/DocumentIntakeLog` | Datei nicht angenommen, Besitzer entfernt: Quelle, Konto-Id |
 | 5302 | Warning | `Application/Documents/DocumentIntakeLog` | Datei unbekannten Besitzers nicht angenommen, weil es keinen Verwalter gibt: Quelle |
 | 5303 | Information | `Application/Documents/DocumentIntakeLog` | Dokument unklarer Herkunft weitergegeben: Konto-Id, Dokument-Id, neuer Besitzer, ob die Erkennung neu eingereiht wurde, Anzahl verworfener Listeneinträge (für die Zielsicht unsichtbar) |
-| 5400 | Information | `Application/Inputs/Mail/MailLog` | Mail verarbeitet: Anzahl neuer Dokumente, Ergebnis (`document`, `no-document`, `spam`, `already-imported`) – nie Absender, Betreff, Text |
+| 5400 | Information | `Application/Inputs/Mail/MailLog` | Mail verarbeitet: Anzahl neuer Dokumente, Ergebnis (`document`, `no-document`, `spam`, `already-imported`, `already-spam`) – nie Absender, Betreff, Text |
 | 5401 | Warning | `Application/Inputs/Mail/MailLog` | LLM-Prüfung einer Mail unbrauchbar (zählt als Fehlschlag der Mail): Ausnahmetyp |
 | 5402 | Information | `Application/Inputs/Mail/MailLog` | Teil einer Mail ist kein Dokument und wurde ausgelassen: angegebener Medientyp ohne Parameter (z. B. `image/png`) – nie der Dateiname |
 | 5403 | Warning | `Application/Inputs/Mail/MailLog` | Verschieben einer Mail fehlgeschlagen: Ziel (`Processed`, `Spam`, `Failed`), Ausnahmetyp; ein späterer Lauf verschiebt sie |
@@ -287,6 +289,7 @@ Die Annahme behält 3200/3201 und nennt dort die Quelle.
 | 5406 | Warning | `Application/Inputs/Mail/MailLog` | Lokales LLM nicht verfügbar, Lauf endet: Anzahl Mails, die unberührt im Posteingang bleiben |
 | 5407 | Information | `Application/Inputs/Mail/MailLog` | Zeitbudget des Laufs (5 min) erreicht: Anzahl verarbeiteter Mails |
 | 5408 | Information | `Application/Inputs/Mail/MailLog` | Lauf über das Postfach: Mails, neue Dokumente, ohne Dokument, aussortiert, Dauer in ms |
+| 5409 | Warning | `Application/Inputs/Mail/MailLog` | Mails nicht aus dem Posteingang verschiebbar: Anzahl; sie bleiben, der nächste Lauf versucht nur das Verschieben (Problem `StuckItems`) |
 
 Web.Client: Die Ereignisse erscheinen nur in der Browser-Konsole und enthalten nur Sprachkürzel,
 Größen, Anzahlen, Statuscodes, Dauern und technische Fehlernamen – nie Dateinamen, Titel,

@@ -141,7 +141,10 @@ Daraus abgeleitet:
 ### E. Einstellungen und Seite „Eingänge“
 - [x] Konto-Seite: „Neue Dokumente privat“ (Schalter), Absender-Adressen (Liste)
 - [x] Seite `/eingaenge`: je Eingang Zustand als Text (nie nur Farbe), letzter Abruf, letzte Meldung,
-      Aktion („einrichten“, „Code erneuern“); Live-Region bei Änderung
+      Aktion „einrichten“ für Mail; Live-Region bei Änderung
+- [ ] iCloud-Aktionen „einrichten“ und „Code erneuern“ auf `/eingaenge`: kommen mit Spur D. Bis dahin steht
+      dort nur „iCloud folgt – wartet auf den Test mit Apple-ID“ ohne Link; Spur D schaltet
+      `Inputs.ICloudPageExists` auf `true`
 - [x] „Herkunft unklar“ im Viewer und in „Zu prüfen“: „Passt so“ und „Weitergeben an …“ per Tastatur
 - [x] API: `GET /api/inputs`
 

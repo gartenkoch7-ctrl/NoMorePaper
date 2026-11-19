@@ -110,6 +110,23 @@ public sealed class PreferencesTests(ServerFixture server)
     }
 
     [Fact]
+    public async Task ATwentyFirstAddress_IsRefusedWithTheMaximum_NotAsInvalid()
+    {
+        var full = Enumerable.Range(1, 20).Select(i => $"absender{i}@example.org").ToArray();
+        var fake = new FakeInputs { Preferences = new AccountPreferencesDto(false, full) };
+        await using var session = await fake.OpenAsync(server, "/konto");
+        var page = session.Page;
+
+        await page.Locator(Add).FillAsync("neu@example.org");
+        await page.Keyboard.PressAsync("Enter");
+
+        await Assertions.Expect(page.Locator("section[aria-labelledby=inputs-prefs-heading] [role=alert]"))
+            .ToHaveTextAsync("Fehler: Es sind höchstens 20 Absender-Adressen möglich. Entferne zuerst eine.");
+        await Assertions.Expect(page.Locator(Add)).ToBeFocusedAsync();
+        Assert.Empty(fake.PreferenceBodies);
+    }
+
+    [Fact]
     public async Task ARefusedToggle_IsSaidAsText_AndTheSwitchShowsWhatIsSaved()
     {
         var fake = new FakeInputs { PreferencesPutStatus = 500 };

@@ -61,7 +61,8 @@ public sealed partial class CameraCaptureTests(ServerFixture server, FakeCameraB
 
         var form = upload.Form ?? throw new InvalidOperationException("No upload was sent.");
         var jpeg = Assert.Single(form.Parts, part => part.Name == "page").Body;
-        Assert.Equal("false", form.Value("private"));
+        // The switch was not touched: the server applies the account's setting.
+        Assert.Null(form.Value("private"));
         Assert.Matches(@"^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}[+-]\d{2}:\d{2}$", form.Value("takenAt"));
 
         // JFIF right after the start marker (PDFsharp needs it), and the sheet straightened: its edges

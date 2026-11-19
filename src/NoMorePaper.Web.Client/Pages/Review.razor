@@ -57,7 +57,7 @@ else
                         <dd>@(item.Fields.Tags.Count == 0 ? L["ClsNoValue"] : string.Join(", ", item.Fields.Tags.Select(tag => tag.Name)))</dd>
                     </dl>
 
-                    <OwnerCheckSection DocumentId="item.Id" Title="@item.Title" Prefix="@("review-owner-" + key)" NeedsCheck="item.Fields.NeedsOwnerCheck" OnAnswered="answer => OwnerAnsweredAsync(item, answer)" />
+                    <OwnerCheckSection DocumentId="item.Id" Title="@item.Title" Prefix="@("review-owner-" + key)" NeedsCheck="item.Fields.NeedsOwnerCheck" Household="_household" OnAnswered="answer => OwnerAnsweredAsync(item, answer)" />
 
                     @if (item.PossibleDuplicate is { } other)
                     {

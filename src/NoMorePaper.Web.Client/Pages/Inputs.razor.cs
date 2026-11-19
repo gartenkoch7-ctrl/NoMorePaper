@@ -36,6 +36,13 @@ public sealed partial class Inputs : IDisposable
 
     [Inject] private ILogger<Inputs> Logger { get; set; } = default!;
 
+    /// <summary>
+    /// Whether the page <c>/eingaenge/icloud</c> exists. Until track D builds it (after the test with a real
+    /// Apple ID, ADR-0018) the iCloud section says so in words instead of linking to a page that is not there;
+    /// track D sets this to <c>true</c>.
+    /// </summary>
+    internal static bool ICloudPageExists => false;
+
     private bool MailNotConfigured => RowsOf("mail").Any(row => row.Problem == "not-configured") || !HasRows("mail");
 
     // Only the signed-in account's own row can be renewed here; the name is all the row carries.
@@ -95,10 +102,17 @@ public sealed partial class Inputs : IDisposable
 
         if (!result.IsSuccess || result.Value is null)
         {
-            // The error box is an alert and speaks for itself; stale rows would only mislead.
+            // A new error box is an alert and speaks for itself; stale rows would only mislead. The same error
+            // again leaves the box unchanged, and an unchanged alert says nothing: by hand it is said here.
+            var before = _loadError;
             _loadError = result.Error ?? L["ErrorUnreachable"];
             Logger.InputsPageFailed("load-inputs");
             StateHasChanged();
+            if (byHand && before == _loadError)
+            {
+                await AnnounceAsync(L["InpLoadError", _loadError]);
+            }
+
             return;
         }
 

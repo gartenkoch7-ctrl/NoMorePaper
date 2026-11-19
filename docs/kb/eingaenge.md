@@ -95,7 +95,7 @@ Stand: Schritt 0 (gemeinsame Bausteine). Die Spuren A–E ergänzen ihre Abschni
   und Mail ohne Konto und seine eigenen Zeilen (sein iCloud).
 
 ## Gemerkte Elemente
-- `input_seen_items`: je Eingang, Konto und Liste (`Imported`, `Spam`, `Failed`) nur der **SHA-256** der
+- `input_seen_items`: je Eingang, Konto und Liste (`Imported`, `Spam`, `Failed`, `SpamMovePending`) nur der **SHA-256** der
   Kennung (Message-ID, iCloud-Datei-Id), nie die Kennung selbst; `failures` zählt Fehlschläge.
 
 ## Geheimnisse
@@ -135,19 +135,24 @@ Stand: Schritt 0 (gemeinsame Bausteine). Die Spuren A–E ergänzen ihre Abschni
   Abruf und letzter Erfolg relativ und absolut. Die Seite fragt jede Minute neu (`PeriodicTimer`); eine
   Änderung von Zustand oder Problem sagt die Live-Region an, „Jetzt aktualisieren“ antwortet immer. Der
   Knopf bleibt aktiv (ein deaktivierter Knopf verliert den Tastaturfokus). Ein Ladefehler ersetzt die Zeilen
-  durch eine Fehlermeldung mit „Erneut versuchen“. Probleme unbekannter Art (neuerer Server) zeigen
+  durch eine Fehlermeldung mit „Erneut versuchen“. Scheitert ein Laden von Hand mit demselben Fehler noch einmal,
+  bleibt die `alert`-Box gleich und sagt nichts – dann spricht die Status-Live-Region den Fehler. Probleme unbekannter Art (neuerer Server) zeigen
   „Unbekanntes Problem“.
-- Links: Mail-Einstellungen (`eingaenge/mail`, nur Verwalter), iCloud (`eingaenge/icloud`, „Code erneuern“
-  nur bei der eigenen Zeile mit `code-needed`; die Zeile trägt nur den Anzeigenamen, verglichen wird damit).
-  Beide Seiten bauen die Spuren C und D.
+- Links: Mail-Einstellungen (`eingaenge/mail`, nur Verwalter). iCloud (`eingaenge/icloud`, „Code erneuern“
+  nur bei der eigenen Zeile mit `code-needed`; die Zeile trägt nur den Anzeigenamen, verglichen wird damit)
+  kommt mit Spur D: bis dahin steht dort nur „iCloud folgt – wartet auf den Test mit Apple-ID“ ohne Link
+  (`Inputs.ICloudPageExists`, Spur D schaltet ihn auf `true`).
 - Konto-Seite (`Accounts/PreferencesSection`): „Neue Dokumente privat ablegen“ und die Absender-Liste
   speichern jede Änderung sofort (`PUT /api/account/preferences` mit dem ganzen Stand) und sagen sie an;
-  eine abgelehnte Adresse bleibt im Feld und bekommt den Fokus. Upload-Seite: Privat-Schalter aus der
+  eine abgelehnte Adresse bleibt im Feld und bekommt den Fokus. Bei 20 Adressen (Höchstzahl) sagt ein eigener Text
+  die Höchstzahl statt „ungültig“. Upload-Seite: Privat-Schalter aus der
   Einstellung; ist sie nicht ladbar, steht das als Text da und der Schalter bleibt aus.
 - Besitzer prüfen (`Classification/OwnerCheckSection`) im Viewer und in „Zu prüfen“: „Passt so: <Titel>“
   und „Weitergeben an“ (Auswahl der anderen Konten aus `GET /api/household`) mit Knopf „Weitergeben: <Titel>“.
   Ohne Wahl: Fehlertext und Fokus auf die Auswahl. Nach der Weitergabe sagt der Viewer, wohin das Dokument
-  ging (es ist nicht mehr sichtbar); die Liste lädt neu und nennt, was übrig ist.
+  ging (es ist nicht mehr sichtbar); die Liste lädt neu und nennt, was übrig ist. „Zu prüfen“ lädt den Haushalt
+  **einmal** für alle Abschnitte (Parameter `Household`), nach einem Fehler beim nächsten Laden neu; der Viewer
+  lädt ihn selbst.
 
 ## Scanner-Ordner (Spur B)
 - `ScannerFolderSource` (Infrastructure, `Inputs/ScannerFolder/`), alle **30 s**, nur wenn
@@ -156,6 +161,14 @@ Stand: Schritt 0 (gemeinsame Bausteine). Die Spuren A–E ergänzen ihre Abschni
 - **Unterordner je Konto** (`AccountFolders`), bei jedem Lauf neu aus den bestehenden Konten: Anmeldename klein,
   wenn er nur `a–z`, `0–9`, `.`, `_`, `-` enthält und mit Buchstabe oder Ziffer beginnt und endet (nie
   versteckt, nie `..`, nie `Fehler`), sonst die Konto-Id. Fehlende Ordner legt der Worker an (Log 3603).
+- **Besitzermarke:** In jeden Kontoordner schreibt der Worker beim Anlegen die versteckte Datei
+  `.nomorepaper-owner` mit der Konto-Id. Gelesen wird ein Ordner nur, wenn seine Marke zum Konto seines Namens
+  passt. Bekommt ein neues Konto den Anmeldenamen eines entfernten, gilt der alte Ordner (Marke = alte Id) als
+  fremder Ordner: seine Scans bleiben liegen und werden **nie** Dokumente des neuen Kontos (Log 3610). Das neue
+  Konto bekommt erst einen Ordner, wenn der Verwalter den alten geleert und gelöscht hat. Ordner von vor der
+  Marke (oder deren Schreiben scheiterte) bekommen sie beim ersten Lauf, wenn ihr Name zu einem bestehenden
+  Konto gehört (Log 3611); eine unlesbare Marke zählt als fremd. Die Marke ist versteckt und wird nie
+  eingelesen.
 - **Eine Regel für fremde Ordner:** jeder Unterordner ohne Konto (entferntes Konto, von Hand angelegt, auch
   `Anna` neben `anna` – Linux unterscheidet Groß/Klein) wird nicht gelesen, seine Dateien bleiben. Der Lauf
   meldet `UnknownFolder` (braucht Aufmerksamkeit) auf der Zeile des **ganzen** Scanner-Eingangs, nie mit einer
@@ -195,20 +208,28 @@ Stand: Schritt 0 (gemeinsame Bausteine). Die Spuren A–E ergänzen ihre Abschni
 1. Postfach aus `input_connections(Mail, ohne Konto)` öffnen (MailKit, Passwort über `ISecretProtector`,
    Zeitlimit 60 s je Befehl). Die Ordner `Verarbeitet`, `NoMorePaper-Spam`, `NoMorePaper-Fehler` werden im
    persönlichen Namensraum neben dem Posteingang angelegt **und abonniert** (sonst zeigen Mail-Apps sie nicht).
-2. Höchstens **20** Mails aus `INBOX` (ohne `\Deleted`), älteste zuerst. Nach **5 min** beginnt keine neue
-   Mail mehr. Kennung (`MailHandle.ItemKey`) aus dem Umschlag des Servers, also auch für unlesbare Mails:
+2. Höchstens **20** neue Mails aus `INBOX` (ohne `\Deleted`), älteste zuerst; angesehen werden bis zu **200**,
+   denn Mails, die nur noch verschoben werden müssen, zählen nicht mit (sonst blockierten 20 hängende Mails
+   jede neue). Nach **5 min** beginnt keine neue Mail mehr. Kennung (`MailHandle.ItemKey`) aus dem Umschlag des Servers, also auch für unlesbare Mails:
    `id:<Message-ID>|<Datum>`, ohne Message-ID SHA-256 aus Datum, Absender, Betreff, Größe. Die Mail behält sie
    beim Verschieben; das Datum dazu schützt vor Programmen, die eine Message-ID mehrfach vergeben.
-3. Schon `Imported` → nur noch verschieben. Absender → Konto nur, wenn die Adresse bei einem Konto steht
+3. Schon `Imported` → nur noch nach `Verarbeitet` verschieben; schon `SpamMovePending` → nur noch nach
+   `NoMorePaper-Spam` verschieben (keine zweite LLM-Prüfung). Absender → Konto nur, wenn die Adresse bei einem Konto steht
    **und** der eigene Server SPF/DMARC als bestanden vermerkt (`MailRouting`). Spam-Prüfung nur für unbekannte
    Absender, die nicht als `Spam` gemerkt sind (aus dem Spam-Ordner zurückgeschoben).
-4. LLM-Prüfung (`OllamaMailAssessor`). Spam → **erst verschieben, dann** `MarkSeen(Spam)` – eine Mail, deren
-   Verschieben scheiterte, wird so neu geprüft und nicht als „zurückgeschoben“ ohne Prüfung angenommen.
+4. LLM-Prüfung (`OllamaMailAssessor`). Spam → `MarkSeen(SpamMovePending)`, verschieben, **erst danach**
+   `MarkSeen(Spam)` und `SpamMovePending` vergessen (`MailMoves`). Eine Mail, deren Verschieben scheiterte, wird
+   so nicht neu geprüft und auch nicht als „zurückgeschoben“ ohne Prüfung angenommen.
 5. Sonst `MailIntake`: je Dokument-Anhang ein Dokument (`DuplicateScope.Owned`), ohne Dokument-Anhang und
    „ist Dokument“ (oder zurückgeschoben) ein Text-PDF `Mail JJJJ-MM-TT.pdf` mit Überschrift Betreff, Feldern
    Von/Datum/Betreff und dem Text. Der Betreff steht nur im PDF und in `MailOrigin`, nie im Dateinamen.
 6. **Erst nach dem Commit** der Dokumente: `MarkSeen(Imported)` (nicht abbrechbar), Fehlerzähler vergessen,
    dann `Move(Verarbeitet)`. Scheitert das Verschieben, verschiebt der nächste Lauf nur noch.
+
+**Gescheitertes Verschieben** (Ziel `Verarbeitet`, `NoMorePaper-Spam` oder `NoMorePaper-Fehler`) ist kein Fehler
+der Mail: sie bleibt im Posteingang, der nächste Lauf versucht nur das Verschieben. Der Lauf meldet es aber als
+`StuckItems` (braucht Aufmerksamkeit, Log 5409), bis das Verschieben klappt – sonst stünde „läuft“ da, während
+der Posteingang voll hängender Mails ist.
 
 **Fehler** – gezählt (`IncrementFailures`) wird nur, was an der Mail liegt: unlesbares MIME, unbrauchbare
 LLM-Antwort (abgeschnitten, kein JSON – sonst blockierte eine Mail, an der das Modell immer scheitert, den
@@ -272,8 +293,14 @@ danach: gleiche Quoten, keine IBAN mehr im Hinweis, Median 10,3 s. Einmal ein va
 Phishing-Mails sind geschickter. Auf dem Server neu messen.
 
 **Einrichtung (Verwalter):** Seite `/eingaenge/mail` (`MailSettings.razor`), API `GET/PUT /api/inputs/mail`
-(nie das Passwort, nur `hasPassword`; leeres Passwort behält das gespeicherte; ohne gespeichertes →
-400 `password: required`), `POST /api/inputs/mail/test` mit den Werten des Formulars (204 angemeldet, 422
+(nie das Passwort, nur `hasPassword`; leeres Passwort behält das gespeicherte, **aber nur für denselben Zugang**:
+ändern sich Server, Port, Verschlüsselung oder Benutzername, muss das Passwort neu eingegeben werden – auch für
+den Test –, sonst ginge das gespeicherte Passwort an einen beliebigen Server; ohne gespeichertes oder bei
+geändertem Zugang → 400 `password: required`. Nur TLS oder STARTTLS: `security: none` → 400
+`security: unencrypted`; der Wert `MailboxSecurity.None` existiert nur noch für den Test-Mailserver
+(GreenMail) der Integrationstests. Die Seite fragt das Passwort bei geändertem Zugang schon selbst ab, nennt
+den Grund als Text und setzt den Fokus ins Feld; die Knöpfe bleiben während eines Aufrufs bedienbar, ein
+zweiter Druck wird ignoriert), `POST /api/inputs/mail/test` mit den Werten des Formulars (204 angemeldet, 422
 Anmeldung abgelehnt, 502 nicht erreichbar; Zeitlimit 20 s, `ImapMailboxProbe`). Mitglieder bekommen 403. Der
 API-Client wird von der Seite selbst gebaut (nicht in `Program.cs` registriert, einzige Nutzerin). Feld
 „Kennung des eigenen Mailservers“ mit Hilfetext, wo die `authserv-id` steht.
@@ -350,7 +377,10 @@ das zuletzt gefundene Blatt, ohne Blatt das ganze Bild.
   selbst beendet (iOS beim Sperren), und werden beim Verlassen der Seite gelöscht. Höchstens 50 Seiten.
 
 **Server `POST /api/documents/pages`** (`PageUpload`, `PageUploadForm`, `PageUploadName`)
-- Formular: `private` (`true`/`false`), `takenAt`, Teile `page` in Reihenfolge. 1–50 Teile, je ≤ 15 MB,
+- Formular: `private` (`true`/`false`, **nur wenn die Person den Schalter geändert hat**; ohne Feld gilt die
+  Konto-Einstellung „neue Dokumente privat“), `takenAt`, Teile `page` in Reihenfolge. Lädt die Seite die
+  Konto-Einstellung nicht, zeigt der Schalter den dritten Zustand („gemischt“) mit dem Hinweis, dass die
+  Konto-Einstellung gilt – nie „geteilt“. Scheitert „Fertig“, bleibt der Fokus auf „Fertig“. 1–50 Teile, je ≤ 15 MB,
   zusammen ≤ 150 MB (Kestrel-Grenze je Anfrage angehoben), jedes Teil JPEG nach `FileSignature`.
 - Antworten wie der Upload: 202 + `UploadResultDto`; 400 (kein/leeres Teil, > 50 Teile, kein JPEG, Bild nicht
   lesbar, `private` ungültig); 413; 401 (Konto entfernt); 409 + `existingId` (dieselbe PDF-Datei – praktisch

@@ -7,4 +7,13 @@ window.nmpForms = {
             element.focus();
         }
     },
+
+    // A checkbox's third state ("not known") exists only as a property, not in markup; screen readers then
+    // say "mixed" instead of "not checked". Clicking it clears the state by itself.
+    setIndeterminate(id, value) {
+        const element = document.getElementById(id);
+        if (element) {
+            element.indeterminate = value;
+        }
+    },
 };

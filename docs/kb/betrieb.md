@@ -68,6 +68,10 @@ Netzwerk-Scanner legen ihre Scans per SMB in die Freigabe `scan`; der Worker lie
    Benutzer `scanner`, das Passwort aus `.env`. Die Unterordner legt der Worker je Konto an (Anmeldename
    klein; bei Sonderzeichen die Konto-Id). Direkt in `\\<host>\scan` abgelegte Dateien gehören dem
    Verwalter und stehen bei ihm in „Zu prüfen“.
+   Jeder Kontoordner enthält die versteckte Datei `.nomorepaper-owner` (Konto-Id) – nicht löschen. Wird ein
+   Konto entfernt und später ein neues mit demselben Anmeldenamen angelegt, liest der Worker den alten Ordner
+   nicht (Problem `UnknownFolder` auf der Seite „Eingänge“, Log 3610): alte Scans von Hand prüfen, den Ordner leeren
+   und löschen; danach legt der Worker den Ordner für das neue Konto an.
 4. Nicht lesbare Dateien (kein PDF, JPEG, PNG, HEIC) liegen danach in `\\<host>\scan\Fehler`.
 
 - **Nur SMB2/3**, kein SMB1, kein Gastzugang. Scanner, die nur SMB1 können, werden nicht unterstützt

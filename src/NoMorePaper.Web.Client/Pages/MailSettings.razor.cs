@@ -2,6 +2,7 @@ using System.Globalization;
 using NoMorePaper.Contracts.Inputs;
 using NoMorePaper.Web.Client.Accessibility;
 using NoMorePaper.Web.Client.Accounts;
+using NoMorePaper.Web.Client.Documents;
 using NoMorePaper.Web.Client.Inputs;
 
 namespace NoMorePaper.Web.Client.Pages;
@@ -31,6 +32,17 @@ public sealed partial class MailSettings
     private string _password = string.Empty;
     private string _authServId = string.Empty;
 
+    // Host, port, security and user name as loaded: the stored password belongs to exactly these.
+    private (string Host, string Port, string Security, string User) _storedSignIn;
+
+    /// <summary>The stored password may not be used: there is none, or server or user changed (as on the server).</summary>
+    private bool PasswordNeeded =>
+        !_hasPassword
+        || !string.Equals(_host.Trim(), _storedSignIn.Host, StringComparison.OrdinalIgnoreCase)
+        || _port.Trim() != _storedSignIn.Port
+        || _security != _storedSignIn.Security
+        || _user.Trim() != _storedSignIn.User;
+
     protected override async Task OnInitializedAsync()
     {
         // Built here, not registered: the page is its only user.
@@ -58,12 +70,15 @@ public sealed partial class MailSettings
 
         (_host, _port, _security, _user) = (settings.Host, settings.Port.ToString(CultureInfo.InvariantCulture), settings.Security, settings.UserName);
         (_authServId, _hasPassword, _password) = (settings.TrustedAuthServId ?? string.Empty, settings.HasPassword, string.Empty);
+        _storedSignIn = (_host, _port, _security, _user);
         _logger.MailSettingsLoaded(_hasPassword);
     }
 
+    // The buttons stay enabled while a call runs (a disabled button drops the keyboard focus to the page
+    // start); a second press meanwhile is ignored.
     private async Task SaveAsync()
     {
-        if (await RequestAsync() is not { } request)
+        if (_busy || await RequestAsync() is not { } request)
         {
             return;
         }
@@ -73,21 +88,21 @@ public sealed partial class MailSettings
         _busy = false;
         if (!result.IsSuccess)
         {
-            _form.Refused(result, "mail-host", (MailSettingsApi.SettingsField, "mail-host"));
-            await _form.ReportAsync(_error);
+            await RefusedAsync(result);
             return;
         }
 
         var renewed = request.Password is not null;
         _logger.MailSettingsSaved(renewed);
         (_hasPassword, _password) = (_hasPassword || renewed, string.Empty);
+        _storedSignIn = (_host.Trim(), _port.Trim(), _security, _user.Trim());
         _error?.Clear();
         await (_status?.Announce(L["MailSaved"]) ?? Task.CompletedTask);
     }
 
     private async Task TestAsync()
     {
-        if (await RequestAsync() is not { } request)
+        if (_busy || await RequestAsync() is not { } request)
         {
             return;
         }
@@ -106,7 +121,25 @@ public sealed partial class MailSettings
         }
 
         _status?.Clear();
+        if (result.Field is MailSettingsApi.PasswordField or MailSettingsApi.SecurityField)
+        {
+            await RefusedAsync(result);
+            return;
+        }
+
         await (_error?.Announce(L["ErrorPrefix", result.Error!]) ?? Task.CompletedTask);
+    }
+
+    // The server's refusal is said as text and focus goes to the field that has to change.
+    private async Task RefusedAsync(ApiResult<bool> result)
+    {
+        _form.Refused(
+            result,
+            "mail-host",
+            (MailSettingsApi.SettingsField, "mail-host"),
+            (MailSettingsApi.PasswordField, "mail-password"),
+            (MailSettingsApi.SecurityField, "mail-security"));
+        await _form.ReportAsync(_error);
     }
 
     /// <summary>Checks the form; on a problem it is announced and focus moves to the field.</summary>
@@ -125,9 +158,10 @@ public sealed partial class MailSettings
             _form.Required("mail-user", _user, L["MailFieldUser"]);
         }
 
-        if (!_form.HasIssue && !_hasPassword)
+        if (!_form.HasIssue && PasswordNeeded && string.IsNullOrWhiteSpace(_password))
         {
-            _form.Required("mail-password", _password, L["MailFieldPassword"]);
+            // Without a stored password the field is simply required; with one, say why it is needed again.
+            _form.Set("mail-password", _hasPassword ? L["MailErrorPasswordAgain"] : L["ErrorRequired", L["MailFieldPassword"]]);
         }
 
         if (await _form.ReportAsync(_error))

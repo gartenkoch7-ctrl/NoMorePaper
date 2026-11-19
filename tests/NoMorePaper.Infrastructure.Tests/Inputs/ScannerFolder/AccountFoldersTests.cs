@@ -68,6 +68,51 @@ public sealed class AccountFoldersTests : IDisposable
     }
 
     [Fact]
+    public async Task ANewAccountWithARemovedAccountsName_DoesNotGetItsFolder_TheOldScansStay()
+    {
+        var oldBob = Account("bob");
+        await Folders(oldBob).PrepareAsync(_root.FullName, Ct);
+        var folder = Path.Combine(_root.FullName, "bob");
+        await File.WriteAllTextAsync(Path.Combine(folder, "scan.pdf"), "%PDF-1.7", Ct);
+        Assert.Equal(oldBob.Id.ToString("D", CultureInfo.InvariantCulture), await File.ReadAllTextAsync(Path.Combine(folder, AccountFolders.OwnerMarkName), Ct));
+
+        // Bob is removed, and a new account takes the same login name.
+        var newBob = Account("bob");
+        var plan = await Folders(newBob).PrepareAsync(_root.FullName, Ct);
+
+        Assert.Equal(1, plan.UnknownFolders);
+        Assert.DoesNotContain(plan.Folders, entry => entry.OwnerId == newBob.Id);
+        Assert.True(File.Exists(Path.Combine(folder, "scan.pdf")));
+        Assert.Equal(oldBob.Id.ToString("D", CultureInfo.InvariantCulture), await File.ReadAllTextAsync(Path.Combine(folder, AccountFolders.OwnerMarkName), Ct));
+    }
+
+    [Fact]
+    public async Task AFolderFromBeforeTheMark_IsMarkedForTheAccountOfItsName()
+    {
+        var anna = Account("anna");
+        var folder = Directory.CreateDirectory(Path.Combine(_root.FullName, "anna")).FullName;
+
+        var plan = await Folders(anna).PrepareAsync(_root.FullName, Ct);
+
+        Assert.Contains((folder, (Guid?)anna.Id), plan.Folders);
+        Assert.Equal(anna.Id.ToString("D", CultureInfo.InvariantCulture), await File.ReadAllTextAsync(Path.Combine(folder, AccountFolders.OwnerMarkName), Ct));
+        Assert.Equal((0, 0), (plan.UnknownFolders, plan.Failures));
+    }
+
+    [Fact]
+    public async Task AFolderWithAnUnreadableMark_IsNotRead()
+    {
+        var anna = Account("anna");
+        var folder = Directory.CreateDirectory(Path.Combine(_root.FullName, "anna")).FullName;
+        await File.WriteAllTextAsync(Path.Combine(folder, AccountFolders.OwnerMarkName), "kein-konto", Ct);
+
+        var plan = await Folders(anna).PrepareAsync(_root.FullName, Ct);
+
+        Assert.Equal(1, plan.UnknownFolders);
+        Assert.DoesNotContain(plan.Folders, entry => entry.OwnerId == anna.Id);
+    }
+
+    [Fact]
     public async Task AUserNameThatIsAnotherAccountsId_DoesNotShareItsFolder()
     {
         var odd = Account("jürgen");

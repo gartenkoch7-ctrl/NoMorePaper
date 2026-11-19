@@ -82,6 +82,12 @@
     /// <summary>An answer was saved; the parent loads again and moves focus.</summary>
     [Parameter] public EventCallback<OwnerCheckAnswer> OnAnswered { get; set; }
 
+    /// <summary>
+    /// The household, loaded once by a page with several sections ("Zu prüfen") and shared by all of them;
+    /// without it the section loads it itself (viewer).
+    /// </summary>
+    [Parameter] public Task<ApiResult<HouseholdMemberDto[]>>? Household { get; set; }
+
     protected override void OnInitialized() => _focus = new PendingFocus(Js);
 
     protected override Task OnAfterRenderAsync(bool firstRender) => _focus.ApplyAsync();
@@ -94,7 +100,7 @@
         }
 
         _loaded = true;
-        var result = await Classification.ListHouseholdAsync();
+        var result = await (Household ?? Classification.ListHouseholdAsync());
         if (!result.IsSuccess)
         {
             _loadError = result.Error;

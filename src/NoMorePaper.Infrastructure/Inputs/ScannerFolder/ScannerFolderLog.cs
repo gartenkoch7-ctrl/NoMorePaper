@@ -37,4 +37,10 @@ internal static partial class ScannerFolderLog
 
     [LoggerMessage(EventId = 3609, Level = LogLevel.Warning, Message = "A file could not be moved to the error folder ({ExceptionType}); it stays")]
     public static partial void MoveFailed(this ILogger logger, string exceptionType);
+
+    [LoggerMessage(EventId = 3610, Level = LogLevel.Warning, Message = "The scanner subfolder named for account {AccountId} is marked for another account; it is not read and its files stay")]
+    public static partial void ForeignFolder(this ILogger logger, Guid accountId);
+
+    [LoggerMessage(EventId = 3611, Level = LogLevel.Information, Message = "Scanner subfolder from before the owner mark marked for account {AccountId}")]
+    public static partial void AccountFolderMarked(this ILogger logger, Guid accountId);
 }

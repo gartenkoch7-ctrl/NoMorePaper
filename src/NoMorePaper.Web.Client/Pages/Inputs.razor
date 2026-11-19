@@ -75,8 +75,12 @@ else
             <p>@L["InpICloudNone"]</p>
         }
 
-        <p>
-            @if (MyCodeNeeded)
+        <p id="inputs-icloud-action">
+            @if (!ICloudPageExists)
+            {
+                @L["InpICloudPending"]
+            }
+            else if (MyCodeNeeded)
             {
                 <a href="eingaenge/icloud">@L["InpICloudRenewCode"]</a>
             }

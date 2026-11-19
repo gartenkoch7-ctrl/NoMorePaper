@@ -3,7 +3,6 @@ using Microsoft.Extensions.Localization;
 using NoMorePaper.Web.Client.Accessibility;
 using NoMorePaper.Web.Client.Camera;
 using NoMorePaper.Web.Client.Documents;
-using NoMorePaper.Web.Client.Inputs;
 using NoMorePaper.Web.Client.Localization;
 
 namespace NoMorePaper.Web.Client.Pages;
@@ -26,6 +25,8 @@ public sealed partial class Camera : IAsyncDisposable
     private ElementReference _host;
     private ElementReference _captureButton;
     private ElementReference _savedBox;
+    private ElementReference _doneButton;
+    private CameraPrivacy? _privacy;
     private bool _focusSaved;
     private ITimer? _poll;
     private DateTimeOffset? _takenAt;
@@ -33,11 +34,11 @@ public sealed partial class Camera : IAsyncDisposable
     private string? _error;
     private string? _hint;
     private bool _tones = true;
-    private bool _private;
     private bool _starting;
     private bool _running;
     private bool _uploading;
     private bool _focusCapture;
+    private bool _focusDone;
     private bool _disposed;
     private int _pages;
 
@@ -49,20 +50,11 @@ public sealed partial class Camera : IAsyncDisposable
 
     [Inject] private CameraPreferences Preferences { get; set; } = default!;
 
-    [Inject] private PreferencesApi AccountPreferences { get; set; } = default!;
-
     [Inject] private PageUploadApi Upload { get; set; } = default!;
 
     [Inject] private TimeProvider Time { get; set; } = default!;
 
-    protected override async Task OnInitializedAsync()
-    {
-        _tones = await Preferences.LoadTonesAsync();
-
-        // Preset from the account; without an answer the switch stays off ("shared", as from the factory).
-        var preferences = await AccountPreferences.GetAsync();
-        _private = preferences.Value?.NewDocumentsPrivate ?? false;
-    }
+    protected override async Task OnInitializedAsync() => _tones = await Preferences.LoadTonesAsync();
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -81,6 +73,11 @@ public sealed partial class Camera : IAsyncDisposable
         {
             _focusSaved = false;
             await _savedBox.FocusAsync();
+        }
+        else if (_focusDone && _pages > 0 && !_uploading)
+        {
+            _focusDone = false;
+            await _doneButton.FocusAsync();
         }
     }
 
@@ -181,37 +178,6 @@ public sealed partial class Camera : IAsyncDisposable
         await AnnounceAsync(L["CamDiscarded", _pages]);
     }
 
-    private async Task DoneAsync()
-    {
-        _uploading = true;
-        var count = _pages;
-        await AnnounceAsync(L["CamUploading", count]);
-        var jpegs = new List<byte[]>(count);
-        for (var i = 0; i < count; i++)
-        {
-            jpegs.Add(await Interop.PageAsync(i));
-        }
-
-        var isPrivate = _private;
-        var result = await Upload.UploadPagesAsync(jpegs, isPrivate, _takenAt ?? Time.GetLocalNow());
-        _uploading = false;
-        _focusCapture = _running;
-        if (result.Value is null && !result.IsDuplicate)
-        {
-            await AlertAsync(L["CamUploadFailed", result.Error ?? string.Empty]);
-            return;
-        }
-
-        // Only the pages sent are dropped: the camera may have taken the next one meanwhile.
-        _pages = await Interop.ClearAsync(count);
-        _takenAt = _pages == 0 ? null : Time.GetLocalNow();
-        _saved = result.Value is { } saved
-            ? new SavedDocument(saved.Id, L[isPrivate ? "CamSavedPrivate" : "CamSavedShared", count], false)
-            : new SavedDocument(result.ExistingId, result.Error ?? string.Empty, true);
-        _focusSaved = !_running;
-        await AnnounceAsync(_saved.Message);
-    }
-
     private async Task OnTonesChangedAsync(ChangeEventArgs args)
     {
         _tones = args.Value is true;
@@ -269,6 +235,4 @@ public sealed partial class Camera : IAsyncDisposable
         await StopCameraAsync();
         await Interop.ClearAsync(null);
     }
-
-    private sealed record SavedDocument(Guid? Id, string Message, bool IsDuplicate);
 }

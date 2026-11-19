@@ -10,10 +10,19 @@ namespace NoMorePaper.Infrastructure.Inputs.ScannerFolder;
 /// also after a restart. One rule for every subfolder without an account (removed account, made by hand):
 /// it is not read and its files stay. Hidden folders and the error folder are left alone.
 /// </summary>
+/// <remarks>
+/// A folder carries its account's id in a hidden file (<see cref="OwnerMarkName"/>), so a new account with the
+/// user name of a removed one never gets the removed account's scans: a folder marked for another id counts
+/// as a folder without account. A folder from before the mark gets it on its first run, if its name is an
+/// account's.
+/// </remarks>
 public sealed class AccountFolders(IAccountStore accounts, ILogger<AccountFolders> logger)
 {
     /// <summary>Files of an unknown type go here, in the root of the scanner folder.</summary>
     public const string ErrorFolderName = "Fehler";
+
+    /// <summary>The hidden file in an account folder that holds the account's id; never taken in (hidden).</summary>
+    public const string OwnerMarkName = ".nomorepaper-owner";
 
     /// <summary>
     /// The account's folder: its user name in lower case if that is a safe folder name on every client
@@ -46,10 +55,12 @@ public sealed class AccountFolders(IAccountStore accounts, ILogger<AccountFolder
             try
             {
                 Directory.CreateDirectory(folder);
+                WriteMark(folder, accountId);
                 logger.AccountFolderCreated(accountId);
             }
             catch (Exception exception) when (exception is IOException or UnauthorizedAccessException)
             {
+                // Without its mark the folder is adopted by the next run, as long as the account exists.
                 logger.AccountFolderFailed(accountId, exception.GetType().Name);
                 failures++;
             }
@@ -66,7 +77,7 @@ public sealed class AccountFolders(IAccountStore accounts, ILogger<AccountFolder
             }
 
             // Ordinal: on the Linux volume "Anna" and "anna" are two folders, and only one is the account's.
-            if (owners.TryGetValue(name, out var accountId))
+            if (owners.TryGetValue(name, out var accountId) && IsOwnedBy(folder, accountId, ref failures))
             {
                 folders.Add((folder, accountId));
             }
@@ -83,6 +94,41 @@ public sealed class AccountFolders(IAccountStore accounts, ILogger<AccountFolder
 
         return new ScannerFolderPlan(folders, unknown, failures);
     }
+
+    // The folder's mark decides; a folder without one (made before the mark existed, or its writing failed)
+    // takes the mark of the account its name belongs to now.
+    private bool IsOwnedBy(string folder, Guid accountId, ref int failures)
+    {
+        var mark = Path.Combine(folder, OwnerMarkName);
+        try
+        {
+            if (File.Exists(mark))
+            {
+                var owner = File.ReadAllText(mark).Trim();
+                if (Guid.TryParseExact(owner, "D", out var ownerId) && ownerId == accountId)
+                {
+                    return true;
+                }
+
+                logger.ForeignFolder(accountId);
+                return false;
+            }
+
+            WriteMark(folder, accountId);
+            logger.AccountFolderMarked(accountId);
+            return true;
+        }
+        catch (Exception exception) when (exception is IOException or UnauthorizedAccessException)
+        {
+            // Unclear whose folder it is: not read this time, its files stay.
+            logger.AccountFolderFailed(accountId, exception.GetType().Name);
+            failures++;
+            return false;
+        }
+    }
+
+    private static void WriteMark(string folder, Guid accountId) =>
+        File.WriteAllText(Path.Combine(folder, OwnerMarkName), IdFolder(accountId));
 
     // Two accounts must never share a folder: where a user name equals another account's id, both fall back
     // to their own ids. Should even that clash (a name made of a third account's id), the later account gets

@@ -1356,9 +1356,6 @@
   <data name="MailSecurityStartTls" xml:space="preserve">
     <value>STARTTLS</value>
   </data>
-  <data name="MailSecurityNone" xml:space="preserve">
-    <value>None (own network only)</value>
-  </data>
   <data name="MailFieldUser" xml:space="preserve">
     <value>User name</value>
   </data>
@@ -1562,5 +1559,26 @@
   </data>
   <data name="CamHintLabel" xml:space="preserve">
     <value>Hint: {0}</value>
+  </data>
+  <data name="MailErrorPasswordAgain" xml:space="preserve">
+    <value>Server, port, encryption or user name changed. Enter the password again – the stored one only applies to the previous access.</value>
+  </data>
+  <data name="MailErrorUnencrypted" xml:space="preserve">
+    <value>A connection without encryption is not allowed. Choose TLS or STARTTLS.</value>
+  </data>
+  <data name="MailHintPasswordAgain" xml:space="preserve">
+    <value>Server or user changed: enter the password again.</value>
+  </data>
+  <data name="CamPrivateUnknown" xml:space="preserve">
+    <value>State unknown: your account setting could not be loaded. Unless you change it, the document is filed private or shared as your account setting says.</value>
+  </data>
+  <data name="CamSavedByAccount" xml:space="preserve">
+    <value>The document was saved as your account setting says and is waiting to be processed. Pages: {0}.</value>
+  </data>
+  <data name="InpICloudPending" xml:space="preserve">
+    <value>iCloud follows – waiting for the test with an Apple ID.</value>
+  </data>
+  <data name="InpErrorSendersFull" xml:space="preserve">
+    <value>At most {0} sender addresses are possible. Remove one first.</value>
   </data>
 </root>

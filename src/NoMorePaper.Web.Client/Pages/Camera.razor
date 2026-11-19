@@ -1,4 +1,5 @@
 @page "/kamera"
+@using NoMorePaper.Web.Client.Camera
 
 <PageTitle>@L["CamTitle"]</PageTitle>
 
@@ -28,11 +29,7 @@
 </div>
 <p id="cam-tones-hint" class="form-hint">@L["CamTonesHint"]</p>
 
-<div class="form-check">
-    <input id="cam-private" type="checkbox" @bind="_private" aria-describedby="cam-private-hint" />
-    <label for="cam-private">@L["PrivateLabel"]</label>
-</div>
-<p id="cam-private-hint" class="form-hint">@L["CamPrivateHint"]</p>
+<CameraPrivacy @ref="_privacy" />
 
 @if (!_running)
 {
@@ -62,7 +59,7 @@
             <button id="cam-capture" type="button" class="nmp-button" @ref="_captureButton" disabled="@_uploading" @onclick="CaptureAsync">@L["CamCapture"]</button>
         }
         <button id="cam-discard" type="button" class="nmp-button" disabled="@(_pages == 0 || _uploading)" @onclick="DiscardAsync">@L["CamDiscard"]</button>
-        <button id="cam-done" type="button" class="nmp-button" disabled="@(_pages == 0 || _uploading)" @onclick="DoneAsync">@L["CamDone"]</button>
+        <button id="cam-done" type="button" class="nmp-button" @ref="_doneButton" disabled="@(_pages == 0 || _uploading)" @onclick="DoneAsync">@L["CamDone"]</button>
     </div>
 }
 

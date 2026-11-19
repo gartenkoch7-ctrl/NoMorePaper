@@ -20,7 +20,7 @@ internal sealed class PageUploadForm
     public const string PrivateField = "private";
     public const string TakenAtField = "takenAt";
 
-    private PageUploadForm(IReadOnlyList<IFormFile> pages, bool isPrivate, string? takenAt)
+    private PageUploadForm(IReadOnlyList<IFormFile> pages, bool? isPrivate, string? takenAt)
     {
         Pages = pages;
         IsPrivate = isPrivate;
@@ -31,7 +31,8 @@ internal sealed class PageUploadForm
     /// <summary>The pages in the order the client sent them.</summary>
     public IReadOnlyList<IFormFile> Pages { get; }
 
-    public bool IsPrivate { get; }
+    /// <summary>The choice of the field <c>private</c>; <c>null</c> without the field: the account's setting decides.</summary>
+    public bool? IsPrivate { get; }
 
     /// <summary>Raw field <c>takenAt</c>; see <see cref="PageUploadName.For"/>.</summary>
     public string? TakenAt { get; }
@@ -44,10 +45,15 @@ internal sealed class PageUploadForm
     {
         // Anything but true or false is refused: a typo must not silently share a private document.
         var privateValues = form[PrivateField];
-        var isPrivate = false;
-        if (privateValues.Count > 0 && (privateValues.Count != 1 || !bool.TryParse(privateValues[0], out isPrivate)))
+        bool? isPrivate = null;
+        if (privateValues.Count > 0)
         {
-            return (null, new("malformed", StatusCodes.Status400BadRequest, "Field 'private' must be true or false."));
+            if (privateValues.Count != 1 || !bool.TryParse(privateValues[0], out var chosen))
+            {
+                return (null, new("malformed", StatusCodes.Status400BadRequest, "Field 'private' must be true or false."));
+            }
+
+            isPrivate = chosen;
         }
 
         var pages = form.Files.GetFiles(PageField);

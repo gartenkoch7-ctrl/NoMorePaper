@@ -2,6 +2,7 @@ using System.Net.Http.Json;
 using System.Text.Json;
 using Microsoft.Extensions.Localization;
 using Microsoft.Extensions.Logging;
+using NoMorePaper.Web.Client.Accounts;
 using NoMorePaper.Web.Client.Documents;
 using NoMorePaper.Web.Client.Localization;
 
@@ -18,8 +19,17 @@ internal sealed class InputsHttp(HttpClient http, IStringLocalizer<Strings> loca
 
     /// <param name="special">A caller's own text for a status (e.g. 409 "taken"), or <c>null</c> for the general one.</param>
     /// <param name="field">The request field a caller's own text is about, reported in <see cref="ApiResult{T}.Field"/>.</param>
-    public async Task<ApiResult<T>> SendAsync<T>(
+    public Task<ApiResult<T>> SendAsync<T>(
         HttpMethod method, string uri, object? body, string operation, Func<int, string?>? special, string? field, CancellationToken ct)
+        => SendAsync<T>(method, uri, body, operation, special, field, null, ct);
+
+    /// <param name="refused">
+    /// For a 400 with <c>errors: { field: [word] }</c>: the caller's text and the request field it is about, or
+    /// <c>null</c> to fall back to <paramref name="special"/>.
+    /// </param>
+    public async Task<ApiResult<T>> SendAsync<T>(
+        HttpMethod method, string uri, object? body, string operation, Func<int, string?>? special, string? field,
+        Func<RefusedInput, (string Text, string Field)?>? refused, CancellationToken ct)
     {
         try
         {
@@ -39,6 +49,11 @@ internal sealed class InputsHttp(HttpClient http, IStringLocalizer<Strings> loca
             {
                 var status = (int)response.StatusCode;
                 logger.InputsCallFailed(operation, status);
+                if (status == 400 && refused is not null && await RefusedInput.ReadAsync(response, ct) is { } input && refused(input) is { } named)
+                {
+                    return new ApiResult<T>(default, named.Text, named.Field);
+                }
+
                 var own = special?.Invoke(status);
                 return new ApiResult<T>(default, own ?? MessageFor(status), own is null ? null : field, IsConflict: status == 409);
             }

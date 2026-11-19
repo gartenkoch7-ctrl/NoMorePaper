@@ -42,21 +42,20 @@ else
         </div>
         <div class="form-field">
             <label for="mail-security">@L["MailFieldSecurity"]</label>
-            <select id="mail-security" class="form-input" value="@_security" @onchange="e => _security = e.Value?.ToString() ?? Ssl">
+            <select id="mail-security" class="form-input" value="@_security" aria-invalid='@(_form.IsInvalid("mail-security") ? "true" : null)' @onchange="e => _security = e.Value?.ToString() ?? Ssl">
                 <option value="ssl">@L["MailSecuritySsl"]</option>
                 <option value="starttls">@L["MailSecurityStartTls"]</option>
-                <option value="none">@L["MailSecurityNone"]</option>
             </select>
         </div>
         <FormField Id="mail-user" Label="@L["MailFieldUser"]" Autocomplete="username" @bind-Value="_user"
                    Invalid='_form.IsInvalid("mail-user")' />
         <div class="form-field">
             <label for="mail-password">@L["MailFieldPassword"]</label>
-            <p id="mail-password-hint" class="form-hint">@(_hasPassword ? L["MailHintPasswordStored"] : L["MailHintPasswordNone"])</p>
+            <p id="mail-password-hint" class="form-hint">@(!_hasPassword ? L["MailHintPasswordNone"] : PasswordNeeded ? L["MailHintPasswordAgain"] : L["MailHintPasswordStored"])</p>
             <div class="form-field-row">
                 <input id="mail-password" class="form-input" type="@(_showPassword ? "text" : "password")" value="@_password"
                        @oninput="e => _password = e.Value?.ToString() ?? string.Empty" autocomplete="new-password"
-                       autocapitalize="off" autocorrect="off" spellcheck="false" aria-required="@(_hasPassword ? "false" : "true")"
+                       autocapitalize="off" autocorrect="off" spellcheck="false" aria-required="@(PasswordNeeded ? "true" : "false")"
                        aria-invalid='@(_form.IsInvalid("mail-password") ? "true" : null)' aria-describedby="mail-password-hint" />
                 <button type="button" class="form-toggle" aria-pressed="@(_showPassword ? "true" : "false")"
                         aria-label="@L["ShowPasswordFor", L["MailFieldPassword"]]" @onclick="() => _showPassword = !_showPassword">@L["ShowPassword"]</button>
@@ -72,8 +71,8 @@ else
         <LiveRegion @ref="_error" Assertive="true" Class="form-error" />
         <LiveRegion @ref="_status" />
         <div class="button-row">
-            <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" Color="Color.Primary" Disabled="_busy">@L["MailSave"]</MudButton>
-            <MudButton Variant="Variant.Outlined" Color="Color.Primary" Disabled="_busy" OnClick="TestAsync">@L["MailTest"]</MudButton>
+            <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" Color="Color.Primary">@L["MailSave"]</MudButton>
+            <MudButton Variant="Variant.Outlined" Color="Color.Primary" OnClick="TestAsync">@L["MailTest"]</MudButton>
         </div>
     </form>
 

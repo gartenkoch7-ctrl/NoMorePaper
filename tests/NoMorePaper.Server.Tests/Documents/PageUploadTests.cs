@@ -5,6 +5,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using NoMorePaper.Contracts.Classification;
 using NoMorePaper.Contracts.Documents;
+using NoMorePaper.Contracts.Inputs;
 using NoMorePaper.Server.Documents;
 using NoMorePaper.Server.Tests.Hosting;
 using Xunit;
@@ -48,6 +49,22 @@ public sealed class PageUploadTests(ApiFixture api)
         var id = (await response.Content.ReadFromJsonAsync<UploadResultDto>(Ct))!.Id;
         using var admin = api.CreateAdminClient();
         Assert.True((await admin.GetFromJsonAsync<DocumentDetailDto>($"/api/documents/{id}", Ct))!.IsPrivate);
+    }
+
+    [Fact]
+    public async Task WithoutPrivateField_TheAccountsSettingDecides_AndAnExplicitChoiceWins()
+    {
+        var (member, _) = await api.CreateMemberAsync("pages-private-by-account", Ct);
+        using var preference = await member.PutAsJsonAsync("/api/account/preferences", new AccountPreferencesDto(true, []), Ct);
+        Assert.Equal(HttpStatusCode.NoContent, preference.StatusCode);
+
+        using var unchosen = await PostAsync(member, [CameraPages.PortraitJpeg()]);
+        using var shared = await PostAsync(member, [CameraPages.LandscapeJpeg()], isPrivate: "false");
+
+        var byAccount = (await unchosen.Content.ReadFromJsonAsync<UploadResultDto>(Ct))!.Id;
+        var chosen = (await shared.Content.ReadFromJsonAsync<UploadResultDto>(Ct))!.Id;
+        Assert.True((await member.GetFromJsonAsync<DocumentDetailDto>($"/api/documents/{byAccount}", Ct))!.IsPrivate);
+        Assert.False((await member.GetFromJsonAsync<DocumentDetailDto>($"/api/documents/{chosen}", Ct))!.IsPrivate);
     }
 
     [Fact]
@@ -139,6 +156,12 @@ public sealed class PageUploadTests(ApiFixture api)
 
     private async Task<HttpResponseMessage> PostAsync(byte[][] pages, string? isPrivate = null, string? takenAt = null)
     {
+        using var client = api.CreateAdminClient();
+        return await PostAsync(client, pages, isPrivate, takenAt);
+    }
+
+    private static async Task<HttpResponseMessage> PostAsync(HttpClient client, byte[][] pages, string? isPrivate = null, string? takenAt = null)
+    {
         using var content = new MultipartFormDataContent();
         if (isPrivate is not null)
         {
@@ -155,7 +178,6 @@ public sealed class PageUploadTests(ApiFixture api)
             content.Add(new ByteArrayContent(pages[i]), "page", $"seite-{i + 1}.jpg");
         }
 
-        using var client = api.CreateAdminClient();
         return await client.PostAsync("/api/documents/pages", content, Ct);
     }
 

@@ -44,22 +44,6 @@ public sealed class ProcessMailboxTests
     }
 
     [Fact]
-    public async Task SpamWhoseMoveFailed_IsJudgedAgain_NotTakenAsMovedBack()
-    {
-        _mail.Assessor.Answer = new MailAssessment(true, true, null);
-        _mail.Mailbox.MoveFailure = new IOException("gone");
-        var handle = _mail.Mailbox.Add(MailHarness.Mail());
-
-        await _mail.RunAsync();
-        _mail.Mailbox.MoveFailure = null;
-        await _mail.RunAsync();
-
-        Assert.Empty(_mail.Documents.Added);
-        Assert.Equal([(handle, MailFolder.Spam)], _mail.Mailbox.Moved);
-        Assert.Equal([false, false], _mail.Assessor.Asked.Select(asked => asked.KnownSender));
-    }
-
-    [Fact]
     public async Task AMailMovedBackFromSpam_IsTakenWithoutSpamCheck_EvenWithoutAttachment()
     {
         _mail.Assessor.Answer = new MailAssessment(true, false, null);

@@ -12,6 +12,12 @@ public enum MailboxSetupStatus
     /// <summary>Host, port, security, user name or authserv-id is not usable (<see cref="MailboxSettings.IsValid"/>).</summary>
     Invalid,
 
-    /// <summary>No password given and none stored.</summary>
+    /// <summary>The set-up asks for <see cref="MailboxSecurity.None"/>; only TLS or STARTTLS are accepted.</summary>
+    Unencrypted,
+
+    /// <summary>
+    /// No password given, and none stored or the stored one is for another server or user (host, port, security
+    /// or user name changed).
+    /// </summary>
     PasswordMissing,
 }

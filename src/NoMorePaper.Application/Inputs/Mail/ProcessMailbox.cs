@@ -11,7 +11,9 @@ namespace NoMorePaper.Application.Inputs.Mail;
 /// A mail is never lost and never taken twice: it leaves the inbox only after its documents are committed,
 /// and it is remembered as imported before it is moved. Only faults of the mail itself (unreadable MIME,
 /// unusable LLM answer, intake or PDF failing) count against it; after <see cref="MaxFailures"/> it is put
-/// aside. When the LLM does not answer, the run ends and the mail stays untouched.
+/// aside. When the LLM does not answer, the run ends and the mail stays untouched. A mail whose move failed
+/// is only moved by later runs (<see cref="MailMoves"/>), never judged or taken again, and does not count
+/// against <see cref="MaxMailsPerRun"/>; failed moves are reported until they succeed.
 /// </remarks>
 public sealed class ProcessMailbox(
     ISeenItems seen,
@@ -23,6 +25,12 @@ public sealed class ProcessMailbox(
 {
     /// <summary>Each mail of an unknown sender costs an LLM request that competes with recognition.</summary>
     public const int MaxMailsPerRun = 20;
+
+    /// <summary>
+    /// Mails looked at per run, those only waiting for their move included: with up to this many stuck mails
+    /// in the inbox, new mail is still reached.
+    /// </summary>
+    public const int MaxHandlesPerRun = 200;
 
     /// <summary>Failures after which a mail goes to <see cref="MailFolder.Failed"/>.</summary>
     public const int MaxFailures = 3;
@@ -36,10 +44,10 @@ public sealed class ProcessMailbox(
     {
         ArgumentNullException.ThrowIfNull(mailbox);
         var started = clock.GetTimestamp();
-        var handles = await mailbox.NewMailAsync(MaxMailsPerRun, cancellationToken).ConfigureAwait(false);
-        var tally = new Tally();
+        var handles = await mailbox.NewMailAsync(MaxHandlesPerRun, cancellationToken).ConfigureAwait(false);
+        var tally = new Tally(new MailMoves(mailbox, seen, clock, logger));
         InputProblem? problem = null;
-        foreach (var handle in handles)
+        for (var index = 0; index < handles.Count && tally.Mails < MaxMailsPerRun; index++)
         {
             if (clock.GetElapsedTime(started) >= RunBudget)
             {
@@ -47,9 +55,15 @@ public sealed class ProcessMailbox(
                 break;
             }
 
+            var handle = handles[index];
+            if (await tally.Moves.FinishEarlierAsync(handle, cancellationToken).ConfigureAwait(false))
+            {
+                continue;
+            }
+
             if (!await ProcessAsync(mailbox, handle, tally, cancellationToken).ConfigureAwait(false))
             {
-                logger.LlmUnavailable(handles.Count - tally.Mails);
+                logger.LlmUnavailable(handles.Count - index);
                 problem = new InputProblem(InputProblemKind.LlmUnavailable);
                 break;
             }
@@ -59,9 +73,13 @@ public sealed class ProcessMailbox(
 
         var elapsedMs = (long)clock.GetElapsedTime(started).TotalMilliseconds;
         logger.Run(tally.Mails, tally.Received, tally.Skipped, tally.Stuck, elapsedMs);
+        if (tally.Moves.Unmoved > 0)
+        {
+            logger.Unmoved(tally.Moves.Unmoved);
+        }
 
-        // Mails put aside need somebody to look into the folder; that matters more than a busy LLM.
-        if (tally.Stuck > 0)
+        // Mails put aside or stuck in the inbox need somebody to look; that matters more than a busy LLM.
+        if (tally.Stuck > 0 || tally.Moves.Unmoved > 0)
         {
             problem = new InputProblem(InputProblemKind.StuckItems, NeedsAttention: true);
         }
@@ -73,14 +91,6 @@ public sealed class ProcessMailbox(
     private async Task<bool> ProcessAsync(IMailbox mailbox, MailHandle handle, Tally tally, CancellationToken cancellationToken)
     {
         var key = handle.ItemKey;
-        if (await seen.HasSeenAsync(Mail, null, SeenList.Imported, key, cancellationToken).ConfigureAwait(false))
-        {
-            // Taken in by an earlier run whose move failed: only the move is left.
-            await MoveAsync(mailbox, handle, MailFolder.Processed, cancellationToken).ConfigureAwait(false);
-            logger.Processed(0, "already-imported");
-            return true;
-        }
-
         MailContent? mail;
         try
         {
@@ -88,7 +98,7 @@ public sealed class ProcessMailbox(
         }
         catch (MailUnreadableException exception)
         {
-            await FailedAsync(mailbox, handle, exception, tally, cancellationToken).ConfigureAwait(false);
+            await FailedAsync(handle, exception, tally, cancellationToken).ConfigureAwait(false);
             return true;
         }
 
@@ -114,13 +124,16 @@ public sealed class ProcessMailbox(
         catch (Exception exception) when (exception is not OperationCanceledException)
         {
             logger.AssessmentFailed(exception.GetType().Name);
-            await FailedAsync(mailbox, handle, exception, tally, cancellationToken).ConfigureAwait(false);
+            await FailedAsync(handle, exception, tally, cancellationToken).ConfigureAwait(false);
             return true;
         }
 
         if (routing.NeedsSpamCheck && assessment.IsSpam)
         {
-            await SpamAsync(mailbox, handle, tally, cancellationToken).ConfigureAwait(false);
+            MailLog.Assessed.Add(1, new KeyValuePair<string, object?>("nomorepaper.mail.verdict", "spam"));
+            tally.Skipped++;
+            logger.Processed(0, "spam");
+            await tally.Moves.SpamAsync(handle, cancellationToken).ConfigureAwait(false);
             return true;
         }
 
@@ -134,7 +147,7 @@ public sealed class ProcessMailbox(
         }
         catch (Exception exception) when (exception is not OperationCanceledException)
         {
-            await FailedAsync(mailbox, handle, exception, tally, cancellationToken).ConfigureAwait(false);
+            await FailedAsync(handle, exception, tally, cancellationToken).ConfigureAwait(false);
             return true;
         }
 
@@ -145,24 +158,11 @@ public sealed class ProcessMailbox(
         tally.Received += received;
         tally.Skipped += received == 0 ? 1 : 0;
         logger.Processed(received, received == 0 ? "no-document" : "document");
-        await MoveAsync(mailbox, handle, MailFolder.Processed, cancellationToken).ConfigureAwait(false);
+        await tally.Moves.ProcessedAsync(handle, cancellationToken).ConfigureAwait(false);
         return true;
     }
 
-    // Moved first, remembered after: a mail that is still in the inbox because its move failed must be
-    // judged again, not taken as one moved back from the spam folder.
-    private async Task SpamAsync(IMailbox mailbox, MailHandle handle, Tally tally, CancellationToken cancellationToken)
-    {
-        MailLog.Assessed.Add(1, new KeyValuePair<string, object?>("nomorepaper.mail.verdict", "spam"));
-        tally.Skipped++;
-        logger.Processed(0, "spam");
-        if (await MoveAsync(mailbox, handle, MailFolder.Spam, cancellationToken).ConfigureAwait(false))
-        {
-            await seen.MarkSeenAsync(Mail, null, SeenList.Spam, handle.ItemKey, clock.GetUtcNow(), CancellationToken.None).ConfigureAwait(false);
-        }
-    }
-
-    private async Task FailedAsync(IMailbox mailbox, MailHandle handle, Exception exception, Tally tally, CancellationToken cancellationToken)
+    private async Task FailedAsync(MailHandle handle, Exception exception, Tally tally, CancellationToken cancellationToken)
     {
         var failures = await seen.IncrementFailuresAsync(Mail, null, handle.ItemKey, clock.GetUtcNow(), cancellationToken).ConfigureAwait(false);
         logger.Failed(exception.GetType().Name, failures, MaxFailures);
@@ -172,7 +172,7 @@ public sealed class ProcessMailbox(
         }
 
         // Only a moved mail starts counting anew; one still in the inbox goes on the next run.
-        if (await MoveAsync(mailbox, handle, MailFolder.Failed, cancellationToken).ConfigureAwait(false))
+        if (await tally.Moves.PutAsideAsync(handle, cancellationToken).ConfigureAwait(false))
         {
             await seen.ForgetAsync(Mail, null, SeenList.Failed, handle.ItemKey, CancellationToken.None).ConfigureAwait(false);
             logger.PutAside(failures);
@@ -180,23 +180,10 @@ public sealed class ProcessMailbox(
         }
     }
 
-    // A failed move is no failure of the mail: it stays where it is and a later run tries again.
-    private async Task<bool> MoveAsync(IMailbox mailbox, MailHandle handle, MailFolder target, CancellationToken cancellationToken)
+    private sealed class Tally(MailMoves moves)
     {
-        try
-        {
-            await mailbox.MoveAsync(handle, target, cancellationToken).ConfigureAwait(false);
-            return true;
-        }
-        catch (Exception exception) when (exception is not OperationCanceledException)
-        {
-            logger.MoveFailed(target, exception.GetType().Name);
-            return false;
-        }
-    }
+        public MailMoves Moves { get; } = moves;
 
-    private sealed class Tally
-    {
         public int Mails { get; set; }
 
         public int Received { get; set; }

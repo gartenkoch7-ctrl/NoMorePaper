@@ -125,6 +125,27 @@ public sealed class OwnerCheckTests(ServerFixture server)
         Assert.True(fake.Mocks.WasCalled("POST", $"/api/documents/{item.Id}/hand-over"));
     }
 
+    [Fact]
+    public async Task ReviewList_LoadsTheHouseholdOnce_ForAllItsSections()
+    {
+        var fake = new FakeInputs();
+        var unclear = ClassificationSamples.Automatic() with { NeedsOwnerCheck = true };
+        var items = Enumerable.Range(1, 3).Select(i => ClassificationSamples.Review($"Brief {i}", unclear)).ToArray();
+        var review = new FakeReview(items);
+        await using var session = await server.OpenAsync("/zu-pruefen", SupportedCultures.German, signedIn: true, prepare: async page =>
+        {
+            await fake.Accounts.InstallAsync(page, signedIn: true);
+            await review.InstallAsync(page);
+            await fake.InstallAsync(page);
+        });
+        var page = session.Page;
+
+        await Assertions.Expect(page.GetByRole(AriaRole.Region, new() { Name = "Herkunft unklar" })).ToHaveCountAsync(3);
+        await Assertions.Expect(page.GetByRole(AriaRole.Option, new() { Name = "Ben Beispiel" })).ToHaveCountAsync(3);
+
+        Assert.Single(fake.Mocks.Requests, request => request.Method == "GET" && request.Path.EndsWith("/api/household", StringComparison.Ordinal));
+    }
+
     [Theory]
     [InlineData(SupportedCultures.German)]
     [InlineData(SupportedCultures.English)]

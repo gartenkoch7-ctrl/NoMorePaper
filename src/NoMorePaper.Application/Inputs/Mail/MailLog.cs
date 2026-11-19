@@ -40,4 +40,7 @@ internal static partial class MailLog
 
     [LoggerMessage(EventId = 5408, Level = LogLevel.Information, Message = "Mailbox run: {Count} mails, {Accepted} new documents, {Skipped} without document, {Stuck} put aside, {ElapsedMs} ms")]
     public static partial void Run(this ILogger logger, int count, int accepted, int skipped, int stuck, long elapsedMs);
+
+    [LoggerMessage(EventId = 5409, Level = LogLevel.Warning, Message = "{Count} mails could not be moved out of the inbox; they stay, and the next run only retries the move")]
+    public static partial void Unmoved(this ILogger logger, int count);
 }

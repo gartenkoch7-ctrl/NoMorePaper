@@ -24,9 +24,13 @@ public sealed class ReceiveDocument(IntakeDocument intake, ICurrentAccount curre
         ReceiveAsync(fileName, mediaType, content, isPrivate, DocumentSource.Upload, cancellationToken);
 
     /// <inheritdoc cref="ReceiveAsync(string, string, Stream, bool, CancellationToken)"/>
+    /// <param name="isPrivate">
+    /// Whether only the signed-in account, which becomes the owner, may see it; <c>null</c> when the browser sent
+    /// no choice: the account's setting for new documents decides.
+    /// </param>
     /// <param name="source">How it came in: <see cref="DocumentSource.Upload"/> or <see cref="DocumentSource.Camera"/>.</param>
     public async Task<ReceiveResult> ReceiveAsync(
-        string fileName, string mediaType, Stream content, bool isPrivate, DocumentSource source, CancellationToken cancellationToken)
+        string fileName, string mediaType, Stream content, bool? isPrivate, DocumentSource source, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(content);
         ArgumentException.ThrowIfNullOrWhiteSpace(mediaType);

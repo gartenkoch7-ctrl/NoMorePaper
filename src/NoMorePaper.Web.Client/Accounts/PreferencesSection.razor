@@ -112,7 +112,7 @@
         var address = _newSender.Trim().ToLowerInvariant();
         var problem = address.Length == 0 ? L["ErrorRequired", L["InpPrefsAddLabel"]].Value
             : _prefs!.MailSenders.Contains(address) ? L["InpPrefsAlreadyListed"].Value
-            : _prefs.MailSenders.Count >= MaxSenders ? L["InpErrorSenderInvalid"].Value
+            : _prefs.MailSenders.Count >= MaxSenders ? L["InpErrorSendersFull", MaxSenders].Value
             : null;
         if (problem is not null)
         {

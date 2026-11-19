@@ -28,12 +28,12 @@ public sealed class MailSettingsApiTests(ApiFixture api)
 
         using var saved = await admin.PutAsJsonAsync("/api/inputs/mail", settings with { Password = Password }, Ct);
         Assert.Equal(HttpStatusCode.NoContent, saved.StatusCode);
-        using var kept = await admin.PutAsJsonAsync("/api/inputs/mail", settings with { Port = 994, Password = string.Empty }, Ct);
+        using var kept = await admin.PutAsJsonAsync("/api/inputs/mail", settings with { TrustedAuthServId = "mx2.haushalt.example", Password = string.Empty }, Ct);
         Assert.Equal(HttpStatusCode.NoContent, kept.StatusCode);
 
         var text = await admin.GetStringAsync("/api/inputs/mail", Ct);
         var read = await admin.GetFromJsonAsync<MailSettingsDto>("/api/inputs/mail", Ct);
-        Assert.Equal(new MailSettingsDto("imap.haushalt.example", 994, "ssl", "dokumente", "mx.haushalt.example", true), read);
+        Assert.Equal(new MailSettingsDto("imap.haushalt.example", 993, "ssl", "dokumente", "mx2.haushalt.example", true), read);
         Assert.DoesNotContain(Password, text, StringComparison.Ordinal);
 
         await using var scope = api.Services.CreateAsyncScope();
@@ -63,9 +63,51 @@ public sealed class MailSettingsApiTests(ApiFixture api)
         using var admin = api.CreateAdminClient();
 
         using var tested = await admin.PostAsJsonAsync(
-            "/api/inputs/mail/test", new MailSettingsRequestDto("127.0.0.1", 1, "none", "dokumente", null, Password), Ct);
+            "/api/inputs/mail/test", new MailSettingsRequestDto("127.0.0.1", 1, "starttls", "dokumente", null, Password), Ct);
 
         Assert.Equal(HttpStatusCode.BadGateway, tested.StatusCode);
+    }
+
+    [Theory]
+    [InlineData("127.0.0.1", 993, "ssl", "postmaster")]
+    [InlineData("imap.other.example", 1, "ssl", "postmaster")]
+    [InlineData("imap.other.example", 993, "starttls", "postmaster")]
+    [InlineData("imap.other.example", 993, "ssl", "someone-else")]
+    public async Task TheStoredPassword_GoesOnlyToItsServerAndUser_SaveAndTestNeedItAgainOtherwise(string host, int port, string security, string user)
+    {
+        using var admin = api.CreateAdminClient();
+        var stored = new MailSettingsRequestDto("imap.other.example", 993, "ssl", "postmaster", null, Password);
+        using var saved = await admin.PutAsJsonAsync("/api/inputs/mail", stored, Ct);
+        Assert.Equal(HttpStatusCode.NoContent, saved.StatusCode);
+        var changed = new MailSettingsRequestDto(host, port, security, user, null, null);
+
+        using var save = await admin.PutAsJsonAsync("/api/inputs/mail", changed, Ct);
+        using var test = await admin.PostAsJsonAsync("/api/inputs/mail/test", changed, Ct);
+
+        foreach (var refused in new[] { save, test })
+        {
+            Assert.Equal(HttpStatusCode.BadRequest, refused.StatusCode);
+            Assert.Contains("\"password\":[\"required\"]", await refused.Content.ReadAsStringAsync(Ct), StringComparison.Ordinal);
+        }
+
+        var read = await admin.GetFromJsonAsync<MailSettingsDto>("/api/inputs/mail", Ct);
+        Assert.Equal(("imap.other.example", "postmaster"), (read!.Host, read.UserName));
+    }
+
+    [Fact]
+    public async Task AnUnencryptedConnection_IsRefused_ForSaveAndTest_OnTheSecurityField()
+    {
+        using var admin = api.CreateAdminClient();
+        var plain = new MailSettingsRequestDto("127.0.0.1", 1, "none", "dokumente", null, Password);
+
+        using var save = await admin.PutAsJsonAsync("/api/inputs/mail", plain, Ct);
+        using var test = await admin.PostAsJsonAsync("/api/inputs/mail/test", plain, Ct);
+
+        foreach (var refused in new[] { save, test })
+        {
+            Assert.Equal(HttpStatusCode.BadRequest, refused.StatusCode);
+            Assert.Contains("\"security\":[\"unencrypted\"]", await refused.Content.ReadAsStringAsync(Ct), StringComparison.Ordinal);
+        }
     }
 
     [Fact]

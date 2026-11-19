@@ -38,23 +38,53 @@ public sealed class ConfigureMailboxTests
         Assert.Null(_connections.Stored);
 
         await Configure().SaveAsync(s_settings, "geheim", Ct);
-        Assert.Equal(MailboxSetupStatus.Done, await Configure().SaveAsync(s_settings with { Port = 143, Security = MailboxSecurity.StartTls }, string.Empty, Ct));
+        Assert.Equal(MailboxSetupStatus.Done, await Configure().SaveAsync(s_settings with { Host = "IMAP.haushalt.example", TrustedAuthServId = null }, string.Empty, Ct));
 
         Assert.Equal("MailPassword:geheim", Encoding.UTF8.GetString(_connections.Stored!.Secret!));
-        Assert.Equal(143, MailboxSettings.Parse(_connections.Stored.Settings)!.Port);
+        Assert.Null(MailboxSettings.Parse(_connections.Stored.Settings)!.TrustedAuthServId);
     }
 
     [Fact]
-    public async Task Test_UsesTheGivenPassword_OrTheStoredOne()
+    public async Task Test_UsesTheGivenPassword_OrTheStoredOne_ForTheSameServerAndUser()
     {
         _probe.Result = MailboxProbeResult.SignInFailed;
-        Assert.Equal((MailboxSetupStatus.Done, MailboxProbeResult.SignInFailed), await Configure().TestAsync(s_settings, "neu", Ct));
-        Assert.Equal("neu", _probe.Password);
+        Assert.Equal((MailboxSetupStatus.Done, MailboxProbeResult.SignInFailed), await Configure().TestAsync(s_settings with { Host = "other.example" }, "neu", Ct));
+        Assert.Equal(("neu", "other.example"), (_probe.Password, _probe.Settings?.Host));
 
         await Configure().SaveAsync(s_settings, "geheim", Ct);
         _probe.Result = MailboxProbeResult.Ok;
-        Assert.Equal((MailboxSetupStatus.Done, MailboxProbeResult.Ok), await Configure().TestAsync(s_settings with { Host = "other.example" }, null, Ct));
-        Assert.Equal(("geheim", "other.example"), (_probe.Password, _probe.Settings?.Host));
+        Assert.Equal((MailboxSetupStatus.Done, MailboxProbeResult.Ok), await Configure().TestAsync(s_settings, null, Ct));
+        Assert.Equal("geheim", _probe.Password);
+    }
+
+    [Theory]
+    [InlineData("evil.example", 993, MailboxSecurity.Ssl, "dokumente")]
+    [InlineData("imap.haushalt.example", 143, MailboxSecurity.Ssl, "dokumente")]
+    [InlineData("imap.haushalt.example", 993, MailboxSecurity.StartTls, "dokumente")]
+    [InlineData("imap.haushalt.example", 993, MailboxSecurity.Ssl, "DOKUMENTE")]
+    public async Task AnotherServerOrUser_NeedsThePasswordAgain_TheStoredOneIsNeverSentThere(string host, int port, MailboxSecurity security, string user)
+    {
+        var other = s_settings with { Host = host, Port = port, Security = security, UserName = user };
+        await Configure().SaveAsync(s_settings, "geheim", Ct);
+
+        Assert.Equal((MailboxSetupStatus.PasswordMissing, (MailboxProbeResult?)null), await Configure().TestAsync(other, null, Ct));
+        Assert.Equal(MailboxSetupStatus.PasswordMissing, await Configure().SaveAsync(other, string.Empty, Ct));
+
+        Assert.Null(_probe.Password);
+        Assert.Equal(s_settings, MailboxSettings.Parse(_connections.Stored!.Settings));
+        Assert.Equal(MailboxSetupStatus.Done, await Configure().SaveAsync(other, "neu", Ct));
+    }
+
+    [Fact]
+    public async Task AnUnencryptedConnection_IsNeverSetUpOrTried()
+    {
+        var plain = s_settings with { Security = MailboxSecurity.None };
+
+        Assert.Equal(MailboxSetupStatus.Unencrypted, await Configure().SaveAsync(plain, "geheim", Ct));
+        Assert.Equal((MailboxSetupStatus.Unencrypted, (MailboxProbeResult?)null), await Configure().TestAsync(plain, "geheim", Ct));
+
+        Assert.Null(_connections.Stored);
+        Assert.Null(_probe.Password);
     }
 
     [Fact]

@@ -49,6 +49,17 @@ public sealed record MailboxSettings(string Host, int Port, MailboxSecurity Secu
 
     public string ToJson() => JsonSerializer.Serialize(this, s_json);
 
+    /// <summary>
+    /// Whether <paramref name="other"/> signs in at the same server as the same user (host, port, security and
+    /// user name). Only then may the stored password be used for it; the authserv-id plays no part. Pure logic.
+    /// </summary>
+    public bool IsSameSignIn(MailboxSettings? other) =>
+        other is not null
+        && string.Equals(Host, other.Host, StringComparison.OrdinalIgnoreCase)
+        && Port == other.Port
+        && Security == other.Security
+        && string.Equals(UserName, other.UserName, StringComparison.Ordinal);
+
     private static bool IsToken(string? value, int max) =>
         !string.IsNullOrEmpty(value) && value.Length <= max && !value.Any(c => char.IsWhiteSpace(c) || char.IsControl(c));
 }
