@@ -1,0 +1,30 @@
+Sparbank Lindental eG                                   Kontoauszug
+Hauptstr. 1, 12345 Lindental                           Nr. 10/2026  Blatt 1 von 1
+
+Erika Beispiel und Jonas Beispiel
+Ahornweg 12, 12345 Lindental
+
+Girokonto  IBAN DE00 0000 0000 0000 0000 00   BIC SPARDEXXLIN
+Auszug vom 31.10.2026                         Zeitraum 01.10.2026 - 31.10.2026
+
+Buchung  Wert    Vorgang / Verwendungszweck                         Betrag EUR
+                 Alter Kontostand vom 30.09.2026                     1.986,44 H
+01.10.  01.10.  Dauerauftrag Miete Hausverwaltung Bruckner          1.150,00 S
+05.10.  05.10.  Lastschrift Hanseatica Vers. Haftpflicht                6,55 S
+12.10.  12.10.  Lastschrift Nordkom Telefon Rg 9003544l826             39,95 S
+14.10.  14.10.  Kartenzahlung SUPERMARKT FRISCH LINDENTAL              87,12 S
+15.10.  15.10.  Lastschrift Stadtwerke Lindental Abschlag              90,00 S
+19.10.  19.10.  Geldautomat Hauptstr. 1                               200,00 S
+23.10.  23.10.  Kartenzahlung TANKSTELLE NORD                          64,01 S
+28.10.  28.10.  Gutschrift Lohn/Gehalt Maschinenbau Kruger GmbH     2.487,36 H
+30.10.  30.10.  Kartenzahlung APOTHEKE AM MARKT                        18,50 S
+31.10.  31.10.  Abschluss Kontofuhrung 10/2026                          4,90 S
+                 Entgelte gem. Preisverzeichnis
+                 --------------------------------------------------------------
+                 Neuer Kontostand vom 31.10.2026                     2.812,77 H
+
+Dispositionskredit 2.000,00 EUR, Sollzins 9,85 % p.a.
+Bitte prufen Sie die Buchungen. Einwendungen sind innerhalb von 6 Wochen
+nach Zugang zu erheben.
+
+Sparbank Lindental eG · Vorstand: M. Muster, S. Beispiel · GnR 000 Lindental

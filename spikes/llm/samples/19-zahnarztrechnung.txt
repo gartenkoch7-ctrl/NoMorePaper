@@ -1,0 +1,35 @@
+Zahnarztpraxis Dr. Keller
+Dr. med. dent. Simon Keller · Am Stadtpark 9 · 12345 Lindental
+Telefon 01234 000 31 · Steuer-Nr. 000/000/00000
+
+Privatliquidation
+
+Herrn
+Jonas Beispiel
+Ahornweg 12                                 Rechnungsnummer: 2026/0412
+12345 Lindental                             Rechnungsdatum:  08.04.2026
+
+Patient: Jonas Beispiel, geb. 14.02.1979
+
+Fur meine zahnarztlichen Leistungen erlaube ich mir, gemaB der Gebuhren-
+ordnung fur Zahnarzte (GOZ) zu berechnen:
+
+Datum     Zahn  GOZ-Nr.  Leistung                          Faktor   Betrag EUR
+24.03.26         0010    Eingehende Untersuchung            2,3       12,94
+24.03.26         1040    Professionelle Zahnreinigung
+                         28 Zahne                           2,3      101,36
+24.03.26   36    2060    Fullung einflachig, Komposit       2,3       68,17
+24.03.26   36    0090    lnfiltrationsanasthesie            2,3        3,90
+                                                                   ---------
+Rechnungsbetrag                                                      186,37
+
+Die Leistungen sind gemaB § 4 Nr. 14 UStG von der Umsatzsteuer befreit.
+
+Bitte uberweisen Sie den Rechnungsbetrag innerhalb von 30 Tagen, also bis
+zum 08.05.2026, auf das Konto IBAN DE00 0000 0000 0000 0000 00 bei der
+Sparbank Lindental. Verwendungszweck: 2026/0412.
+
+Diese Rechnung konnen Sie bei lhrer Zusatzversicherung einreichen.
+
+Mit freundlichen GruBen
+Dr. S. Keller

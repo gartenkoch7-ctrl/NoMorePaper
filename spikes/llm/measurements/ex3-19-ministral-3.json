@@ -1,0 +1,32 @@
+{
+  "header": {
+    "label": "ex3-19-ministral-3",
+    "model": "ministral-3:8b-instruct-2512-q4_K_M",
+    "ollamaVersion": "0.40.16",
+    "contextTokens": 4096,
+    "threads": 4,
+    "headChars": 4500,
+    "tailChars": 1500,
+    "examples": 3,
+    "coldPrefix": false,
+    "startedUtc": "2026-11-19T02:52:21Z",
+    "loadedBytes": 5962297506
+  },
+  "records": [
+    {
+      "id": "19-zahnarztrechnung",
+      "textChars": 1114,
+      "sentChars": 1114,
+      "examplesSent": 1,
+      "wallSeconds": 44.7483142,
+      "loadSeconds": 0.001270218,
+      "promptSeconds": 17.38163,
+      "promptTokens": 1519,
+      "evalSeconds": 27.351505,
+      "evalTokens": 159,
+      "doneReason": "stop",
+      "content": "{\n  \"correspondent\": \"Zahnarztpraxis Dr. Keller\",\n  \"documentType\": \"Rechnung\",\n  \"summary\": \"Der Zahnarzt stellt eine Rechnung über zahnärztliche Leistungen in Höhe von 186,37 EUR für Herrn Jonas Beispiel aus. Die Zahlung ist bis zum 08.05.2026 fällig.\",\n  \"title\": \"Zahnarztrechnung 08.04.2026\",\n  \"documentDate\": \"2026-04-08\",\n  \"amount\": 186.37,\n  \"currency\": \"EUR\",\n  \"tags\": [\"Gesundheit\", \"Zahn\"]\n}",
+      "error": null
+    }
+  ]
+}

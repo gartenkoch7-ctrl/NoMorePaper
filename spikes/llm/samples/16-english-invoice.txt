@@ -1,0 +1,33 @@
+CLOUDNEST HOSTING
+Cloudnest Hosting Ltd.
+200 Harbour Road, Suite 4, Dublin 2, Ireland
+VAT No. IE0000000X
+
+INVOICE
+
+Bill to:                                   Invoice no.:   CN-2026-104482
+Jonas Beispiel                             Invoice date:  01 Oct 2026
+Ahornweg 12                                Due date:      15 Oct 2026
+12345 Lindental                            Customer ID:   C-55 2014
+Germany                                    Currency:      USD
+
+Description                              Period                 Qty   Amount
+----------------------------------------------------------------------------
+Web hosting plan "Starter"               01 Oct - 31 Oct 2026     1     9.00
+Domain renewal beispiel-familie.example  1 year                   1     2.50
+Daily backups add-on                     01 Oct - 31 Oct 2026     1     0.50
+----------------------------------------------------------------------------
+                                                    Subtotal          12.00
+                                                    VAT 19 %           2.28
+                                                    Total due     USD 14.28
+
+Payment method: credit card ending 0000. Your card will be charged
+automatically on the due date. No action is required.
+
+Questions about this invoice? Contact billing@cloudnest.example and quote
+your invoice number.
+
+Thank you for your business!
+
+Cloudnest Hosting Ltd. is registered in Ireland, company no. 000000.
+Page 1 of 1

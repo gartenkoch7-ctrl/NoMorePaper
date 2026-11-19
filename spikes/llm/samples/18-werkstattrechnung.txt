@@ -1,0 +1,35 @@
+Autohaus Reimann GmbH                                  RECHNUNG
+Vertragshandler · Werkstatt · Teile
+Ringstr. 44 · 12345 Lindental · Tel. 01234 / 000 40
+
+Frau Erika Beispiel                      Rechnungs-Nr.:  W-26-004 417
+Ahornweg 12                              Rechnungsdatum: 19.05.2026
+12345 Lindental                          Auftrags-Nr.:   A 118 220
+                                         Annahme:        18.05.2026
+                                         Kunden-Nr.:     20 114
+
+Fahrzeug: Kompaktwagen 1.0 TSI   Kennz.: LT-EB 412   Erstzul.: 03.03.2019
+Fahrgestell-Nr.: WVWZZZ000000000O0     km-Stand: 84.210
+
+Pos  Bezeichnung                      Menge   E-Preis    Gesamt EUR
+ 1   Inspektion mit Olwechsel          1,00    129,00       129,00
+ 2   Motorol 0W-20 Longlife            4,30     18,90        81,27
+ 3   Olfilter                          1,00     12,40        12,40
+ 4   Innenraumfilter                   1,00     24,90        24,90
+ 5   Bremsflussigkeit wechseln         1,00     59,00        59,00
+ 6   Bremsbelage vorn ersetzen         1,00     96,00        96,00
+ 7   Kleinmaterial / Entsorgung        1,00      6,61         6,61
+                                                          ---------
+     Nettobetrag                                            409,18
+     zzgl. 19 % MwSt.                                        77,74
+     Rechnungsbetrag                                        486,92 EUR
+
+Betrag dankend per EC-Karte erhalten am 19.05.2026.
+
+Nachste Hauptuntersuchung (HU): 03/2027.  Nachster Service: 05/2027 oder
+bei 99.000 km.
+
+Hinweis: Altteile wurden auf Kundenwunsch entsorgt. Auf die ausgefuhrten
+Arbeiten gewahren wir 24 Monate Gewahrleistung.
+
+Autohaus Reimann GmbH · GF: H. Reimann · AG Lindental HRB 0000 · USt-ID DE000000000
