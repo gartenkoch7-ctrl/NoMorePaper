@@ -20,6 +20,14 @@ public interface IDocumentFieldsStore
     /// <summary>Whether <paramref name="viewerId"/> may see every one of these entries (visibility rule of the lists).</summary>
     Task<bool> AreVisibleAsync(Guid viewerId, ClassificationKind kind, IReadOnlyCollection<Guid> entryIds, CancellationToken cancellationToken);
 
+    /// <summary>
+    /// Whether <paramref name="audience"/> may see every one of these entries: the account's view, or only what
+    /// the whole household sees already (<see cref="EntryAudience"/>, as recognition uses it). Read inside the
+    /// open change, so a document loaded by <see cref="FindVisibleAsync"/> counts as it is stored, not as changed.
+    /// </summary>
+    Task<bool> AreVisibleAsync(
+        Guid viewerId, ClassificationKind kind, IReadOnlyCollection<Guid> entryIds, EntryAudience audience, CancellationToken cancellationToken);
+
     /// <summary>Writes the changes of the documents loaded by <see cref="FindVisibleAsync"/>; only changed columns.</summary>
     Task SaveAsync(CancellationToken cancellationToken);
 

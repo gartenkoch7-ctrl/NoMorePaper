@@ -6,15 +6,15 @@ using Xunit;
 
 namespace NoMorePaper.Worker.Tests.Inputs;
 
-/// <summary>The scheduler runs each input in its interval; one failing input never stops the others.</summary>
+/// <summary>The scheduler runs each input in its interval; one failing input never stops the others or the host.</summary>
 public sealed class InputSchedulerTests
 {
     private static readonly DateTimeOffset s_start = new(2026, 11, 19, 8, 0, 0, TimeSpan.Zero);
 
     private readonly ManualTimeProvider _time = new(s_start);
     private readonly RecordingStatus _status = new();
-    private readonly FakeSource _scanner = new(InputKind.ScannerFolder, TimeSpan.FromSeconds(30));
-    private readonly FakeSource _mail = new(InputKind.Mail, TimeSpan.FromMinutes(5));
+    private readonly FakeInputSource _scanner = new(InputKind.ScannerFolder, TimeSpan.FromSeconds(30));
+    private readonly FakeInputSource _mail = new(InputKind.Mail, TimeSpan.FromMinutes(5));
     private readonly RecordingLogger<InputScheduler> _log = new();
 
     private static CancellationToken Ct => TestContext.Current.CancellationToken;
@@ -22,8 +22,7 @@ public sealed class InputSchedulerTests
     [Fact]
     public async Task EveryInput_RunsAtOnce_ThenInItsInterval()
     {
-        var scheduler = Scheduler();
-        scheduler.Discover();
+        var scheduler = await StartedAsync();
 
         await Task.WhenAll(scheduler.StartDue(Ct));
         Assert.Equal((1, 1), (_scanner.Runs, _mail.Runs));
@@ -42,31 +41,62 @@ public sealed class InputSchedulerTests
     public async Task AFailingInput_IsRecordedAsFailed_AndTheOthersRunOn()
     {
         _mail.Behavior = _ => throw new InvalidOperationException("server said no");
-        var scheduler = Scheduler();
-        scheduler.Discover();
+        var scheduler = await StartedAsync();
 
         await Task.WhenAll(scheduler.StartDue(Ct));
 
         Assert.Equal(1, _scanner.Runs);
-        var failed = _status.Recorded.Single(entry => entry.Kind == InputKind.Mail);
-        Assert.Equal(InputProblemKind.Failed, failed.Result.Problem!.Kind);
-        Assert.Null(_status.Recorded.Single(entry => entry.Kind == InputKind.ScannerFolder).Result.Problem);
+        Assert.Equal(InputProblemKind.Failed, _status.Single(InputKind.Mail, null).Problem!.Kind);
+        Assert.Null(_status.Single(InputKind.ScannerFolder, null).Problem);
         Assert.Contains(2302, _log.EventIds);
         Assert.DoesNotContain(_log.Entries, entry => entry.Message.Contains("server said no", StringComparison.Ordinal));
     }
 
     [Fact]
-    public async Task AProblem_IsRecordedForItsAccount_AndLogged()
+    public async Task ASourceThatCannotBeBuilt_FailsOnlyItsOwnRuns_AndIsTriedAgainLater()
     {
-        var anna = Guid.CreateVersion7();
-        _mail.Behavior = _ => Task.FromResult(InputRunResult.Failed(new InputProblem(InputProblemKind.CodeNeeded, anna, NeedsAttention: true)));
-        var scheduler = Scheduler();
-        scheduler.Discover();
+        var scheduler = await StartedAsync(brokenMail: true);
 
         await Task.WhenAll(scheduler.StartDue(Ct));
 
-        Assert.Contains(_status.Recorded, entry => entry.Kind == InputKind.Mail && entry.AccountId == anna);
+        Assert.Equal(1, _scanner.Runs);
+        Assert.Equal(InputProblemKind.Failed, _status.Single(InputKind.Mail, null).Problem!.Kind);
+
+        _time.Now = s_start + InputRunner.RetryAfterFailure;
+        Assert.Equal(2, scheduler.StartDue(Ct).Count);
+    }
+
+    [Fact]
+    public async Task ASourceThatCannotBeBuilt_DoesNotStopTheHost()
+    {
+        using var scheduler = new InputScheduler(Services(brokenMail: true).GetRequiredService<IServiceScopeFactory>(), _time, _log);
+
+        await scheduler.StartAsync(Ct);
+        await _scanner.FirstRun.Task.WaitAsync(TimeSpan.FromSeconds(10), Ct);
+        await scheduler.StopAsync(Ct);
+
+        Assert.False(scheduler.ExecuteTask!.IsFaulted);
+        Assert.Contains(2302, _log.EventIds);
+    }
+
+    [Fact]
+    public async Task AccountResults_AreRecordedUnderTheirAccount_SoASuccessClearsTheProblem()
+    {
+        var anna = Guid.CreateVersion7();
+        var problem = new InputProblem(InputProblemKind.CodeNeeded, NeedsAttention: true);
+        _mail.Behavior = _ => Task.FromResult(new InputRunResult(0, 0) { Accounts = [new InputAccountResult(anna, 0, 0, problem)] });
+        var scheduler = await StartedAsync();
+        await Task.WhenAll(scheduler.StartDue(Ct));
+
+        Assert.Equal(problem, _status.Single(InputKind.Mail, anna).Problem);
+        Assert.Null(_status.Single(InputKind.Mail, null).Problem);
         Assert.Contains(2301, _log.EventIds);
+
+        _mail.Behavior = _ => Task.FromResult(new InputRunResult(2, 0) { Accounts = [new InputAccountResult(anna, 2, 0)] });
+        _time.Now = s_start.AddMinutes(5);
+        await Task.WhenAll(scheduler.StartDue(Ct));
+
+        Assert.Equal((2, (InputProblem?)null), _status.Last(InputKind.Mail, anna));
     }
 
     [Fact]
@@ -74,8 +104,7 @@ public sealed class InputSchedulerTests
     {
         var release = new TaskCompletionSource<InputRunResult>();
         _scanner.Behavior = _ => release.Task;
-        var scheduler = Scheduler();
-        scheduler.Discover();
+        var scheduler = await StartedAsync();
 
         var first = scheduler.StartDue(Ct);
         _time.Now = s_start.AddMinutes(1);
@@ -86,14 +115,24 @@ public sealed class InputSchedulerTests
         Assert.Equal(1, _scanner.Runs);
     }
 
-    [Fact]
-    public async Task AStatusThatCannotBeRecorded_IsLogged_AndTheRunEndsQuietly()
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task AStatusThatCannotBeRecorded_IsLogged_EvenWhileStopping(bool stopping)
     {
-        _status.Failure = new TimeoutException();
-        var scheduler = Scheduler();
-        scheduler.Discover();
+        _status.Failure = new InvalidOperationException("database gone");
+        using var stop = new CancellationTokenSource();
+        if (stopping)
+        {
+            _scanner.Behavior = _ =>
+            {
+                stop.Cancel();
+                return Task.FromResult(InputRunResult.Nothing);
+            };
+        }
 
-        await Task.WhenAll(scheduler.StartDue(Ct));
+        var scheduler = await StartedAsync();
+        await Task.WhenAll(scheduler.StartDue(stop.Token));
 
         Assert.Equal(2, _log.EventIds.Count(id => id == 2303));
     }
@@ -110,55 +149,21 @@ public sealed class InputSchedulerTests
         Assert.Contains(2304, _log.EventIds);
     }
 
-    private InputScheduler Scheduler()
+    private async Task<InputScheduler> StartedAsync(bool brokenMail = false)
+    {
+        var scheduler = new InputScheduler(Services(brokenMail).GetRequiredService<IServiceScopeFactory>(), _time, _log);
+        await scheduler.DiscoverAsync();
+        return scheduler;
+    }
+
+    private ServiceProvider Services(bool brokenMail)
     {
         var services = new ServiceCollection();
         services.AddSingleton<IInputStatusStore>(_status);
-        services.AddScoped<IInputSource>(_ => _scanner);
-        services.AddScoped<IInputSource>(_ => _mail);
-        return new InputScheduler(services.BuildServiceProvider().GetRequiredService<IServiceScopeFactory>(), _time, _log);
-    }
-
-    private sealed class FakeSource(InputKind kind, TimeSpan interval) : IInputSource
-    {
-        private int _runs;
-
-        public Func<CancellationToken, Task<InputRunResult>>? Behavior { get; set; }
-
-        public int Runs => _runs;
-
-        public InputKind Kind => kind;
-
-        public TimeSpan Interval => interval;
-
-        public Task<InputRunResult> RunAsync(CancellationToken cancellationToken)
-        {
-            Interlocked.Increment(ref _runs);
-            return Behavior?.Invoke(cancellationToken) ?? Task.FromResult(new InputRunResult(1, 0));
-        }
-    }
-
-    private sealed class RecordingStatus : IInputStatusStore
-    {
-        public List<(InputKind Kind, Guid? AccountId, InputRunResult Result)> Recorded { get; } = [];
-
-        public Exception? Failure { get; set; }
-
-        public Task RecordAsync(InputKind kind, Guid? accountId, InputRunResult result, DateTimeOffset at, CancellationToken cancellationToken)
-        {
-            if (Failure is not null)
-            {
-                throw Failure;
-            }
-
-            lock (Recorded)
-            {
-                Recorded.Add((kind, accountId, result));
-            }
-
-            return Task.CompletedTask;
-        }
-
-        public Task<IReadOnlyList<InputStatus>> ListAsync(CancellationToken cancellationToken) => throw new NotSupportedException();
+        services.AddKeyedScoped<IInputSource>(InputKind.ScannerFolder, (_, _) => _scanner);
+        services.AddKeyedScoped<IInputSource>(InputKind.Mail, (_, _) => brokenMail ? throw new InvalidOperationException("no config") : _mail);
+        services.AddSingleton(new InputSourceRegistration(InputKind.ScannerFolder));
+        services.AddSingleton(new InputSourceRegistration(InputKind.Mail));
+        return services.BuildServiceProvider();
     }
 }

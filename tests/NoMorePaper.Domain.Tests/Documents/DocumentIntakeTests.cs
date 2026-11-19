@@ -103,6 +103,21 @@ public sealed class DocumentIntakeTests
     }
 
     [Fact]
+    public void HandOver_DropsHiddenEntries_FromConfirmedFields_AndKeepsTheRest()
+    {
+        var document = Unknown();
+        var (hiddenSender, hiddenType, hiddenTag, sharedTag) = (Guid.CreateVersion7(), Guid.CreateVersion7(), Guid.CreateVersion7(), Guid.CreateVersion7());
+        document.Edit(s_admin, new DocumentFields("Vertrag", hiddenSender, hiddenType, null, null, "Kurz.", [hiddenTag, sharedTag]));
+
+        document.HandOver(s_admin, s_member, isPrivate: false, [hiddenSender, hiddenType, hiddenTag]);
+
+        Assert.Null(document.CorrespondentId);
+        Assert.Null(document.DocumentTypeId);
+        Assert.Equal([sharedTag], document.Tags.Select(tag => tag.TagId));
+        Assert.Equal(("Vertrag", "Kurz.", RecognitionState.Confirmed), (document.Title, document.Summary, document.Recognition));
+    }
+
+    [Fact]
     public void HandOver_IsRefused_ForOthers_WithoutCheck_AndToNobodyOrSelf()
     {
         var document = Unknown();

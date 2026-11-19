@@ -26,8 +26,8 @@ public sealed class PreferencesStoreTests(PostgresFixture postgres)
         var admin = await database.AddAdminAsync();
 
         Assert.Equal(AccountPreferences.Default, await Store(database).GetAsync(admin.Id, Ct));
-        Assert.Null(await Store(database).SaveAsync(admin.Id, new AccountPreferences(true, ["b@x.example", "a@x.example"]), Ct));
-        Assert.Null(await Store(database).SaveAsync(admin.Id, new AccountPreferences(true, ["c@x.example", "a@x.example"]), Ct));
+        Assert.Equal(PreferencesOutcome.Saved, (await Store(database).SaveAsync(admin.Id, new AccountPreferences(true, ["b@x.example", "a@x.example"]), Ct)).Outcome);
+        Assert.Equal(PreferencesOutcome.Saved, (await Store(database).SaveAsync(admin.Id, new AccountPreferences(true, ["c@x.example", "a@x.example"]), Ct)).Outcome);
 
         var saved = await Store(database).GetAsync(admin.Id, Ct);
         Assert.True(saved.NewDocumentsPrivate);
@@ -48,9 +48,25 @@ public sealed class PreferencesStoreTests(PostgresFixture postgres)
 
         var taken = await Store(database).SaveAsync(bob.Id, new AccountPreferences(true, ["bob2@x.example", "papa@x.example"]), Ct);
 
-        Assert.Equal("papa@x.example", taken);
+        Assert.Equal(new PreferencesResult(PreferencesOutcome.SenderTaken, "papa@x.example"), taken);
         var bobs = await Store(database).GetAsync(bob.Id, Ct);
         Assert.Equal((false, "bob@x.example"), (bobs.NewDocumentsPrivate, Assert.Single(bobs.MailSenders)));
+    }
+
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task ARemovedAccount_IsReportedAsGone_NotAsAnError(bool withSenders)
+    {
+        await using var database = await AccountDatabase.CreateAsync(postgres, withSenders ? "inputs_gone_senders" : "inputs_gone");
+        var admin = await database.AddAdminAsync();
+        var bob = await database.AddMemberAsync(admin.Id, "bob");
+        Assert.True(await database.Store().RemoveAsync(bob.Id, Ct));
+
+        var result = await Store(database).SaveAsync(bob.Id, new AccountPreferences(true, withSenders ? ["bob@x.example"] : []), Ct);
+
+        Assert.Equal(new PreferencesResult(PreferencesOutcome.AccountGone), result);
+        Assert.Null(await Store(database).FindOwnerOfSenderAsync("bob@x.example", Ct));
     }
 
     [Fact]
@@ -63,7 +79,7 @@ public sealed class PreferencesStoreTests(PostgresFixture postgres)
         await Store(database).SaveAsync(bob.Id, new AccountPreferences(true, ["bob@x.example"]), Ct);
         await new EfInputConnections(database.Db()).SaveAsync(new InputConnection(InputKind.ICloud, bob.Id, "{}", [1, 2], now), Ct);
         await new EfInputConnections(database.Db()).SaveAsync(new InputConnection(InputKind.Mail, null, "{}", null, now), Ct);
-        await new EfInputStatusStore(database.Db()).RecordAsync(InputKind.ICloud, bob.Id, InputRunResult.Nothing, now, Ct);
+        await new EfInputStatusStore(database.Db()).RecordAsync(InputKind.ICloud, bob.Id, 0, null, now, Ct);
         await new EfSeenItems(database.Db()).MarkSeenAsync(InputKind.ICloud, bob.Id, SeenList.Imported, "file-1", now, Ct);
 
         Assert.True(await database.Store().RemoveAsync(bob.Id, Ct));

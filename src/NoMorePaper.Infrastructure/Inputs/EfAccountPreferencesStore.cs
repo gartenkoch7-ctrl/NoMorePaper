@@ -24,7 +24,7 @@ public sealed class EfAccountPreferencesStore(AppDbContext db) : IAccountPrefere
             : new AccountPreferences(isPrivate ?? false, senders.AsReadOnly());
     }
 
-    public async Task<string?> SaveAsync(Guid accountId, AccountPreferences preferences, CancellationToken cancellationToken)
+    public async Task<PreferencesResult> SaveAsync(Guid accountId, AccountPreferences preferences, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(preferences);
         var addresses = preferences.MailSenders.ToList();
@@ -33,32 +33,36 @@ public sealed class EfAccountPreferencesStore(AppDbContext db) : IAccountPrefere
         {
             if (await TakenAsync(accountId, addresses, cancellationToken).ConfigureAwait(false) is { } taken)
             {
-                return taken;
+                return new PreferencesResult(PreferencesOutcome.SenderTaken, taken);
             }
 
-            await db.Database.ExecuteSqlAsync(
-                $"""
-                INSERT INTO account_preferences (account_id, new_documents_private) VALUES ({accountId}, {preferences.NewDocumentsPrivate})
-                ON CONFLICT (account_id) DO UPDATE SET new_documents_private = EXCLUDED.new_documents_private
-                """,
-                cancellationToken).ConfigureAwait(false);
-            await db.Set<MailSenderRow>().Where(row => row.AccountId == accountId).ExecuteDeleteAsync(cancellationToken).ConfigureAwait(false);
-            db.Set<MailSenderRow>().AddRange(addresses.Select(address => new MailSenderRow { Address = address, AccountId = accountId }));
             try
             {
+                await db.Database.ExecuteSqlAsync(
+                    $"""
+                    INSERT INTO account_preferences (account_id, new_documents_private) VALUES ({accountId}, {preferences.NewDocumentsPrivate})
+                    ON CONFLICT (account_id) DO UPDATE SET new_documents_private = EXCLUDED.new_documents_private
+                    """,
+                    cancellationToken).ConfigureAwait(false);
+                await db.Set<MailSenderRow>().Where(row => row.AccountId == accountId).ExecuteDeleteAsync(cancellationToken).ConfigureAwait(false);
+                db.Set<MailSenderRow>().AddRange(addresses.Select(address => new MailSenderRow { Address = address, AccountId = accountId }));
                 await db.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
             }
-            catch (DbUpdateException error) when (error.InnerException is PostgresException { SqlState: PostgresErrorCodes.UniqueViolation })
+            catch (Exception error) when (Refusal(error) is { } state)
             {
-                // Another account saved one of the addresses after the check above.
                 db.ChangeTracker.Clear();
                 await transaction.RollbackAsync(cancellationToken).ConfigureAwait(false);
-                return await TakenAsync(accountId, addresses, cancellationToken).ConfigureAwait(false) ?? addresses[0];
+
+                // Unique: another account saved one of the addresses after the check above. Foreign key:
+                // the account was removed meanwhile, like any other account path answers.
+                return state == PostgresErrorCodes.UniqueViolation
+                    ? new PreferencesResult(PreferencesOutcome.SenderTaken, await TakenAsync(accountId, addresses, cancellationToken).ConfigureAwait(false) ?? addresses[0])
+                    : new PreferencesResult(PreferencesOutcome.AccountGone);
             }
 
             db.ChangeTracker.Clear();
             await transaction.CommitAsync(cancellationToken).ConfigureAwait(false);
-            return null;
+            return new PreferencesResult(PreferencesOutcome.Saved);
         }
     }
 
@@ -87,4 +91,12 @@ public sealed class EfAccountPreferencesStore(AppDbContext db) : IAccountPrefere
                 .OrderBy(row => row.Address)
                 .Select(row => row.Address)
                 .FirstOrDefaultAsync(cancellationToken);
+
+    // The SQL state of a refusal the save answers instead of failing: a taken address or a removed account.
+    // The raw insert reports it directly, SaveChanges wrapped in a DbUpdateException.
+    private static string? Refusal(Exception error)
+    {
+        var state = (error as PostgresException ?? error.InnerException as PostgresException)?.SqlState;
+        return state is PostgresErrorCodes.UniqueViolation or PostgresErrorCodes.ForeignKeyViolation ? state : null;
+    }
 }

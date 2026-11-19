@@ -10,8 +10,12 @@ public interface IAccountPreferencesStore
     Task<AccountPreferences> GetAsync(Guid accountId, CancellationToken cancellationToken);
 
     /// <summary>Replaces the account's preferences, sender addresses included, in one transaction.</summary>
-    /// <returns><c>null</c> when saved; otherwise a sender address another account has, and nothing was changed.</returns>
-    Task<string?> SaveAsync(Guid accountId, AccountPreferences preferences, CancellationToken cancellationToken);
+    /// <returns>
+    /// <see cref="PreferencesOutcome.Saved"/>; <see cref="PreferencesOutcome.SenderTaken"/> with the address another
+    /// account has; or <see cref="PreferencesOutcome.AccountGone"/> when the account was removed meanwhile. Nothing
+    /// is changed unless saved.
+    /// </returns>
+    Task<PreferencesResult> SaveAsync(Guid accountId, AccountPreferences preferences, CancellationToken cancellationToken);
 
     /// <summary>The account a mail sender belongs to; the address is normalized here (<see cref="AccountPreferences.NormalizeAddress"/>).</summary>
     /// <returns>The account, or <c>null</c> for an unknown or invalid address.</returns>

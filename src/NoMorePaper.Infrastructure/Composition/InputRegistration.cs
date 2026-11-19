@@ -31,12 +31,24 @@ public static class InputRegistration
     }
 
     /// <summary>
-    /// The background inputs the Worker's scheduler runs (<see cref="IInputSource"/>, scoped, at most one
-    /// per kind). Only from the Worker's composition root. Each track of M4 adds its source here.
+    /// The background inputs the Worker's scheduler runs. Only from the Worker's composition root. Each track
+    /// of M4 adds its source here with <see cref="AddInputSource{TSource}"/>.
     /// </summary>
     public static IServiceCollection AddInputSources(this IServiceCollection services, IConfiguration configuration)
     {
         ArgumentNullException.ThrowIfNull(configuration);
+        return services;
+    }
+
+    /// <summary>
+    /// Registers the source of one input: scoped and keyed by <paramref name="kind"/>, so the scheduler builds
+    /// only the source it runs, and announced by an <see cref="InputSourceRegistration"/>. One source per kind.
+    /// </summary>
+    public static IServiceCollection AddInputSource<TSource>(this IServiceCollection services, InputKind kind)
+        where TSource : class, IInputSource
+    {
+        services.AddKeyedScoped<IInputSource, TSource>(kind);
+        services.AddSingleton(new InputSourceRegistration(kind));
         return services;
     }
 }

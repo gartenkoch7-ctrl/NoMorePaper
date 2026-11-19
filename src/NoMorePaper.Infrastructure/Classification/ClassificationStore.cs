@@ -111,7 +111,7 @@ public sealed class ClassificationStore(AppDbContext db, TimeProvider clock) : I
     private async Task<EntryChange> CheckAsync(Guid actorId, ClassificationKind kind, Guid[] entryIds, CancellationToken cancellationToken)
     {
         await db.Database.ExecuteSqlAsync(EntryRightsSql.Lock(kind, entryIds), cancellationToken).ConfigureAwait(false);
-        if (!await EntrySets.AllVisibleAsync(db, kind, actorId, entryIds, cancellationToken).ConfigureAwait(false))
+        if (!await EntrySets.AllVisibleAsync(db, kind, actorId, entryIds, EntryAudience.Account, cancellationToken).ConfigureAwait(false))
         {
             return EntryChange.NotFound;
         }

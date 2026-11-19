@@ -93,10 +93,11 @@ Die Annahme behält 3200/3201 und nennt dort die Quelle.
 | 2202 | Information | `Worker/Recognition/RecognitionLog` | Erkennungsmodell bereit: Dauer in ms (mit Download beim ersten Start) |
 | 2203 | Warning | `Worker/Recognition/RecognitionLog` | Bestand konnte nicht eingereiht werden (nur Ausnahmetyp); nächster Versuch in s |
 | 2300 | Information | `Worker/Inputs/InputSchedulerLog` | Eingang gelaufen: Art (`ScannerFolder`, `Mail`, `ICloud`), angenommene und übersprungene Dokumente, Dauer in ms |
-| 2301 | Warning | `Worker/Inputs/InputSchedulerLog` | Eingang meldet ein Problem: Art, Problem (`InputProblemKind`), ob jemand handeln muss |
-| 2302 | Error | `Worker/Inputs/InputSchedulerLog` | Eingang mit Ausnahme abgebrochen (nur Ausnahmetyp); Status `Failed`, nächster Lauf im Takt |
-| 2303 | Warning | `Worker/Inputs/InputSchedulerLog` | Status eines Eingangs nicht gespeichert (nur Ausnahmetyp); der nächste Lauf speichert wieder |
+| 2301 | Warning | `Worker/Inputs/InputSchedulerLog` | Eingang meldet ein Problem (des ganzen Eingangs oder eines Kontos): Art, Problem (`InputProblemKind`), ob jemand handeln muss |
+| 2302 | Error | `Worker/Inputs/InputSchedulerLog` | Eingang mit Ausnahme abgebrochen oder seine Quelle nicht baubar (nur Ausnahmetyp); Status `Failed`, nächster Lauf im Takt bzw. nach 1 min |
+| 2303 | Warning | `Worker/Inputs/InputSchedulerLog` | Status eines Eingangs (ganzer Eingang oder eine Konto-Zeile) nicht gespeichert, auch beim Herunterfahren (nur Ausnahmetyp); der nächste Lauf speichert wieder |
 | 2304 | Information | `Worker/Inputs/InputSchedulerLog` | Eingangs-Takt gestartet: Anzahl registrierter Eingänge, Prüfintervall in s (0 Eingänge: endet sofort) |
+| 2305 | Error | `Worker/Inputs/InputSchedulerLog` | Eingangs-Takt konnte die registrierten Eingänge nicht lernen (nur Ausnahmetyp); kein Eingang läuft bis zum Neustart, der Worker läuft weiter |
 | 3000 | Information | `Infrastructure/Persistence/PersistenceLog` | Migration beginnt, Anzahl bekannter Migrationen |
 | 3001 | Information | `Infrastructure/Persistence/PersistenceLog` | Schema aktuell, Dauer in ms |
 | 3002 | Error | `Infrastructure/Persistence/PersistenceLog` | Migration fehlgeschlagen |
@@ -236,7 +237,7 @@ Die Annahme behält 3200/3201 und nennt dort die Quelle.
 | 5300 | Information | `Application/Documents/DocumentIntakeLog` | Datei eines Hintergrund-Eingangs still verworfen, weil der Besitzer sie schon hat (SHA-256): Quelle, Konto-Id, Id des vorhandenen Dokuments – kein Dateiname |
 | 5301 | Warning | `Application/Documents/DocumentIntakeLog` | Datei nicht angenommen, Besitzer entfernt: Quelle, Konto-Id |
 | 5302 | Warning | `Application/Documents/DocumentIntakeLog` | Datei unbekannten Besitzers nicht angenommen, weil es keinen Verwalter gibt: Quelle |
-| 5303 | Information | `Application/Documents/DocumentIntakeLog` | Dokument unklarer Herkunft weitergegeben: Konto-Id, Dokument-Id, neuer Besitzer, ob die Erkennung neu eingereiht wurde |
+| 5303 | Information | `Application/Documents/DocumentIntakeLog` | Dokument unklarer Herkunft weitergegeben: Konto-Id, Dokument-Id, neuer Besitzer, ob die Erkennung neu eingereiht wurde, Anzahl verworfener Listeneinträge (für die Zielsicht unsichtbar) |
 
 Web.Client: Die Ereignisse erscheinen nur in der Browser-Konsole und enthalten nur Sprachkürzel,
 Größen, Anzahlen, Statuscodes, Dauern und technische Fehlernamen – nie Dateinamen, Titel,

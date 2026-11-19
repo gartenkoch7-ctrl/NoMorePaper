@@ -49,12 +49,14 @@ public sealed partial class Document
     /// The owner hands a document waiting for its check to another account, which becomes its owner.
     /// Editors are dropped; they were chosen by the previous owner. Fields that nobody confirmed are
     /// dropped too and recognition starts over (<see cref="RecognitionState.None"/>): they were made
-    /// with the previous owner's lists, which may hold private entries (ADR-0023).
+    /// with the previous owner's lists, which may hold private entries (ADR-0023). Confirmed fields stay,
+    /// except the list entries the new owner's view may not see (<paramref name="hiddenEntries"/>).
     /// </summary>
     /// <param name="isPrivate">The new owner's choice for new documents.</param>
+    /// <param name="hiddenEntries">Ids of correspondent, type or tags the new view may not see; dropped from confirmed fields.</param>
     /// <exception cref="InvalidOperationException"><paramref name="actor"/> is not the owner, or nothing waits for a check.</exception>
     /// <exception cref="ArgumentException"><paramref name="newOwner"/> is empty or the owner already.</exception>
-    public void HandOver(Guid actor, Guid newOwner, bool isPrivate)
+    public void HandOver(Guid actor, Guid newOwner, bool isPrivate, IReadOnlyCollection<Guid>? hiddenEntries = null)
     {
         RequireOwner(actor);
         RequireOwnerCheck();
@@ -69,6 +71,10 @@ public sealed partial class Document
         _editors.Clear();
         if (Recognition == RecognitionState.Confirmed)
         {
+            var hidden = hiddenEntries ?? [];
+            CorrespondentId = CorrespondentId is { } sender && hidden.Contains(sender) ? null : CorrespondentId;
+            DocumentTypeId = DocumentTypeId is { } type && hidden.Contains(type) ? null : DocumentTypeId;
+            _tags.RemoveAll(tag => hidden.Contains(tag.TagId));
             return;
         }
 

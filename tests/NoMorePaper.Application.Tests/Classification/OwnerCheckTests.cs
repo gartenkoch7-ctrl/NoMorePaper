@@ -86,6 +86,47 @@ public sealed class OwnerCheckTests
         Assert.Empty(_queue.Requeued);
     }
 
+    [Theory]
+    [InlineData(true)]
+    [InlineData(false)]
+    public async Task HandOver_OfConfirmedFields_DropsTheAdminsPrivateEntries_AndKeepsHouseholdOnes(bool memberWantsPrivate)
+    {
+        // Confirmed fields stay, but the administrator's private entries must not reach the member (ADR-0023).
+        var document = Unknown();
+        var (adminsSender, householdTag, adminsTag) = (Guid.CreateVersion7(), Guid.CreateVersion7(), Guid.CreateVersion7());
+        _documents.PrivateEntries[adminsSender] = _current.Id;
+        _documents.PrivateEntries[adminsTag] = _current.Id;
+        _documents.VisibleEntries.Add(householdTag);
+        document.Edit(_current.Id, new DocumentFields("Vertrag", adminsSender, null, null, null, "Kurz.", [householdTag, adminsTag]));
+        _preferences.Saved[s_member] = new AccountPreferences(memberWantsPrivate, []);
+        var log = new RecordingLogger<HandOverDocument>();
+
+        Assert.Equal(ChangeOutcome.Changed, await HandOver(log).HandOverAsync(document.Id, s_member, Ct));
+
+        Assert.Null(document.CorrespondentId);
+        Assert.Equal([householdTag], document.Tags.Select(tag => tag.TagId));
+        Assert.Equal(("Vertrag", RecognitionState.Confirmed), (document.Title, document.Recognition));
+        Assert.Contains("2 list entries dropped", Assert.Single(log.Messages), StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public async Task HandOver_IntoAPrivateDocument_KeepsTheNewOwnersOwnPrivateEntry_ButNotIntoAShared()
+    {
+        var membersEntry = Guid.CreateVersion7();
+        _documents.PrivateEntries[membersEntry] = s_member;
+
+        foreach (var (memberWantsPrivate, kept) in new[] { (true, true), (false, false) })
+        {
+            var document = Unknown();
+            document.Edit(_current.Id, new DocumentFields(null, membersEntry, null, null, null, null, []));
+            _preferences.Saved[s_member] = new AccountPreferences(memberWantsPrivate, []);
+
+            await HandOver().HandOverAsync(document.Id, s_member, Ct);
+
+            Assert.Equal(kept, document.CorrespondentId == membersEntry);
+        }
+    }
+
     [Fact]
     public async Task HandOver_IsRefused_ToNobodyOrSelf_WithoutCheck_AndByOthers()
     {

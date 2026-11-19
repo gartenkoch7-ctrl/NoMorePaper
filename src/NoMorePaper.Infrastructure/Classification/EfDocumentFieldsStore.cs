@@ -50,7 +50,11 @@ public sealed class EfDocumentFieldsStore(AppDbContext db) : IDocumentFieldsStor
     }
 
     public Task<bool> AreVisibleAsync(Guid viewerId, ClassificationKind kind, IReadOnlyCollection<Guid> entryIds, CancellationToken cancellationToken) =>
-        EntrySets.AllVisibleAsync(db, kind, viewerId, entryIds, cancellationToken);
+        AreVisibleAsync(viewerId, kind, entryIds, EntryAudience.Account, cancellationToken);
+
+    public Task<bool> AreVisibleAsync(
+        Guid viewerId, ClassificationKind kind, IReadOnlyCollection<Guid> entryIds, EntryAudience audience, CancellationToken cancellationToken) =>
+        EntrySets.AllVisibleAsync(db, kind, viewerId, entryIds, audience, cancellationToken);
 
     public async Task SaveAsync(CancellationToken cancellationToken)
     {

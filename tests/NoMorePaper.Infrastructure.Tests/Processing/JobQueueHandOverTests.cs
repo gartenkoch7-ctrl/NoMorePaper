@@ -4,6 +4,7 @@ using NoMorePaper.Application.Accounts;
 using NoMorePaper.Application.Classification;
 using NoMorePaper.Application.Processing;
 using NoMorePaper.Application.Recognition;
+using NoMorePaper.Domain.Classification;
 using NoMorePaper.Domain.Documents;
 using NoMorePaper.Infrastructure.Classification;
 using NoMorePaper.Infrastructure.Inputs;
@@ -103,5 +104,38 @@ public sealed class JobQueueHandOverTests(PostgresFixture postgres)
         Assert.Equal((bob.Id, false, false, RecognitionState.None), (saved.OwnerId!.Value, saved.IsPrivate, saved.NeedsOwnerCheck, saved.Recognition));
         var job = await verify.ProcessingJobs.AsNoTracking().SingleAsync(found => found.DocumentId == seeded.Id, Ct);
         Assert.Equal((JobStage.Recognition, 0), (job.Stage, job.Priority));
+    }
+
+    [Fact]
+    public async Task HandOver_OfConfirmedFields_DropsTheAdminsPrivateEntry_AndKeepsAHouseholdEntry()
+    {
+        await using var database = await AccountDatabase.CreateAsync(postgres, "queue_hand_over_confirmed");
+        var admin = await database.AddAdminAsync();
+        var bob = await database.AddMemberAsync(admin.Id, "bob");
+        var doctor = await Seed.EntryAsync(database.Db(), ClassificationKind.Correspondent, "Dr. Privat", admin.Id);
+        var tax = await Seed.EntryAsync(database.Db(), ClassificationKind.Tag, "Steuer", admin.Id);
+        await Seed.DocumentAsync(database.Db(), admin.Id, isPrivate: false, Seed.Fields(null, null, null, null, tax));
+        var seeded = await Seed.DocumentAsync(database.Db(), admin.Id, isPrivate: true, text: "Befund");
+        var db = database.Db();
+        var document = await db.Documents.SingleAsync(found => found.Id == seeded.Id, Ct);
+        document.Edit(admin.Id, new DocumentFields("Befund", doctor, null, null, null, null, [tax]));
+        document.MarkOwnerCheck();
+        await db.SaveChangesAsync(Ct);
+
+        var scope = database.Db();
+        var handOver = new HandOverDocument(
+            new EfDocumentFieldsStore(scope),
+            database.Store(),
+            new EfAccountPreferencesStore(database.Db()),
+            new JobQueue(scope, TimeProvider.System),
+            new FakeCurrentAccount(admin.Id),
+            NullLogger<HandOverDocument>.Instance);
+
+        Assert.Equal(ChangeOutcome.Changed, await handOver.HandOverAsync(seeded.Id, bob.Id, Ct));
+
+        var fields = await new EfDocumentFieldsStore(database.Db()).GetFieldsAsync(seeded.Id, bob.Id, Ct);
+        Assert.Null(fields!.Correspondent);
+        Assert.Equal(["Steuer"], fields.Tags.Select(tag => tag.Name));
+        Assert.Equal(RecognitionState.Confirmed, fields.Recognition);
     }
 }

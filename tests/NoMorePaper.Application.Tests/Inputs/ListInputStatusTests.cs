@@ -78,7 +78,7 @@ public sealed class ListInputStatusTests
     {
         public List<InputStatus> Rows { get; } = [];
 
-        public Task RecordAsync(InputKind kind, Guid? accountId, InputRunResult result, DateTimeOffset at, CancellationToken cancellationToken) =>
+        public Task RecordAsync(InputKind kind, Guid? accountId, int received, InputProblem? problem, DateTimeOffset at, CancellationToken cancellationToken) =>
             throw new NotSupportedException();
 
         public Task<IReadOnlyList<InputStatus>> ListAsync(CancellationToken cancellationToken) =>

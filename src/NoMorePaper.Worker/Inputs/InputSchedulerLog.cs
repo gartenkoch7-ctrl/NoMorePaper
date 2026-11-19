@@ -22,4 +22,7 @@ internal static partial class InputSchedulerLog
 
     [LoggerMessage(EventId = 2304, Level = LogLevel.Information, Message = "Input scheduler started with {Count} inputs, checking every {IntervalSeconds} s")]
     public static partial void SchedulerStarted(this ILogger logger, int count, int intervalSeconds);
+
+    [LoggerMessage(EventId = 2305, Level = LogLevel.Error, Message = "The input scheduler could not learn its inputs ({ExceptionType}); no input runs until the Worker restarts")]
+    public static partial void SchedulerFailed(this ILogger logger, string exceptionType);
 }

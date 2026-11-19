@@ -10,16 +10,25 @@ internal sealed class FakeAccountPreferencesStore : IAccountPreferencesStore
     public Task<AccountPreferences> GetAsync(Guid accountId, CancellationToken cancellationToken) =>
         Task.FromResult(Saved.GetValueOrDefault(accountId, AccountPreferences.Default));
 
-    public Task<string?> SaveAsync(Guid accountId, AccountPreferences preferences, CancellationToken cancellationToken)
+    /// <summary>The account is removed while saving: the database refuses its rows.</summary>
+    public bool RemovedWhileSaving { get; set; }
+
+    public Task<PreferencesResult> SaveAsync(Guid accountId, AccountPreferences preferences, CancellationToken cancellationToken)
     {
-        var taken = preferences.MailSenders.FirstOrDefault(address =>
-            Saved.Any(other => other.Key != accountId && other.Value.MailSenders.Contains(address)));
-        if (taken is null)
+        if (RemovedWhileSaving)
         {
-            Saved[accountId] = preferences;
+            return Task.FromResult(new PreferencesResult(PreferencesOutcome.AccountGone));
         }
 
-        return Task.FromResult(taken);
+        var taken = preferences.MailSenders.FirstOrDefault(address =>
+            Saved.Any(other => other.Key != accountId && other.Value.MailSenders.Contains(address)));
+        if (taken is not null)
+        {
+            return Task.FromResult(new PreferencesResult(PreferencesOutcome.SenderTaken, taken));
+        }
+
+        Saved[accountId] = preferences;
+        return Task.FromResult(new PreferencesResult(PreferencesOutcome.Saved));
     }
 
     public Task<Guid?> FindOwnerOfSenderAsync(string address, CancellationToken cancellationToken)

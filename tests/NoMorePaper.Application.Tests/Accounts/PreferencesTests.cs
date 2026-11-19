@@ -103,5 +103,14 @@ public sealed class PreferencesTests
         Assert.Single(_log.EventIds);
     }
 
+    [Fact]
+    public async Task Change_WhileTheAccountIsRemoved_IsAccountGone()
+    {
+        _store.RemovedWhileSaving = true;
+
+        Assert.Equal(new PreferencesResult(PreferencesOutcome.AccountGone), await Change().ChangeAsync(true, [], Ct));
+        Assert.Single(_log.EventIds);
+    }
+
     private ChangePreferences Change() => new(_store, _current, _log);
 }

@@ -38,6 +38,6 @@ internal static partial class DocumentIntakeLog
     [LoggerMessage(EventId = 5302, Level = LogLevel.Warning, Message = "File from {Source} not taken: its owner is unknown and there is no administrator")]
     public static partial void NoAdministrator(this ILogger logger, DocumentSource source);
 
-    [LoggerMessage(EventId = 5303, Level = LogLevel.Information, Message = "Account {AccountId} handed document {DocumentId} over to account {NewOwnerId} (recognition again: {Requeued})")]
-    public static partial void HandedOver(this ILogger logger, Guid accountId, Guid documentId, Guid newOwnerId, bool requeued);
+    [LoggerMessage(EventId = 5303, Level = LogLevel.Information, Message = "Account {AccountId} handed document {DocumentId} over to account {NewOwnerId} (recognition again: {Requeued}, {DroppedEntries} list entries dropped)")]
+    public static partial void HandedOver(this ILogger logger, Guid accountId, Guid documentId, Guid newOwnerId, bool requeued, int droppedEntries);
 }

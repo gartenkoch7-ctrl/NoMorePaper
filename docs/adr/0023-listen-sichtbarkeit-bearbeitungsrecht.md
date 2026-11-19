@@ -108,3 +108,20 @@ Person ihn bewusst an ein geteiltes Dokument hängt.
   Doppel lässt sich unter „Listen“ zusammenführen.
 - Tests: `EntryVisibilityTests`, `ClassificationStoreTests`, `RecognitionExamplesTests`,
   `RecognitionVisibilityTests`, `DocumentChangeLockTests`.
+
+## Nachtrag 2026-11-19: Weitergabe eines Dokuments unklarer Herkunft (ADR-0024)
+
+**Anlass:** Der Verwalter kann ein Dokument unklarer Herkunft an ein anderes Konto weitergeben. Seine
+Angaben können Einträge seiner **privaten** Listen tragen; `FieldsReader` zeigt benutzte Einträge ohne
+Sichtbarkeitsprüfung an. Das neue Konto (und bei einem geteilten Dokument der ganze Haushalt) sähe sie.
+
+**Entscheidung:**
+- Nicht bestätigte Angaben werden bei der Weitergabe verworfen, die Erkennung läuft neu mit der Sicht des
+  neuen Besitzers (schon in Schritt 0 von M4).
+- **Bestätigte** Angaben bleiben, aber ohne jeden Absender, jede Art und jedes Tag, den die **Zielsicht**
+  nicht sieht: `Account` des neuen Besitzers, wenn das Dokument privat bleibt, `Household`, wenn es geteilt
+  wird – dieselbe Wahl wie bei der Erkennung. Geprüft wird vor dem Speichern, das Dokument zählt also noch
+  als privates des Verwalters und macht seine eigenen Einträge nicht sichtbar.
+- Datum, Betrag, Titel und Zusammenfassung bleiben; sie stammen aus dem Text, nicht aus den Listen.
+
+**Tests:** `OwnerCheckTests`, `JobQueueHandOverTests`, `DocumentIntakeTests`.

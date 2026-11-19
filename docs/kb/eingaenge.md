@@ -31,7 +31,8 @@ Stand: Schritt 0 (gemeinsame Bausteine). Die Spuren A–E ergänzen ihre Abschni
   `lokal@domain.tld`, keine Leerzeichen, höchstens 320 Zeichen).
 - **Eine Adresse gehört genau einem Konto** – der Schlüssel von `account_mail_senders` ist die Adresse. Eine
   Adresse eines anderen Kontos → 409 mit `errors: { mailSenders: ["taken"] }`, ungültig → 400 `invalid`.
-  Fehlt die Liste (`null`), ist das ebenfalls 400 – so verschwinden Adressen nie aus Versehen.
+  Fehlt die Liste (`null`), ist das ebenfalls 400 – so verschwinden Adressen nie aus Versehen. Wird das
+  Konto beim Speichern gerade entfernt (Fremdschlüssel verletzt), antwortet die API wie jeder Kontopfad mit 401.
 - **Bewusst:** jedes Konto darf jede noch freie Adresse eintragen. Der Haushalt vertraut sich; Mails von
   dieser Adresse gehören danach diesem Konto.
 - Entfernt der Verwalter ein Konto, löscht die Datenbank dessen Einstellungen, Adressen, Einrichtungen
@@ -55,6 +56,10 @@ Stand: Schritt 0 (gemeinsame Bausteine). Die Spuren A–E ergänzen ihre Abschni
   Transaktion** neu eingereiht (`IJobQueue.RequeueRecognitionAsync`, Priorität 0). Sonst könnten private
   Listeneinträge des Verwalters beim neuen Besitzer landen (ADR-0023). Datum und Betrag bleiben bis zur
   neuen Erkennung stehen; sie kommen aus dem Text, nicht aus Listen.
+- Waren die Angaben **bestätigt**, bleiben sie – ohne Absender, Art und Tags, die die Zielsicht nicht sieht
+  (`Account` des neuen Besitzers, wenn das Dokument privat bleibt, sonst `Household`). So landen private
+  Listeneinträge des Verwalters nie beim neuen Besitzer (ADR-0023, Nachtrag 2026-11-19). Log 5303 nennt die
+  Zahl der verworfenen Einträge.
 - Läuft gerade eine Erkennung, verliert sie ihren Auftrag (neue Claim-Id) und ihr Ergebnis wird verworfen.
   Zusätzlich prüft `CompleteRecognitionAsync` unter der Zeilensperre den Besitzer, mit dessen Listen die
   Angaben entstanden (`RecognitionCommit.OwnerChanged`, Log 5213).
@@ -66,17 +71,26 @@ Stand: Schritt 0 (gemeinsame Bausteine). Die Spuren A–E ergänzen ihre Abschni
 - Erscheint in `DocumentFieldsDto.Mail`; nie in Logs.
 
 ## Hintergrund-Eingänge: `IInputSource` und `InputScheduler`
-- Jede Quelle meldet Art (`InputKind`), Takt und `RunAsync` → `InputRunResult(Received, Skipped, Problem)`.
-  Probleme sind Ergebnis, keine Ausnahmen (`InputProblemKind`: `NotConfigured`, `SignInFailed`,
-  `CodeNeeded`, `Unreachable`, `LlmUnavailable`, `Throttled`, `ProtocolChanged`, `UnknownFolder`,
-  `StuckItems`, `Failed`).
+- Jede Quelle meldet Art (`InputKind`), Takt und `RunAsync` → `InputRunResult(Received, Skipped, Problem)`
+  für den ganzen Eingang, dazu bei Eingängen je Konto (iCloud) `Accounts` mit je einem
+  `InputAccountResult(AccountId, Received, Skipped, Problem)`. Probleme sind Ergebnis, keine Ausnahmen
+  (`InputProblemKind`: `NotConfigured`, `SignInFailed`, `CodeNeeded`, `Unreachable`, `LlmUnavailable`,
+  `Throttled`, `ProtocolChanged`, `UnknownFolder`, `StuckItems`, `Failed`).
+- Registrierung **je Art**: `services.AddInputSource<TQuelle>(InputKind.…)` in
+  `InputRegistration.AddInputSources()` (nur Worker) – scoped, mit der Art als Schlüssel, plus eine
+  `InputSourceRegistration`. Der Scheduler lernt die Eingänge aus diesen Einträgen, **ohne** eine Quelle zu
+  bauen, und baut je Lauf nur die eine Quelle. Eine Quelle, deren Konstruktor wirft, scheitert nur selbst
+  (`Failed`, Log 2302) und wird nach 1 min erneut versucht; die anderen laufen weiter, der Worker-Host bleibt.
 - Der `InputScheduler` (Worker) prüft alle 10 s, welche Quelle fällig ist (Takt ab Start des letzten Laufs),
-  startet jeden Lauf in **eigenem Scope** und **neben** den anderen; ein laufender Eingang wird nicht doppelt
-  gestartet. Eine Ausnahme wird zu `Failed`, nur der Ausnahmetyp landet im Log (2302).
+  startet jeden Lauf in **eigenem Scope** (`CreateAsyncScope`) und **neben** den anderen (`InputRunner`); ein
+  laufender Eingang wird nicht doppelt gestartet. Ausnahmen landen nur als Typ im Log; kein Fehler beendet
+  den Host (Lernen der Eingänge: 2305).
 - Jeder Lauf schreibt `input_status` (letzter Lauf, letzter Erfolg, Problem, „braucht Aufmerksamkeit“,
-  Summe angenommener Dokumente). Ein Problem mit Konto-Id landet in der Zeile dieses Kontos.
-- Registrierung: Quellen in `InputRegistration.AddInputSources()` (nur Worker), Stores, Geheimnisse und
-  PDF in `AddInputs()` (Server und Worker). Der Worker registriert dafür auch den Konto-Store.
+  Summe angenommener Dokumente): die Zeile des ganzen Eingangs (ohne Konto) und **je Konto seine eigene**.
+  Ein späterer Erfolg eines Kontos löscht dessen Problem und zählt dessen Dokumente. Scheitert das
+  Schreiben (auch beim Herunterfahren), wird es protokolliert (2303), der Lauf endet ruhig.
+- Stores, Geheimnisse und PDF registriert `AddInputs()` (Server und Worker). Der Worker registriert auch
+  den Konto-Store (Besitzer und Verwalter für die Annahme).
 - Sichtbarkeit (`ListInputStatus`): Verwalter alles mit Kontonamen; Mitglied die Zeilen von Scanner-Ordner
   und Mail ohne Konto und seine eigenen Zeilen (sein iCloud).
 

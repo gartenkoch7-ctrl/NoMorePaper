@@ -22,9 +22,9 @@ public sealed class InputStatusStoreTests(PostgresFixture postgres)
         var admin = await database.AddAdminAsync();
         var store = new EfInputStatusStore(database.Db());
 
-        await store.RecordAsync(InputKind.Mail, null, new InputRunResult(2, 1), s_at, Ct);
-        await store.RecordAsync(InputKind.Mail, null, new InputRunResult(1, 0, new InputProblem(InputProblemKind.LlmUnavailable)), s_at.AddMinutes(5), Ct);
-        await store.RecordAsync(InputKind.ICloud, admin.Id, InputRunResult.Failed(new InputProblem(InputProblemKind.CodeNeeded, admin.Id, NeedsAttention: true)), s_at, Ct);
+        await store.RecordAsync(InputKind.Mail, null, 2, null, s_at, Ct);
+        await store.RecordAsync(InputKind.Mail, null, 1, new InputProblem(InputProblemKind.LlmUnavailable), s_at.AddMinutes(5), Ct);
+        await store.RecordAsync(InputKind.ICloud, admin.Id, 0, new InputProblem(InputProblemKind.CodeNeeded, NeedsAttention: true), s_at, Ct);
 
         var rows = await new EfInputStatusStore(database.Db()).ListAsync(Ct);
         var mail = rows.Single(row => row.Kind == InputKind.Mail);
@@ -34,9 +34,14 @@ public sealed class InputStatusStoreTests(PostgresFixture postgres)
         var icloud = rows.Single(row => row.Kind == InputKind.ICloud);
         Assert.Equal((admin.Id, (DateTimeOffset?)null, InputProblemKind.CodeNeeded, true), (icloud.AccountId!.Value, icloud.LastSuccessAt, icloud.Problem!.Value, icloud.NeedsAttention));
 
-        await store.RecordAsync(InputKind.Mail, null, InputRunResult.Nothing, s_at.AddMinutes(10), Ct);
+        await store.RecordAsync(InputKind.Mail, null, 0, null, s_at.AddMinutes(10), Ct);
         var cleared = (await store.ListAsync(Ct)).Single(row => row.Kind == InputKind.Mail);
         Assert.Equal((null, s_at.AddMinutes(10)), (cleared.Problem, cleared.LastSuccessAt!.Value));
+
+        // A success of the account's own part clears its problem and counts its documents.
+        await store.RecordAsync(InputKind.ICloud, admin.Id, 4, null, s_at.AddMinutes(15), Ct);
+        var fixedRow = (await store.ListAsync(Ct)).Single(row => row.Kind == InputKind.ICloud);
+        Assert.Equal((null, false, 4L), (fixedRow.Problem, fixedRow.NeedsAttention, fixedRow.ReceivedTotal));
     }
 
     [Fact]

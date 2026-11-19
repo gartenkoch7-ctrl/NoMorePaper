@@ -28,9 +28,13 @@ public sealed class ChangePreferences(IAccountPreferencesStore preferences, ICur
             return new PreferencesResult(PreferencesOutcome.Invalid, invalid);
         }
 
-        var taken = await preferences.SaveAsync(current.Id, wanted, cancellationToken).ConfigureAwait(false);
-        return taken is null
-            ? new PreferencesResult(PreferencesOutcome.Saved)
-            : new PreferencesResult(PreferencesOutcome.SenderTaken, taken);
+        var saved = await preferences.SaveAsync(current.Id, wanted, cancellationToken).ConfigureAwait(false);
+        if (saved.Outcome == PreferencesOutcome.AccountGone)
+        {
+            // Removed between the check above and the save: the database refused the account's rows.
+            logger.AccountGone(current.Id, "change-preferences");
+        }
+
+        return saved;
     }
 }
