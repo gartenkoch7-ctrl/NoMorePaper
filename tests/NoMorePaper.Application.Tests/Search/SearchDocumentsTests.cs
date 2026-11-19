@@ -1,3 +1,4 @@
+using NoMorePaper.Application.Documents;
 using NoMorePaper.Application.Search;
 using NoMorePaper.Application.Tests.Accounts;
 using Xunit;
@@ -9,6 +10,7 @@ public sealed class SearchDocumentsTests
 {
     private readonly RecordingIndex _index = new();
     private readonly FakeCurrentAccount _current = new();
+    private readonly DocumentFilter _filter = new(IsPrivate: true);
 
     private static CancellationToken Ct => TestContext.Current.CancellationToken;
 
@@ -30,6 +32,7 @@ public sealed class SearchDocumentsTests
         await Search("  Rech\0nung  ", 20);
 
         Assert.Equal(("Rechnung", _current.Id, 20), Assert.Single(_index.Calls));
+        Assert.Same(_filter, Assert.Single(_index.Filters));
     }
 
     [Fact]
@@ -53,15 +56,18 @@ public sealed class SearchDocumentsTests
     }
 
     private Task<IReadOnlyList<SearchHit>> Search(string? query, int limit) =>
-        new SearchDocuments(_index, _current).SearchAsync(query, limit, Ct);
+        new SearchDocuments(_index, _current).SearchAsync(query, limit, _filter, Ct);
 
     private sealed class RecordingIndex : ISearchIndex
     {
         public List<(string Text, Guid Viewer, int Limit)> Calls { get; } = [];
 
-        public Task<IReadOnlyList<SearchHit>> SearchAsync(string text, Guid viewerId, int limit, CancellationToken cancellationToken)
+        public List<DocumentFilter> Filters { get; } = [];
+
+        public Task<IReadOnlyList<SearchHit>> SearchAsync(string text, Guid viewerId, int limit, DocumentFilter filter, CancellationToken cancellationToken)
         {
             Calls.Add((text, viewerId, limit));
+            Filters.Add(filter);
             return Task.FromResult<IReadOnlyList<SearchHit>>([]);
         }
     }

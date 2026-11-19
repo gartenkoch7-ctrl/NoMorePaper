@@ -1,7 +1,9 @@
+using NoMorePaper.Infrastructure.Documents;
+
 namespace NoMorePaper.Infrastructure.Search;
 
 /// <summary>Shape of a search result row; property names equal the column aliases in <see cref="PostgresSearchIndex"/>.</summary>
-internal sealed class SearchRow
+internal sealed class SearchRow : LabelRow
 {
     public Guid Id { get; set; }
 

@@ -13,7 +13,10 @@ internal static class SampleFiles
 
     public static byte[] Text() => "Just some text, not a document."u8.ToArray();
 
-    /// <summary>The head followed by pseudo-random-looking filler, so size and hash are meaningful.</summary>
+    /// <summary>
+    /// The head followed by pseudo-random-looking filler, so size and hash are meaningful. The last 16
+    /// bytes are a new GUID, so every call is a different file: the same file twice is refused (409).
+    /// </summary>
     public static byte[] WithHead(ReadOnlySpan<byte> head, int totalLength = 5000)
     {
         var bytes = new byte[Math.Max(totalLength, head.Length)];
@@ -21,6 +24,11 @@ internal static class SampleFiles
         for (var i = head.Length; i < bytes.Length; i++)
         {
             bytes[i] = (byte)((i * 31) % 251);
+        }
+
+        if (bytes.Length - head.Length >= 16)
+        {
+            Guid.NewGuid().TryWriteBytes(bytes.AsSpan(bytes.Length - 16));
         }
 
         return bytes;

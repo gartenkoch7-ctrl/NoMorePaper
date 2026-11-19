@@ -28,10 +28,16 @@ internal static class DocumentEndpoints
         return api;
     }
 
+    // Filters: see DocumentFilterQuery.
     private static async Task<IResult> ListAsync(
-        ListDocuments list, CancellationToken cancellationToken, int page = 1, int pageSize = DefaultPageSize)
+        ListDocuments list, DocumentFilterQuery query, CancellationToken cancellationToken, int page = 1, int pageSize = DefaultPageSize)
     {
-        var documents = await list.ListAsync(page, pageSize, cancellationToken).ConfigureAwait(false);
+        if (query.Filter is not { } filter)
+        {
+            return Results.Problem(title: query.Error, statusCode: StatusCodes.Status400BadRequest);
+        }
+
+        var documents = await list.ListAsync(page, pageSize, filter, cancellationToken).ConfigureAwait(false);
         return Results.Ok(documents.Select(document => document.ToDto()));
     }
 

@@ -24,9 +24,12 @@ public sealed class DocumentQueryTests
     [InlineData(int.MaxValue, 100, int.MaxValue, 100)]
     public async Task List_ClampsPageAndPageSize(int page, int pageSize, int expectedPage, int expectedPageSize)
     {
-        await new ListDocuments(_documents, _current).ListAsync(page, pageSize, Ct);
+        var filter = new DocumentFilter(TagIds: [Guid.CreateVersion7()], AllTags: true);
+
+        await new ListDocuments(_documents, _current).ListAsync(page, pageSize, filter, Ct);
 
         Assert.Equal((_current.Id, expectedPage, expectedPageSize), _documents.LastList);
+        Assert.Same(filter, _documents.LastFilter);
     }
 
     [Fact]

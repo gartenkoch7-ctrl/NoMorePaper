@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging.Abstractions;
+using NoMorePaper.Application.Documents;
 using NoMorePaper.Domain.Documents;
 using NoMorePaper.Infrastructure.Documents;
 using NoMorePaper.Infrastructure.Persistence;
@@ -27,8 +28,8 @@ public sealed class DocumentVisibilityTests(PostgresFixture postgres)
         var annasShared = await AddAsync(db, s_anna, isPrivate: false, "Stromrechnung");
         var repository = new EfDocumentRepository(db);
 
-        var forBob = await repository.ListAsync(s_bob, 1, 100, Ct);
-        var forAnna = await repository.ListAsync(s_anna, 1, 100, Ct);
+        var forBob = await repository.ListAsync(s_bob, 1, 100, DocumentFilter.None, Ct);
+        var forAnna = await repository.ListAsync(s_anna, 1, 100, DocumentFilter.None, Ct);
 
         Assert.Equal([annasShared], forBob.Select(d => d.Id));
         Assert.False(forBob[0].IsMine);
@@ -46,10 +47,10 @@ public sealed class DocumentVisibilityTests(PostgresFixture postgres)
         var annasPrivate = await AddAsync(db, s_anna, isPrivate: true, "Geheim", "Der Kontoauszug zeigt das Gehalt.");
         var index = new PostgresSearchIndex(db, NullLogger<PostgresSearchIndex>.Instance);
 
-        var stemForBob = await index.SearchAsync("Kontoauszug", s_bob, 10, Ct);
-        var similarForBob = await index.SearchAsync("Kontoauzug", s_bob, 10, Ct);
-        var stemForAnna = await index.SearchAsync("Kontoauszug", s_anna, 10, Ct);
-        var similarForAnna = await index.SearchAsync("Kontoauzug", s_anna, 10, Ct);
+        var stemForBob = await index.SearchAsync("Kontoauszug", s_bob, 10, DocumentFilter.None, Ct);
+        var similarForBob = await index.SearchAsync("Kontoauzug", s_bob, 10, DocumentFilter.None, Ct);
+        var stemForAnna = await index.SearchAsync("Kontoauszug", s_anna, 10, DocumentFilter.None, Ct);
+        var similarForAnna = await index.SearchAsync("Kontoauzug", s_anna, 10, DocumentFilter.None, Ct);
 
         Assert.Empty(stemForBob);
         Assert.Empty(similarForBob);

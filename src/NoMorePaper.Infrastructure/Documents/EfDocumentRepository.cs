@@ -3,6 +3,8 @@ using NoMorePaper.Application.Documents;
 using NoMorePaper.Domain.Documents;
 using NoMorePaper.Infrastructure.Persistence;
 using NoMorePaper.Infrastructure.Processing;
+using Npgsql;
+using NpgsqlTypes;
 
 namespace NoMorePaper.Infrastructure.Documents;
 
@@ -23,22 +25,50 @@ public sealed class EfDocumentRepository(AppDbContext db) : IDocumentRepository
     public Task<bool> ExistsAsync(Guid id, CancellationToken cancellationToken) =>
         db.Documents.AsNoTracking().AnyAsync(d => d.Id == id, cancellationToken);
 
-    public async Task<IReadOnlyList<DocumentSummary>> ListAsync(Guid viewerId, int page, int pageSize, CancellationToken cancellationToken)
+    public async Task<IReadOnlyList<DocumentSummary>> ListAsync(
+        Guid viewerId, int page, int pageSize, DocumentFilter filter, CancellationToken cancellationToken)
     {
         ArgumentOutOfRangeException.ThrowIfLessThan(page, 1);
         ArgumentOutOfRangeException.ThrowIfLessThan(pageSize, 1);
-        var skip = (long)(page - 1) * pageSize;
+        ArgumentNullException.ThrowIfNull(filter);
+        List<NpgsqlParameter> parameters =
+        [
+            new("viewer", NpgsqlDbType.Uuid) { Value = viewerId },
+            new("skip", NpgsqlDbType.Bigint) { Value = (long)(page - 1) * pageSize },
+            new("take", NpgsqlDbType.Integer) { Value = pageSize },
+        ];
 
-        var rows = await VisibleTo(viewerId)
-            .OrderByDescending(document => document.ReceivedAt)
-            .ThenByDescending(document => document.Id)
-            .Skip((int)Math.Min(skip, int.MaxValue))
-            .Take(pageSize)
-            .Select(document => new { document.Id, document.Title, document.ReceivedAt, document.State, document.IsPrivate, IsMine = document.OwnerId == viewerId })
+        // Plain SQL so list and search share one filter definition (DocumentFilterSql); the visibility
+        // rule of Document.IsVisibleTo comes first, the filters only narrow it.
+        var sql = """
+            SELECT d.id AS "Id", d.title AS "Title", d.received_at AS "ReceivedAt", d.state AS "State",
+                   d.is_private AS "IsPrivate", d.owner_id IS NOT DISTINCT FROM @viewer AS "IsMine",
+            """ + DocumentFilterSql.LabelColumns + " FROM documents d " + DocumentFilterSql.LabelJoins
+            + " WHERE (d.owner_id = @viewer OR NOT d.is_private)" + DocumentFilterSql.Conditions(filter, parameters)
+            + " ORDER BY d.received_at DESC, d.id DESC OFFSET @skip LIMIT @take";
+
+        var rows = await db.Database.SqlQueryRaw<DocumentListRow>(sql, [.. parameters])
             .ToListAsync(cancellationToken)
             .ConfigureAwait(false);
 
-        return [.. rows.Select(row => new DocumentSummary(row.Id, row.Title, row.ReceivedAt, row.State, row.IsPrivate, row.IsMine))];
+        return [.. rows.Select(row => new DocumentSummary(
+            row.Id, row.Title, row.ReceivedAt, Enum.Parse<ProcessingState>(row.State), row.IsPrivate, row.IsMine, row.ToLabels()))];
+    }
+
+    public async Task<Guid?> FindVisibleBySha256Async(Guid viewerId, string sha256, CancellationToken cancellationToken)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(sha256);
+
+        // kind = 'Original' as literal and the hash as character(64), so the partial index on originals is used.
+        var found = await db.Database.SqlQuery<Guid>($"""
+            SELECT d.id AS "Value"
+            FROM document_files f JOIN documents d ON d.id = f.document_id
+            WHERE f.kind = 'Original' AND f.sha256 = CAST({sha256} AS character(64))
+              AND (d.owner_id = {viewerId} OR NOT d.is_private)
+            ORDER BY d.received_at, d.id
+            LIMIT 1
+            """).ToListAsync(cancellationToken).ConfigureAwait(false);
+        return found.Count == 0 ? null : found[0];
     }
 
     public async Task<DocumentDetail?> GetAsync(Guid id, Guid viewerId, CancellationToken cancellationToken)

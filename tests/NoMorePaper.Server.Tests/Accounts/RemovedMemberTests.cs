@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using NoMorePaper.Contracts.Accounts;
+using NoMorePaper.Contracts.Classification;
 using NoMorePaper.Contracts.Documents;
 using NoMorePaper.Server.Accounts;
 using NoMorePaper.Server.Tests.Hosting;
@@ -39,11 +40,15 @@ public sealed class RemovedMemberTests(ApiFixture api)
         using var password = await Client(cookie).PostAsJsonAsync(
             "/api/account/password", new ChangePasswordDto(ApiFixtureExtensions.MemberPassword, "neues-passwort"), Ct);
         using var acknowledge = await Client(cookie).PostAsync("/api/account/acknowledge-reset", null, Ct);
+        using var confirm = await Client(cookie).PostAsync($"/api/documents/{document}/confirm", null, Ct);
+        using var entry = await Client(cookie).PostAsJsonAsync("/api/classification/tags", new CreateEntryDto("Nach dem Entfernen"), Ct);
 
         Assert.Equal(HttpStatusCode.Unauthorized, upload.StatusCode);
         Assert.Equal(HttpStatusCode.Unauthorized, privacy.StatusCode);
         Assert.Equal(HttpStatusCode.Unauthorized, password.StatusCode);
         Assert.Equal(HttpStatusCode.Unauthorized, acknowledge.StatusCode);
+        Assert.Equal(HttpStatusCode.Unauthorized, confirm.StatusCode);
+        Assert.Equal(HttpStatusCode.Unauthorized, entry.StatusCode);
         Assert.Contains("expires=Thu, 01 Jan 1970", SessionCookie.SetCookieHeader(upload), StringComparison.OrdinalIgnoreCase);
         var shared = await api.CreateAdminClient().GetFromJsonAsync<DocumentDetailDto>($"/api/documents/{document}", Ct);
         Assert.False(shared!.IsPrivate);

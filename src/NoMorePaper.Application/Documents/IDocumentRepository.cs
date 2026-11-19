@@ -18,10 +18,22 @@ public interface IDocumentRepository
     /// <exception cref="System.Data.Common.DbException">The database could not answer.</exception>
     Task<bool> ExistsAsync(Guid id, CancellationToken cancellationToken);
 
-    /// <summary>The documents <paramref name="viewerId"/> may see (own ones and all that are not private), newest first.</summary>
+    /// <summary>
+    /// The documents <paramref name="viewerId"/> may see (own ones and all that are not private) that
+    /// match <paramref name="filter"/>, newest first.
+    /// </summary>
     /// <param name="page">Page number, starting at 1.</param>
     /// <param name="pageSize">Documents per page, at least 1.</param>
-    Task<IReadOnlyList<DocumentSummary>> ListAsync(Guid viewerId, int page, int pageSize, CancellationToken cancellationToken);
+    Task<IReadOnlyList<DocumentSummary>> ListAsync(
+        Guid viewerId, int page, int pageSize, DocumentFilter filter, CancellationToken cancellationToken);
+
+    /// <summary>
+    /// A document <paramref name="viewerId"/> may see whose original has exactly these bytes. Documents
+    /// the viewer may not see are never found, so a refused upload cannot reveal them.
+    /// </summary>
+    /// <param name="sha256">SHA-256 of the original, 64 lowercase hex characters.</param>
+    /// <returns>The oldest such document, or <c>null</c>.</returns>
+    Task<Guid?> FindVisibleBySha256Async(Guid viewerId, string sha256, CancellationToken cancellationToken);
 
     /// <returns>
     /// The document, or <c>null</c> if it does not exist, has no original file, or is private to
