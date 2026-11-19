@@ -30,6 +30,8 @@ builder.Services.AddScoped<ClassificationApi>();
 builder.Services.AddScoped<ReviewCounter>();
 builder.Services.AddScoped<PreferencesApi>();
 builder.Services.AddScoped<InputsApi>();
+builder.Services.AddScoped<OwnerCheckApi>();
+builder.Services.AddSingleton(TimeProvider.System);
 builder.Services.AddScoped<ViewerInterop>();
 builder.Services.AddScoped<ThumbnailRenderer>();
 builder.Services.AddSingleton<ViewerPreferences>();

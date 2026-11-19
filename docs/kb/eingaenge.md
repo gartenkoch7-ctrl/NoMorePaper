@@ -127,6 +127,28 @@ Stand: Schritt 0 (gemeinsame Bausteine). Die Spuren A–E ergänzen ihre Abschni
   4 min). Danach `LlmBusyException`: `RecognizeDocument` gibt den Auftrag zurück, **ohne** Fehlversuch zu
   zählen (Log 5214); er ist sofort wieder fällig.
 
+## Seite „Eingänge“, Einstellungen, Besitzer prüfen (Spur E)
+- `GET /api/inputs` liefert `InputStatusDto[]` aus `ListInputStatus` (Sichtbarkeit siehe oben); Mitglieder
+  sehen nie fremde Kontonamen oder iCloud-Zeilen.
+- Seite `/eingaenge` (Navigation „Eingänge“): je Eingang ein Abschnitt (h2) mit Zustand als Satz und Symbol
+  (`Läuft ohne Probleme`, `Noch nicht gelaufen`, `Problem: …` mit „Das braucht deine Aufmerksamkeit“), letzter
+  Abruf und letzter Erfolg relativ und absolut. Die Seite fragt jede Minute neu (`PeriodicTimer`); eine
+  Änderung von Zustand oder Problem sagt die Live-Region an, „Jetzt aktualisieren“ antwortet immer. Der
+  Knopf bleibt aktiv (ein deaktivierter Knopf verliert den Tastaturfokus). Ein Ladefehler ersetzt die Zeilen
+  durch eine Fehlermeldung mit „Erneut versuchen“. Probleme unbekannter Art (neuerer Server) zeigen
+  „Unbekanntes Problem“.
+- Links: Mail-Einstellungen (`eingaenge/mail`, nur Verwalter), iCloud (`eingaenge/icloud`, „Code erneuern“
+  nur bei der eigenen Zeile mit `code-needed`; die Zeile trägt nur den Anzeigenamen, verglichen wird damit).
+  Beide Seiten bauen die Spuren C und D.
+- Konto-Seite (`Accounts/PreferencesSection`): „Neue Dokumente privat ablegen“ und die Absender-Liste
+  speichern jede Änderung sofort (`PUT /api/account/preferences` mit dem ganzen Stand) und sagen sie an;
+  eine abgelehnte Adresse bleibt im Feld und bekommt den Fokus. Upload-Seite: Privat-Schalter aus der
+  Einstellung; ist sie nicht ladbar, steht das als Text da und der Schalter bleibt aus.
+- Besitzer prüfen (`Classification/OwnerCheckSection`) im Viewer und in „Zu prüfen“: „Passt so: <Titel>“
+  und „Weitergeben an“ (Auswahl der anderen Konten aus `GET /api/household`) mit Knopf „Weitergeben: <Titel>“.
+  Ohne Wahl: Fehlertext und Fokus auf die Auswahl. Nach der Weitergabe sagt der Viewer, wohin das Dokument
+  ging (es ist nicht mehr sichtbar); die Liste lädt neu und nennt, was übrig ist.
+
 ## Offen (Spuren)
-- A Kamera, B Scanner-Ordner, C Mail, D iCloud (nach Test mit echter Apple-ID), E Seite „Eingänge“ und
-  Einstellungen: siehe [Detailplan](../plan/features/m4-eingaenge-detail.md).
+- A Kamera, B Scanner-Ordner, C Mail, D iCloud (nach Test mit echter Apple-ID): siehe
+  [Detailplan](../plan/features/m4-eingaenge-detail.md).

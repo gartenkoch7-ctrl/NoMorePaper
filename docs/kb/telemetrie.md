@@ -189,7 +189,12 @@ Die Annahme behält 3200/3201 und nennt dort die Quelle.
 | 4513 | Information | `Web.Client/Classification/ClassificationLog` | Upload abgelehnt, weil die Datei schon vorhanden ist |
 | 4514 | Debug | `Web.Client/Classification/ClassificationLog` | Anzahl der Dokumente „Zu prüfen“ für die Navigation nicht ladbar |
 | 4515 | Information | `Web.Client/Classification/ClassificationLog` | Speichern oder Bestätigen mit 409 abgelehnt, weil die Angaben inzwischen erkannt oder bestätigt wurden; Angaben neu geladen |
-| 4790 | Warning | `Web.Client/Inputs/InputsLog` | Aufruf der Eingangs-/Einstellungs-API fehlgeschlagen: Vorgang (`preferences`, `save-preferences`, `inputs`), HTTP-Status |
+| 4700 | Information | `Web.Client/Inputs/InputsLog` | Seite „Eingänge“ geladen: Anzahl der Zeilen (nur der erste Ladevorgang, nicht die Auffrischungen) |
+| 4701 | Information | `Web.Client/Inputs/InputsLog` | Einstellungen gespeichert (Konto-Seite): Anzahl der Absender-Adressen, nie die Adressen |
+| 4702 | Warning | `Web.Client/Inputs/InputsLog` | Aktion der Seiten „Eingänge“, Konto, Besitzer prüfen fehlgeschlagen: Code (`load-inputs`, `load-preferences`, `save-preferences`, `load-household`, `owner-check`, `hand-over`) |
+| 4703 | Information | `Web.Client/Inputs/InputsLog` | Dokument unklarer Herkunft weitergegeben (ohne Dokument- und Kontoname) |
+| 4704 | Information | `Web.Client/Inputs/InputsLog` | Dokument unklarer Herkunft behalten („Passt so“) |
+| 4790 | Warning | `Web.Client/Inputs/InputsLog` | Aufruf der Eingangs-/Einstellungs-API fehlgeschlagen: Vorgang (`preferences`, `save-preferences`, `inputs`, `owner-check`, `hand-over`), HTTP-Status |
 | 4791 | Warning | `Web.Client/Inputs/InputsLog` | Eingangs-/Einstellungs-API nicht erreichbar: Vorgang, Ausnahmetyp |
 | 5100 | Information | `Application/Accounts/AccountsLog` | Haushalt eingerichtet: Verwalter-Id, Anzahl übernommener Dokumente ohne Besitzer (M1) |
 | 5101 | Warning | `Application/Accounts/AccountsLog` | Einrichtung abgelehnt, Haushalt schon eingerichtet |

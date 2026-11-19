@@ -2,6 +2,7 @@ using NoMorePaper.Server.Accounts;
 using NoMorePaper.Server.Classification;
 using NoMorePaper.Server.Composition;
 using NoMorePaper.Server.Documents;
+using NoMorePaper.Server.Inputs;
 using NoMorePaper.Server.Search;
 using NoMorePaper.Server.Security;
 
@@ -33,6 +34,7 @@ api.MapSearchEndpoints();
 api.MapClassificationEndpoints();
 api.MapPreferencesEndpoints();
 api.MapOwnerCheckEndpoints();
+api.MapInputStatusEndpoints();
 app.MapFallbackToFile("index.html");
 
 await app.RunAsync();

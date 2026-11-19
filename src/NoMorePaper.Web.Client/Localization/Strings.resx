@@ -1068,4 +1068,256 @@
   <data name="InpErrorSenderTaken" xml:space="preserve">
     <value>Diese Absender-Adresse ist schon bei einem anderen Konto eingetragen.</value>
   </data>
+  <data name="NavInputs" xml:space="preserve">
+    <value>Eingänge</value>
+  </data>
+  <data name="InpTitle" xml:space="preserve">
+    <value>Eingänge</value>
+  </data>
+  <data name="InpHeading" xml:space="preserve">
+    <value>Eingänge</value>
+  </data>
+  <data name="InpIntro" xml:space="preserve">
+    <value>Hier siehst du, ob die Wege laufen, auf denen Dokumente außer dem Hochladen hereinkommen: Scanner-Ordner, Mail und iCloud Drive.</value>
+  </data>
+  <data name="InpRefresh" xml:space="preserve">
+    <value>Jetzt aktualisieren</value>
+  </data>
+  <data name="InpLoading" xml:space="preserve">
+    <value>Eingänge werden geladen …</value>
+  </data>
+  <data name="InpLoadError" xml:space="preserve">
+    <value>Die Eingänge konnten nicht geladen werden: {0}</value>
+  </data>
+  <data name="InpUpdated" xml:space="preserve">
+    <value>Stand: {0}</value>
+  </data>
+  <data name="InpChanged" xml:space="preserve">
+    <value>Die Eingänge haben sich geändert. {0}</value>
+  </data>
+  <data name="InpNothingNew" xml:space="preserve">
+    <value>Aktualisiert. Nichts hat sich geändert.</value>
+  </data>
+  <data name="InpKindScannerFolder" xml:space="preserve">
+    <value>Scanner-Ordner</value>
+  </data>
+  <data name="InpKindMail" xml:space="preserve">
+    <value>Mail</value>
+  </data>
+  <data name="InpKindICloud" xml:space="preserve">
+    <value>iCloud Drive</value>
+  </data>
+  <data name="InpScannerText" xml:space="preserve">
+    <value>Dateien, die der Scanner in den Ordner im Heimnetz legt. Jedes Konto hat dort einen eigenen Unterordner.</value>
+  </data>
+  <data name="InpMailText" xml:space="preserve">
+    <value>Dokumente, die als Mail an die Adresse des Haushalts kommen.</value>
+  </data>
+  <data name="InpMailSpamFolder" xml:space="preserve">
+    <value>Mails, die als Spam erkannt werden, liegen im Postfach-Ordner „NoMorePaper-Spam“. Schiebst du eine Mail von dort zurück in den Posteingang, wird sie ohne Spam-Prüfung eingelesen.</value>
+  </data>
+  <data name="InpMailSetUp" xml:space="preserve">
+    <value>Mail einrichten</value>
+  </data>
+  <data name="InpMailSettings" xml:space="preserve">
+    <value>Mail-Einstellungen</value>
+  </data>
+  <data name="InpMailAdminOnly" xml:space="preserve">
+    <value>Das Postfach richtet der Verwalter ein.</value>
+  </data>
+  <data name="InpICloudText" xml:space="preserve">
+    <value>Dateien aus einem iCloud-Ordner, den jedes Konto mit seiner eigenen Apple-ID wählt. NoMorePaper liest nur.</value>
+  </data>
+  <data name="InpICloudNone" xml:space="preserve">
+    <value>Noch nicht eingerichtet.</value>
+  </data>
+  <data name="InpICloudSetUp" xml:space="preserve">
+    <value>iCloud einrichten</value>
+  </data>
+  <data name="InpICloudSettings" xml:space="preserve">
+    <value>iCloud-Einstellungen</value>
+  </data>
+  <data name="InpICloudRenewCode" xml:space="preserve">
+    <value>Code erneuern</value>
+  </data>
+  <data name="InpStateNever" xml:space="preserve">
+    <value>Noch nicht gelaufen.</value>
+  </data>
+  <data name="InpStateOk" xml:space="preserve">
+    <value>Läuft ohne Probleme.</value>
+  </data>
+  <data name="InpStateProblem" xml:space="preserve">
+    <value>Problem: {0}.</value>
+  </data>
+  <data name="InpStateProblemAttention" xml:space="preserve">
+    <value>Problem: {0}. Das braucht deine Aufmerksamkeit.</value>
+  </data>
+  <data name="InpLastRun" xml:space="preserve">
+    <value>Letzter Abruf</value>
+  </data>
+  <data name="InpLastSuccess" xml:space="preserve">
+    <value>Letzter Erfolg</value>
+  </data>
+  <data name="InpNever" xml:space="preserve">
+    <value>noch nie</value>
+  </data>
+  <data name="InpWhen" xml:space="preserve">
+    <value>{0} ({1})</value>
+  </data>
+  <data name="InpAgeNow" xml:space="preserve">
+    <value>gerade eben</value>
+  </data>
+  <data name="InpAgeMinute" xml:space="preserve">
+    <value>vor 1 Minute</value>
+  </data>
+  <data name="InpAgeMinutes" xml:space="preserve">
+    <value>vor {0} Minuten</value>
+  </data>
+  <data name="InpAgeHour" xml:space="preserve">
+    <value>vor 1 Stunde</value>
+  </data>
+  <data name="InpAgeHours" xml:space="preserve">
+    <value>vor {0} Stunden</value>
+  </data>
+  <data name="InpAgeDay" xml:space="preserve">
+    <value>vor 1 Tag</value>
+  </data>
+  <data name="InpAgeDays" xml:space="preserve">
+    <value>vor {0} Tagen</value>
+  </data>
+  <data name="InpProblemNotConfigured" xml:space="preserve">
+    <value>Der Eingang ist noch nicht eingerichtet</value>
+  </data>
+  <data name="InpProblemSignInFailed" xml:space="preserve">
+    <value>Die Anmeldung ist fehlgeschlagen, bitte die Zugangsdaten prüfen</value>
+  </data>
+  <data name="InpProblemCodeNeeded" xml:space="preserve">
+    <value>Apple verlangt einen neuen Code</value>
+  </data>
+  <data name="InpProblemUnreachable" xml:space="preserve">
+    <value>Der Server des Eingangs ist nicht erreichbar</value>
+  </data>
+  <data name="InpProblemLlmUnavailable" xml:space="preserve">
+    <value>Die lokale Erkennung (Ollama) ist nicht erreichbar</value>
+  </data>
+  <data name="InpProblemThrottled" xml:space="preserve">
+    <value>Der Dienst bremst gerade, der nächste Versuch kommt später</value>
+  </data>
+  <data name="InpProblemProtocolChanged" xml:space="preserve">
+    <value>Der Dienst antwortet anders als erwartet</value>
+  </data>
+  <data name="InpProblemUnknownFolder" xml:space="preserve">
+    <value>Der gewählte Ordner wurde nicht gefunden</value>
+  </data>
+  <data name="InpProblemStuckItems" xml:space="preserve">
+    <value>Einige Elemente lassen sich nicht einlesen und bleiben liegen</value>
+  </data>
+  <data name="InpProblemFailed" xml:space="preserve">
+    <value>Der Lauf ist unerwartet fehlgeschlagen</value>
+  </data>
+  <data name="InpProblemUnknown" xml:space="preserve">
+    <value>Unbekanntes Problem</value>
+  </data>
+  <data name="InpOwnerCheckHeading" xml:space="preserve">
+    <value>Herkunft unklar</value>
+  </data>
+  <data name="InpOwnerCheckText" xml:space="preserve">
+    <value>Herkunft unklar – nur für dich sichtbar. Das Dokument kam ohne erkennbaren Besitzer herein und bleibt privat, bis du entscheidest.</value>
+  </data>
+  <data name="InpOwnerCheckKeep" xml:space="preserve">
+    <value>Passt so</value>
+  </data>
+  <data name="InpOwnerCheckKeepFor" xml:space="preserve">
+    <value>Passt so: {0}</value>
+  </data>
+  <data name="InpOwnerCheckHandOverLabel" xml:space="preserve">
+    <value>Weitergeben an</value>
+  </data>
+  <data name="InpOwnerCheckHint" xml:space="preserve">
+    <value>Wer das Dokument bekommt, ist danach Besitzer. Für ihn gilt seine Einstellung für neue Dokumente (privat oder geteilt).</value>
+  </data>
+  <data name="InpOwnerCheckPick" xml:space="preserve">
+    <value>Konto wählen</value>
+  </data>
+  <data name="InpOwnerCheckHandOver" xml:space="preserve">
+    <value>Weitergeben</value>
+  </data>
+  <data name="InpOwnerCheckHandOverFor" xml:space="preserve">
+    <value>Weitergeben: {0}</value>
+  </data>
+  <data name="InpOwnerCheckNoOthers" xml:space="preserve">
+    <value>Es gibt kein anderes Konto, an das du das Dokument weitergeben könntest.</value>
+  </data>
+  <data name="InpOwnerCheckLoadError" xml:space="preserve">
+    <value>Die Konten konnten nicht geladen werden: {0}</value>
+  </data>
+  <data name="InpOwnerCheckPickFirst" xml:space="preserve">
+    <value>Wähle zuerst ein Konto.</value>
+  </data>
+  <data name="InpOwnerCheckAnswered" xml:space="preserve">
+    <value>Das Dokument wurde inzwischen schon geprüft. Lade die Seite neu.</value>
+  </data>
+  <data name="InpOwnerCheckKept" xml:space="preserve">
+    <value>„{0}“ bleibt bei dir.</value>
+  </data>
+  <data name="InpOwnerCheckHandedOver" xml:space="preserve">
+    <value>„{0}“ an {1} weitergegeben.</value>
+  </data>
+  <data name="InpOwnerCheckToDocuments" xml:space="preserve">
+    <value>Zu den Dokumenten</value>
+  </data>
+  <data name="InpUploadPresetFailed" xml:space="preserve">
+    <value>Deine Einstellung für neue Dokumente konnte nicht geladen werden. Prüfe den Schalter „Privat“ selbst.</value>
+  </data>
+  <data name="InpPrefsHeading" xml:space="preserve">
+    <value>Eingänge und neue Dokumente</value>
+  </data>
+  <data name="InpPrefsLoading" xml:space="preserve">
+    <value>Einstellungen werden geladen …</value>
+  </data>
+  <data name="InpPrefsLoadError" xml:space="preserve">
+    <value>Die Einstellungen konnten nicht geladen werden: {0}</value>
+  </data>
+  <data name="InpPrefsPrivateLabel" xml:space="preserve">
+    <value>Neue Dokumente privat ablegen</value>
+  </data>
+  <data name="InpPrefsPrivateHint" xml:space="preserve">
+    <value>Gilt für Dokumente, die über Scanner-Ordner, Mail, iCloud und Kamera hereinkommen, und ist beim Hochladen vorgewählt. Private Dokumente sieht nur du.</value>
+  </data>
+  <data name="InpPrefsPrivateOn" xml:space="preserve">
+    <value>Neue Dokumente werden ab jetzt privat abgelegt.</value>
+  </data>
+  <data name="InpPrefsPrivateOff" xml:space="preserve">
+    <value>Neue Dokumente werden ab jetzt mit dem Haushalt geteilt.</value>
+  </data>
+  <data name="InpPrefsSendersHeading" xml:space="preserve">
+    <value>Absender-Adressen für Mail</value>
+  </data>
+  <data name="InpPrefsSendersHint" xml:space="preserve">
+    <value>Mails von diesen Adressen gehören zu deinem Konto. Eine Adresse kann nur ein Konto haben, es sind höchstens {0} Adressen möglich.</value>
+  </data>
+  <data name="InpPrefsSendersNone" xml:space="preserve">
+    <value>Noch keine Adresse eingetragen.</value>
+  </data>
+  <data name="InpPrefsRemove" xml:space="preserve">
+    <value>Entfernen</value>
+  </data>
+  <data name="InpPrefsRemoveFor" xml:space="preserve">
+    <value>Entfernen: {0}</value>
+  </data>
+  <data name="InpPrefsAddLabel" xml:space="preserve">
+    <value>Absender-Adresse hinzufügen</value>
+  </data>
+  <data name="InpPrefsAdd" xml:space="preserve">
+    <value>Hinzufügen</value>
+  </data>
+  <data name="InpPrefsAdded" xml:space="preserve">
+    <value>Adresse {0} hinzugefügt.</value>
+  </data>
+  <data name="InpPrefsRemoved" xml:space="preserve">
+    <value>Adresse {0} entfernt.</value>
+  </data>
+  <data name="InpPrefsAlreadyListed" xml:space="preserve">
+    <value>Diese Adresse steht schon in deiner Liste.</value>
+  </data>
 </root>

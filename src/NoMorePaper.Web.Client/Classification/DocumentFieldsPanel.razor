@@ -19,6 +19,11 @@
         </div>
         <button type="button" id="fields-retry" class="nmp-button" @onclick="LoadAsync">@L["Retry"]</button>
     }
+    else if (_handedOver is not null)
+    {
+        @* The document is no longer ours to see: say where it went, and offer the way back. *@
+        <p id="fields-handed" tabindex="-1">@_handedOver <a href="dokumente">@L["InpOwnerCheckToDocuments"]</a></p>
+    }
     else if (_fields is null)
     {
         <p role="status">@L["ClsFieldsLoading"]</p>
@@ -54,6 +59,8 @@
             <dd>@(_fields.Tags.Count == 0 ? L["ClsNoValue"] : string.Join(", ", _fields.Tags.Select(tag => tag.Name)))</dd>
         </dl>
 
+        <OwnerCheckSection DocumentId="DocumentId" Title="@Title" Prefix="fields-owner" NeedsCheck="_fields.NeedsOwnerCheck" OnAnswered="OwnerAnsweredAsync" />
+
         @if (_editing)
         {
             <DocumentFieldsEditor DocumentId="DocumentId" DocumentTitle="@Title" Fields="_fields"
@@ -85,6 +92,7 @@
     private string? _loadError;
     private bool _editing;
     private bool _busy;
+    private string? _handedOver;
 
     [Parameter, EditorRequired] public Guid DocumentId { get; set; }
 
@@ -113,7 +121,7 @@
 
         // The same component is reused when the route switches to another document.
         _loadedId = DocumentId;
-        (_fields, _editing) = (null, false);
+        (_fields, _editing, _handedOver) = (null, false, null);
         await LoadAsync();
     }
 
@@ -200,6 +208,24 @@
 
         FocusEdit();
         await AnnounceAsync(L["ClsErrorChangedMeanwhile"]);
+    }
+
+    // Kept: reload (the section goes away) and continue at "Bearbeiten". Handed over: the document is
+    // gone from our view, so the panel only says where it went and focus lands on that text.
+    private async Task OwnerAnsweredAsync(OwnerCheckAnswer answer)
+    {
+        _ = Counter.RefreshAsync();
+        if (answer.HandedOver)
+        {
+            _handedOver = L["InpOwnerCheckHandedOver", Title, answer.ReceiverName ?? string.Empty];
+            // Focus lands on the text, which the screen reader reads: no second announcement.
+            _focus.On("fields-handed");
+            return;
+        }
+
+        await LoadAsync();
+        FocusEdit();
+        await AnnounceAsync(L["InpOwnerCheckKept", Title]);
     }
 
     private async Task EditorsSavedAsync(IReadOnlyList<Guid> editorIds)
