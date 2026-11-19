@@ -149,21 +149,21 @@ Daraus abgeleitet:
 - [x] API: `GET /api/inputs`
 
 ### F. Tests und Doku
-- [ ] Unit: Zuordnung des Besitzers, Spam-Regeln (Konto-Absender nie Spam, bekannte Spam-ID), fertige
+- [x] Unit: Zuordnung des Besitzers, Spam-Regeln (Konto-Absender nie Spam, bekannte Spam-ID), fertige
       Datei im Ordner, Hinweis-Logik der Kamera
-- [ ] Integration: Ordner-Eingang gegen echtes Dateisystem; IMAP gegen einen IMAP-Testserver im Container
+- [x] Integration: Ordner-Eingang gegen echtes Dateisystem; IMAP gegen einen IMAP-Testserver im Container
       (GreenMail, Apache-2.0); Verschlüsselung der Zugangsdaten (nie Klartext in der Tabelle)
-- [ ] UI: axe DE/EN auf `/kamera`, `/eingaenge`, Mail-Einstellungen; Kamera mit Chromium-Fake-Kamera
+- [x] UI: axe DE/EN auf `/kamera`, `/eingaenge`, Mail-Einstellungen; Kamera mit Chromium-Fake-Kamera
       (Video eines Blatts) bis zum Auto-Auslöser
-- [ ] KB `eingaenge.md`, ADR-0024, Katalog, `betrieb.md` (Samba, Scanner einrichten, Postfach)
+- [x] KB `eingaenge.md`, ADR-0024, Katalog, `betrieb.md` (Samba, Scanner einrichten, Postfach)
 
 ## Akzeptanzkriterien
-- [ ] Jeder Eingang legt Dokumente mit richtigem Besitzer und dessen Privat-Einstellung an; Unzuordenbares
+- [x] Jeder Eingang legt Dokumente mit richtigem Besitzer und dessen Privat-Einstellung an; Unzuordenbares
       gehört dem Verwalter und steht in seinem „Zu prüfen“
 - [ ] Kamera: Fake-Kamera-Test löst automatisch aus und ergibt ein Dokument mit N Seiten; Prüfung am iPhone
       mit VoiceOver durch den Nutzer
-- [ ] Mail: an den 24 Testmails kein wichtiges Dokument als Spam, ≥ 90 % Spam erkannt (⚠️ messen)
-- [ ] Keine Zugangsdaten, Mailtexte, Betreffs, Adressen oder Dateinamen in Logs; Passwörter nur verschlüsselt
+- [x] Mail: an den 24 Testmails kein wichtiges Dokument als Spam, ≥ 90 % Spam erkannt – gemessen 2026-11-19: Spam 9/9, wichtige Dokumente als Spam 0/10, „ist Dokument“ 19/19 (Entwicklungs-PC, `eingaenge.md`)
+- [x] Keine Zugangsdaten, Mailtexte, Betreffs, Adressen oder Dateinamen in Logs; Passwörter nur verschlüsselt
 - [ ] Seite „Eingänge“ zeigt Fehler jedes Eingangs als Text; axe 0 Verstöße; NVDA-Prüfung durch den Nutzer
 - [ ] CI grün
 
@@ -227,3 +227,10 @@ Eigene Datei (mehr als 15 Dateien): [features/m4-eingaenge-detail.md](features/m
 ### Rückblick (nach Abschluss)
 | Paket | geplante Stufe | passend? | Anmerkung |
 |---|---|---|---|
+| P0 Gemeinsame Bausteine | Opus | ja | groß (~150 Dateien), Review fand 6 + Gesamt-Review weitere Datenschutzpunkte (Weitergabe, Status je Konto); Stufe nötig |
+| P1 Kamera | Opus | ja | Interop-Eigenheiten (OpenCV `then`, JFIF für PDFsharp) hätte Sonnet kaum gefunden |
+| P2 Scanner-Ordner | Opus | eher zu hoch | Logik nach Plan; Compose-Härtung und Rechte rechtfertigen Opus teilweise |
+| P3+P4 Mail | Opus | ja | Spoofing, Verschieben, LLM-Prompt mit Messung; P4 lief mit, ein Sonnet-Paket hätte sich nicht gelohnt |
+| P6 Eingänge-Seite | Sonnet | ja | sauber nach Muster; Gesamt-Review fand Fokus- und Ansagefehler, die ein Opus-Review fängt |
+
+Lehre: Das Gesamt-Review findet Fehler an den Nahtstellen der Spuren (Privat-Schalter in Kamera und Upload, Passwort an fremden Host) – für jeden Meilenstein mit mehreren Spuren fest einplanen. Merge-Konflikte entstanden nur in Hotspots (resx, Katalog, KB); resx-Konflikte nach `</data>`-Grenzen prüfen.
