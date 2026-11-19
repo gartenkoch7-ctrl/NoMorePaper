@@ -208,7 +208,7 @@ Detail wird nach dem Test ergänzt (Befunde ändern Teile des Ablaufs). Gerüst:
 |---|---|---|---|---|
 | `src/NoMorePaper.Infrastructure/Inputs/ICloud/{Auth,Drive,Http,Session}/*` | neu | aus `spikes/icloud/`; `WindowsDataProtector` → `ISecretProtector`; Sitzung in `input_connections(ICloud, account)` | Infrastructure.Tests (Fake-Apple-Server aus dem Spike nach `tests/`) | ~2 500 |
 | `src/NoMorePaper.Application/Inputs/ICloud/ConnectICloud.cs` | neu | Anmeldung → Code → Ordner; je Konto; Passwort nur im Speicher der Anfrage; in `AddApplication()` | Application.Tests | 200 |
-| `src/NoMorePaper.Server/Inputs/ICloudEndpoints.cs` | neu | `POST /api/inputs/icloud/sign-in`, `/code`, `GET /folders`, `PUT /folder`, `DELETE` | Server.Tests | 150 |
+| `src/NoMorePaper.Server/Inputs/ICloudEndpoints.cs` | neu | `POST /api/inputs/icloud/sign-in`, `/code`, `GET /folders`, `PUT /folder`, `DELETE` (Trennen löscht in **derselben Transaktion** die Verbindung und die Statuszeile des Kontos – neues `IInputStatusStore.DeleteAsync(kind, accountId)`, sonst bleibt „braucht Aufmerksamkeit“ stehen) | Server.Tests | 150 |
 | `src/NoMorePaper.Infrastructure/Inputs/ICloud/ICloudSource.cs` | neu | je verbundenes Konto, 15 min; neue Datei-Ids → Intake (`Owned`) → `MarkSeen(Imported)`; Fehlerklassen → `InputProblem`; 429/503 → frühestens nach 1 h | Infrastructure.Tests | 180 |
 | `src/NoMorePaper.Web.Client/Pages/ICloudSettings.razor`, `Inputs/ICloudApi.cs` | neu | Anmeldung, Code (`autocomplete="one-time-code"`), Ordnerliste mit Knöpfen | UI.Tests | 200 + 60 |
 
