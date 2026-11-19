@@ -66,7 +66,7 @@ public sealed partial class CameraPageTests(ServerFixture server, FakeCameraBrow
     }
 
     // The browser refuses the camera (an override of getUserMedia, as after "Don't allow"), or has no
-    // capture support at all (the shared headless browser): the page explains and offers the upload.
+    // camera API at all (plain http): the page explains and offers the upload.
     [Theory]
     [InlineData(SupportedCultures.German, "NotAllowedError", "Die Kamera ist nicht erlaubt.", "Stattdessen eine Datei hochladen")]
     [InlineData(SupportedCultures.English, "NotAllowedError", "Camera access is not allowed.", "Upload a file instead")]
@@ -75,10 +75,11 @@ public sealed partial class CameraPageTests(ServerFixture server, FakeCameraBrow
     [InlineData(SupportedCultures.German, null, "Dieser Browser erlaubt hier keine Kamera.", "Stattdessen eine Datei hochladen")]
     public async Task WithoutACamera_SaysWhyInText_AndLinksToTheUpload(string culture, string? refusal, string message, string link)
     {
-        await using var session = await server.OpenAsync("/kamera", culture, prepare: page => refusal is null
-            ? Task.CompletedTask
-            : page.AddInitScriptAsync(
-                $"navigator.mediaDevices.getUserMedia = () => Promise.reject(new DOMException('refused', '{refusal}'));"));
+        // Without a refusal the camera API is removed, as on plain http: what a real browser without a
+        // camera reports differs between machines (Windows: no capture support, Linux CI: no device).
+        await using var session = await server.OpenAsync("/kamera", culture, prepare: page => page.AddInitScriptAsync(refusal is null
+            ? "Object.defineProperty(navigator, 'mediaDevices', { value: undefined, configurable: true });"
+            : $"navigator.mediaDevices.getUserMedia = () => Promise.reject(new DOMException('refused', '{refusal}'));"));
         var page = session.Page;
 
         await page.Locator("#cam-start").ClickAsync();
