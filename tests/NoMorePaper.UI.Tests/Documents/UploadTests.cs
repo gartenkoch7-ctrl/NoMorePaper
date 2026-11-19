@@ -34,7 +34,7 @@ public sealed class UploadTests(ServerFixture server)
         var page = session.Page;
 
         var stops = new List<FocusState>();
-        for (var i = 0; i < 15 && (stops.Count == 0 || stops[^1].Id != "upload-input"); i++)
+        for (var i = 0; i < 20 && (stops.Count == 0 || stops[^1].Id != "upload-input"); i++)
         {
             await page.Keyboard.PressAsync("Tab");
             stops.Add(await FocusState.ReadAsync(page));

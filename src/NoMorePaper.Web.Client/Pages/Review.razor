@@ -1,0 +1,143 @@
+@page "/zu-pruefen"
+@using System.Globalization
+
+<PageTitle>@L["ReviewTitle"]</PageTitle>
+
+<MudText Typo="Typo.h1" id="review-heading" tabindex="-1">@L["ReviewHeading"]</MudText>
+
+<LiveRegion @ref="_status" />
+<LiveRegion @ref="_error" Assertive="true" Class="form-error" />
+
+@if (_loading)
+{
+    <p role="status">@L["ReviewLoading"]</p>
+}
+else if (_loadError is not null)
+{
+    <div role="alert" class="error-box" data-ready>
+        <MudIcon Icon="@Icons.Material.Filled.Error" />
+        <span>@L["ReviewLoadError", _loadError]</span>
+    </div>
+    <button type="button" class="nmp-button" @onclick="LoadAsync">@L["Retry"]</button>
+}
+else if (_items.Length == 0)
+{
+    <p data-ready>@L["ReviewEmpty"]</p>
+}
+else
+{
+    <p class="review-summary" data-ready>@CountText(_items.Length)</p>
+    <ul class="review-list" aria-label="@L["ReviewListLabel"]">
+        @foreach (var item in _items)
+        {
+            var key = item.Id.ToString("N");
+            <li @key="item.Id">
+                <article class="review-item" aria-labelledby="review-h-@key">
+                    <MudText Typo="Typo.h2" id="@("review-h-" + key)" tabindex="-1">
+                        <a href="@DocumentLinks.Viewer(item.Id)">@item.Title</a>
+                    </MudText>
+                    <p class="fields-summary">
+                        <span class="fields-term">@L["ClsFieldSummary"]:</span>
+                        @(string.IsNullOrWhiteSpace(item.Fields.Summary) ? L["ClsNoSummary"] : item.Fields.Summary)
+                    </p>
+                    <p class="fields-recognition">
+                        <MudIcon Icon="@(item.Fields.Recognition == DocumentRecognitionState.Confirmed ? Icons.Material.Filled.CheckCircle : Icons.Material.Filled.AutoAwesome)" />
+                        <span>@L["ClsRecognition" + item.Fields.Recognition]</span>
+                    </p>
+                    <dl class="fields-list">
+                        <dt>@L["ClsFieldCorrespondent"]</dt>
+                        <dd>@(item.Fields.Correspondent?.Name ?? L["ClsNoValue"])</dd>
+                        <dt>@L["ClsFieldType"]</dt>
+                        <dd>@(item.Fields.DocumentType?.Name ?? L["ClsNoValue"])</dd>
+                        <dt>@L["ClsFieldDate"]</dt>
+                        <dd>@(item.Fields.DocumentDate is { } date ? FieldFormat.Date(date, CultureInfo.CurrentCulture) : L["ClsNoValue"])</dd>
+                        <dt>@L["ClsFieldAmount"]</dt>
+                        <dd>@(item.Fields.Amount is { } amount ? FieldFormat.Amount(amount, CultureInfo.CurrentCulture) : L["ClsNoValue"])</dd>
+                        <dt>@L["ClsFieldTags"]</dt>
+                        <dd>@(item.Fields.Tags.Count == 0 ? L["ClsNoValue"] : string.Join(", ", item.Fields.Tags.Select(tag => tag.Name)))</dd>
+                    </dl>
+
+                    @if (item.PossibleDuplicate is { } other)
+                    {
+                        <section class="review-duplicate" aria-labelledby="review-dup-@key">
+                            <MudText Typo="Typo.h3" id="@("review-dup-" + key)">@L["ReviewDuplicateHeading"]</MudText>
+                            <p>@L["ReviewDuplicateExplain"]</p>
+                            <table class="doc-table">
+                                <caption>@L["ReviewCompareCaption"]</caption>
+                                <thead>
+                                    <tr>
+                                        <th scope="col">@L["ReviewCompareField"]</th>
+                                        <th scope="col">@L["ReviewCompareThis"]</th>
+                                        <th scope="col">@L["ReviewCompareOther"]</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <th scope="row">@L["ColTitle"]</th>
+                                        <td>@item.Title</td>
+                                        <td><a href="@DocumentLinks.Viewer(other.Id)">@other.Title</a></td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">@L["ColReceived"]</th>
+                                        <td>@Received(item.ReceivedAt)</td>
+                                        <td>@Received(other.ReceivedAt)</td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">@L["ClsFieldDate"]</th>
+                                        <td>@Date(item.Fields.DocumentDate)</td>
+                                        <td>@Date(other.DocumentDate)</td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">@L["ClsFieldCorrespondent"]</th>
+                                        <td>@(item.Fields.Correspondent?.Name ?? L["ClsNoValue"])</td>
+                                        <td>@(other.Correspondent?.Name ?? L["ClsNoValue"])</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <div class="button-row">
+                                <button type="button" class="nmp-button" aria-label="@L["ReviewKeepFor", item.Title]"
+                                        @onclick="() => KeepAsync(item)">@L["ReviewKeep"]</button>
+                                <button type="button" id="review-delete-@key" class="nmp-button" aria-label="@L["ReviewDeleteFor", item.Title]"
+                                        @onclick="() => AskDelete(item)">@L["ReviewDelete"]</button>
+                            </div>
+                        </section>
+                    }
+
+                    @if (_deleting?.Id == item.Id)
+                    {
+                        @* Not a modal dialog: a group in the page that takes focus, with the safe choice first.
+                           Escape cancels. *@
+                        <section class="confirm-box" role="group" aria-labelledby="review-confirm-@key" @onkeydown="OnConfirmKey">
+                            <MudText Typo="Typo.h3" id="@("review-confirm-" + key)">@L["ReviewDeleteQuestion", item.Title]</MudText>
+                            <p>@L["ReviewDeleteExplain"]</p>
+                            <div class="button-row">
+                                <button type="button" id="review-cancel" class="nmp-button" @onclick="CancelDelete">@L["Cancel"]</button>
+                                <button type="button" class="nmp-button" @onclick="DeleteAsync">@L["ReviewDeleteConfirm"]</button>
+                            </div>
+                        </section>
+                    }
+
+                    @if (_editing == item.Id)
+                    {
+                        <DocumentFieldsEditor DocumentId="item.Id" DocumentTitle="@item.Title" Fields="item.Fields"
+                                              Prefix="@("review-" + key)" OnSaved="newTitle => SavedAsync(item, newTitle)"
+                                              OnCancel="() => CancelEdit(item)" />
+                    }
+                    else
+                    {
+                        <div class="button-row">
+                            @if (item.Fields.Recognition == DocumentRecognitionState.Automatic)
+                            {
+                                <button type="button" class="nmp-button" aria-label="@L["ReviewConfirmFor", item.Title]"
+                                        @onclick="() => ConfirmAsync(item)">@L["ClsConfirm"]</button>
+                            }
+
+                            <button type="button" id="review-edit-@key" class="nmp-button" aria-label="@L["ReviewEditFor", item.Title]"
+                                    @onclick="() => StartEdit(item)">@L["ClsEdit"]</button>
+                        </div>
+                    }
+                </article>
+            </li>
+        }
+    </ul>
+}

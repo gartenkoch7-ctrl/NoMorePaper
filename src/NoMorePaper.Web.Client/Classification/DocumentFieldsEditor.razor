@@ -1,0 +1,222 @@
+@using System.Globalization
+@inject IStringLocalizer<Strings> L
+@inject ClassificationApi Api
+@inject IJSRuntime Js
+@inject ILogger<DocumentFieldsEditor> Logger
+
+@* The form for the fields of one document, used in the viewer and in "Zu prüfen". It is a group and
+   not a <form>: the comboboxes use Enter to pick, which must never submit. Saving counts as
+   confirming. Problems are announced and focus goes to the field that has to change. *@
+<div class="fields-editor" role="group" aria-labelledby="@Prefix-heading">
+    <MudText Typo="Typo.h3" id="@(Prefix + "-heading")">@L["ClsEditHeading"]</MudText>
+    @if (_loadError is not null)
+    {
+        <div role="alert" class="error-box">
+            <MudIcon Icon="@Icons.Material.Filled.Error" />
+            <span>@L["ClsEditLoadError", _loadError]</span>
+        </div>
+        <div class="button-row">
+            <button type="button" class="nmp-button" @onclick="LoadAsync">@L["Retry"]</button>
+            <button type="button" class="nmp-button" @onclick="() => OnCancel.InvokeAsync()">@L["Cancel"]</button>
+        </div>
+    }
+    else if (_loading)
+    {
+        <p role="status">@L["ClsEditLoading"]</p>
+    }
+    else
+    {
+        <p class="form-hint">@L["ClsEditHint"]</p>
+        <div class="form-field">
+            <label for="@Prefix-title">@L["ClsFieldTitle"]</label>
+            <input id="@Prefix-title" class="form-input" type="text" maxlength="200" @bind="_title" @bind:event="oninput" />
+        </div>
+        <EntryCombobox Id="@(Prefix + "-correspondent")" Label="@L["ClsFieldCorrespondent"]" Hint="@L["ClsComboHint"]"
+                       Entries="_correspondents" @bind-Value="_correspondent" OnCreate="CreateFor(EntryKind.Correspondents, _correspondents)" />
+        <EntryCombobox Id="@(Prefix + "-type")" Label="@L["ClsFieldType"]" Hint="@L["ClsComboHint"]"
+                       Entries="_types" @bind-Value="_type" OnCreate="CreateFor(EntryKind.DocumentTypes, _types)" />
+        <div class="form-field">
+            <label for="@Prefix-date">@L["ClsFieldDate"]</label>
+            <input id="@Prefix-date" class="form-input" type="date" @bind="_date" aria-describedby="@Prefix-date-hint" />
+            <p id="@Prefix-date-hint" class="form-hint">@L["ClsFieldDateHint"]</p>
+        </div>
+        <div class="form-field">
+            <label for="@Prefix-amount">@L["ClsFieldAmount"]</label>
+            <input id="@Prefix-amount" class="form-input" type="text" inputmode="decimal" autocomplete="off"
+                   @bind="_amountText" @bind:event="oninput" aria-invalid="@(_form.IsInvalid(Prefix + "-amount") ? "true" : null)"
+                   aria-describedby="@Prefix-amount-hint" />
+            <p id="@Prefix-amount-hint" class="form-hint">@L["ClsFieldAmountHint"]</p>
+        </div>
+        <div class="form-field">
+            <label for="@Prefix-currency">@L["ClsFieldCurrency"]</label>
+            <input id="@Prefix-currency" class="form-input form-input-short" type="text" maxlength="3" autocomplete="off"
+                   autocapitalize="characters" @bind="_currency" @bind:event="oninput"
+                   aria-invalid="@(_form.IsInvalid(Prefix + "-currency") ? "true" : null)" />
+        </div>
+        <div class="form-field">
+            <label for="@Prefix-summary">@L["ClsFieldSummary"]</label>
+            <textarea id="@Prefix-summary" class="form-input" rows="4" @bind="_summary" @bind:event="oninput"></textarea>
+        </div>
+        <TagPicker Id="@(Prefix + "-tags")" Label="@L["ClsFieldTags"]" Tags="_tags" TagsChanged="TagsChangedAsync"
+                   AllTags="_allTags" OnCreate="CreateFor(EntryKind.Tags, _allTags)" />
+        <LiveRegion @ref="_error" Assertive="true" Class="form-error" />
+        <div class="button-row">
+            <button type="button" class="nmp-button" disabled="@_busy" @onclick="SaveAsync">@L["ClsSave"]</button>
+            <button type="button" class="nmp-button" @onclick="() => OnCancel.InvokeAsync()">@L["Cancel"]</button>
+        </div>
+    }
+</div>
+
+@code {
+    private readonly List<EntryDto> _correspondents = [];
+    private readonly List<EntryDto> _types = [];
+    private readonly List<EntryDto> _allTags = [];
+    private FormValidation _form = default!;
+    private PendingFocus _focus = default!;
+    private LiveRegion? _error;
+    private EntryDto? _correspondent;
+    private EntryDto? _type;
+    private IReadOnlyList<EntryDto> _tags = [];
+    private string _title = string.Empty;
+    private DateOnly? _date;
+    private string _amountText = string.Empty;
+    private string _currency = DefaultCurrency;
+    private string _summary = string.Empty;
+    private string? _loadError;
+    private bool _loading = true;
+    private bool _busy;
+
+    private const string DefaultCurrency = "EUR";
+
+    [Parameter, EditorRequired] public Guid DocumentId { get; set; }
+
+    [Parameter, EditorRequired] public string DocumentTitle { get; set; } = string.Empty;
+
+    [Parameter, EditorRequired] public DocumentFieldsDto Fields { get; set; } = default!;
+
+    /// <summary>Makes the element ids unique when several editors are on one page.</summary>
+    [Parameter] public string Prefix { get; set; } = "fields";
+
+    /// <summary>The fields were saved (and so confirmed); the new title when it changed, otherwise <c>null</c>.</summary>
+    [Parameter] public EventCallback<string?> OnSaved { get; set; }
+
+    [Parameter] public EventCallback OnCancel { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        _form = new FormValidation(L, Js);
+        _focus = new PendingFocus(Js);
+        (_correspondent, _type, _tags) = (Fields.Correspondent, Fields.DocumentType, [.. Fields.Tags]);
+        _title = DocumentTitle;
+        _date = Fields.DocumentDate;
+        _summary = Fields.Summary ?? string.Empty;
+        if (Fields.Amount is { } amount)
+        {
+            (_amountText, _currency) = (FieldFormat.AmountInput(amount.Value, CultureInfo.CurrentCulture), amount.Currency);
+        }
+
+        await LoadAsync();
+    }
+
+    protected override Task OnAfterRenderAsync(bool firstRender) => _focus.ApplyAsync();
+
+    private async Task LoadAsync()
+    {
+        _loading = true;
+        _loadError = null;
+        var lists = new (EntryKind Kind, List<EntryDto> Target)[]
+        {
+            (EntryKind.Correspondents, _correspondents), (EntryKind.DocumentTypes, _types), (EntryKind.Tags, _allTags),
+        };
+        foreach (var (kind, target) in lists)
+        {
+            var result = await Api.ListEntriesAsync(kind);
+            if (!result.IsSuccess)
+            {
+                _loadError = result.Error;
+                _loading = false;
+                return;
+            }
+
+            target.Clear();
+            target.AddRange(result.Value ?? []);
+        }
+
+        _loading = false;
+        _focus.On(Prefix + "-title");
+    }
+
+    private Func<string, Task<EntryDto?>> CreateFor(EntryKind kind, List<EntryDto> list) => async name =>
+    {
+        var result = await Api.CreateEntryAsync(kind, name);
+        if (result.Value is not { } entry)
+        {
+            return null;
+        }
+
+        if (list.All(existing => existing.Id != entry.Id))
+        {
+            list.Add(entry);
+        }
+
+        return entry;
+    };
+
+    private Task TagsChangedAsync(IReadOnlyList<EntryDto> tags)
+    {
+        _tags = tags;
+        return Task.CompletedTask;
+    }
+
+    private async Task SaveAsync()
+    {
+        _form.Reset();
+        MoneyDto? amount = null;
+        if (_amountText.Trim().Length > 0)
+        {
+            var currency = FieldFormat.NormalizeCurrency(_currency);
+            if (!FieldFormat.TryParseAmount(_amountText, CultureInfo.CurrentCulture, out var value))
+            {
+                _form.Set(Prefix + "-amount", L["ClsErrorAmount"]);
+            }
+            else if (currency is null)
+            {
+                _form.Set(Prefix + "-currency", L["ClsErrorCurrency"]);
+            }
+            else
+            {
+                amount = new MoneyDto(value, currency);
+            }
+        }
+
+        if (await _form.ReportAsync(_error))
+        {
+            return;
+        }
+
+        var newTitle = _title.Trim();
+        var request = new EditFieldsRequestDto(
+            newTitle.Length == 0 ? null : newTitle,
+            _correspondent?.Id,
+            _type?.Id,
+            _date,
+            amount,
+            _summary.Trim().Length == 0 ? null : _summary.Trim(),
+            [.. _tags.Select(tag => tag.Id)]);
+        _busy = true;
+        var result = await Api.EditFieldsAsync(DocumentId, request);
+        _busy = false;
+        if (!result.IsSuccess)
+        {
+            if (_error is not null)
+            {
+                await _error.Announce(L["ErrorPrefix", result.Error!]);
+            }
+
+            return;
+        }
+
+        Logger.FieldsSaved();
+        await OnSaved.InvokeAsync(request.Title is { } title && title != DocumentTitle ? title : null);
+    }
+}

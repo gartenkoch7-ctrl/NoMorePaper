@@ -1,0 +1,194 @@
+@using System.Globalization
+@inject IStringLocalizer<Strings> L
+@inject ClassificationApi Api
+@inject ReviewCounter Counter
+@inject IJSRuntime Js
+@inject ILogger<DocumentFieldsPanel> Logger
+
+@* "Angaben" of a document in the viewer. The summary comes first, because a screen reader user who
+   arrives here wants to know what the document is before anything else. Where the values come from
+   ("automatisch erkannt") is said in words, never by colour or icon alone. *@
+<section class="fields-panel" aria-labelledby="fields-heading">
+    <MudText Typo="Typo.h2" id="fields-heading">@L["ClsFieldsHeading"]</MudText>
+    <LiveRegion @ref="_status" />
+    @if (_loadError is not null)
+    {
+        <div role="alert" class="error-box">
+            <MudIcon Icon="@Icons.Material.Filled.Error" />
+            <span>@L["ClsFieldsLoadError", _loadError]</span>
+        </div>
+        <button type="button" class="nmp-button" @onclick="LoadAsync">@L["Retry"]</button>
+    }
+    else if (_fields is null)
+    {
+        <p role="status">@L["ClsFieldsLoading"]</p>
+    }
+    else
+    {
+        <p class="fields-summary">
+            <span class="fields-term">@L["ClsFieldSummary"]:</span>
+            @(string.IsNullOrWhiteSpace(_fields.Summary) ? L["ClsNoSummary"] : _fields.Summary)
+        </p>
+        <p class="fields-recognition">
+            <MudIcon Icon="@RecognitionIcon" />
+            <span>@L["ClsRecognition" + _fields.Recognition]</span>
+        </p>
+        @if (_fields.PossibleDuplicateOf is { } other)
+        {
+            <p class="fields-duplicate">
+                <MudIcon Icon="@Icons.Material.Filled.Warning" />
+                <span>@L["ClsPossibleDuplicate"] <a href="@DocumentLinks.Viewer(other)">@L["ClsShowOther"]</a></span>
+            </p>
+        }
+
+        <dl class="fields-list">
+            <dt>@L["ClsFieldCorrespondent"]</dt>
+            <dd>@(_fields.Correspondent?.Name ?? L["ClsNoValue"])</dd>
+            <dt>@L["ClsFieldType"]</dt>
+            <dd>@(_fields.DocumentType?.Name ?? L["ClsNoValue"])</dd>
+            <dt>@L["ClsFieldDate"]</dt>
+            <dd>@(_fields.DocumentDate is { } date ? FieldFormat.Date(date, CultureInfo.CurrentCulture) : L["ClsNoValue"])</dd>
+            <dt>@L["ClsFieldAmount"]</dt>
+            <dd>@(_fields.Amount is { } amount ? FieldFormat.Amount(amount, CultureInfo.CurrentCulture) : L["ClsNoValue"])</dd>
+            <dt>@L["ClsFieldTags"]</dt>
+            <dd>@(_fields.Tags.Count == 0 ? L["ClsNoValue"] : string.Join(", ", _fields.Tags.Select(tag => tag.Name)))</dd>
+        </dl>
+
+        @if (_editing)
+        {
+            <DocumentFieldsEditor DocumentId="DocumentId" DocumentTitle="@Title" Fields="_fields"
+                                  OnSaved="SavedAsync" OnCancel="CancelEdit" />
+        }
+        else if (_fields.CanEdit)
+        {
+            <div class="button-row">
+                <button type="button" id="fields-edit" class="nmp-button" @onclick="StartEdit">@L["ClsEdit"]</button>
+                @if (_fields.Recognition == DocumentRecognitionState.Automatic)
+                {
+                    <button type="button" id="fields-confirm" class="nmp-button" disabled="@_busy" @onclick="ConfirmAsync">@L["ClsConfirm"]</button>
+                }
+            </div>
+        }
+
+        @if (IsMine)
+        {
+            <EditorsPicker DocumentId="DocumentId" SelectedIds="_fields.EditorIds" OnSaved="EditorsSavedAsync" />
+        }
+    }
+</section>
+
+@code {
+    private PendingFocus _focus = default!;
+    private DocumentFieldsDto? _fields;
+    private LiveRegion? _status;
+    private Guid _loadedId;
+    private string? _loadError;
+    private bool _editing;
+    private bool _busy;
+
+    [Parameter, EditorRequired] public Guid DocumentId { get; set; }
+
+    [Parameter, EditorRequired] public string Title { get; set; } = string.Empty;
+
+    /// <summary>The signed-in account owns the document: it may choose who else may edit.</summary>
+    [Parameter] public bool IsMine { get; set; }
+
+    /// <summary>Saving changed the title (the heading of the page must follow).</summary>
+    [Parameter] public EventCallback<string> OnTitleChanged { get; set; }
+
+    private string RecognitionIcon => _fields?.Recognition == DocumentRecognitionState.Confirmed
+        ? Icons.Material.Filled.CheckCircle
+        : Icons.Material.Filled.AutoAwesome;
+
+    protected override void OnInitialized() => _focus = new PendingFocus(Js);
+
+    protected override Task OnAfterRenderAsync(bool firstRender) => _focus.ApplyAsync();
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (DocumentId == _loadedId)
+        {
+            return;
+        }
+
+        // The same component is reused when the route switches to another document.
+        _loadedId = DocumentId;
+        (_fields, _editing) = (null, false);
+        await LoadAsync();
+    }
+
+    private async Task LoadAsync()
+    {
+        _loadError = null;
+        var result = await Api.GetFieldsAsync(DocumentId);
+        if (!result.IsSuccess || result.Value is null)
+        {
+            _loadError = result.Error;
+            return;
+        }
+
+        _fields = result.Value;
+        Logger.FieldsLoaded(_fields.Recognition.ToString());
+    }
+
+    private void StartEdit() => _editing = true;
+
+    private void CancelEdit()
+    {
+        _editing = false;
+        FocusEdit();
+    }
+
+    private async Task SavedAsync(string? newTitle)
+    {
+        _editing = false;
+        await LoadAsync();
+        if (newTitle is not null)
+        {
+            await OnTitleChanged.InvokeAsync(newTitle);
+        }
+
+        _ = Counter.RefreshAsync();
+        FocusEdit();
+        await AnnounceAsync(L["ClsSaved"]);
+    }
+
+    private async Task ConfirmAsync()
+    {
+        _busy = true;
+        var result = await Api.ConfirmAsync(DocumentId);
+        _busy = false;
+        if (!result.IsSuccess)
+        {
+            await AnnounceAsync(L["ErrorPrefix", result.Error!]);
+            return;
+        }
+
+        Logger.FieldsConfirmed();
+        await LoadAsync();
+        _ = Counter.RefreshAsync();
+        FocusEdit();
+        await AnnounceAsync(L["ClsConfirmed"]);
+    }
+
+    private async Task EditorsSavedAsync(IReadOnlyList<Guid> editorIds)
+    {
+        if (_fields is not null)
+        {
+            _fields = _fields with { EditorIds = editorIds };
+        }
+
+        await AnnounceAsync(L["ClsEditorsSaved"]);
+    }
+
+    // The button that had focus is gone after saving or confirming: continue at "Bearbeiten".
+    private void FocusEdit() => _focus.On("fields-edit");
+
+    private async Task AnnounceAsync(string message)
+    {
+        if (_status is not null)
+        {
+            await _status.Announce(message);
+        }
+    }
+}

@@ -630,4 +630,433 @@
   <data name="AdminResetNoticeAdvice" xml:space="preserve">
     <value>Warst du das nicht, sprich mit dem Verwalter.</value>
   </data>
+  <data name="NavReview" xml:space="preserve">
+    <value>Zu prüfen</value>
+  </data>
+  <data name="NavReviewCount" xml:space="preserve">
+    <value>Zu prüfen ({0})</value>
+  </data>
+  <data name="NavLists" xml:space="preserve">
+    <value>Listen</value>
+  </data>
+  <data name="ClsFieldsHeading" xml:space="preserve">
+    <value>Angaben</value>
+  </data>
+  <data name="ClsFieldsLoading" xml:space="preserve">
+    <value>Angaben werden geladen …</value>
+  </data>
+  <data name="ClsFieldsLoadError" xml:space="preserve">
+    <value>Die Angaben konnten nicht geladen werden. {0}</value>
+  </data>
+  <data name="ClsFieldSummary" xml:space="preserve">
+    <value>Zusammenfassung</value>
+  </data>
+  <data name="ClsNoSummary" xml:space="preserve">
+    <value>Noch keine Zusammenfassung.</value>
+  </data>
+  <data name="ClsFieldCorrespondent" xml:space="preserve">
+    <value>Absender</value>
+  </data>
+  <data name="ClsFieldType" xml:space="preserve">
+    <value>Dokumentart</value>
+  </data>
+  <data name="ClsFieldDate" xml:space="preserve">
+    <value>Dokumentdatum</value>
+  </data>
+  <data name="ClsFieldAmount" xml:space="preserve">
+    <value>Betrag</value>
+  </data>
+  <data name="ClsFieldTags" xml:space="preserve">
+    <value>Tags</value>
+  </data>
+  <data name="ClsFieldTitle" xml:space="preserve">
+    <value>Titel</value>
+  </data>
+  <data name="ClsFieldCurrency" xml:space="preserve">
+    <value>Währung (drei Buchstaben, zum Beispiel EUR)</value>
+  </data>
+  <data name="ClsFieldAmountHint" xml:space="preserve">
+    <value>Zum Beispiel 84,20. Leer lassen, wenn kein Betrag auf dem Dokument steht.</value>
+  </data>
+  <data name="ClsFieldDateHint" xml:space="preserve">
+    <value>Das Datum, das auf dem Dokument steht, nicht der Tag des Hochladens.</value>
+  </data>
+  <data name="ClsNoValue" xml:space="preserve">
+    <value>Keine Angabe</value>
+  </data>
+  <data name="ClsRecognitionNone" xml:space="preserve">
+    <value>Noch nicht erkannt.</value>
+  </data>
+  <data name="ClsRecognitionAutomatic" xml:space="preserve">
+    <value>Automatisch erkannt, noch nicht geprüft.</value>
+  </data>
+  <data name="ClsRecognitionConfirmed" xml:space="preserve">
+    <value>Geprüft und bestätigt.</value>
+  </data>
+  <data name="ClsRecognitionBadge" xml:space="preserve">
+    <value>Automatisch erkannt</value>
+  </data>
+  <data name="ClsPossibleDuplicate" xml:space="preserve">
+    <value>Mögliches Duplikat: Ein sehr ähnliches Dokument ist schon vorhanden.</value>
+  </data>
+  <data name="ClsShowOther" xml:space="preserve">
+    <value>Vorhandenes Dokument ansehen</value>
+  </data>
+  <data name="ClsEdit" xml:space="preserve">
+    <value>Bearbeiten</value>
+  </data>
+  <data name="ClsConfirm" xml:space="preserve">
+    <value>Bestätigen</value>
+  </data>
+  <data name="ClsSave" xml:space="preserve">
+    <value>Speichern</value>
+  </data>
+  <data name="ClsSaved" xml:space="preserve">
+    <value>Angaben gespeichert und bestätigt.</value>
+  </data>
+  <data name="ClsConfirmed" xml:space="preserve">
+    <value>Angaben bestätigt.</value>
+  </data>
+  <data name="ClsEditHeading" xml:space="preserve">
+    <value>Angaben bearbeiten</value>
+  </data>
+  <data name="ClsEditHint" xml:space="preserve">
+    <value>Gespeicherte Angaben gelten als bestätigt.</value>
+  </data>
+  <data name="ClsEditLoading" xml:space="preserve">
+    <value>Auswahllisten werden geladen …</value>
+  </data>
+  <data name="ClsEditLoadError" xml:space="preserve">
+    <value>Die Auswahllisten konnten nicht geladen werden. {0}</value>
+  </data>
+  <data name="ClsComboHint" xml:space="preserve">
+    <value>Tippe, um zu suchen. Mit den Pfeiltasten wählst du aus, mit Enter übernimmst du.</value>
+  </data>
+  <data name="ClsComboCreate" xml:space="preserve">
+    <value>„{0}“ neu anlegen</value>
+  </data>
+  <data name="ClsComboCount" xml:space="preserve">
+    <value>{0} Treffer.</value>
+  </data>
+  <data name="ClsComboCountOne" xml:space="preserve">
+    <value>1 Treffer.</value>
+  </data>
+  <data name="ClsComboNone" xml:space="preserve">
+    <value>Keine Treffer.</value>
+  </data>
+  <data name="ClsComboLastCreate" xml:space="preserve">
+    <value>Die letzte Option legt einen neuen Eintrag an.</value>
+  </data>
+  <data name="ClsComboPicked" xml:space="preserve">
+    <value>„{0}“ ausgewählt.</value>
+  </data>
+  <data name="ClsComboChoose" xml:space="preserve">
+    <value>Wähle mit den Pfeiltasten einen Eintrag aus.</value>
+  </data>
+  <data name="ClsComboCreateFailed" xml:space="preserve">
+    <value>„{0}“ konnte nicht angelegt werden.</value>
+  </data>
+  <data name="ClsNoTags" xml:space="preserve">
+    <value>Keine Tags.</value>
+  </data>
+  <data name="ClsChosenTags" xml:space="preserve">
+    <value>Gewählte Tags</value>
+  </data>
+  <data name="ClsRemoveTag" xml:space="preserve">
+    <value>Entfernen</value>
+  </data>
+  <data name="ClsRemoveTagFor" xml:space="preserve">
+    <value>Tag entfernen: {0}</value>
+  </data>
+  <data name="ClsAddTag" xml:space="preserve">
+    <value>Tag hinzufügen</value>
+  </data>
+  <data name="ClsAddTagHint" xml:space="preserve">
+    <value>Tippe einen Tag. Mit Enter übernimmst du den gewählten Vorschlag.</value>
+  </data>
+  <data name="ClsTagRemoved" xml:space="preserve">
+    <value>Tag „{0}“ entfernt.</value>
+  </data>
+  <data name="ClsErrorAmount" xml:space="preserve">
+    <value>Der Betrag ist keine gültige Zahl. Beispiel: 84,20</value>
+  </data>
+  <data name="ClsErrorCurrency" xml:space="preserve">
+    <value>Die Währung besteht aus drei Buchstaben, zum Beispiel EUR.</value>
+  </data>
+  <data name="ClsEditorsHeading" xml:space="preserve">
+    <value>Wer darf diese Angaben bearbeiten?</value>
+  </data>
+  <data name="ClsEditorsHint" xml:space="preserve">
+    <value>Als Besitzer darfst du immer. Wähle weitere Mitglieder aus.</value>
+  </data>
+  <data name="ClsEditorsLoading" xml:space="preserve">
+    <value>Mitglieder werden geladen …</value>
+  </data>
+  <data name="ClsEditorsLoadError" xml:space="preserve">
+    <value>Die Mitglieder konnten nicht geladen werden. {0}</value>
+  </data>
+  <data name="ClsEditorsNone" xml:space="preserve">
+    <value>Es gibt keine weiteren Mitglieder.</value>
+  </data>
+  <data name="ClsEditorsSave" xml:space="preserve">
+    <value>Bearbeiter speichern</value>
+  </data>
+  <data name="ClsEditorsSaved" xml:space="preserve">
+    <value>Bearbeiter gespeichert.</value>
+  </data>
+  <data name="ClsErrorInvalid" xml:space="preserve">
+    <value>Die Angaben sind ungültig.</value>
+  </data>
+  <data name="ClsErrorForbidden" xml:space="preserve">
+    <value>Dafür fehlt dir die Berechtigung.</value>
+  </data>
+  <data name="ClsErrorNotFound" xml:space="preserve">
+    <value>Das wurde nicht gefunden. Vielleicht wurde es inzwischen geändert oder gelöscht.</value>
+  </data>
+  <data name="ClsErrorConflict" xml:space="preserve">
+    <value>Das geht gerade nicht, weil sich inzwischen etwas geändert hat.</value>
+  </data>
+  <data name="ClsErrorDeleteForbidden" xml:space="preserve">
+    <value>Nur der Besitzer darf das Dokument löschen.</value>
+  </data>
+  <data name="ClsErrorDeleteConflict" xml:space="preserve">
+    <value>Gelöscht werden kann nur ein Dokument, das als mögliches Duplikat markiert ist.</value>
+  </data>
+  <data name="ClsErrorRenameForbidden" xml:space="preserve">
+    <value>Du darfst diesen Eintrag nicht ändern, weil du nicht alle Dokumente bearbeiten darfst, in denen er vorkommt.</value>
+  </data>
+  <data name="ClsErrorMergeForbidden" xml:space="preserve">
+    <value>Du darfst diese Einträge nicht zusammenführen, weil du nicht alle Dokumente bearbeiten darfst, in denen sie vorkommen.</value>
+  </data>
+  <data name="ReviewTitle" xml:space="preserve">
+    <value>Zu prüfen – NoMorePaper</value>
+  </data>
+  <data name="ReviewHeading" xml:space="preserve">
+    <value>Zu prüfen</value>
+  </data>
+  <data name="ReviewLoading" xml:space="preserve">
+    <value>Die Liste wird geladen …</value>
+  </data>
+  <data name="ReviewLoadError" xml:space="preserve">
+    <value>Die Liste konnte nicht geladen werden. {0}</value>
+  </data>
+  <data name="ReviewEmpty" xml:space="preserve">
+    <value>Nichts zu prüfen. Alle Dokumente sind bestätigt.</value>
+  </data>
+  <data name="ReviewCount" xml:space="preserve">
+    <value>{0} Dokumente zu prüfen.</value>
+  </data>
+  <data name="ReviewCountOne" xml:space="preserve">
+    <value>1 Dokument zu prüfen.</value>
+  </data>
+  <data name="ReviewNoneLeft" xml:space="preserve">
+    <value>Nichts mehr zu prüfen.</value>
+  </data>
+  <data name="ReviewListLabel" xml:space="preserve">
+    <value>Dokumente zu prüfen</value>
+  </data>
+  <data name="ReviewConfirmFor" xml:space="preserve">
+    <value>Bestätigen: {0}</value>
+  </data>
+  <data name="ReviewEditFor" xml:space="preserve">
+    <value>Bearbeiten: {0}</value>
+  </data>
+  <data name="ReviewDuplicateHeading" xml:space="preserve">
+    <value>Mögliches Duplikat</value>
+  </data>
+  <data name="ReviewDuplicateExplain" xml:space="preserve">
+    <value>Dieses Dokument ist einem vorhandenen sehr ähnlich. Vergleiche beide und entscheide.</value>
+  </data>
+  <data name="ReviewCompareCaption" xml:space="preserve">
+    <value>Vergleich mit dem vorhandenen Dokument</value>
+  </data>
+  <data name="ReviewCompareField" xml:space="preserve">
+    <value>Angabe</value>
+  </data>
+  <data name="ReviewCompareThis" xml:space="preserve">
+    <value>Dieses Dokument</value>
+  </data>
+  <data name="ReviewCompareOther" xml:space="preserve">
+    <value>Vorhandenes Dokument</value>
+  </data>
+  <data name="ReviewKeep" xml:space="preserve">
+    <value>Behalten</value>
+  </data>
+  <data name="ReviewKeepFor" xml:space="preserve">
+    <value>Behalten: {0}</value>
+  </data>
+  <data name="ReviewDelete" xml:space="preserve">
+    <value>Löschen</value>
+  </data>
+  <data name="ReviewDeleteFor" xml:space="preserve">
+    <value>Löschen: {0}</value>
+  </data>
+  <data name="ReviewDeleteQuestion" xml:space="preserve">
+    <value>„{0}“ wirklich löschen?</value>
+  </data>
+  <data name="ReviewDeleteExplain" xml:space="preserve">
+    <value>Das Dokument wird gelöscht. Das lässt sich nicht rückgängig machen. Das vorhandene Dokument bleibt erhalten.</value>
+  </data>
+  <data name="ReviewDeleteConfirm" xml:space="preserve">
+    <value>Ja, löschen</value>
+  </data>
+  <data name="ReviewConfirmed" xml:space="preserve">
+    <value>„{0}“ bestätigt.</value>
+  </data>
+  <data name="ReviewKept" xml:space="preserve">
+    <value>„{0}“ wird behalten.</value>
+  </data>
+  <data name="ReviewSaved" xml:space="preserve">
+    <value>Angaben von „{0}“ gespeichert und bestätigt.</value>
+  </data>
+  <data name="ReviewDeleted" xml:space="preserve">
+    <value>„{0}“ gelöscht.</value>
+  </data>
+  <data name="FilterToggle" xml:space="preserve">
+    <value>Filter</value>
+  </data>
+  <data name="FilterToggleActive" xml:space="preserve">
+    <value>Filter ({0} aktiv)</value>
+  </data>
+  <data name="FilterGroup" xml:space="preserve">
+    <value>Filter für die Dokumentliste</value>
+  </data>
+  <data name="FilterAll" xml:space="preserve">
+    <value>Alle</value>
+  </data>
+  <data name="FilterFrom" xml:space="preserve">
+    <value>Dokumentdatum von</value>
+  </data>
+  <data name="FilterTo" xml:space="preserve">
+    <value>Dokumentdatum bis</value>
+  </data>
+  <data name="FilterAmountFrom" xml:space="preserve">
+    <value>Betrag von</value>
+  </data>
+  <data name="FilterAmountTo" xml:space="preserve">
+    <value>Betrag bis</value>
+  </data>
+  <data name="FilterVisibility" xml:space="preserve">
+    <value>Privat oder geteilt</value>
+  </data>
+  <data name="FilterOnlyPrivate" xml:space="preserve">
+    <value>Nur private</value>
+  </data>
+  <data name="FilterOnlyShared" xml:space="preserve">
+    <value>Nur geteilte</value>
+  </data>
+  <data name="FilterAllTags" xml:space="preserve">
+    <value>Dokument muss alle gewählten Tags haben</value>
+  </data>
+  <data name="FilterApply" xml:space="preserve">
+    <value>Filtern</value>
+  </data>
+  <data name="FilterReset" xml:space="preserve">
+    <value>Zurücksetzen</value>
+  </data>
+  <data name="FilterErrorDates" xml:space="preserve">
+    <value>Das Datum „von“ liegt nach dem Datum „bis“.</value>
+  </data>
+  <data name="FilterLoadError" xml:space="preserve">
+    <value>Die Auswahllisten konnten nicht geladen werden. {0}</value>
+  </data>
+  <data name="FilterFound" xml:space="preserve">
+    <value>{0} Dokumente gefunden.</value>
+  </data>
+  <data name="FilterFoundOne" xml:space="preserve">
+    <value>1 Dokument gefunden.</value>
+  </data>
+  <data name="FilterFoundNone" xml:space="preserve">
+    <value>Keine Dokumente gefunden.</value>
+  </data>
+  <data name="DocumentsEmptyFiltered" xml:space="preserve">
+    <value>Keine Dokumente passen zu diesem Filter.</value>
+  </data>
+  <data name="ListsTitle" xml:space="preserve">
+    <value>Listen – NoMorePaper</value>
+  </data>
+  <data name="ListsHeading" xml:space="preserve">
+    <value>Listen</value>
+  </data>
+  <data name="ListsIntro" xml:space="preserve">
+    <value>Hier pflegst du Absender, Dokumentarten und Tags. Ändern oder zusammenführen kannst du nur Einträge, deren Dokumente du alle bearbeiten darfst.</value>
+  </data>
+  <data name="ListsCorrespondents" xml:space="preserve">
+    <value>Absender</value>
+  </data>
+  <data name="ListsDocumentTypes" xml:space="preserve">
+    <value>Dokumentarten</value>
+  </data>
+  <data name="ListsTags" xml:space="preserve">
+    <value>Tags</value>
+  </data>
+  <data name="ListsLoading" xml:space="preserve">
+    <value>Die Liste wird geladen …</value>
+  </data>
+  <data name="ListsLoadError" xml:space="preserve">
+    <value>Die Liste konnte nicht geladen werden. {0}</value>
+  </data>
+  <data name="ListsEmpty" xml:space="preserve">
+    <value>Noch keine Einträge.</value>
+  </data>
+  <data name="ListsCaption" xml:space="preserve">
+    <value>{0}, alphabetisch</value>
+  </data>
+  <data name="ListsColMerge" xml:space="preserve">
+    <value>Zum Zusammenführen</value>
+  </data>
+  <data name="ListsSelectFor" xml:space="preserve">
+    <value>Zum Zusammenführen auswählen: {0}</value>
+  </data>
+  <data name="ListsRename" xml:space="preserve">
+    <value>Umbenennen</value>
+  </data>
+  <data name="ListsRenameFor" xml:space="preserve">
+    <value>Umbenennen: {0}</value>
+  </data>
+  <data name="ListsSelectedCount" xml:space="preserve">
+    <value>{0} ausgewählt</value>
+  </data>
+  <data name="ListsMerge" xml:space="preserve">
+    <value>Ausgewählte zusammenführen</value>
+  </data>
+  <data name="ListsMergeTooFew" xml:space="preserve">
+    <value>Wähle mindestens zwei Einträge zum Zusammenführen aus.</value>
+  </data>
+  <data name="ListsRenameHeading" xml:space="preserve">
+    <value>„{0}“ umbenennen</value>
+  </data>
+  <data name="ListsNewName" xml:space="preserve">
+    <value>Neuer Name</value>
+  </data>
+  <data name="ListsRenameConfirm" xml:space="preserve">
+    <value>Neuen Namen speichern</value>
+  </data>
+  <data name="ListsRenamed" xml:space="preserve">
+    <value>„{0}“ heißt jetzt „{1}“.</value>
+  </data>
+  <data name="ListsMergeQuestion" xml:space="preserve">
+    <value>{0} Einträge zusammenführen?</value>
+  </data>
+  <data name="ListsMergeExplain" xml:space="preserve">
+    <value>Alle Dokumente der ausgewählten Einträge bekommen den Eintrag, den du unten wählst. Die anderen Einträge werden gelöscht. Das lässt sich nicht rückgängig machen.</value>
+  </data>
+  <data name="ListsMergeTarget" xml:space="preserve">
+    <value>Dieser Eintrag bleibt erhalten</value>
+  </data>
+  <data name="ListsMergeConfirm" xml:space="preserve">
+    <value>Ja, zusammenführen</value>
+  </data>
+  <data name="ListsMerged" xml:space="preserve">
+    <value>{0} Einträge zu „{1}“ zusammengeführt.</value>
+  </data>
+  <data name="UploadDuplicate" xml:space="preserve">
+    <value>Diese Datei ist schon vorhanden.</value>
+  </data>
+  <data name="UploadDuplicateNamed" xml:space="preserve">
+    <value>Diese Datei ist schon vorhanden: „{0}“. Sie wurde nicht noch einmal gespeichert.</value>
+  </data>
+  <data name="UploadShowExisting" xml:space="preserve">
+    <value>Vorhandenes Dokument zu „{0}“ ansehen</value>
+  </data>
 </root>

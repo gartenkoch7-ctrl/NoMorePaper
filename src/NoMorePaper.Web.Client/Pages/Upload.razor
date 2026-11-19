@@ -1,6 +1,7 @@
 @page "/hochladen"
 @inject IStringLocalizer<Strings> L
 @inject DocumentApi Api
+@inject ILogger<Upload> Logger
 
 <PageTitle>@L["UploadTitle"]</PageTitle>
 
@@ -58,6 +59,16 @@
                     <MudIcon Icon="@Icons.Material.Filled.CheckCircle" />
                     <span>@SuccessText(result)</span>
                     <a href="@DocumentLinks.Of(id)">@L["UploadShowInList", result.FileName]</a>
+                }
+                else if (result.IsDuplicate)
+                {
+                    @* Not an error: the file is safe, it was there before. The link leads to it. *@
+                    <MudIcon Icon="@Icons.Material.Filled.Info" />
+                    <span>@L["UploadDuplicateNamed", result.FileName]</span>
+                    @if (result.ExistingId is { } existing)
+                    {
+                        <a href="@DocumentLinks.Viewer(existing)">@L["UploadShowExisting", result.FileName]</a>
+                    }
                 }
                 else
                 {
@@ -117,11 +128,18 @@
     {
         await AnnounceAsync(L["UploadInProgress", file.Name]);
         var result = await Api.UploadAsync(file, isPrivate);
-        var outcome = new UploadOutcome(file.Name, result.Value?.Id, result.Error, isPrivate);
+        var outcome = new UploadOutcome(file.Name, result.Value?.Id, result.Error, isPrivate, result.ExistingId, result.IsDuplicate);
         _results.Insert(0, outcome);
-        string message = outcome.Id is null
-            ? L["UploadFailed", file.Name, outcome.Error ?? string.Empty]
-            : SuccessText(outcome);
+        if (outcome.IsDuplicate)
+        {
+            Logger.UploadDuplicateShown();
+        }
+
+        string message = outcome.IsDuplicate
+            ? L["UploadDuplicateNamed", file.Name]
+            : outcome.Id is null
+                ? L["UploadFailed", file.Name, outcome.Error ?? string.Empty]
+                : SuccessText(outcome);
         await AnnounceAsync(notice is null ? message : $"{message} {notice}");
     }
 
@@ -137,7 +155,7 @@
         }
     }
 
-    private sealed record UploadOutcome(string FileName, Guid? Id, string? Error, bool IsPrivate);
+    private sealed record UploadOutcome(string FileName, Guid? Id, string? Error, bool IsPrivate, Guid? ExistingId, bool IsDuplicate);
 
     private sealed record SkippedFiles(string Notice, IReadOnlyList<string> Names);
 }

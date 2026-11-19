@@ -1,6 +1,7 @@
 using System.Text.RegularExpressions;
 using Microsoft.Playwright;
 using NoMorePaper.Contracts.Documents;
+using NoMorePaper.UI.Tests.Classification;
 using NoMorePaper.UI.Tests.Documents;
 using NoMorePaper.UI.Tests.Hosting;
 using NoMorePaper.Web.Client.Localization;
@@ -22,6 +23,7 @@ public sealed class PrivacyTests(ServerFixture server)
         return await server.OpenAsync($"/dokumente/{_id}", SupportedCultures.German, prepare: async page =>
         {
             await mocks.RespondAsync(page, "GET", $"/api/documents/{_id}", 200, detail);
+            await mocks.RespondAsync(page, "GET", $"/api/documents/{_id}/fields", 200, ClassificationSamples.NoFields());
             await mocks.RespondAsync(page, "PATCH", $"/api/documents/{_id}", patchStatus);
         });
     }
@@ -92,10 +94,10 @@ public sealed class PrivacyTests(ServerFixture server)
 
         await box.CheckAsync();
 
-        await Assertions.Expect(page.Locator("main .live-region")).ToHaveTextAsync("Das Dokument ist jetzt privat.");
+        await Assertions.Expect(page.Locator("main .viewer-announcer")).ToHaveTextAsync("Das Dokument ist jetzt privat.");
         Assert.Equal("""{"isPrivate":true}""", mocks.BodyOf("PATCH", $"/api/documents/{_id}"));
         await box.UncheckAsync();
-        await Assertions.Expect(page.Locator("main .live-region")).ToHaveTextAsync("Das Dokument ist nicht mehr privat.");
+        await Assertions.Expect(page.Locator("main .viewer-announcer")).ToHaveTextAsync("Das Dokument ist nicht mehr privat.");
     }
 
     [Fact]
@@ -108,7 +110,7 @@ public sealed class PrivacyTests(ServerFixture server)
 
         await box.ClickAsync();
 
-        await Assertions.Expect(page.Locator("main .live-region")).ToContainTextAsync("Fehler:");
+        await Assertions.Expect(page.Locator("main .viewer-announcer")).ToContainTextAsync("Fehler:");
         await Assertions.Expect(page.GetByLabel("Privat", new() { Exact = true })).Not.ToBeCheckedAsync();
         await Assertions.Expect(page.GetByLabel("Privat", new() { Exact = true })).ToBeFocusedAsync();
     }

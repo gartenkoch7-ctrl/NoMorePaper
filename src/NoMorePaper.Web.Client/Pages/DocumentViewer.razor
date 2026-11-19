@@ -43,7 +43,9 @@ else
             }
         </ul>
 
-        <LiveRegion @ref="_announcer" />
+        <DocumentFieldsPanel DocumentId="Id" Title="@_detail.Title" IsMine="_detail.IsMine" OnTitleChanged="OnTitleChanged" />
+
+        <LiveRegion @ref="_announcer" Class="viewer-announcer" />
 
         @if (_source is null)
         {

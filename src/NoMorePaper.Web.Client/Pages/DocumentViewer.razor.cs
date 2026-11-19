@@ -174,6 +174,15 @@ public sealed partial class DocumentViewer : IAsyncDisposable
         }
     }
 
+    // Editing the fields can change the title: the heading and the tab title follow.
+    private void OnTitleChanged(string title)
+    {
+        if (_detail is not null)
+        {
+            _detail = _detail with { Title = title };
+        }
+    }
+
     private Task ZoomOutAsync() => Viewer.ZoomOutAsync().AsTask();
 
     private Task ZoomInAsync() => Viewer.ZoomInAsync().AsTask();
