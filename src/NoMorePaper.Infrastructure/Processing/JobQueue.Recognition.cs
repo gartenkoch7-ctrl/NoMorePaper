@@ -22,7 +22,7 @@ public sealed partial class JobQueue
 
     /// <inheritdoc />
     public async Task<RecognitionCommit> CompleteRecognitionAsync(
-        JobClaim claim, DocumentFields? fields, bool wasPrivate, CancellationToken cancellationToken)
+        JobClaim claim, DocumentFields? fields, bool wasPrivate, Guid? wasOwner, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(claim);
         var transaction = await db.Database.BeginTransactionAsync(cancellationToken).ConfigureAwait(false);
@@ -43,17 +43,22 @@ public sealed partial class JobQueue
             if (fields is not null)
             {
                 var document = await FindDocumentAsync(claim.DocumentId, cancellationToken).ConfigureAwait(false);
-                if (wasPrivate && !document.IsPrivate)
+
+                // Shared since the fields were made from the owner's private view (ADR-0023, addendum),
+                // or handed over to another account since they were made from the previous owner's lists
+                // (ADR-0024): checked under the row lock, so neither can slip in before the commit.
+                // Nothing is taken; the job is handed back like ReleaseAsync does.
+                var handBack = document.OwnerId != wasOwner ? RecognitionCommit.OwnerChanged
+                    : wasPrivate && !document.IsPrivate ? RecognitionCommit.SharedMeanwhile
+                    : (RecognitionCommit?)null;
+                if (handBack is { } reason)
                 {
-                    // Shared since the fields were made from the owner's private view (ADR-0023,
-                    // addendum): checked under the row lock, so sharing cannot slip in before the
-                    // commit. Nothing is taken; the job is handed back like ReleaseAsync does.
                     job.Attempt--;
                     job.ClaimId = null;
                     job.LockedUntil = null;
                     await db.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
                     await transaction.CommitAsync(cancellationToken).ConfigureAwait(false);
-                    return RecognitionCommit.SharedMeanwhile;
+                    return reason;
                 }
 
                 if (document.Recognition != RecognitionState.Confirmed)
@@ -68,6 +73,29 @@ public sealed partial class JobQueue
             await transaction.CommitAsync(cancellationToken).ConfigureAwait(false);
             return commit;
         }
+    }
+
+    /// <inheritdoc />
+    public async Task<bool> RequeueRecognitionAsync(Guid documentId, CancellationToken cancellationToken)
+    {
+        // One statement in the caller's transaction (ExecuteSql joins it): a new unclaimed job, or
+        // the recognition job reset: a running attempt loses its claim and its result is discarded. An
+        // OCR job is left alone; recognition follows it with the owner of that moment.
+        var stage = nameof(JobStage.Recognition);
+        var done = nameof(ProcessingState.Done);
+        var now = time.GetUtcNow();
+        var changed = await db.Database.ExecuteSqlAsync(
+            $"""
+            INSERT INTO processing_jobs (document_id, stage, priority, attempt, next_attempt_at)
+            SELECT d.id, {stage}, 0, 0, {now} FROM documents d
+            WHERE d.id = {documentId} AND d.state = {done} AND d.owner_id IS NOT NULL AND d.content_text ~ '\S'
+            ON CONFLICT (document_id) DO UPDATE SET
+                priority = 0, attempt = 0, next_attempt_at = EXCLUDED.next_attempt_at,
+                claim_id = NULL, locked_until = NULL, last_error = NULL
+            WHERE processing_jobs.stage = {stage}
+            """,
+            cancellationToken).ConfigureAwait(false);
+        return changed > 0;
     }
 
     /// <inheritdoc />

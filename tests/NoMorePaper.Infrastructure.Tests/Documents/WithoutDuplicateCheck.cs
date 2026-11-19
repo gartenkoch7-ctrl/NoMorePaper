@@ -20,6 +20,9 @@ internal sealed class WithoutDuplicateCheck(IDocumentRepository inner) : IDocume
     public Task<Guid?> FindVisibleBySha256Async(Guid viewerId, string sha256, CancellationToken cancellationToken) =>
         Task.FromResult<Guid?>(null);
 
+    public Task<Guid?> FindOwnedBySha256Async(Guid ownerId, string sha256, CancellationToken cancellationToken) =>
+        Task.FromResult<Guid?>(null);
+
     public Task<DocumentDetail?> GetAsync(Guid id, Guid viewerId, CancellationToken cancellationToken) =>
         inner.GetAsync(id, viewerId, cancellationToken);
 

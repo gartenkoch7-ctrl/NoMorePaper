@@ -31,6 +31,8 @@ api.MapAccountEndpoints();
 api.MapDocumentEndpoints();
 api.MapSearchEndpoints();
 api.MapClassificationEndpoints();
+api.MapPreferencesEndpoints();
+api.MapOwnerCheckEndpoints();
 app.MapFallbackToFile("index.html");
 
 await app.RunAsync();

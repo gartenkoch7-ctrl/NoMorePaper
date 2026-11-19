@@ -6,6 +6,7 @@ using NoMorePaper.Web.Client;
 using NoMorePaper.Web.Client.Accounts;
 using NoMorePaper.Web.Client.Classification;
 using NoMorePaper.Web.Client.Documents;
+using NoMorePaper.Web.Client.Inputs;
 using NoMorePaper.Web.Client.Localization;
 using NoMorePaper.Web.Client.Viewer;
 
@@ -27,6 +28,8 @@ builder.Services.AddScoped<AuthState>();
 builder.Services.AddScoped<DocumentApi>();
 builder.Services.AddScoped<ClassificationApi>();
 builder.Services.AddScoped<ReviewCounter>();
+builder.Services.AddScoped<PreferencesApi>();
+builder.Services.AddScoped<InputsApi>();
 builder.Services.AddScoped<ViewerInterop>();
 builder.Services.AddScoped<ThumbnailRenderer>();
 builder.Services.AddSingleton<ViewerPreferences>();

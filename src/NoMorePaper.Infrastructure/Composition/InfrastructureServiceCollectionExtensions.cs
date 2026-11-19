@@ -44,6 +44,7 @@ public static class InfrastructureServiceCollectionExtensions
         services.AddScoped<ISearchIndex, PostgresSearchIndex>();
         services.AddScoped<IClassificationStore, ClassificationStore>();
         services.AddScoped<IDocumentFieldsStore, EfDocumentFieldsStore>();
+        services.AddInputs();
 
         services.AddNoMorePaperDataProtection(configuration);
 

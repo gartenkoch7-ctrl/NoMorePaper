@@ -38,6 +38,9 @@ internal static partial class OllamaLog
     [LoggerMessage(EventId = 3527, Level = LogLevel.Information, Message = "Model {Model} downloaded after {ElapsedMs} ms")]
     public static partial void ModelPulled(this ILogger logger, string model, long elapsedMs);
 
+    [LoggerMessage(EventId = 3902, Level = LogLevel.Warning, Message = "The local LLM stayed busy; a {Priority} request gave up after waiting {ElapsedMs} ms")]
+    public static partial void LlmBusy(this ILogger logger, LlmPriority priority, long elapsedMs);
+
     [LoggerMessage(EventId = 3528, Level = LogLevel.Warning, Message = "The request filled {PromptEvalCount} of {WindowSize} context tokens; Ollama may have cut its start (rules, lists)")]
     public static partial void ContextFull(this ILogger logger, int promptEvalCount, int windowSize);
 }

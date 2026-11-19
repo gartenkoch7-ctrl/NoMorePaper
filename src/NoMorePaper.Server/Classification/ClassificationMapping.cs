@@ -3,6 +3,7 @@ using NoMorePaper.Application.Documents;
 using NoMorePaper.Contracts.Classification;
 using NoMorePaper.Domain.Classification;
 using NoMorePaper.Domain.Documents;
+using NoMorePaper.Server.Inputs;
 
 namespace NoMorePaper.Server.Classification;
 
@@ -50,7 +51,10 @@ internal static class ClassificationMapping
             view.Recognition.ToDto(),
             view.PossibleDuplicateOf,
             view.EditorIds,
-            view.CanEdit);
+            view.CanEdit,
+            view.Mail?.ToDto(),
+            view.NeedsOwnerCheck,
+            view.Source.ToWord());
 
     public static ReviewItemDto ToDto(this ReviewItem item) =>
         new(item.Id, item.Title, item.ReceivedAt, item.Fields.ToDto(), item.PossibleDuplicate?.ToDto());

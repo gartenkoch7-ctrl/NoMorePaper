@@ -17,6 +17,9 @@ public static class RecognitionRegistration
     {
         ArgumentNullException.ThrowIfNull(configuration);
         services.AddSingleton(_ => OllamaSettings.Read(configuration));
+
+        // One request to Ollama at a time, for recognition and the mail check (ADR-0024).
+        services.AddSingleton<LlmGate>();
         services.AddSingleton<IRecognizer>(provider =>
         {
             var settings = provider.GetRequiredService<OllamaSettings>();
@@ -28,7 +31,11 @@ public static class RecognitionRegistration
                 Timeout = Timeout.InfiniteTimeSpan,
             };
             return new OllamaRecognizer(
-                http, settings, provider.GetRequiredService<TimeProvider>(), provider.GetRequiredService<ILogger<OllamaRecognizer>>());
+                http,
+                settings,
+                provider.GetRequiredService<LlmGate>(),
+                provider.GetRequiredService<TimeProvider>(),
+                provider.GetRequiredService<ILogger<OllamaRecognizer>>());
         });
         services.AddScoped<IRecognitionExamples, EfRecognitionExamples>();
         services.AddScoped<IDuplicateFinder, PostgresDuplicateFinder>();

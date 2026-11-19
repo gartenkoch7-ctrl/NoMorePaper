@@ -35,7 +35,7 @@ internal sealed class RecognitionAttempt(
         var skip = SkipReason(document);
         if (skip is not null || document is not { OwnerId: { } owner, ContentText: { } text })
         {
-            var removed = await queue.CompleteRecognitionAsync(claim, fields: null, wasPrivate: false, stoppingToken).ConfigureAwait(false);
+            var removed = await queue.CompleteRecognitionAsync(claim, fields: null, wasPrivate: false, wasOwner: null, stoppingToken).ConfigureAwait(false);
             return new RecognitionOutcome(removed, skip ?? "no-text");
         }
 
@@ -68,8 +68,13 @@ internal sealed class RecognitionAttempt(
             case null:
                 return new RecognitionOutcome(RecognitionCommit.ClaimLost, SkipReason: null);
             case { Recognition: RecognitionState.Confirmed }:
-                var removed = await queue.CompleteRecognitionAsync(claim, fields: null, wasPrivate: false, stoppingToken).ConfigureAwait(false);
+                var removed = await queue.CompleteRecognitionAsync(claim, fields: null, wasPrivate: false, wasOwner: null, stoppingToken).ConfigureAwait(false);
                 return new RecognitionOutcome(removed, SkipReason: null);
+            case { OwnerId: var current } when current != owner:
+                // Handed over meanwhile: the request held the previous owner's lists. The job runs again
+                // with the new owner's (the hand-over queues it anew; this only covers the gap).
+                var handedBack = await queue.ReleaseAsync(claim, stoppingToken).ConfigureAwait(false);
+                return new RecognitionOutcome(handedBack ? RecognitionCommit.OwnerChanged : RecognitionCommit.ClaimLost, SkipReason: null);
             case { IsPrivate: false } when audience == EntryAudience.Account:
                 // Shared meanwhile: the request held the owner's private view, so the answer may name a
                 // private-only entry. The job runs again at once, with the household's view.
@@ -87,7 +92,7 @@ internal sealed class RecognitionAttempt(
 
         var fields = await ToFieldsAsync(owner, audience, result, stoppingToken).ConfigureAwait(false);
         // Checked again under the row lock: sharing during FindOrCreate also hands the job back.
-        var commit = await queue.CompleteRecognitionAsync(claim, fields, wasPrivate: document.IsPrivate, stoppingToken).ConfigureAwait(false);
+        var commit = await queue.CompleteRecognitionAsync(claim, fields, wasPrivate: document.IsPrivate, wasOwner: owner, stoppingToken).ConfigureAwait(false);
         return new RecognitionOutcome(commit, SkipReason: null, found.Count, rejected.Count);
     }
 

@@ -1,4 +1,5 @@
 using System.Data.Common;
+using Microsoft.Extensions.Logging.Abstractions;
 using NoMorePaper.Application.Tests.Accounts;
 using NoMorePaper.Application.Documents;
 using NoMorePaper.Domain.Documents;
@@ -20,7 +21,7 @@ public sealed class ReceiveDocumentTests
 
     private readonly FakeDocumentRepository _documents = new();
     private readonly FakeDocumentStorage _storage = new();
-    private readonly RecordingLogger<ReceiveDocument> _log = new();
+    private readonly RecordingLogger<IntakeDocument> _log = new();
     private readonly FakeCurrentAccount _current = new();
 
     private static CancellationToken Ct => TestContext.Current.CancellationToken;
@@ -150,7 +151,10 @@ public sealed class ReceiveDocumentTests
         (await Receive().ReceiveAsync(fileName, "application/pdf", new MemoryStream([1, 2, 3]), isPrivate, Ct)).DocumentId
             ?? throw new InvalidOperationException("The signed-in account exists in these tests.");
 
-    private ReceiveDocument Receive() => new(_documents, _storage, new FixedClock(s_now), _current, _log);
+    private ReceiveDocument Receive() => new(
+        new IntakeDocument(_documents, _storage, new FakeAccountStore(), new FakeAccountPreferencesStore(), new FixedClock(s_now), _log),
+        _current,
+        NullLogger<ReceiveDocument>.Instance);
 
     private sealed class FixedClock(DateTimeOffset now) : TimeProvider
     {

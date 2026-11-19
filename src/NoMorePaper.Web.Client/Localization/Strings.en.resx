@@ -1062,4 +1062,10 @@
   <data name="UploadShowExisting" xml:space="preserve">
     <value>Show the existing document for “{0}”</value>
   </data>
+  <data name="InpErrorSenderInvalid" xml:space="preserve">
+    <value>A sender address is not valid, or there are more than 20.</value>
+  </data>
+  <data name="InpErrorSenderTaken" xml:space="preserve">
+    <value>Another account has this sender address already.</value>
+  </data>
 </root>

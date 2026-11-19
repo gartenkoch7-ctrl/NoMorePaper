@@ -51,6 +51,13 @@ public sealed class RecognizeDocument(
             var outcome = await _attempt.RunAsync(queue, claim, stoppingToken).ConfigureAwait(false);
             Report(claim, outcome, started);
         }
+        catch (LlmBusyException) when (!stoppingToken.IsCancellationRequested)
+        {
+            // The model was busy (mail checks) for longer than the lock allows: nothing was asked, so the
+            // attempt does not count; the job is due again at once.
+            var released = await queue.ReleaseAsync(claim, stoppingToken).ConfigureAwait(false);
+            logger.LlmBusy(id, released);
+        }
         catch (Exception exception) when (!stoppingToken.IsCancellationRequested)
         {
             activity?.SetStatus(ActivityStatusCode.Error);
@@ -70,6 +77,12 @@ public sealed class RecognizeDocument(
         if (outcome.Commit == RecognitionCommit.SharedMeanwhile)
         {
             logger.SharedMeanwhile(id);
+            return;
+        }
+
+        if (outcome.Commit == RecognitionCommit.OwnerChanged)
+        {
+            logger.OwnerChanged(id);
             return;
         }
 

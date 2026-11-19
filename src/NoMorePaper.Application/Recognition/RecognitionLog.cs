@@ -70,4 +70,10 @@ internal static partial class RecognitionLog
 
     [LoggerMessage(EventId = 5212, Level = LogLevel.Information, Message = "Document {DocumentId} was shared during recognition; the result is discarded and the job runs again with the household's lists")]
     public static partial void SharedMeanwhile(this ILogger logger, Guid documentId);
+
+    [LoggerMessage(EventId = 5213, Level = LogLevel.Information, Message = "Document {DocumentId} was handed over to another account during recognition; the result is discarded and the job runs again with the new owner's lists")]
+    public static partial void OwnerChanged(this ILogger logger, Guid documentId);
+
+    [LoggerMessage(EventId = 5214, Level = LogLevel.Information, Message = "Recognition of document {DocumentId} handed back: the local LLM stayed busy too long (handed back: {Released}); the attempt does not count")]
+    public static partial void LlmBusy(this ILogger logger, Guid documentId, bool released);
 }

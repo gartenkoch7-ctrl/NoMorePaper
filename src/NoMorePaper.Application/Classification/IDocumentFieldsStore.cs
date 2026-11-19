@@ -34,7 +34,8 @@ public interface IDocumentFieldsStore
 
     /// <summary>
     /// The documents <paramref name="viewerId"/> may edit that were recognized automatically or are a
-    /// possible duplicate of a document the viewer may see, newest first.
+    /// possible duplicate of a document the viewer may see, and the viewer's own documents waiting for
+    /// the owner check (<see cref="Document.NeedsOwnerCheck"/>), newest first.
     /// </summary>
     Task<IReadOnlyList<ReviewItem>> ListReviewAsync(Guid viewerId, CancellationToken cancellationToken);
 

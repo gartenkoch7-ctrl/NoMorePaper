@@ -35,6 +35,14 @@ public interface IDocumentRepository
     /// <returns>The oldest such document, or <c>null</c>.</returns>
     Task<Guid?> FindVisibleBySha256Async(Guid viewerId, string sha256, CancellationToken cancellationToken);
 
+    /// <summary>
+    /// A document <paramref name="ownerId"/> owns whose original has exactly these bytes. Shared documents
+    /// of other accounts do not count (background inputs, <see cref="DuplicateScope.Owned"/>).
+    /// </summary>
+    /// <param name="sha256">SHA-256 of the original, 64 lowercase hex characters.</param>
+    /// <returns>The oldest such document, or <c>null</c>.</returns>
+    Task<Guid?> FindOwnedBySha256Async(Guid ownerId, string sha256, CancellationToken cancellationToken);
+
     /// <returns>
     /// The document, or <c>null</c> if it does not exist, has no original file, or is private to
     /// another account: callers cannot tell these apart, so a private document's existence stays hidden.

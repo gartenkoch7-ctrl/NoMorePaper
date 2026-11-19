@@ -1,46 +1,17 @@
-using System.Data.Common;
-using System.Diagnostics;
-using System.Diagnostics.Metrics;
 using Microsoft.Extensions.Logging;
 using NoMorePaper.Application.Accounts;
-using NoMorePaper.Application.Telemetry;
 using NoMorePaper.Domain.Documents;
 
 namespace NoMorePaper.Application.Documents;
 
 /// <summary>
-/// Accepts a new document: stores the original in the inbox, records document, file and queue entry
-/// in one database transaction. An upload whose exact file the uploader may already see is refused and
-/// its inbox file removed (M3). If the database refuses, the inbox file is removed again, so no
-/// file is left that no document refers to. It is only removed once it is certain that no document
-/// refers to it: a lost original is worse than a leftover file.
+/// Accepts a document from the browser (upload, camera): the signed-in account becomes the owner and
+/// chooses per file whether it is private. An upload whose exact file the uploader may already see is
+/// refused (M3). The work itself is <see cref="IntakeDocument"/>, shared with the background inputs.
 /// </summary>
-public sealed class ReceiveDocument
+public sealed class ReceiveDocument(IntakeDocument intake, ICurrentAccount current, ILogger<ReceiveDocument> logger)
 {
-    private static readonly Counter<long> s_received = ApplicationTelemetry.Meter.CreateCounter<long>(
-        "nomorepaper.documents.received", description: "Documents accepted by the intake");
-
-    private readonly IDocumentRepository _documents;
-    private readonly IDocumentStorage _storage;
-    private readonly TimeProvider _clock;
-    private readonly ICurrentAccount _current;
-    private readonly ILogger<ReceiveDocument> _logger;
-
-    public ReceiveDocument(
-        IDocumentRepository documents,
-        IDocumentStorage storage,
-        TimeProvider clock,
-        ICurrentAccount current,
-        ILogger<ReceiveDocument> logger)
-    {
-        _documents = documents;
-        _storage = storage;
-        _clock = clock;
-        _current = current;
-        _logger = logger;
-    }
-
-    /// <param name="fileName">Name the file was received with; cleaned here, so callers may pass it unchecked.</param>
+    /// <param name="fileName">Name the file was received with; cleaned by the intake, so callers may pass it unchecked.</param>
     /// <param name="mediaType">The detected type of the content, not what the uploader claimed.</param>
     /// <param name="isPrivate">Whether only the signed-in account, which becomes the owner, may see it.</param>
     /// <param name="cancellationToken">Cancels storing the file; once the file is stored, the commit runs to its end.</param>
@@ -48,97 +19,34 @@ public sealed class ReceiveDocument
     /// The new, queued document; the document with the same file if the uploader may see one (nothing is
     /// kept); or that the signed-in account was removed (nothing is stored).
     /// </returns>
+    public Task<ReceiveResult> ReceiveAsync(
+        string fileName, string mediaType, Stream content, bool isPrivate, CancellationToken cancellationToken) =>
+        ReceiveAsync(fileName, mediaType, content, isPrivate, DocumentSource.Upload, cancellationToken);
+
+    /// <inheritdoc cref="ReceiveAsync(string, string, Stream, bool, CancellationToken)"/>
+    /// <param name="source">How it came in: <see cref="DocumentSource.Upload"/> or <see cref="DocumentSource.Camera"/>.</param>
     public async Task<ReceiveResult> ReceiveAsync(
-        string fileName, string mediaType, Stream content, bool isPrivate, CancellationToken cancellationToken)
+        string fileName, string mediaType, Stream content, bool isPrivate, DocumentSource source, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(content);
         ArgumentException.ThrowIfNullOrWhiteSpace(mediaType);
-        using var activity = ApplicationTelemetry.Source.StartActivity("nomorepaper.documents.receive");
 
         // A member removed in the last minutes still has a valid cookie (ADR-0021); it must not add
         // documents. Removal right after this check is the same as removal right after the upload.
-        if (!await _current.ExistsAsync(cancellationToken).ConfigureAwait(false))
+        if (!await current.ExistsAsync(cancellationToken).ConfigureAwait(false))
         {
-            _logger.AccountGone(_current.Id, "upload");
+            logger.AccountGone(current.Id, "upload");
             return ReceiveResult.AccountGone;
         }
 
-        var now = _clock.GetUtcNow();
-        var cleanName = DocumentNames.FileName(fileName);
-        var document = Document.Receive(DocumentNames.Title(fileName), now, _current.Id, isPrivate);
-        var committing = false;
-        try
+        var request = new IntakeRequest(current.Id, source, fileName, mediaType, content);
+        var accepted = await intake.AcceptAsync(request, isPrivate, DuplicateScope.Visible, cancellationToken).ConfigureAwait(false);
+        return accepted switch
         {
-            var stored = await _storage.SaveInboxAsync(document.Id, cleanName, content, cancellationToken).ConfigureAwait(false);
-
-            // The hash is computed while storing, so the upload is read only once. Only documents the
-            // uploader may see count: a refusal must not reveal another account's private document.
-            var existing = await _documents.FindVisibleBySha256Async(_current.Id, stored.Sha256, cancellationToken).ConfigureAwait(false);
-            if (existing is { } existingId)
-            {
-                DiscardInbox(document.Id);
-                _logger.DuplicateRefused(existingId, _current.Id);
-                return ReceiveResult.Duplicate(existingId);
-            }
-
-            document.AttachFile(new DocumentFile(DocumentFileKind.Original, cleanName, mediaType, stored.SizeBytes, stored.Sha256));
-
-            // A dropped request must not cancel a commit that may already have reached the database:
-            // the caller would see a failure for a document that exists, and its file would be discarded.
-            committing = true;
-            await _documents.AddReceivedAsync(document, CancellationToken.None).ConfigureAwait(false);
-
-            s_received.Add(1);
-            _logger.Received(document.Id, stored.SizeBytes, mediaType);
-            return ReceiveResult.Received(document.Id);
-        }
-        catch (Exception exception)
-        {
-            activity?.SetStatus(ActivityStatusCode.Error);
-            if (exception is not OperationCanceledException)
-            {
-                _logger.ReceiveFailed(document.Id, exception.GetType().Name);
-            }
-
-            if (!committing || await IsUnrecordedAsync(document.Id).ConfigureAwait(false))
-            {
-                DiscardInbox(document.Id);
-            }
-
-            throw;
-        }
-    }
-
-    // A failed commit may still have been applied, e.g. when the connection dropped before the answer.
-    private async Task<bool> IsUnrecordedAsync(Guid id)
-    {
-        try
-        {
-            var recorded = await _documents.ExistsAsync(id, CancellationToken.None).ConfigureAwait(false);
-            if (recorded)
-            {
-                _logger.KeptRecorded(id);
-            }
-
-            return !recorded;
-        }
-        catch (Exception exception) when (exception is DbException or InvalidOperationException or TimeoutException)
-        {
-            _logger.KeptUnverified(id, exception.GetType().Name);
-            return false;
-        }
-    }
-
-    private void DiscardInbox(Guid id)
-    {
-        try
-        {
-            _storage.DiscardInbox(id);
-        }
-        catch (Exception exception) when (exception is IOException or UnauthorizedAccessException)
-        {
-            // The original exception is the one worth reporting; a leftover only costs space.
-            _logger.DiscardFailed(id, exception.GetType().Name);
-        }
+            { Status: IntakeStatus.Received, DocumentId: { } id } => ReceiveResult.Received(id),
+            { Status: IntakeStatus.AlreadyThere, DocumentId: { } existing } => ReceiveResult.Duplicate(existing),
+            { Status: IntakeStatus.OwnerGone } => ReceiveResult.AccountGone,
+            _ => throw new InvalidOperationException($"Unexpected intake result {accepted.Status} for a known owner."),
+        };
     }
 }

@@ -79,8 +79,21 @@ public interface IJobQueue
     /// If it is shared by now, checked under the row lock, nothing is taken and the job is handed back
     /// like <see cref="ReleaseAsync"/> (<see cref="RecognitionCommit.SharedMeanwhile"/>).
     /// </param>
+    /// <param name="wasOwner">
+    /// The owner whose lists the fields were made with. If another account owns the document by now
+    /// (handed over), nothing is taken and the job is handed back (<see cref="RecognitionCommit.OwnerChanged"/>).
+    /// </param>
     Task<RecognitionCommit> CompleteRecognitionAsync(
-        JobClaim claim, DocumentFields? fields, bool wasPrivate, CancellationToken cancellationToken);
+        JobClaim claim, DocumentFields? fields, bool wasPrivate, Guid? wasOwner, CancellationToken cancellationToken);
+
+    /// <summary>
+    /// Queues recognition of a done document with text again, due at once with priority 0, e.g. after it
+    /// was handed over to another account. A job at the recognition stage starts over (a running attempt
+    /// loses its claim); a job still at OCR is left alone, recognition follows it anyway. Joins the
+    /// caller's open transaction, if any.
+    /// </summary>
+    /// <returns>Whether a recognition job is queued now.</returns>
+    Task<bool> RequeueRecognitionAsync(Guid documentId, CancellationToken cancellationToken);
 
     /// <summary>
     /// Queues recognition for every done document with text and owner that has no fields

@@ -14,4 +14,9 @@
     <PackageReference Include="Testcontainers.PostgreSql" />
     <PackageReference Include="Microsoft.Extensions.Configuration" />
   </ItemGroup>
+
+  <ItemGroup>
+    <!-- Two photographed pages (white with a line of text), for the PDF composer. -->
+    <None Include="Inputs\Samples\*.jpg" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
 </Project>

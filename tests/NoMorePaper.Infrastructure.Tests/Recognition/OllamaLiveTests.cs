@@ -35,6 +35,7 @@ public sealed class OllamaLiveTests
         using var recognizer = new OllamaRecognizer(
             new HttpClient { BaseAddress = settings.Endpoint, Timeout = Timeout.InfiniteTimeSpan },
             settings,
+            new LlmGate(TimeProvider.System, NullLogger<LlmGate>.Instance),
             TimeProvider.System,
             NullLogger<OllamaRecognizer>.Instance);
         var request = new RecognitionRequest(

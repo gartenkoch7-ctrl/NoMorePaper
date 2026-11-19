@@ -164,7 +164,7 @@ public sealed class OllamaRecognizerTests : IDisposable
         var settings = new OllamaSettings(
             new Uri("http://ollama:11434/"), OllamaSettings.DefaultModel, timeout ?? OllamaSettings.DefaultTimeout, threads);
         var http = new HttpClient(_ollama, disposeHandler: false) { BaseAddress = settings.Endpoint, Timeout = Timeout.InfiniteTimeSpan };
-        return new OllamaRecognizer(http, settings, TimeProvider.System, NullLogger<OllamaRecognizer>.Instance);
+        return new OllamaRecognizer(http, settings, new LlmGate(TimeProvider.System, NullLogger<LlmGate>.Instance), TimeProvider.System, NullLogger<OllamaRecognizer>.Instance);
     }
 
     private static async Task<HttpResponseMessage> WaitForeverAsync(CancellationToken cancellationToken)

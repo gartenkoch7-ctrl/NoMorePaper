@@ -114,7 +114,7 @@ public sealed class JobQueueRecognitionTests(PostgresFixture postgres)
         var queue = data.Queue(db);
         var claim = (await queue.ClaimNextAsync(QueueDatabase.LockFor, Ct))!;
 
-        Assert.Equal(RecognitionCommit.Classified, await queue.CompleteRecognitionAsync(claim, Fields, wasPrivate: false, Ct));
+        Assert.Equal(RecognitionCommit.Classified, await queue.CompleteRecognitionAsync(claim, Fields, wasPrivate: false, QueueDatabase.Owner, Ct));
 
         var document = await data.DocumentAsync(id);
         Assert.Equal((RecognitionState.Automatic, "Stromrechnung November 2026"), (document.Recognition, document.Title));
@@ -139,7 +139,7 @@ public sealed class JobQueueRecognitionTests(PostgresFixture postgres)
             await app.SaveChangesAsync(Ct);
         }
 
-        Assert.Equal(RecognitionCommit.JobRemoved, await queue.CompleteRecognitionAsync(claim, Fields, wasPrivate: false, Ct));
+        Assert.Equal(RecognitionCommit.JobRemoved, await queue.CompleteRecognitionAsync(claim, Fields, wasPrivate: false, QueueDatabase.Owner, Ct));
 
         var stored = await data.DocumentAsync(id);
         Assert.Equal((RecognitionState.Confirmed, "Scan 1", null), (stored.Recognition, stored.Title, stored.Summary));
@@ -155,7 +155,7 @@ public sealed class JobQueueRecognitionTests(PostgresFixture postgres)
         var queue = data.Queue(db);
         var claim = (await queue.ClaimNextAsync(QueueDatabase.LockFor, Ct))!;
 
-        Assert.Equal(RecognitionCommit.JobRemoved, await queue.CompleteRecognitionAsync(claim, fields: null, wasPrivate: false, Ct));
+        Assert.Equal(RecognitionCommit.JobRemoved, await queue.CompleteRecognitionAsync(claim, fields: null, wasPrivate: false, wasOwner: null, Ct));
 
         Assert.Equal(RecognitionState.None, (await data.DocumentAsync(id)).Recognition);
         Assert.Null(await data.JobAsync(id));
@@ -173,7 +173,7 @@ public sealed class JobQueueRecognitionTests(PostgresFixture postgres)
         await using var other = data.Context();
         var current = (await data.Queue(other).ClaimNextAsync(QueueDatabase.LockFor, Ct))!;
 
-        Assert.Equal(RecognitionCommit.ClaimLost, await queue.CompleteRecognitionAsync(stale, Fields, wasPrivate: false, Ct));
+        Assert.Equal(RecognitionCommit.ClaimLost, await queue.CompleteRecognitionAsync(stale, Fields, wasPrivate: false, QueueDatabase.Owner, Ct));
 
         Assert.Equal(RecognitionState.None, (await data.DocumentAsync(id)).Recognition);
         Assert.Equal(current.ClaimId, (await data.JobAsync(id))!.ClaimId);

@@ -51,6 +51,11 @@ internal sealed class FakeAccountStore : IAccountStore
 
     public Task<bool> ExistsAsync(Guid id, CancellationToken cancellationToken) => Task.FromResult(KnownAccount);
 
+    /// <summary>What <see cref="FindAdministratorIdAsync"/> answers; <c>null</c>: the household is not set up.</summary>
+    public Guid? AdministratorId { get; set; } = Guid.CreateVersion7();
+
+    public Task<Guid?> FindAdministratorIdAsync(CancellationToken cancellationToken) => Task.FromResult(AdministratorId);
+
     public Task<IReadOnlyList<Account>> ListAsync(CancellationToken cancellationToken)
     {
         Calls.Add(nameof(ListAsync));

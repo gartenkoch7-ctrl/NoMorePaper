@@ -11,7 +11,7 @@ namespace NoMorePaper.Infrastructure.Accounts;
 /// one transaction with a lock, so concurrent requests cannot both pass the check. Invitations and
 /// reset links: <see cref="AccountLinkStore"/>; forgotten passwords: <see cref="AccountResets"/>.
 /// </summary>
-public sealed class AccountStore : IAccountStore
+public sealed partial class AccountStore : IAccountStore
 {
     // Arbitrary constant for pg_advisory_xact_lock: concurrent setups wait for each other.
     private const long SetupLock = 0x4E4D_5053_4554_5550;

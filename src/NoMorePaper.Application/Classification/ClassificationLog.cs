@@ -39,6 +39,9 @@ internal static partial class ClassificationLog
     [LoggerMessage(EventId = 5259, Level = LogLevel.Information, Message = "Account {AccountId} merged {SourceCount} entries of list {Kind} into entry {EntryId}")]
     public static partial void EntriesMerged(this ILogger logger, Guid accountId, int sourceCount, ClassificationKind kind, Guid entryId);
 
-    [LoggerMessage(EventId = 5260, Level = LogLevel.Warning, Message = "Account {AccountId} was refused ({Outcome}): {Action} on list {Kind}")]
+    [LoggerMessage(EventId = 5261, Level = LogLevel.Information, Message = "Owner {AccountId} kept document {DocumentId}, whose owner was unknown on arrival")]
+    public static partial void OwnerCheckConfirmed(this ILogger logger, Guid documentId, Guid accountId);
+
+    [LoggerMessage(EventId = 5260,Level = LogLevel.Warning, Message = "Account {AccountId} was refused ({Outcome}): {Action} on list {Kind}")]
     public static partial void EntryChangeRefused(this ILogger logger, Guid accountId, ChangeOutcome outcome, string action, ClassificationKind kind);
 }

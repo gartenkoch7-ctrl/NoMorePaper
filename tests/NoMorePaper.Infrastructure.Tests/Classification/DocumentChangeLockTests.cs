@@ -32,7 +32,7 @@ public sealed class DocumentChangeLockTests(PostgresFixture postgres)
         var document = (await store.FindVisibleAsync(id, QueueDatabase.Owner, Ct))!;
         document.Confirm(QueueDatabase.Owner);
 
-        var completing = queue.CompleteRecognitionAsync(claim, Fields, wasPrivate: false, Ct);
+        var completing = queue.CompleteRecognitionAsync(claim, Fields, wasPrivate: false, QueueDatabase.Owner, Ct);
         await Task.Delay(TimeSpan.FromMilliseconds(500), Ct);
         Assert.False(completing.IsCompleted);
 
@@ -55,7 +55,7 @@ public sealed class DocumentChangeLockTests(PostgresFixture postgres)
 
         var person = data.Context();
         Assert.NotNull(await new EfDocumentFieldsStore(person).FindVisibleAsync(id, QueueDatabase.Owner, Ct));
-        var completing = queue.CompleteRecognitionAsync(claim, Fields, wasPrivate: false, Ct);
+        var completing = queue.CompleteRecognitionAsync(claim, Fields, wasPrivate: false, QueueDatabase.Owner, Ct);
         await person.DisposeAsync();
 
         Assert.Equal(RecognitionCommit.Classified, await completing);
@@ -78,7 +78,7 @@ public sealed class DocumentChangeLockTests(PostgresFixture postgres)
             await owner.SaveChangesAsync(Ct);
         }
 
-        Assert.Equal(RecognitionCommit.SharedMeanwhile, await queue.CompleteRecognitionAsync(claim, Fields, wasPrivate: true, Ct));
+        Assert.Equal(RecognitionCommit.SharedMeanwhile, await queue.CompleteRecognitionAsync(claim, Fields, wasPrivate: true, QueueDatabase.Owner, Ct));
 
         var saved = await data.DocumentAsync(id);
         Assert.Equal((RecognitionState.None, "Scan 1", false), (saved.Recognition, saved.Title, saved.IsPrivate));

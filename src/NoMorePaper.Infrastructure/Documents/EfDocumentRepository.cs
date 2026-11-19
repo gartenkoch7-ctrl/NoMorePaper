@@ -71,6 +71,19 @@ public sealed class EfDocumentRepository(AppDbContext db) : IDocumentRepository
         return found.Count == 0 ? null : found[0];
     }
 
+    public async Task<Guid?> FindOwnedBySha256Async(Guid ownerId, string sha256, CancellationToken cancellationToken)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(sha256);
+        var found = await db.Database.SqlQuery<Guid>($"""
+            SELECT d.id AS "Value"
+            FROM document_files f JOIN documents d ON d.id = f.document_id
+            WHERE f.kind = 'Original' AND f.sha256 = CAST({sha256} AS character(64)) AND d.owner_id = {ownerId}
+            ORDER BY d.received_at, d.id
+            LIMIT 1
+            """).ToListAsync(cancellationToken).ConfigureAwait(false);
+        return found.Count == 0 ? null : found[0];
+    }
+
     public async Task<DocumentDetail?> GetAsync(Guid id, Guid viewerId, CancellationToken cancellationToken)
     {
         var document = await VisibleTo(viewerId)

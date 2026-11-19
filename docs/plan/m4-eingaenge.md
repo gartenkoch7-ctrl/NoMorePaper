@@ -67,30 +67,30 @@ Daraus abgeleitet:
 ## Aufgaben
 
 ### 0. Gemeinsame Bausteine (Schritt 0)
-- [ ] Domain: `DocumentSource` (`Upload`, `Camera`, `ScannerFolder`, `Mail`, `ICloud`) an `Document`;
+- [x] Domain: `DocumentSource` (`Upload`, `Camera`, `ScannerFolder`, `Mail`, `ICloud`) an `Document`;
       `MailOrigin` (Absender-Adresse, Betreff, Hinweis ≤ 500 Zeichen) als „Aus der Mail“;
       `NeedsOwnerCheck` (unbekannter Absender) macht ein Dokument für den Verwalter „zu prüfen“
-- [ ] Application: `IntakeDocument` – Annahme **mit ausdrücklichem Besitzer** (ohne `ICurrentAccount`)
+- [x] Application: `IntakeDocument` – Annahme **mit ausdrücklichem Besitzer** (ohne `ICurrentAccount`)
       für Hintergrund-Eingänge; `ReceiveDocument` (Browser) nutzt sie nach der Kontoprüfung
-- [ ] Application: Port `IInputSource` (Art, Takt, `RunAsync`), Ergebnis `InputRunResult`;
+- [x] Application: Port `IInputSource` (Art, Takt, `RunAsync`), Ergebnis `InputRunResult`;
       `InputStatus` je Eingang (letzter Abruf, Fehlerklasse, „braucht Aufmerksamkeit“)
-- [ ] Application: `AccountPreferences` (neue Dokumente privat ja/nein, Mail-Absender-Adressen),
+- [x] Application: `AccountPreferences` (neue Dokumente privat ja/nein, Mail-Absender-Adressen),
       Port `IAccountPreferencesStore`; Port `ISecretProtector` (Data Protection, je Zweck)
-- [ ] Application: Port `IPdfComposer` – Bilder → ein PDF (Kamera), Text → PDF (Mail)
-- [ ] Infrastructure: Tabellen `account_preferences`, `input_connections` (verschlüsselte Zugangsdaten),
+- [x] Application: Port `IPdfComposer` – Bilder → ein PDF (Kamera), Text → PDF (Mail)
+- [x] Infrastructure: Tabellen `account_preferences`, `input_connections` (verschlüsselte Zugangsdaten),
       `input_status`, `input_seen_items` (Hash der Kennung, z. B. Message-ID oder iCloud-Datei-Id);
       Spalten `source`, `mail_*`, `needs_owner_check` an `documents`; Migration `Inputs`
-- [ ] Infrastructure: `PdfSharpComposer` (PDFsharp, MIT) mit eingebetteter Schrift (DejaVu Sans)
-- [ ] Worker: `InputScheduler` (ein Hintergrunddienst, führt jede registrierte `IInputSource` in ihrem
+- [x] Infrastructure: `PdfSharpComposer` (PDFsharp, MIT) mit eingebetteter Schrift (DejaVu Sans)
+- [x] Worker: `InputScheduler` (ein Hintergrunddienst, führt jede registrierte `IInputSource` in ihrem
       Takt aus, Fehler eines Eingangs stören die anderen nicht)
-- [ ] „Zu prüfen“: Regel um `NeedsOwnerCheck` erweitert (beim Besitzer), Zähler gleich; Anwendungsfälle
+- [x] „Zu prüfen“: Regel um `NeedsOwnerCheck` erweitert (beim Besitzer), Zähler gleich; Anwendungsfälle
       „Passt so“ (`ConfirmOwnerCheck`) und „Weitergeben“ (`HandOverDocument`) mit Endpunkten
-- [ ] Gemeinsamer LLM-Zugang `LlmGate` für Erkennung und Mail-Prüfung
-- [ ] Einstellungen-API `GET/PUT /api/account/preferences` und Clients `PreferencesApi`, `InputsApi`
+- [x] Gemeinsamer LLM-Zugang `LlmGate` für Erkennung und Mail-Prüfung
+- [x] Einstellungen-API `GET/PUT /api/account/preferences` und Clients `PreferencesApi`, `InputsApi`
       (Kamera, Upload und Seite „Eingänge“ brauchen sie)
-- [ ] `FileSignature` nach Application (Server, Scanner-Ordner, Mail)
-- [ ] Contracts: DTOs für Einstellungen, Eingangsstatus, Mail-Einrichtung, Weitergabe, „Aus der Mail“
-- [ ] ADR-0024 (Eingänge: Bibliotheken, Samba, Spam-Prüfung), Katalogblöcke reservieren
+- [x] `FileSignature` nach Application (Server, Scanner-Ordner, Mail)
+- [x] Contracts: DTOs für Einstellungen, Eingangsstatus, Mail-Einrichtung, Weitergabe, „Aus der Mail“
+- [x] ADR-0024 (Eingänge: Bibliotheken, Samba, Spam-Prüfung), Katalogblöcke reservieren
 
 ### A. Kamera in der PWA
 - [ ] Seite `/kamera` (Navigation „Kamera“), Rückkamera per `getUserMedia`, OpenCV.js lokal unter
