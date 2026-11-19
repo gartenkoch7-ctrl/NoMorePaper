@@ -1068,4 +1068,142 @@
   <data name="InpErrorSenderTaken" xml:space="preserve">
     <value>Diese Absender-Adresse ist schon bei einem anderen Konto eingetragen.</value>
   </data>
+  <data name="NavCamera" xml:space="preserve">
+    <value>Kamera</value>
+  </data>
+  <data name="CamTitle" xml:space="preserve">
+    <value>Kamera – NoMorePaper</value>
+  </data>
+  <data name="CamHeading" xml:space="preserve">
+    <value>Mit der Kamera aufnehmen</value>
+  </data>
+  <data name="CamIntro" xml:space="preserve">
+    <value>Lege das Blatt auf eine dunkle Fläche und halte das Handy darüber. Die App sagt dir, wohin du das Handy bewegen sollst, und nimmt die Seite selbst auf, sobald sie ganz zu sehen ist und das Bild ruhig ist. Mehrere Seiten werden ein Dokument.</value>
+  </data>
+  <data name="CamTones" xml:space="preserve">
+    <value>Töne</value>
+  </data>
+  <data name="CamTonesHint" xml:space="preserve">
+    <value>Wie eine Einparkhilfe: Je höher und schneller die Töne, desto besser liegt das Blatt im Bild. Gilt nur für dieses Gerät.</value>
+  </data>
+  <data name="CamPrivateHint" xml:space="preserve">
+    <value>Private Dokumente sieht nur du. Das gilt für das Dokument, das mit „Fertig“ entsteht.</value>
+  </data>
+  <data name="CamStart" xml:space="preserve">
+    <value>Kamera starten</value>
+  </data>
+  <data name="CamStarting" xml:space="preserve">
+    <value>Kamera und Kantenerkennung werden geladen. Beim ersten Mal kann das etwas dauern.</value>
+  </data>
+  <data name="CamReady" xml:space="preserve">
+    <value>Die Kamera läuft. Halte das Handy über das Blatt.</value>
+  </data>
+  <data name="CamCapture" xml:space="preserve">
+    <value>Auslösen</value>
+  </data>
+  <data name="CamDiscard" xml:space="preserve">
+    <value>Letzte Seite verwerfen</value>
+  </data>
+  <data name="CamDone" xml:space="preserve">
+    <value>Fertig</value>
+  </data>
+  <data name="CamPagesHeading" xml:space="preserve">
+    <value>Aufgenommene Seiten</value>
+  </data>
+  <data name="CamNoPages" xml:space="preserve">
+    <value>Noch keine Seite aufgenommen.</value>
+  </data>
+  <data name="CamPageItem" xml:space="preserve">
+    <value>Seite {0}</value>
+  </data>
+  <data name="CamPageTaken" xml:space="preserve">
+    <value>Seite {0} aufgenommen. Lege die nächste Seite hin oder wähle „Fertig“.</value>
+  </data>
+  <data name="CamDiscarded" xml:space="preserve">
+    <value>Letzte Seite verworfen. Seiten jetzt: {0}.</value>
+  </data>
+  <data name="CamNothingTaken" xml:space="preserve">
+    <value>Es wurde keine Seite aufgenommen.</value>
+  </data>
+  <data name="CamTooManyPages" xml:space="preserve">
+    <value>Mehr als {0} Seiten passen nicht in ein Dokument. Diese Seite wurde nicht aufgenommen. Wähle „Fertig“.</value>
+  </data>
+  <data name="CamUploading" xml:space="preserve">
+    <value>Das Dokument wird gespeichert. Seiten: {0}.</value>
+  </data>
+  <data name="CamSavedShared" xml:space="preserve">
+    <value>Das Dokument wurde geteilt gespeichert und wartet auf die Verarbeitung. Seiten: {0}.</value>
+  </data>
+  <data name="CamSavedPrivate" xml:space="preserve">
+    <value>Das Dokument wurde privat gespeichert und wartet auf die Verarbeitung. Seiten: {0}.</value>
+  </data>
+  <data name="CamShowInList" xml:space="preserve">
+    <value>Neues Dokument in der Dokumentenliste zeigen</value>
+  </data>
+  <data name="CamShowExisting" xml:space="preserve">
+    <value>Vorhandenes Dokument ansehen</value>
+  </data>
+  <data name="CamUploadFailed" xml:space="preserve">
+    <value>Das Dokument wurde nicht gespeichert: {0} Die Seiten sind noch da; wähle noch einmal „Fertig“.</value>
+  </data>
+  <data name="CamUploadInstead" xml:space="preserve">
+    <value>Stattdessen eine Datei hochladen</value>
+  </data>
+  <data name="CamErrorDenied" xml:space="preserve">
+    <value>Die Kamera ist nicht erlaubt. Erlaube den Kamerazugriff in den Einstellungen des Browsers und lade die Seite neu.</value>
+  </data>
+  <data name="CamErrorNoCamera" xml:space="preserve">
+    <value>Es wurde keine Kamera gefunden.</value>
+  </data>
+  <data name="CamErrorBusy" xml:space="preserve">
+    <value>Die Kamera wird gerade von einer anderen App benutzt. Schließe die App und versuche es noch einmal.</value>
+  </data>
+  <data name="CamErrorUnsupported" xml:space="preserve">
+    <value>Dieser Browser erlaubt hier keine Kamera. Öffne NoMorePaper über seine https-Adresse.</value>
+  </data>
+  <data name="CamErrorOpenCv" xml:space="preserve">
+    <value>Die Kantenerkennung konnte nicht geladen werden.</value>
+  </data>
+  <data name="CamErrorFailed" xml:space="preserve">
+    <value>Die Kamera konnte nicht gestartet werden.</value>
+  </data>
+  <data name="CamErrorEnded" xml:space="preserve">
+    <value>Die Kamera wurde beendet.</value>
+  </data>
+  <data name="CamErrorCapture" xml:space="preserve">
+    <value>Die Seite konnte nicht aufgenommen werden. Versuche es noch einmal.</value>
+  </data>
+  <data name="CamErrorRejected" xml:space="preserve">
+    <value>Der Server hat die Seiten nicht angenommen.</value>
+  </data>
+  <data name="CamErrorTooLarge" xml:space="preserve">
+    <value>Die Seiten sind zu groß (je Seite höchstens 15 MB, zusammen 150 MB).</value>
+  </data>
+  <data name="CamHintSearch" xml:space="preserve">
+    <value>Kein Blatt im Bild.</value>
+  </data>
+  <data name="CamHintFarther" xml:space="preserve">
+    <value>Weiter weg.</value>
+  </data>
+  <data name="CamHintCloser" xml:space="preserve">
+    <value>Näher ran.</value>
+  </data>
+  <data name="CamHintLeft" xml:space="preserve">
+    <value>Weiter nach links.</value>
+  </data>
+  <data name="CamHintRight" xml:space="preserve">
+    <value>Weiter nach rechts.</value>
+  </data>
+  <data name="CamHintUp" xml:space="preserve">
+    <value>Weiter nach oben.</value>
+  </data>
+  <data name="CamHintDown" xml:space="preserve">
+    <value>Weiter nach unten.</value>
+  </data>
+  <data name="CamHintHold" xml:space="preserve">
+    <value>Ruhig halten.</value>
+  </data>
+  <data name="CamHintLabel" xml:space="preserve">
+    <value>Hinweis: {0}</value>
+  </data>
 </root>

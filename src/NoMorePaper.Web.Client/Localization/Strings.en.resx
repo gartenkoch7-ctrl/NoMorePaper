@@ -1068,4 +1068,142 @@
   <data name="InpErrorSenderTaken" xml:space="preserve">
     <value>Another account has this sender address already.</value>
   </data>
+  <data name="NavCamera" xml:space="preserve">
+    <value>Camera</value>
+  </data>
+  <data name="CamTitle" xml:space="preserve">
+    <value>Camera – NoMorePaper</value>
+  </data>
+  <data name="CamHeading" xml:space="preserve">
+    <value>Capture with the camera</value>
+  </data>
+  <data name="CamIntro" xml:space="preserve">
+    <value>Put the sheet on a dark surface and hold the phone above it. The app tells you where to move the phone and takes the page by itself as soon as it is fully visible and the picture is still. Several pages become one document.</value>
+  </data>
+  <data name="CamTones" xml:space="preserve">
+    <value>Tones</value>
+  </data>
+  <data name="CamTonesHint" xml:space="preserve">
+    <value>Like a parking aid: the higher and faster the tones, the better the sheet is in the picture. Applies to this device only.</value>
+  </data>
+  <data name="CamPrivateHint" xml:space="preserve">
+    <value>Only you see private documents. This applies to the document made with &quot;Done&quot;.</value>
+  </data>
+  <data name="CamStart" xml:space="preserve">
+    <value>Start camera</value>
+  </data>
+  <data name="CamStarting" xml:space="preserve">
+    <value>Loading the camera and the edge detection. The first time this can take a while.</value>
+  </data>
+  <data name="CamReady" xml:space="preserve">
+    <value>The camera is on. Hold the phone above the sheet.</value>
+  </data>
+  <data name="CamCapture" xml:space="preserve">
+    <value>Take picture</value>
+  </data>
+  <data name="CamDiscard" xml:space="preserve">
+    <value>Discard last page</value>
+  </data>
+  <data name="CamDone" xml:space="preserve">
+    <value>Done</value>
+  </data>
+  <data name="CamPagesHeading" xml:space="preserve">
+    <value>Pages taken</value>
+  </data>
+  <data name="CamNoPages" xml:space="preserve">
+    <value>No page taken yet.</value>
+  </data>
+  <data name="CamPageItem" xml:space="preserve">
+    <value>Page {0}</value>
+  </data>
+  <data name="CamPageTaken" xml:space="preserve">
+    <value>Page {0} taken. Put down the next page or choose &quot;Done&quot;.</value>
+  </data>
+  <data name="CamDiscarded" xml:space="preserve">
+    <value>Last page discarded. Pages now: {0}.</value>
+  </data>
+  <data name="CamNothingTaken" xml:space="preserve">
+    <value>No page was taken.</value>
+  </data>
+  <data name="CamTooManyPages" xml:space="preserve">
+    <value>More than {0} pages do not fit into one document. This page was not taken. Choose &quot;Done&quot;.</value>
+  </data>
+  <data name="CamUploading" xml:space="preserve">
+    <value>Saving the document. Pages: {0}.</value>
+  </data>
+  <data name="CamSavedShared" xml:space="preserve">
+    <value>The document was saved as shared and is waiting to be processed. Pages: {0}.</value>
+  </data>
+  <data name="CamSavedPrivate" xml:space="preserve">
+    <value>The document was saved as private and is waiting to be processed. Pages: {0}.</value>
+  </data>
+  <data name="CamShowInList" xml:space="preserve">
+    <value>Show the new document in the document list</value>
+  </data>
+  <data name="CamShowExisting" xml:space="preserve">
+    <value>View the existing document</value>
+  </data>
+  <data name="CamUploadFailed" xml:space="preserve">
+    <value>The document was not saved: {0} The pages are still here; choose &quot;Done&quot; again.</value>
+  </data>
+  <data name="CamUploadInstead" xml:space="preserve">
+    <value>Upload a file instead</value>
+  </data>
+  <data name="CamErrorDenied" xml:space="preserve">
+    <value>Camera access is not allowed. Allow it in the browser settings and reload the page.</value>
+  </data>
+  <data name="CamErrorNoCamera" xml:space="preserve">
+    <value>No camera was found.</value>
+  </data>
+  <data name="CamErrorBusy" xml:space="preserve">
+    <value>Another app is using the camera. Close it and try again.</value>
+  </data>
+  <data name="CamErrorUnsupported" xml:space="preserve">
+    <value>This browser does not allow the camera here. Open NoMorePaper through its https address.</value>
+  </data>
+  <data name="CamErrorOpenCv" xml:space="preserve">
+    <value>The edge detection could not be loaded.</value>
+  </data>
+  <data name="CamErrorFailed" xml:space="preserve">
+    <value>The camera could not be started.</value>
+  </data>
+  <data name="CamErrorEnded" xml:space="preserve">
+    <value>The camera stopped.</value>
+  </data>
+  <data name="CamErrorCapture" xml:space="preserve">
+    <value>The page could not be taken. Try again.</value>
+  </data>
+  <data name="CamErrorRejected" xml:space="preserve">
+    <value>The server did not accept the pages.</value>
+  </data>
+  <data name="CamErrorTooLarge" xml:space="preserve">
+    <value>The pages are too large (at most 15 MB each, 150 MB together).</value>
+  </data>
+  <data name="CamHintSearch" xml:space="preserve">
+    <value>No sheet in the picture.</value>
+  </data>
+  <data name="CamHintFarther" xml:space="preserve">
+    <value>Further away.</value>
+  </data>
+  <data name="CamHintCloser" xml:space="preserve">
+    <value>Closer.</value>
+  </data>
+  <data name="CamHintLeft" xml:space="preserve">
+    <value>Move left.</value>
+  </data>
+  <data name="CamHintRight" xml:space="preserve">
+    <value>Move right.</value>
+  </data>
+  <data name="CamHintUp" xml:space="preserve">
+    <value>Move up.</value>
+  </data>
+  <data name="CamHintDown" xml:space="preserve">
+    <value>Move down.</value>
+  </data>
+  <data name="CamHintHold" xml:space="preserve">
+    <value>Hold still.</value>
+  </data>
+  <data name="CamHintLabel" xml:space="preserve">
+    <value>Hint: {0}</value>
+  </data>
 </root>

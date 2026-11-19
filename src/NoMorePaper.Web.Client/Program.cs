@@ -4,6 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 using MudBlazor.Services;
 using NoMorePaper.Web.Client;
 using NoMorePaper.Web.Client.Accounts;
+using NoMorePaper.Web.Client.Camera;
 using NoMorePaper.Web.Client.Classification;
 using NoMorePaper.Web.Client.Documents;
 using NoMorePaper.Web.Client.Inputs;
@@ -33,6 +34,7 @@ builder.Services.AddScoped<InputsApi>();
 builder.Services.AddScoped<ViewerInterop>();
 builder.Services.AddScoped<ThumbnailRenderer>();
 builder.Services.AddSingleton<ViewerPreferences>();
+builder.Services.AddCamera();
 
 var host = builder.Build();
 

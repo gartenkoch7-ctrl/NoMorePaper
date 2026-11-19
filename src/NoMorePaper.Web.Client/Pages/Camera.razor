@@ -1,0 +1,99 @@
+@page "/kamera"
+
+<PageTitle>@L["CamTitle"]</PageTitle>
+
+<MudText Typo="Typo.h1">@L["CamHeading"]</MudText>
+
+<p id="cam-intro">@L["CamIntro"]</p>
+
+@* Hints, pages taken and results: polite, so a hint never cuts off the screen reader. Errors interrupt. *@
+<LiveRegion @ref="_status" Class="camera-status" />
+<LiveRegion @ref="_alert" Assertive="true" Class="form-error" />
+
+@if (_error is { } errorCode)
+{
+    @* Stays on the page after the announcement, with a symbol and in words, and offers the upload instead. *@
+    <div class="error-box camera-error" data-code="@errorCode">
+        <MudIcon Icon="@Icons.Material.Filled.Error" />
+        <div>
+            <p>@ErrorText(errorCode)</p>
+            <p><a href="hochladen">@L["CamUploadInstead"]</a></p>
+        </div>
+    </div>
+}
+
+<div class="form-check">
+    <input id="cam-tones" type="checkbox" checked="@_tones" @onchange="OnTonesChangedAsync" aria-describedby="cam-tones-hint" />
+    <label for="cam-tones">@L["CamTones"]</label>
+</div>
+<p id="cam-tones-hint" class="form-hint">@L["CamTonesHint"]</p>
+
+<div class="form-check">
+    <input id="cam-private" type="checkbox" @bind="_private" aria-describedby="cam-private-hint" />
+    <label for="cam-private">@L["PrivateLabel"]</label>
+</div>
+<p id="cam-private-hint" class="form-hint">@L["CamPrivateHint"]</p>
+
+@if (!_running)
+{
+    <div class="button-row camera-start">
+        <button id="cam-start" type="button" class="nmp-button" disabled="@_starting" @onclick="StartAsync">@L["CamStart"]</button>
+    </div>
+}
+
+@* Only for sighted helpers and low vision; the screen reader gets the hints instead of the picture. *@
+<div class="camera-stage" @ref="_host" hidden="@(!_starting && !_running)"
+     style="margin: 1rem 0; border: 3px solid var(--nmp-text); max-width: 48rem;">
+    <video aria-hidden="true" playsinline muted style="display: block; width: 100%; max-height: 60vh; object-fit: contain; background: #000;"></video>
+</div>
+
+@if (_running && _hint is not null)
+{
+    @* The current hint as text for low vision; not a live region (the status above speaks it, paced). *@
+    <p class="camera-hint">@L["CamHintLabel", _hint]</p>
+}
+
+@if (_running || _pages > 0)
+{
+    @* "Fertig" and "verwerfen" stay usable when the camera stopped by itself, so no page is lost. *@
+    <div class="button-row camera-actions">
+        @if (_running)
+        {
+            <button id="cam-capture" type="button" class="nmp-button" @ref="_captureButton" disabled="@_uploading" @onclick="CaptureAsync">@L["CamCapture"]</button>
+        }
+        <button id="cam-discard" type="button" class="nmp-button" disabled="@(_pages == 0 || _uploading)" @onclick="DiscardAsync">@L["CamDiscard"]</button>
+        <button id="cam-done" type="button" class="nmp-button" disabled="@(_pages == 0 || _uploading)" @onclick="DoneAsync">@L["CamDone"]</button>
+    </div>
+}
+
+<MudText Typo="Typo.h2">@L["CamPagesHeading"]</MudText>
+@if (_pages == 0)
+{
+    <p class="camera-no-pages">@L["CamNoPages"]</p>
+}
+else
+{
+    <ol class="camera-pages">
+        @for (var page = 1; page <= _pages; page++)
+        {
+            <li>@L["CamPageItem", page]</li>
+        }
+    </ol>
+}
+
+@if (_saved is { } saved)
+{
+    @* Takes the focus after "Fertig" when the camera is off: the pressed button is disabled then. *@
+    <div class="success-box camera-saved" tabindex="-1" @ref="_savedBox">
+        <MudIcon Icon="@(saved.IsDuplicate ? Icons.Material.Filled.Info : Icons.Material.Filled.CheckCircle)" />
+        <div>
+            <p>@saved.Message</p>
+            @if (saved.Id is { } id)
+            {
+                <a href="@(saved.IsDuplicate ? DocumentLinks.Viewer(id) : DocumentLinks.Of(id))">
+                    @L[saved.IsDuplicate ? "CamShowExisting" : "CamShowInList"]
+                </a>
+            }
+        </div>
+    </div>
+}

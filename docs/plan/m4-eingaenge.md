@@ -93,17 +93,17 @@ Daraus abgeleitet:
 - [x] ADR-0024 (Eingänge: Bibliotheken, Samba, Spam-Prüfung), Katalogblöcke reservieren
 
 ### A. Kamera in der PWA
-- [ ] Seite `/kamera` (Navigation „Kamera“), Rückkamera per `getUserMedia`, OpenCV.js lokal unter
+- [x] Seite `/kamera` (Navigation „Kamera“), Rückkamera per `getUserMedia`, OpenCV.js lokal unter
       `wwwroot/lib/opencv` (Apache-2.0, nur auf dieser Seite nachgeladen)
-- [ ] Kantenerkennung je Videobild (verkleinert, ~8 Bilder/s), Viereck → Hinweis: „weiter nach links/
+- [x] Kantenerkennung je Videobild (verkleinert, ~8 Bilder/s), Viereck → Hinweis: „weiter nach links/
       rechts/oben/unten“, „näher ran“, „weiter weg“, „ruhig halten“; Ansage höchstens alle 2,5 s
-- [ ] Töne (WebAudio): Tonhöhe und Takt nach Güte; Auslöse-Klick; `navigator.vibrate` wo vorhanden;
+- [x] Töne (WebAudio): Tonhöhe und Takt nach Güte; Auslöse-Klick; `navigator.vibrate` wo vorhanden;
       Töne abschaltbar (Einstellung im Browser)
-- [ ] Auto-Auslöser: vier Kanten, Fläche ≥ 35 % des Bildes, 0,8 s ruhig → Aufnahme in voller Auflösung,
+- [x] Auto-Auslöser: vier Kanten, Fläche ≥ 35 % des Bildes, 0,8 s ruhig → Aufnahme in voller Auflösung,
       Entzerrung (Perspektive) → JPEG; Ansage „Seite N aufgenommen“; manueller Auslöser zusätzlich
-- [ ] Seitenliste mit „letzte Seite verwerfen“, „Fertig“; Privat-Schalter vorbelegt aus der Konto-Einstellung
-- [ ] Server: `POST /api/documents/pages` (1–50 JPEGs) → `IPdfComposer` → `ReceiveDocument`, Quelle `Camera`
-- [ ] Ohne Kamera/Berechtigung: klare Meldung und Verweis auf „Hochladen“
+- [x] Seitenliste mit „letzte Seite verwerfen“, „Fertig“; Privat-Schalter vorbelegt aus der Konto-Einstellung
+- [x] Server: `POST /api/documents/pages` (1–50 JPEGs) → `IPdfComposer` → `ReceiveDocument`, Quelle `Camera`
+- [x] Ohne Kamera/Berechtigung: klare Meldung und Verweis auf „Hochladen“
 
 ### B. Scanner-Ordner
 - [ ] `docker-compose.yml`: Dienst `samba` (Image mit fester Version, Benutzer `scanner`, Passwort aus
