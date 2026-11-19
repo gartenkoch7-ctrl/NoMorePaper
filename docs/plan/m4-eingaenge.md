@@ -106,15 +106,15 @@ Daraus abgeleitet:
 - [ ] Ohne Kamera/Berechtigung: klare Meldung und Verweis auf „Hochladen“
 
 ### B. Scanner-Ordner
-- [ ] `docker-compose.yml`: Dienst `samba` (Image mit fester Version, Benutzer `scanner`, Passwort aus
+- [x] `docker-compose.yml`: Dienst `samba` (Image mit fester Version, Benutzer `scanner`, Passwort aus
       `.env`), Freigabe `scan` auf Volume `scaninbox`, Port 445 nur an `NOMOREPAPER_SMB_BIND` (LAN-/
       Tailscale-Adresse, nie `0.0.0.0` ab Werk); Worker bindet `scaninbox` ein
-- [ ] `ScannerFolderSource` (alle 30 s): legt je Konto einen Unterordner (Anmeldename) an; eine Datei gilt
+- [x] `ScannerFolderSource` (alle 30 s): legt je Konto einen Unterordner (Anmeldename) an; eine Datei gilt
       als fertig, wenn Größe und Änderungszeit über zwei Durchläufe gleich sind; erkannter Typ (PDF, JPG,
       PNG, HEIC), sonst `Fehler/`; nach erfolgreicher Annahme löschen
-- [ ] Datei im Wurzelordner → Verwalter, privat, `NeedsOwnerCheck`; Ordner eines entfernten Kontos →
+- [x] Datei im Wurzelordner → Verwalter, privat, `NeedsOwnerCheck`; Ordner eines entfernten Kontos →
       Dateien bleiben, Meldung auf „Eingänge“
-- [ ] Gelöscht wird erst nach erfolgreicher Annahme (Commit); Samba im Compose-Profil `scanner`
+- [x] Gelöscht wird erst nach erfolgreicher Annahme (Commit); Samba im Compose-Profil `scanner`
 
 ### C. Mail (IMAP)
 - [ ] `MailKit` (MIT): Verbindung, Ordner `INBOX`, `Verarbeitet`, `NoMorePaper-Spam` (werden angelegt)

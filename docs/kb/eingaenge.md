@@ -127,6 +127,48 @@ Stand: Schritt 0 (gemeinsame Bausteine). Die Spuren A–E ergänzen ihre Abschni
   4 min). Danach `LlmBusyException`: `RecognizeDocument` gibt den Auftrag zurück, **ohne** Fehlversuch zu
   zählen (Log 5214); er ist sofort wieder fällig.
 
+## Scanner-Ordner (Spur B)
+- `ScannerFolderSource` (Infrastructure, `Inputs/ScannerFolder/`), alle **30 s**, nur wenn
+  `NoMorePaper:ScannerFolder:Path` gesetzt ist (Compose: `/scan`, Volume `scaninbox`). Ein relativer Pfad
+  lässt nur diesen Eingang scheitern (`Failed`), nicht den Worker. Fehlt der Ordner → `Unreachable`.
+- **Unterordner je Konto** (`AccountFolders`), bei jedem Lauf neu aus den bestehenden Konten: Anmeldename klein,
+  wenn er nur `a–z`, `0–9`, `.`, `_`, `-` enthält und mit Buchstabe oder Ziffer beginnt und endet (nie
+  versteckt, nie `..`, nie `Fehler`), sonst die Konto-Id. Fehlende Ordner legt der Worker an (Log 3603).
+- **Eine Regel für fremde Ordner:** jeder Unterordner ohne Konto (entferntes Konto, von Hand angelegt, auch
+  `Anna` neben `anna` – Linux unterscheidet Groß/Klein) wird nicht gelesen, seine Dateien bleiben. Der Lauf
+  meldet `UnknownFolder` (braucht Aufmerksamkeit) auf der Zeile des **ganzen** Scanner-Eingangs, nie mit einer
+  Konto-Id; die Anzahl steht nur im Log 3604 (`InputProblem` hat kein Zahlfeld). Versteckte Ordner und
+  `Fehler/` werden still übergangen.
+- **Wurzel** (`\\<host>\scan` direkt): Besitzer unbekannt → Verwalter, privat, `NeedsOwnerCheck`.
+  **Kontoordner:** das Konto, privat nach seiner Einstellung.
+- Gelesen werden nur Dateien **direkt** in Wurzel und Kontoordnern; tiefere Ordner, versteckte Dateien (auch
+  `._*` von macOS) und Office-Sperrdateien (`~$*`) bleiben unberührt.
+- **Fertig geschrieben** (`StableFiles`, Singleton): Größe und Änderungszeit in zwei Läufen gleich, nicht leer
+  **und** die Datei lässt sich exklusiv öffnen. Eine neue Datei wird also nach 30–60 s eingelesen; nach einem
+  Neustart wartet jede Datei einen Lauf länger. Das exklusive Öffnen hilft unter Linux nur gegen Programme, die
+  sperren (`flock`) – Samba tut das ab Werk nicht; maßgeblich sind Größe und Zeit. **Leere Dateien** bleiben
+  liegen: manche Scanner legen die Datei an und schreiben erst nach dem letzten Blatt.
+- **Typ** nur aus den ersten Bytes (`FileSignature`: PDF, JPEG, PNG, HEIC). Alles andere wandert nach `Fehler/<JJJJMMTT-HHmmss>[-n]-<Name>` (UTC; Zähler bei gleichem Namen; zu lange Namen werden auf
+  220 Bytes gekürzt, Endung bleibt). Log 3601 ohne Namen.
+- **Löschen erst nach dem Commit:** nur bei `Received` oder `AlreadyThere` und nur, wenn Größe und
+  Änderungszeit noch die gelesene Datei zeigen (sonst hat der Scanner unter dem Namen neu geschrieben → Datei
+  bleibt, Log 3607). Scheitert das Löschen (3602), verwirft der nächste Lauf sie als eigene Dublette.
+  `OwnerGone`/`NoAdministrator` und jeder Fehler der Annahme (3605, Problem `Failed`) lassen die Datei liegen.
+- **Dublette:** nur gegen die **eigenen** Dokumente des Besitzers (`DuplicateScope.Owned`); ein geteiltes
+  Dokument eines anderen Kontos hält die Datei nicht auf.
+- Samba-Container und Einrichtung am Scanner: [betrieb.md](betrieb.md), Image-Wahl: ADR-0024 (Nachtrag).
+
+### Probelauf 2026-11-19 (lokal, Windows + Rancher Desktop)
+- `docker compose --profile scanner up -d --build samba worker` mit eigenem Projektnamen, ohne Ollama und
+  **ohne** veröffentlichten Port 445 (unter Windows belegt das System den Port; Override `ports: !reset []`).
+- Haushalt über `POST /api/setup` (Verwalter `Anna`) → Worker legt `anna/` an (3603), Besitzer uid 1654.
+- `smbclient` aus dem Samba-Image im Compose-Netz: `anna/brief.pdf`, `anna/notiz.txt`, `root.pdf` abgelegt.
+  Nach zwei Läufen: zwei Dokumente (`anna/` geteilt; Wurzel privat mit `needs_owner_check`), `notiz.txt` in
+  `Fehler/20261119-101954-notiz.txt`, Ordner sonst leer.
+- Gast (`-N`) → `NT_STATUS_ACCESS_DENIED`; SMB1 (`NT1`) → keine Protokolleinigung. Ohne
+  `NOMOREPAPER_SMB_PASSWORD` bricht der Start ab (Meldung im Log), smbd startet nicht.
+- Offen: echter Scanner im LAN über `NOMOREPAPER_SMB_BIND` auf dem Proxmox-Host (Nutzer).
+
 ## Offen (Spuren)
 - A Kamera, B Scanner-Ordner, C Mail, D iCloud (nach Test mit echter Apple-ID), E Seite „Eingänge“ und
   Einstellungen: siehe [Detailplan](../plan/features/m4-eingaenge-detail.md).

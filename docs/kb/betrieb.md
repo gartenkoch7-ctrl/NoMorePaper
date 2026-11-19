@@ -56,6 +56,31 @@ tailscale serve status
 - ⚠️ unverifiziert: Rancher Desktop unter Windows liefert Verbindungen von `192.168.127.1`. Proxmox/Linux mit echtem `tailscale serve` ist noch nicht getestet.
 - Siehe ADR-0020 (Grundsatz) und [konten.md](konten.md) (Cookies hängen an HTTPS).
 
+## Scanner-Ordner (Samba)
+Netzwerk-Scanner legen ihre Scans per SMB in die Freigabe `scan`; der Worker liest sie ein
+([eingaenge.md](eingaenge.md), ADR-0024). Samba läuft nur mit dem Compose-Profil `scanner`.
+
+1. In `.env`: `NOMOREPAPER_SMB_PASSWORD` (lang, zufällig) und `NOMOREPAPER_SMB_BIND` = LAN- oder
+   Tailscale-Adresse des Servers (z. B. `192.168.1.20`). **Nie `0.0.0.0`**, nie ins Internet freigeben;
+   Port 445 nur im LAN bzw. Tailnet. Ohne Passwort startet der Container nicht (Meldung im Log, Neustart-Schleife).
+2. `docker compose --profile scanner up -d` (auch bei jedem späteren `up`, sonst bleibt Samba aus).
+3. Am Scanner als Ziel `\\<host>\scan\<anmeldename>` eintragen (z. B. `\\nomorepaper\scan\anna`),
+   Benutzer `scanner`, das Passwort aus `.env`. Die Unterordner legt der Worker je Konto an (Anmeldename
+   klein; bei Sonderzeichen die Konto-Id). Direkt in `\\<host>\scan` abgelegte Dateien gehören dem
+   Verwalter und stehen bei ihm in „Zu prüfen“.
+4. Nicht lesbare Dateien (kein PDF, JPEG, PNG, HEIC) liegen danach in `\\<host>\scan\Fehler`.
+
+- **Nur SMB2/3**, kein SMB1, kein Gastzugang. Scanner, die nur SMB1 können, werden nicht unterstützt
+  (Sicherheitsrisiko) – dann per App hochladen.
+- Image `crazymax/samba` (MIT, Samba selbst GPL-3.0) mit fester Version und Digest, Wahl im Nachtrag von
+  ADR-0024. Samba erlaubt zusätzlich nur Adressen aus `127/8`, `10/8`, `172.16/12`, `192.168/16` und dem
+  Tailscale-Netz `100.64/10`.
+- Benutzer `scanner` hat uid/gid **1654** (= `APP_UID` des Worker-Images), damit der Worker die Dateien
+  löschen darf. Volume `scaninbox` (Samba `/scan`, Worker `/scan`).
+- Unter **Windows** ist Port 445 vom System belegt; dort Samba nur ohne veröffentlichten Port testen
+  (siehe Probelauf in [eingaenge.md](eingaenge.md)).
+- Braucht Docker Compose ≥ 2.23 (`configs` mit `content`, Secrets aus Umgebungsvariablen).
+
 ## Prüfliste nach Änderungen
 - [ ] `docker compose ps`: `db`, `server`, `worker` healthy.
 - [ ] Server-Log enthält „Key ring is encrypted with the certificate …“ (Ereignis 3400), keine Warnung 3401.
@@ -66,3 +91,6 @@ tailscale serve status
 - [ ] `http://127.0.0.1:8080/health` antwortet; der MagicDNS-Name über HTTPS antwortet.
 - [ ] Ein fremder Hostname wird mit 400 abgelehnt (`AllowedHosts`).
 - [ ] Zertifikat und Passwort liegen getrennt von den Backups.
+- [ ] Mit Scanner: `docker compose --profile scanner ps` zeigt `samba` healthy; `smbclient //<host>/scan -N -c ls`
+      (ohne Anmeldung) endet mit `NT_STATUS_ACCESS_DENIED`; eine Testdatei in `\\<host>\scan\<anmeldename>` ist nach etwa einer Minute weg
+      und als Dokument da.

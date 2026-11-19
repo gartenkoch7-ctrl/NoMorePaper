@@ -7,6 +7,7 @@ using NoMorePaper.Application.Inputs;
 using NoMorePaper.Application.Security;
 using NoMorePaper.Infrastructure.Documents.Pdf;
 using NoMorePaper.Infrastructure.Inputs;
+using NoMorePaper.Infrastructure.Inputs.ScannerFolder;
 using NoMorePaper.Infrastructure.Security;
 
 namespace NoMorePaper.Infrastructure.Composition;
@@ -37,6 +38,18 @@ public static class InputRegistration
     public static IServiceCollection AddInputSources(this IServiceCollection services, IConfiguration configuration)
     {
         ArgumentNullException.ThrowIfNull(configuration);
+
+        // Scanner folder: only with a path. Checked when building the source, so a wrong path fails that
+        // input only (Failed on the page "Inputs") and not the Worker. Files' state spans the runs.
+        if (ScannerFolderSettings.IsEnabled(configuration))
+        {
+            services.AddSingleton(_ => ScannerFolderSettings.Read(configuration));
+            services.AddSingleton<StableFiles>();
+            services.AddScoped<AccountFolders>();
+            services.AddScoped<ScannerFileIntake>();
+            services.AddInputSource<ScannerFolderSource>(InputKind.ScannerFolder);
+        }
+
         return services;
     }
 

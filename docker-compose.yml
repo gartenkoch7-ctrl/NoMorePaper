@@ -81,6 +81,14 @@ services:
       NoMorePaper__Recognition__Endpoint: http://ollama:11434
       NoMorePaper__Recognition__Model: ${NOMOREPAPER_LLM_MODEL:-ministral-3:8b-instruct-2512-q4_K_M}
       NoMorePaper__Recognition__NumThread: ${NOMOREPAPER_LLM_THREADS:-4}
+      # Scanner folder (docs/kb/eingaenge.md): the volume the samba service shares; empty without --profile scanner.
+      NoMorePaper__ScannerFolder__Path: /scan
+    # The whole list again: a service's own volumes replace the anchor's, YAML merge does not join lists.
+    volumes:
+      - data:/data
+      - dpkeys:/dpkeys
+      - ${NOMOREPAPER_KEYRING_CERT:?Set NOMOREPAPER_KEYRING_CERT in .env (scripts/new-keyring-certificate.ps1)}:/run/secrets/keyring.pfx:ro
+      - scaninbox:/scan
     # No published port: /health is only for the container healthcheck.
     depends_on:
       server:
@@ -112,8 +120,93 @@ services:
       - ollama:/root/.ollama
     # No published port: only the Worker reaches it on the compose network.
 
+  # Scanner folder (ADR-0024, docs/kb/betrieb.md): SMB share "scan" for network scanners, only with
+  # `docker compose --profile scanner up -d`. Samba (GPL) runs as a program of its own in this container.
+  samba:
+    profiles: ["scanner"]
+    image: crazymax/samba:4.23.8@sha256:b37f7af97c773eddb593537f64da6389e5ee6695bcecf44f3ba1a8a6bcf34125
+    restart: unless-stopped
+    environment:
+      CONFIG_FILE: /etc/nomorepaper/samba.yml
+      # LAN, Docker and Tailscale (100.64.0.0/10) clients; everything else is refused by Samba itself.
+      SAMBA_HOSTS_ALLOW: 127.0.0.0/8 10.0.0.0/8 172.16.0.0/12 192.168.0.0/16 100.64.0.0/10
+      # A failing start script (e.g. no password) ends the container, which then restarts and says why
+      # in its log, instead of serving without it.
+      S6_BEHAVIOUR_IF_STAGE2_FAILS: "2"
+    configs:
+      - source: samba-config
+        target: /etc/nomorepaper/samba.yml
+      - source: samba-prepare
+        target: /etc/cont-init.d/00-nomorepaper.sh
+        mode: 0555
+    secrets:
+      - samba-password
+    # Samba's own state (password database, locks) is rebuilt from the config at every start.
+    tmpfs:
+      - /data
+    volumes:
+      - scaninbox:/scan
+    ports:
+      # Never 0.0.0.0 by default: set NOMOREPAPER_SMB_BIND to the server's LAN or Tailscale address.
+      - "${NOMOREPAPER_SMB_BIND:-127.0.0.1}:445:445"
+    cap_drop:
+      - ALL
+    cap_add:
+      - CHOWN
+      - DAC_OVERRIDE
+      - FOWNER
+      - SETUID
+      - SETGID
+      - NET_BIND_SERVICE
+    security_opt:
+      - no-new-privileges:true
+
+configs:
+  # User "scanner" with uid/gid 1654 = APP_UID of mcr.microsoft.com/dotnet/aspnet:10.0, the user of the
+  # Worker (not visible to compose): files written over SMB belong to the Worker, which deletes them after
+  # taking them in. SMB2/3 only, no guests.
+  samba-config:
+    content: |
+      auth:
+        - user: scanner
+          group: scanner
+          uid: 1654
+          gid: 1654
+          password_file: /run/secrets/samba-password
+      global:
+        - "server min protocol = SMB2_02"
+        - "map to guest = never"
+        - "restrict anonymous = 2"
+      share:
+        - name: scan
+          path: /scan
+          browsable: "yes"
+          readonly: "no"
+          guestok: "no"
+          validusers: scanner
+          writelist: scanner
+          options:
+            - "force user = scanner"
+            - "force group = scanner"
+  # Runs before the image's own start scripts: refuses an empty password and hands the shared volume to
+  # uid 1654, whichever container created it first.
+  samba-prepare:
+    content: |
+      #!/bin/sh
+      if [ ! -s /run/secrets/samba-password ]; then
+        echo "NOMOREPAPER_SMB_PASSWORD is not set (.env); the share is not started." >&2
+        exit 1
+      fi
+      chown 1654:1654 /scan
+
+secrets:
+  samba-password:
+    environment: NOMOREPAPER_SMB_PASSWORD
+
 volumes:
   data:
   pgdata:
   dpkeys:
   ollama:
+  # Inbox of the scanner folder, shared by samba and the Worker.
+  scaninbox:

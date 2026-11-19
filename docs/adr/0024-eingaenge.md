@@ -57,3 +57,17 @@ die Kamera muss für einen blinden Hauptnutzer bedienbar sein (ADR-0010). Grilli
   „Eingänge“ und `betrieb.md` weisen auf den Ordner hin.
 - Der Samba-Port ist eine neue Angriffsfläche im LAN; Passwort aus `.env`, kein Gastzugang, kein SMB1.
 - OpenCV.js macht die Kamera-Seite beim ersten Öffnen ~8–10 MB schwer.
+
+## Nachtrag 2026-11-19: Samba-Image (Spur B)
+- **Gewählt:** `crazymax/samba:4.23.8` mit Digest
+  `sha256:b37f7af97c773eddb593537f64da6389e5ee6695bcecf44f3ba1a8a6bcf34125` (Image vom 2026-07-17,
+  Quelle github.com/crazy-max/docker-samba). Gepflegt (regelmäßige Samba-Versionen), Alpine-basiert,
+  Einrichtung über eine YAML-Datei mit `password_file` – das Passwort kommt als Compose-Secret aus `.env`
+  und steht nie in der Konfiguration.
+- **Lizenzen:** Die Image-Skripte stehen unter **MIT** (Label `org.opencontainers.image.licenses`); Samba
+  selbst unter **GPL-3.0**. Beides läuft nur im eigenen Container, wird nicht gelinkt und nicht mit unserem
+  Code verteilt (siehe Entscheidung oben).
+- **Verworfen:** `dperson/samba` (seit Jahren ohne Pflege); `ghcr.io/servercontainers/samba` (gepflegt, aber
+  ohne erkennbare Lizenz im Repository, Passwort nur als Umgebungsvariable).
+- Aktualisieren: neue Version **und** neuen Digest in `docker-compose.yml` eintragen, danach die Prüfliste
+  in [betrieb.md](../kb/betrieb.md) („Scanner-Ordner“).
