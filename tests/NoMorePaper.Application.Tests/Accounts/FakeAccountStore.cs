@@ -9,6 +9,9 @@ internal sealed class FakeAccountStore : IAccountStore
 
     public bool HasAccounts { get; set; }
 
+    /// <summary>What <see cref="ListAsync"/> answers.</summary>
+    public List<Account> Members { get; } = [Someone];
+
     public List<string> Calls { get; } = [];
 
     /// <summary>Hashes the store received, in call order.</summary>
@@ -51,7 +54,7 @@ internal sealed class FakeAccountStore : IAccountStore
     public Task<IReadOnlyList<Account>> ListAsync(CancellationToken cancellationToken)
     {
         Calls.Add(nameof(ListAsync));
-        return Task.FromResult<IReadOnlyList<Account>>([Someone]);
+        return Task.FromResult<IReadOnlyList<Account>>([.. Members]);
     }
 
     public Task<bool> RemoveAsync(Guid id, CancellationToken cancellationToken)

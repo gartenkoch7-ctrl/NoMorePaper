@@ -28,6 +28,7 @@ public interface IClassificationStore
     /// Moves every document from <paramref name="sourceIds"/> to <paramref name="targetId"/> and deletes the
     /// sources, if <paramref name="actorId"/> may edit every document that uses any of these entries.
     /// </summary>
+    /// <exception cref="ArgumentException">There is no source besides the target.</exception>
     Task<EntryChange> MergeAsync(
         Guid actorId,
         ClassificationKind kind,

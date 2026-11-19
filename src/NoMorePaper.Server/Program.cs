@@ -1,4 +1,5 @@
 using NoMorePaper.Server.Accounts;
+using NoMorePaper.Server.Classification;
 using NoMorePaper.Server.Composition;
 using NoMorePaper.Server.Documents;
 using NoMorePaper.Server.Search;
@@ -29,6 +30,7 @@ var api = app.MapGroup("/api").RequireAuthorization();
 api.MapAccountEndpoints();
 api.MapDocumentEndpoints();
 api.MapSearchEndpoints();
+api.MapClassificationEndpoints();
 app.MapFallbackToFile("index.html");
 
 await app.RunAsync();

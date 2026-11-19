@@ -7,5 +7,6 @@ internal static class AccountEndpoints
         api.MapSetupEndpoints()
             .MapAuthEndpoints()
             .MapInvitationEndpoints()
-            .MapMemberEndpoints();
+            .MapMemberEndpoints()
+            .MapHouseholdEndpoints();
 }

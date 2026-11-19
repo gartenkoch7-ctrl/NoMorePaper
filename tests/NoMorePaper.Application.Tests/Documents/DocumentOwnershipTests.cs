@@ -66,7 +66,7 @@ public sealed class DocumentOwnershipTests
         var received = await receive.ReceiveAsync("a.pdf", "application/pdf", new MemoryStream([1]), isPrivate: false, Ct);
         var privacy = await new SetDocumentPrivacy(_documents, _current, privacyLog).SetAsync(Guid.CreateVersion7(), true, Ct);
 
-        Assert.Null(received);
+        Assert.Equal(ReceiveResult.AccountGone, received);
         Assert.Empty(_documents.Added);
         Assert.Empty(_storage.Inbox);
         Assert.Equal(PrivacyChange.AccountGone, privacy);

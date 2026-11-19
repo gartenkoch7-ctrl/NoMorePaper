@@ -57,7 +57,8 @@ public sealed class ClassificationSchemaTests(PostgresFixture postgres)
         {
             var loaded = await db.Documents.SingleAsync(d => d.Id == id, Ct);
             Assert.Equal((null, null, (Money?)null, RecognitionState.Confirmed), (loaded.CorrespondentId, loaded.DocumentDate, loaded.Amount, loaded.Recognition));
-            Assert.Equal([gas, strom], loaded.Tags.Select(tag => tag.TagId).Order());
+            // Both ids come from the same instant, so their order is random: compare sorted.
+            Assert.Equal(new[] { gas, strom }.Order(), loaded.Tags.Select(tag => tag.TagId).Order());
             Assert.Equal("Confirmed", await ScalarAsync<string>(db, $"SELECT recognition AS \"Value\" FROM documents"));
         }
     }

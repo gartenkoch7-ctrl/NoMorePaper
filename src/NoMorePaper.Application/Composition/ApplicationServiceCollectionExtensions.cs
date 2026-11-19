@@ -1,6 +1,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using NoMorePaper.Application.Accounts;
+using NoMorePaper.Application.Classification;
 using NoMorePaper.Application.Documents;
 using NoMorePaper.Application.Processing;
 using NoMorePaper.Application.Search;
@@ -24,7 +25,23 @@ public static class ApplicationServiceCollectionExtensions
         services.AddScoped<SearchDocuments>();
         services.AddScoped<SetDocumentPrivacy>();
         services.AddAccounts();
+        services.AddClassification();
         return services;
+    }
+
+    private static void AddClassification(this IServiceCollection services)
+    {
+        services.AddScoped<GetDocumentFields>();
+        services.AddScoped<EditDocumentFields>();
+        services.AddScoped<ConfirmDocument>();
+        services.AddScoped<SetDocumentEditors>();
+        services.AddScoped<KeepDuplicate>();
+        services.AddScoped<DeleteDuplicate>();
+        services.AddScoped<ListReview>();
+        services.AddScoped<ListEntries>();
+        services.AddScoped<CreateEntry>();
+        services.AddScoped<RenameEntry>();
+        services.AddScoped<MergeEntries>();
     }
 
     private static void AddAccounts(this IServiceCollection services)
@@ -40,6 +57,7 @@ public static class ApplicationServiceCollectionExtensions
         services.AddScoped<InviteMember>();
         services.AddScoped<AcceptInvitation>();
         services.AddScoped<ListMembers>();
+        services.AddScoped<ListHousehold>();
         services.AddScoped<RemoveMember>();
         services.AddScoped<CreateResetLink>();
         services.AddScoped<ResetPassword>();

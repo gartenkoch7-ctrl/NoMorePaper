@@ -11,7 +11,8 @@ namespace NoMorePaper.Server.Documents;
 /// <c>POST /api/documents</c>: checks size and real file type before anything is stored. The uploader
 /// becomes the owner; form field <c>private</c> (<c>true</c>/<c>false</c>) hides it from everybody else.
 /// Errors are ProblemDetails: 400 nothing usable sent, 413 too large, 415 type not allowed, 401 the
-/// account was removed. Scoped, like the <see cref="ReceiveDocument"/> use case it hands the file to.
+/// account was removed, 409 the uploader may already see a document with exactly this file (extension
+/// <c>existingId</c>). Scoped, like the <see cref="ReceiveDocument"/> use case it hands the file to.
 /// </summary>
 internal sealed class DocumentUpload(ReceiveDocument receive, AccountSessions sessions, ILogger<DocumentUpload> logger)
 {
@@ -24,6 +25,9 @@ internal sealed class DocumentUpload(ReceiveDocument receive, AccountSessions se
 
     /// <summary>Optional form field: <c>true</c> keeps the document visible to the uploader only.</summary>
     public const string PrivateField = "private";
+
+    /// <summary>ProblemDetails extension of a 409: id of the document with the same file.</summary>
+    public const string ExistingIdExtension = "existingId";
 
     private static readonly Counter<long> s_rejected = ServerTelemetry.Meter.CreateCounter<long>(
         "nomorepaper.upload.rejected", description: "Uploads refused, by reason");
@@ -89,13 +93,23 @@ internal sealed class DocumentUpload(ReceiveDocument receive, AccountSessions se
         await using (content.ConfigureAwait(false))
         {
             var received = await receive.ReceiveAsync(file.FileName, mediaType, content, isPrivate, cancellationToken).ConfigureAwait(false);
-            if (received is not { } id)
+            switch (received)
             {
-                return await sessions.EndRemovedAsync(request.HttpContext).ConfigureAwait(false);
-            }
+                case { Status: ReceiveStatus.Received, DocumentId: { } id }:
+                    logger.UploadAccepted(id, file.Length, mediaType);
+                    return Results.Accepted($"/api/documents/{id}", new UploadResultDto(id));
 
-            logger.UploadAccepted(id, file.Length, mediaType);
-            return Results.Accepted($"/api/documents/{id}", new UploadResultDto(id));
+                case { Status: ReceiveStatus.Duplicate, DocumentId: { } existingId }:
+                    return Reject(
+                        "duplicate", StatusCodes.Status409Conflict, "This file is archived already.", file.Length,
+                        new Dictionary<string, object?> { [ExistingIdExtension] = existingId });
+
+                case { Status: ReceiveStatus.AccountGone }:
+                    return await sessions.EndRemovedAsync(request.HttpContext).ConfigureAwait(false);
+
+                default:
+                    throw new InvalidOperationException($"Unexpected intake result {received.Status}.");
+            }
         }
     }
 
@@ -124,10 +138,10 @@ internal sealed class DocumentUpload(ReceiveDocument receive, AccountSessions se
         }
     }
 
-    private IResult Reject(string reason, int status, string title, long sizeBytes)
+    private IResult Reject(string reason, int status, string title, long sizeBytes, IDictionary<string, object?>? extensions = null)
     {
         logger.UploadRejected(reason, sizeBytes);
         s_rejected.Add(1, new KeyValuePair<string, object?>("nomorepaper.upload.reason", reason));
-        return Results.Problem(title: title, statusCode: status);
+        return Results.Problem(title: title, statusCode: status, extensions: extensions);
     }
 }

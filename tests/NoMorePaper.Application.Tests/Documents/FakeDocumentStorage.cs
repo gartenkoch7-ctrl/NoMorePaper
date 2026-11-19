@@ -48,6 +48,21 @@ internal sealed class FakeDocumentStorage : IDocumentStorage
         Inbox.Remove(id);
     }
 
+    /// <summary>Ids passed to <see cref="Delete"/>.</summary>
+    public List<Guid> Deleted { get; } = [];
+
+    /// <summary>Thrown by <see cref="Delete"/>, after recording the id.</summary>
+    public Exception? DeleteFailure { get; set; }
+
+    public void Delete(Guid id)
+    {
+        Deleted.Add(id);
+        if (DeleteFailure is not null)
+        {
+            throw DeleteFailure;
+        }
+    }
+
     public Stream OpenRead(Guid id, DocumentFileKind kind) =>
         StoredBytes is { } bytes ? new MemoryStream(bytes) : throw new FileNotFoundException("Not stored.");
 }
