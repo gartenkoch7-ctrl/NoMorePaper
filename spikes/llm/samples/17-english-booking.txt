@@ -1,0 +1,38 @@
+THE CASTLE VIEW HOTEL
+14 Old Bridge Street, Edinburgh EH1 0AA, United Kingdom
+Tel. +44 131 000 0000 · reservations@castleview.example
+
+Mr Jonas Beispiel
+Ahornweg 12
+12345 Lindental
+GERMANY
+                                                        2 August 2026
+
+BOOKING CONFIRMATION                    Confirmation no. CV-88104
+
+Dear Mr Beispiel,
+
+Thank you for choosing The Castle View Hotel. We are pleased to confirm
+your reservation as follows:
+
+Guest name(s):      Jonas Beispiel, Erika Beispiel
+Arrival:            Friday, 9 October 2026 (check-in from 3 pm)
+Departure:          Monday, 12 October 2026 (check-out by 11 am)
+Room type:          1 x Classic Double Room, castle view
+Rate:               GBP 88.00 per night, breakfast included
+Number of nights:   3
+
+Total price:        GBP 264.00 incl. VAT
+Deposit paid:       GBP 0.00
+Balance due:        GBP 264.00, payable at the hotel on departure
+
+Cancellation policy: free cancellation until 6 pm on 7 October 2026.
+Later cancellations and no-shows are charged one night (GBP 88.00).
+
+We look forward to welcoming you to Edinburgh.
+
+Kind regards,
+Reservations Team
+The Castle View Hotel
+
+Castle View Hotels Ltd, registered in Scotland no. SC000000

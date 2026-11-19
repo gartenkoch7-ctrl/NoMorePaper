@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using NoMorePaper.Domain.Classification;
 using NoMorePaper.Domain.Documents;
 using NoMorePaper.Infrastructure.Accounts;
 using NoMorePaper.Infrastructure.Heartbeat;
@@ -25,6 +26,12 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options) : Ident
     public DbSet<PasswordResetToken> PasswordResetTokens => Set<PasswordResetToken>();
 
     public DbSet<AdminPasswordReset> AdminPasswordResets => Set<AdminPasswordReset>();
+
+    public DbSet<Correspondent> Correspondents => Set<Correspondent>();
+
+    public DbSet<DocumentType> DocumentTypes => Set<DocumentType>();
+
+    public DbSet<Tag> Tags => Set<Tag>();
 
     // Pinned, so the model is the same at design time (migrations) and at run time, whatever the
     // Identity options say: version 1 has no passkey table (sign-in is user name and password only).

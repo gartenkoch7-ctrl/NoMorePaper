@@ -7,15 +7,21 @@ Beschreibt, wie ein Dokument im Worker verarbeitet wird. Entscheidung und Begrü
 
 1. **Upload:** Die API nimmt die Datei an (max. 100 MB) und legt sie im Eingangsordner `inbox`
    ab. Dazu gibt es einen Eintrag in der Warteschlange `processing_jobs`.
-2. **Warteschlange:** Der Worker holt den Job mit `FOR UPDATE SKIP LOCKED` und zählt dabei
-   `attempt` hoch. Die Sperre hält 15 Minuten.
+2. **Warteschlange:** Der Worker holt den fälligen Job mit der kleinsten `priority`, bei
+   Gleichstand den frühesten (`next_attempt_at`), mit `FOR UPDATE SKIP LOCKED` und zählt dabei
+   `attempt` hoch. Die Sperre hält 15 Minuten. Neue Uploads haben Priorität 0, der Bestand der
+   Erkennung 10 (seit M3).
 3. **Worker:**
    1. `StartProcessing` setzt den Status auf „Processing“.
    2. Das Original wird in einen eigenen Arbeitsordner `/data/tmp/attempt-<guid>` kopiert. OCR
       läuft dort, Ergebnis ist `archive.pdf`.
    3. Das Original wird ins Archiv verschoben.
-   4. Status „Done“.
+   4. Status „Done“. Der Job wird nicht gelöscht, sondern geht in derselben Transaktion in die
+      Stufe `Recognition` über (`stage`, `attempt = 0`, sofort fällig). Nur ohne Text oder ohne
+      Besitzer wird er gelöscht, weil es nichts zu erkennen gibt.
    5. Der Arbeitsordner wird gelöscht, auch nach einem Fehler.
+   6. Prüfung auf inhaltliche Duplikate (Trigramme), danach die Erkennung als eigene Stufe mit
+      eigenen Wiederholungen: [erkennung.md](erkennung.md), Abschnitt „Umsetzung im Worker“.
 4. **Fehler:** Der Job wird nach 1, 5 und 30 Minuten erneut versucht. Nach 4 Versuchen steht er
    auf „Failed“. Gespeichert wird nur der technische Grund, ohne Dokumentinhalt.
 5. **Dauerhafte Fehler:** Kann die Eingabe selbst nicht verarbeitet werden, steht das Dokument

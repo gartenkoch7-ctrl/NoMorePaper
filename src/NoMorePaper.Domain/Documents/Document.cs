@@ -3,9 +3,10 @@ namespace NoMorePaper.Domain.Documents;
 /// <summary>
 /// A received document with its files and processing state. Allowed transitions:
 /// <c>Queued → Processing → Done | Failed</c>; <c>Processing → Processing</c> is allowed, because a
-/// retry or a Worker taking over an abandoned job starts the same document again.
+/// retry or a Worker taking over an abandoned job starts the same document again. Its fields
+/// (correspondent, type, date, …) and who may edit them are in <c>Document.Classification.cs</c>.
 /// </summary>
-public sealed class Document
+public sealed partial class Document
 {
     /// <summary>Longest title kept; longer titles must be shortened by the caller.</summary>
     public const int MaxTitleLength = 500;
@@ -138,11 +139,11 @@ public sealed class Document
     {
         if (OwnerId is not { } owner || owner != actor)
         {
-            throw new InvalidOperationException($"Only the owner may change who sees document {Id}.");
+            throw new InvalidOperationException($"Only the owner may change who sees or edits document {Id}.");
         }
     }
 
-    private static void RequireTitle(string title)
+    internal static void RequireTitle(string title)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(title);
         if (title.Length > MaxTitleLength)

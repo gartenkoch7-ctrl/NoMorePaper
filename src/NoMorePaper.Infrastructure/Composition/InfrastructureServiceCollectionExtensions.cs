@@ -3,11 +3,13 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Logging;
+using NoMorePaper.Application.Classification;
 using NoMorePaper.Application.Documents;
 using NoMorePaper.Application.Heartbeat;
 using NoMorePaper.Application.Persistence;
 using NoMorePaper.Application.Processing;
 using NoMorePaper.Application.Search;
+using NoMorePaper.Infrastructure.Classification;
 using NoMorePaper.Infrastructure.Documents;
 using NoMorePaper.Infrastructure.Heartbeat;
 using NoMorePaper.Infrastructure.Persistence;
@@ -40,6 +42,8 @@ public static class InfrastructureServiceCollectionExtensions
             provider.GetRequiredService<ILogger<FileSystemDocumentStorage>>()));
         services.AddScoped<IDocumentRepository, EfDocumentRepository>();
         services.AddScoped<ISearchIndex, PostgresSearchIndex>();
+        services.AddScoped<IClassificationStore, ClassificationStore>();
+        services.AddScoped<IDocumentFieldsStore, EfDocumentFieldsStore>();
 
         services.AddNoMorePaperDataProtection(configuration);
 

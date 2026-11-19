@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging.Abstractions;
+using NoMorePaper.Application.Processing;
 using NoMorePaper.Domain.Documents;
 using NoMorePaper.Infrastructure.Persistence;
 using NoMorePaper.Infrastructure.Processing;
@@ -34,14 +35,35 @@ internal sealed class QueueDatabase(PostgresFixture postgres, string database)
 
     public JobQueue Queue(AppDbContext db) => new(db, Time);
 
+    /// <summary>Owner of the documents added here.</summary>
+    public static Guid Owner => s_owner;
+
     /// <returns>The id of the new document.</returns>
-    public async Task<Guid> AddQueuedDocumentAsync(DateTimeOffset nextAttemptAt, string fileName = "Scan 1.jpg")
+    public async Task<Guid> AddQueuedDocumentAsync(DateTimeOffset nextAttemptAt, string fileName = "Scan 1.jpg", int priority = 0)
     {
         await using var db = Context();
         var document = Document.Receive("Scan 1", Start, s_owner, isPrivate: false);
         document.AttachFile(new DocumentFile(DocumentFileKind.Original, fileName, "image/jpeg", 10, Sha256));
         db.Documents.Add(document);
-        db.ProcessingJobs.Add(new ProcessingJob { DocumentId = document.Id, NextAttemptAt = nextAttemptAt });
+        db.ProcessingJobs.Add(new ProcessingJob { DocumentId = document.Id, NextAttemptAt = nextAttemptAt, Priority = priority });
+        await db.SaveChangesAsync(Ct);
+        return document.Id;
+    }
+
+    /// <summary>A done document with a job at the recognition stage, as OCR leaves it.</summary>
+    /// <returns>The id of the new document.</returns>
+    public async Task<Guid> AddRecognitionJobAsync(DateTimeOffset nextAttemptAt, int priority = 0, bool isPrivate = false)
+    {
+        await using var db = Context();
+        var document = Document.Receive("Scan 1", Start, s_owner, isPrivate);
+        document.AttachFile(new DocumentFile(DocumentFileKind.Original, "Scan 1.jpg", "image/jpeg", 10, Sha256));
+        document.StartProcessing();
+        document.Complete("Rechnung");
+        db.Documents.Add(document);
+        db.ProcessingJobs.Add(new ProcessingJob
+        {
+            DocumentId = document.Id, Stage = JobStage.Recognition, NextAttemptAt = nextAttemptAt, Priority = priority,
+        });
         await db.SaveChangesAsync(Ct);
         return document.Id;
     }

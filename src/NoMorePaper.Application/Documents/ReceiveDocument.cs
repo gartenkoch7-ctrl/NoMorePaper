@@ -10,7 +10,8 @@ namespace NoMorePaper.Application.Documents;
 
 /// <summary>
 /// Accepts a new document: stores the original in the inbox, records document, file and queue entry
-/// in one database transaction. If the database refuses, the inbox file is removed again, so no
+/// in one database transaction. An upload whose exact file the uploader may already see is refused and
+/// its inbox file removed (M3). If the database refuses, the inbox file is removed again, so no
 /// file is left that no document refers to. It is only removed once it is certain that no document
 /// refers to it: a lost original is worse than a leftover file.
 /// </summary>
@@ -43,8 +44,11 @@ public sealed class ReceiveDocument
     /// <param name="mediaType">The detected type of the content, not what the uploader claimed.</param>
     /// <param name="isPrivate">Whether only the signed-in account, which becomes the owner, may see it.</param>
     /// <param name="cancellationToken">Cancels storing the file; once the file is stored, the commit runs to its end.</param>
-    /// <returns>The id of the new, queued document; <c>null</c> if the signed-in account was removed (nothing is stored).</returns>
-    public async Task<Guid?> ReceiveAsync(
+    /// <returns>
+    /// The new, queued document; the document with the same file if the uploader may see one (nothing is
+    /// kept); or that the signed-in account was removed (nothing is stored).
+    /// </returns>
+    public async Task<ReceiveResult> ReceiveAsync(
         string fileName, string mediaType, Stream content, bool isPrivate, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(content);
@@ -56,7 +60,7 @@ public sealed class ReceiveDocument
         if (!await _current.ExistsAsync(cancellationToken).ConfigureAwait(false))
         {
             _logger.AccountGone(_current.Id, "upload");
-            return null;
+            return ReceiveResult.AccountGone;
         }
 
         var now = _clock.GetUtcNow();
@@ -66,6 +70,17 @@ public sealed class ReceiveDocument
         try
         {
             var stored = await _storage.SaveInboxAsync(document.Id, cleanName, content, cancellationToken).ConfigureAwait(false);
+
+            // The hash is computed while storing, so the upload is read only once. Only documents the
+            // uploader may see count: a refusal must not reveal another account's private document.
+            var existing = await _documents.FindVisibleBySha256Async(_current.Id, stored.Sha256, cancellationToken).ConfigureAwait(false);
+            if (existing is { } existingId)
+            {
+                DiscardInbox(document.Id);
+                _logger.DuplicateRefused(existingId, _current.Id);
+                return ReceiveResult.Duplicate(existingId);
+            }
+
             document.AttachFile(new DocumentFile(DocumentFileKind.Original, cleanName, mediaType, stored.SizeBytes, stored.Sha256));
 
             // A dropped request must not cancel a commit that may already have reached the database:
@@ -75,7 +90,7 @@ public sealed class ReceiveDocument
 
             s_received.Add(1);
             _logger.Received(document.Id, stored.SizeBytes, mediaType);
-            return document.Id;
+            return ReceiveResult.Received(document.Id);
         }
         catch (Exception exception)
         {

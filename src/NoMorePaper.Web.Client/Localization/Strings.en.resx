@@ -630,4 +630,436 @@
   <data name="AdminResetNoticeAdvice" xml:space="preserve">
     <value>If that was not you, talk to the administrator.</value>
   </data>
+  <data name="NavReview" xml:space="preserve">
+    <value>To review</value>
+  </data>
+  <data name="NavReviewCount" xml:space="preserve">
+    <value>To review ({0})</value>
+  </data>
+  <data name="NavLists" xml:space="preserve">
+    <value>Lists</value>
+  </data>
+  <data name="ClsFieldsHeading" xml:space="preserve">
+    <value>Details</value>
+  </data>
+  <data name="ClsFieldsLoading" xml:space="preserve">
+    <value>Loading details …</value>
+  </data>
+  <data name="ClsFieldsLoadError" xml:space="preserve">
+    <value>The details could not be loaded. {0}</value>
+  </data>
+  <data name="ClsFieldSummary" xml:space="preserve">
+    <value>Summary</value>
+  </data>
+  <data name="ClsNoSummary" xml:space="preserve">
+    <value>No summary yet.</value>
+  </data>
+  <data name="ClsFieldCorrespondent" xml:space="preserve">
+    <value>Sender</value>
+  </data>
+  <data name="ClsFieldType" xml:space="preserve">
+    <value>Document type</value>
+  </data>
+  <data name="ClsFieldDate" xml:space="preserve">
+    <value>Document date</value>
+  </data>
+  <data name="ClsFieldAmount" xml:space="preserve">
+    <value>Amount</value>
+  </data>
+  <data name="ClsFieldTags" xml:space="preserve">
+    <value>Tags</value>
+  </data>
+  <data name="ClsFieldTitle" xml:space="preserve">
+    <value>Title</value>
+  </data>
+  <data name="ClsFieldCurrency" xml:space="preserve">
+    <value>Currency (three letters, for example EUR)</value>
+  </data>
+  <data name="ClsFieldAmountHint" xml:space="preserve">
+    <value>For example 84.20. Leave empty if the document shows no amount.</value>
+  </data>
+  <data name="ClsFieldDateHint" xml:space="preserve">
+    <value>The date printed on the document, not the day it was uploaded.</value>
+  </data>
+  <data name="ClsNoValue" xml:space="preserve">
+    <value>Not set</value>
+  </data>
+  <data name="ClsRecognitionNone" xml:space="preserve">
+    <value>Not recognized yet.</value>
+  </data>
+  <data name="ClsRecognitionAutomatic" xml:space="preserve">
+    <value>Recognized automatically, not checked yet.</value>
+  </data>
+  <data name="ClsRecognitionConfirmed" xml:space="preserve">
+    <value>Checked and confirmed.</value>
+  </data>
+  <data name="ClsRecognitionBadge" xml:space="preserve">
+    <value>Recognized automatically</value>
+  </data>
+  <data name="ClsPossibleDuplicate" xml:space="preserve">
+    <value>Possible duplicate: a very similar document exists already.</value>
+  </data>
+  <data name="ClsShowOther" xml:space="preserve">
+    <value>Show the existing document</value>
+  </data>
+  <data name="ClsEdit" xml:space="preserve">
+    <value>Edit</value>
+  </data>
+  <data name="ClsConfirm" xml:space="preserve">
+    <value>Confirm</value>
+  </data>
+  <data name="ClsSave" xml:space="preserve">
+    <value>Save</value>
+  </data>
+  <data name="ClsSaved" xml:space="preserve">
+    <value>Details saved and confirmed.</value>
+  </data>
+  <data name="ClsConfirmed" xml:space="preserve">
+    <value>Details confirmed.</value>
+  </data>
+  <data name="ClsEditHeading" xml:space="preserve">
+    <value>Edit details</value>
+  </data>
+  <data name="ClsEditHint" xml:space="preserve">
+    <value>Saved details count as confirmed.</value>
+  </data>
+  <data name="ClsEditLoading" xml:space="preserve">
+    <value>Loading the choices …</value>
+  </data>
+  <data name="ClsEditLoadError" xml:space="preserve">
+    <value>The choices could not be loaded. {0}</value>
+  </data>
+  <data name="ClsComboHint" xml:space="preserve">
+    <value>Type to search. Choose with the arrow keys, accept with Enter.</value>
+  </data>
+  <data name="ClsComboCreate" xml:space="preserve">
+    <value>Create “{0}”</value>
+  </data>
+  <data name="ClsComboCount" xml:space="preserve">
+    <value>{0} matches.</value>
+  </data>
+  <data name="ClsComboCountOne" xml:space="preserve">
+    <value>1 match.</value>
+  </data>
+  <data name="ClsComboNone" xml:space="preserve">
+    <value>No matches.</value>
+  </data>
+  <data name="ClsComboLastCreate" xml:space="preserve">
+    <value>The last option creates a new entry.</value>
+  </data>
+  <data name="ClsComboPicked" xml:space="preserve">
+    <value>“{0}” chosen.</value>
+  </data>
+  <data name="ClsComboChoose" xml:space="preserve">
+    <value>Choose an entry with the arrow keys.</value>
+  </data>
+  <data name="ClsComboCreateFailed" xml:space="preserve">
+    <value>“{0}” could not be created.</value>
+  </data>
+  <data name="ClsNoTags" xml:space="preserve">
+    <value>No tags.</value>
+  </data>
+  <data name="ClsChosenTags" xml:space="preserve">
+    <value>Chosen tags</value>
+  </data>
+  <data name="ClsRemoveTag" xml:space="preserve">
+    <value>Remove</value>
+  </data>
+  <data name="ClsRemoveTagFor" xml:space="preserve">
+    <value>Remove tag: {0}</value>
+  </data>
+  <data name="ClsAddTag" xml:space="preserve">
+    <value>Add a tag</value>
+  </data>
+  <data name="ClsAddTagHint" xml:space="preserve">
+    <value>Type a tag. Enter accepts the chosen suggestion.</value>
+  </data>
+  <data name="ClsTagRemoved" xml:space="preserve">
+    <value>Tag “{0}” removed.</value>
+  </data>
+  <data name="ClsErrorAmount" xml:space="preserve">
+    <value>The amount is not a valid number. Example: 84.20</value>
+  </data>
+  <data name="ClsErrorCurrency" xml:space="preserve">
+    <value>The currency is three letters, for example EUR.</value>
+  </data>
+  <data name="ClsEditorsHeading" xml:space="preserve">
+    <value>Who may edit these details?</value>
+  </data>
+  <data name="ClsEditorsHint" xml:space="preserve">
+    <value>As the owner you always may. Choose more members.</value>
+  </data>
+  <data name="ClsEditorsLoading" xml:space="preserve">
+    <value>Loading members …</value>
+  </data>
+  <data name="ClsEditorsLoadError" xml:space="preserve">
+    <value>The members could not be loaded. {0}</value>
+  </data>
+  <data name="ClsEditorsNone" xml:space="preserve">
+    <value>There are no other members.</value>
+  </data>
+  <data name="ClsEditorsSave" xml:space="preserve">
+    <value>Save editors</value>
+  </data>
+  <data name="ClsEditorsSaved" xml:space="preserve">
+    <value>Editors saved.</value>
+  </data>
+  <data name="ClsErrorInvalid" xml:space="preserve">
+    <value>The details are not valid.</value>
+  </data>
+  <data name="ClsErrorForbidden" xml:space="preserve">
+    <value>You are not allowed to do this.</value>
+  </data>
+  <data name="ClsErrorNotFound" xml:space="preserve">
+    <value>Not found. It may have been changed or deleted meanwhile.</value>
+  </data>
+  <data name="ClsErrorConflict" xml:space="preserve">
+    <value>This is not possible now because something has changed meanwhile.</value>
+  </data>
+  <data name="ClsErrorDeleteForbidden" xml:space="preserve">
+    <value>Only the owner may delete the document.</value>
+  </data>
+  <data name="ClsErrorDeleteConflict" xml:space="preserve">
+    <value>Only a document marked as a possible duplicate can be deleted here.</value>
+  </data>
+  <data name="ClsErrorChangedMeanwhile" xml:space="preserve">
+    <value>The details were changed meanwhile and have been loaded again. Please check them once more.</value>
+  </data>
+  <data name="ClsErrorRenameForbidden" xml:space="preserve">
+    <value>You may not change this entry because you may not edit all documents that use it.</value>
+  </data>
+  <data name="ClsErrorMergeForbidden" xml:space="preserve">
+    <value>You may not merge these entries because you may not edit all documents that use them.</value>
+  </data>
+  <data name="ReviewTitle" xml:space="preserve">
+    <value>To review – NoMorePaper</value>
+  </data>
+  <data name="ReviewHeading" xml:space="preserve">
+    <value>To review</value>
+  </data>
+  <data name="ReviewLoading" xml:space="preserve">
+    <value>Loading the list …</value>
+  </data>
+  <data name="ReviewLoadError" xml:space="preserve">
+    <value>The list could not be loaded. {0}</value>
+  </data>
+  <data name="ReviewEmpty" xml:space="preserve">
+    <value>Nothing to review. All documents are confirmed.</value>
+  </data>
+  <data name="ReviewCount" xml:space="preserve">
+    <value>{0} documents to review.</value>
+  </data>
+  <data name="ReviewCountOne" xml:space="preserve">
+    <value>1 document to review.</value>
+  </data>
+  <data name="ReviewNoneLeft" xml:space="preserve">
+    <value>Nothing left to review.</value>
+  </data>
+  <data name="ReviewListLabel" xml:space="preserve">
+    <value>Documents to review</value>
+  </data>
+  <data name="ReviewConfirmFor" xml:space="preserve">
+    <value>Confirm: {0}</value>
+  </data>
+  <data name="ReviewEditFor" xml:space="preserve">
+    <value>Edit: {0}</value>
+  </data>
+  <data name="ReviewDuplicateHeading" xml:space="preserve">
+    <value>Possible duplicate</value>
+  </data>
+  <data name="ReviewDuplicateExplain" xml:space="preserve">
+    <value>This document is very similar to an existing one. Compare both and decide.</value>
+  </data>
+  <data name="ReviewCompareCaption" xml:space="preserve">
+    <value>Comparison with the existing document</value>
+  </data>
+  <data name="ReviewCompareField" xml:space="preserve">
+    <value>Detail</value>
+  </data>
+  <data name="ReviewCompareThis" xml:space="preserve">
+    <value>This document</value>
+  </data>
+  <data name="ReviewCompareOther" xml:space="preserve">
+    <value>Existing document</value>
+  </data>
+  <data name="ReviewKeep" xml:space="preserve">
+    <value>Keep</value>
+  </data>
+  <data name="ReviewKeepFor" xml:space="preserve">
+    <value>Keep: {0}</value>
+  </data>
+  <data name="ReviewDelete" xml:space="preserve">
+    <value>Delete</value>
+  </data>
+  <data name="ReviewDeleteFor" xml:space="preserve">
+    <value>Delete: {0}</value>
+  </data>
+  <data name="ReviewDeleteQuestion" xml:space="preserve">
+    <value>Really delete “{0}”?</value>
+  </data>
+  <data name="ReviewDeleteExplain" xml:space="preserve">
+    <value>The document will be deleted. This cannot be undone. The existing document stays.</value>
+  </data>
+  <data name="ReviewDeleteConfirm" xml:space="preserve">
+    <value>Yes, delete</value>
+  </data>
+  <data name="ReviewConfirmed" xml:space="preserve">
+    <value>“{0}” confirmed.</value>
+  </data>
+  <data name="ReviewKept" xml:space="preserve">
+    <value>“{0}” is kept.</value>
+  </data>
+  <data name="ReviewSaved" xml:space="preserve">
+    <value>Details of “{0}” saved and confirmed.</value>
+  </data>
+  <data name="ReviewDeleted" xml:space="preserve">
+    <value>“{0}” deleted.</value>
+  </data>
+  <data name="FilterToggle" xml:space="preserve">
+    <value>Filter</value>
+  </data>
+  <data name="FilterToggleActive" xml:space="preserve">
+    <value>Filter ({0} active)</value>
+  </data>
+  <data name="FilterGroup" xml:space="preserve">
+    <value>Filters for the document list</value>
+  </data>
+  <data name="FilterAll" xml:space="preserve">
+    <value>All</value>
+  </data>
+  <data name="FilterFrom" xml:space="preserve">
+    <value>Document date from</value>
+  </data>
+  <data name="FilterTo" xml:space="preserve">
+    <value>Document date to</value>
+  </data>
+  <data name="FilterAmountFrom" xml:space="preserve">
+    <value>Amount from</value>
+  </data>
+  <data name="FilterAmountTo" xml:space="preserve">
+    <value>Amount to</value>
+  </data>
+  <data name="FilterVisibility" xml:space="preserve">
+    <value>Private or shared</value>
+  </data>
+  <data name="FilterOnlyPrivate" xml:space="preserve">
+    <value>Private only</value>
+  </data>
+  <data name="FilterOnlyShared" xml:space="preserve">
+    <value>Shared only</value>
+  </data>
+  <data name="FilterAllTags" xml:space="preserve">
+    <value>Document must have all chosen tags</value>
+  </data>
+  <data name="FilterApply" xml:space="preserve">
+    <value>Apply filter</value>
+  </data>
+  <data name="FilterReset" xml:space="preserve">
+    <value>Reset</value>
+  </data>
+  <data name="FilterErrorDates" xml:space="preserve">
+    <value>The “from” date is after the “to” date.</value>
+  </data>
+  <data name="FilterLoadError" xml:space="preserve">
+    <value>The choices could not be loaded. {0}</value>
+  </data>
+  <data name="FilterFound" xml:space="preserve">
+    <value>{0} documents found.</value>
+  </data>
+  <data name="FilterFoundOne" xml:space="preserve">
+    <value>1 document found.</value>
+  </data>
+  <data name="FilterFoundNone" xml:space="preserve">
+    <value>No documents found.</value>
+  </data>
+  <data name="DocumentsEmptyFiltered" xml:space="preserve">
+    <value>No documents match this filter.</value>
+  </data>
+  <data name="ListsTitle" xml:space="preserve">
+    <value>Lists – NoMorePaper</value>
+  </data>
+  <data name="ListsHeading" xml:space="preserve">
+    <value>Lists</value>
+  </data>
+  <data name="ListsIntro" xml:space="preserve">
+    <value>Maintain senders, document types and tags here. You can only change or merge entries whose documents you may all edit.</value>
+  </data>
+  <data name="ListsCorrespondents" xml:space="preserve">
+    <value>Senders</value>
+  </data>
+  <data name="ListsDocumentTypes" xml:space="preserve">
+    <value>Document types</value>
+  </data>
+  <data name="ListsTags" xml:space="preserve">
+    <value>Tags</value>
+  </data>
+  <data name="ListsLoading" xml:space="preserve">
+    <value>Loading the list …</value>
+  </data>
+  <data name="ListsLoadError" xml:space="preserve">
+    <value>The list could not be loaded. {0}</value>
+  </data>
+  <data name="ListsEmpty" xml:space="preserve">
+    <value>No entries yet.</value>
+  </data>
+  <data name="ListsCaption" xml:space="preserve">
+    <value>{0}, alphabetical</value>
+  </data>
+  <data name="ListsColMerge" xml:space="preserve">
+    <value>For merging</value>
+  </data>
+  <data name="ListsSelectFor" xml:space="preserve">
+    <value>Select for merging: {0}</value>
+  </data>
+  <data name="ListsRename" xml:space="preserve">
+    <value>Rename</value>
+  </data>
+  <data name="ListsRenameFor" xml:space="preserve">
+    <value>Rename: {0}</value>
+  </data>
+  <data name="ListsSelectedCount" xml:space="preserve">
+    <value>{0} selected</value>
+  </data>
+  <data name="ListsMerge" xml:space="preserve">
+    <value>Merge selected</value>
+  </data>
+  <data name="ListsMergeTooFew" xml:space="preserve">
+    <value>Select at least two entries to merge.</value>
+  </data>
+  <data name="ListsRenameHeading" xml:space="preserve">
+    <value>Rename “{0}”</value>
+  </data>
+  <data name="ListsNewName" xml:space="preserve">
+    <value>New name</value>
+  </data>
+  <data name="ListsRenameConfirm" xml:space="preserve">
+    <value>Save new name</value>
+  </data>
+  <data name="ListsRenamed" xml:space="preserve">
+    <value>“{0}” is now called “{1}”.</value>
+  </data>
+  <data name="ListsMergeQuestion" xml:space="preserve">
+    <value>Merge {0} entries?</value>
+  </data>
+  <data name="ListsMergeExplain" xml:space="preserve">
+    <value>All documents of the selected entries get the entry you choose below. The other entries are deleted. This cannot be undone.</value>
+  </data>
+  <data name="ListsMergeTarget" xml:space="preserve">
+    <value>This entry stays</value>
+  </data>
+  <data name="ListsMergeConfirm" xml:space="preserve">
+    <value>Yes, merge</value>
+  </data>
+  <data name="ListsMerged" xml:space="preserve">
+    <value>{0} entries merged into “{1}”.</value>
+  </data>
+  <data name="UploadDuplicate" xml:space="preserve">
+    <value>This file exists already.</value>
+  </data>
+  <data name="UploadDuplicateNamed" xml:space="preserve">
+    <value>This file exists already: “{0}”. It was not stored again.</value>
+  </data>
+  <data name="UploadShowExisting" xml:space="preserve">
+    <value>Show the existing document for “{0}”</value>
+  </data>
 </root>

@@ -1,0 +1,35 @@
+Maschinenbau Kruger GmbH · Werkstr. 7 · 12345 Lindental
+Entgeltabrechnung                                   Abrechnungsmonat 10/2026
+Personal-Nr. 00417   Kostenstelle 320   Eintritt 01.04.2015   Blatt 1
+Erstellt am 28.10.2026
+
+Herrn
+Jonas Beispiel
+Ahornweg 12
+12345 Lindental
+
+Steuerklasse 4   Kinderfreibetr. 1,0   Konfession --   SV-Nr. 00 000000 B 000
+Krankenkasse: Gesundkasse Nord   KV-Beitrag 14,6 % + Zusatzbeitrag 2,5 %
+
+LA   Bezeichnung                 Menge    Satz      Betrag EUR
+100  Gehalt                                           3.650,00
+210  Uberstunden 25 %             6,00   27,60          165,60
+305  VWL AG-Anteil                                       34,40
+     Gesamtbrutto                                     3.850,00
+
+     Steuerrechtliche Abzuge
+     Lohnsteuer                                         548,16
+     Solidaritatszuschlag                                 0,00
+     Sozialversicherung
+     Krankenversicherung                                329,18
+     Rentenversicherung                                 358,05
+     Arbeitslosenversicherung                            50,05
+     Pflegeversicherung                                  43,20
+     Gesetzliches Netto                               2.521,36
+     VWL Uberweisung                                     34,00
+     Auszahlungsbetrag                                2.487,36
+
+Uberweisung auf IBAN DE00 0000 0000 0000 0000 00 Sparbank Lindental
+
+Jahreswerte: Brutto 37.912,40  LSt 5.390,22  KV 3.241,51  RV 3.525,85
+Urlaub: Anspruch 30  genommen 22  Rest 8

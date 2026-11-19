@@ -7,7 +7,10 @@
 - **Barrierefreiheit (axe-core):** WCAG 2.0, 2.1 und 2.2, Stufen A und AA, dazu Best Practices und
   `color-contrast-enhanced`. Geprüft werden alle Seiten in DE und EN.
 - **Tastatur:** Skip-Link, Tab-Reihenfolge, Fokusrahmen mindestens 3 px.
-- **Datenbank:** Testcontainers mit `postgres:17-alpine`.
+- **Datenbank:** Testcontainers mit `postgres:17-alpine`. Jeder Test hat eine eigene Datenbank;
+  `Infrastructure.Tests` verbindet sich deshalb **ohne Pooling**. Ein Pool je Datenbank hält seine
+  Verbindungen bis zum Ende des Laufs offen und sprengt ab etwa 80 Datenbanken die 100 Verbindungen
+  des Servers (`53300: too many clients`, seit M3).
 
 Befehle und Ablauf: [build-und-tooling.md](build-und-tooling.md).
 

@@ -32,6 +32,14 @@ public interface IDocumentStorage
     /// <exception cref="UnauthorizedAccessException">The inbox folder could not be removed.</exception>
     void DiscardInbox(Guid id);
 
+    /// <summary>
+    /// Removes every stored file of a deleted document, in the inbox and in the archive; does nothing
+    /// when there is none. Only for documents that are no longer recorded.
+    /// </summary>
+    /// <exception cref="IOException">A folder could not be removed.</exception>
+    /// <exception cref="UnauthorizedAccessException">A folder could not be removed.</exception>
+    void Delete(Guid id);
+
     /// <summary>Opens a stored file for reading; the original is found in the archive or, before processing, in the inbox.</summary>
     /// <exception cref="FileNotFoundException">No such file is stored.</exception>
     Stream OpenRead(Guid id, DocumentFileKind kind);

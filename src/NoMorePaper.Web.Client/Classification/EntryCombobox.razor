@@ -1,0 +1,267 @@
+@inject IStringLocalizer<Strings> L
+
+@* ARIA 1.2 editable combobox with a list popup. DOM focus stays in the input; the highlighted
+   option is named by aria-activedescendant, so a screen reader reads each option as the arrow keys
+   move. The last option is always "create a new entry" for what was typed. How many entries match
+   is announced (and shown) after every change. There is no form around it on purpose: Enter picks
+   an option and must never submit anything. *@
+<div class="combobox">
+    <label for="@Id">@Label</label>
+    @if (Hint is not null)
+    {
+        <p id="@HintId" class="form-hint">@Hint</p>
+    }
+    <input @ref="_input" id="@Id" class="form-input" type="text" role="combobox" autocomplete="off" autocapitalize="off"
+           spellcheck="false" aria-autocomplete="list" aria-expanded="@(_open ? "true" : "false")"
+           aria-controls="@ListId" aria-activedescendant="@ActiveDescendant" aria-describedby="@(Hint is null ? null : HintId)"
+           value="@_text" @oninput="OnInputAsync" @onkeydown="OnKeyDownAsync" @onfocusout="OnFocusOutAsync" />
+    <ul id="@ListId" class="combobox-list" role="listbox" aria-label="@Label" hidden="@(!_open)">
+        @for (var i = 0; i < _options.Count; i++)
+        {
+            var index = i;
+            <li id="@OptionId(index)" role="option" aria-selected="@(index == _active ? "true" : "false")"
+                class="combobox-option@(index == _active ? " combobox-option-active" : string.Empty)"
+                @onmousedown:preventDefault @onclick="() => PickAsync(index)">@_options[index].Label</li>
+        }
+    </ul>
+    <LiveRegion @ref="_status" />
+</div>
+
+@code {
+    private sealed record Option(string Label, EntryDto? Entry, string? NewName);
+
+    private ElementReference _input;
+    private LiveRegion? _status;
+    private List<Option> _options = [];
+    private string _text = string.Empty;
+    private bool _filtering;
+    private Guid? _syncedId;
+    private bool _open;
+    private int _active = -1;
+
+    [Parameter, EditorRequired] public string Id { get; set; } = string.Empty;
+
+    [Parameter, EditorRequired] public string Label { get; set; } = string.Empty;
+
+    [Parameter] public string? Hint { get; set; }
+
+    /// <summary>The entries to choose from.</summary>
+    [Parameter] public IReadOnlyList<EntryDto> Entries { get; set; } = [];
+
+    /// <summary>The chosen entry, or <c>null</c> for none.</summary>
+    [Parameter] public EntryDto? Value { get; set; }
+
+    [Parameter] public EventCallback<EntryDto?> ValueChanged { get; set; }
+
+    /// <summary>Creates an entry for a typed name; <c>null</c> when it failed. Without it the last option is not offered.</summary>
+    [Parameter] public Func<string, Task<EntryDto?>>? OnCreate { get; set; }
+
+    /// <summary>For adding to a list (tags): the field is empty again after each pick.</summary>
+    [Parameter] public bool ClearAfterPick { get; set; }
+
+    private string HintId => Id + "-hint";
+
+    private string ListId => Id + "-list";
+
+    private string OptionId(int index) => $"{Id}-option-{index}";
+
+    private string? ActiveDescendant => _open && _active >= 0 && _active < _options.Count ? OptionId(_active) : null;
+
+    public ValueTask FocusAsync() => _input.FocusAsync();
+
+    protected override void OnParametersSet()
+    {
+        // Follow the parent's value, but never overwrite what the person is typing right now.
+        if (Value?.Id != _syncedId)
+        {
+            _syncedId = Value?.Id;
+            (_text, _filtering) = (ClearAfterPick ? string.Empty : Value?.Name ?? string.Empty, false);
+        }
+
+        BuildOptions();
+    }
+
+    private void BuildOptions()
+    {
+        // Until something is typed the list shows every entry, also when a value fills the field.
+        var typed = _filtering ? _text.Trim() : string.Empty;
+        var matches = Entries
+            .Where(entry => typed.Length == 0 || entry.Name.Contains(typed, StringComparison.CurrentCultureIgnoreCase))
+            .OrderByDescending(entry => entry.Name.StartsWith(typed, StringComparison.CurrentCultureIgnoreCase))
+            .Select(entry => new Option(entry.Name, entry, null))
+            .ToList();
+        if (OnCreate is not null && typed.Length > 0
+            && !Entries.Any(entry => string.Equals(entry.Name, typed, StringComparison.CurrentCultureIgnoreCase)))
+        {
+            matches.Add(new Option(L["ClsComboCreate", typed], null, typed));
+        }
+
+        _options = matches;
+        _active = Math.Min(_active, _options.Count - 1);
+    }
+
+    private async Task OnInputAsync(ChangeEventArgs args)
+    {
+        (_text, _filtering) = (args.Value?.ToString() ?? string.Empty, true);
+        _active = -1;
+        BuildOptions();
+        _open = _options.Count > 0;
+        await AnnounceCountAsync();
+    }
+
+    private async Task OnKeyDownAsync(KeyboardEventArgs args)
+    {
+        switch (args.Key)
+        {
+            case "ArrowDown":
+                await MoveAsync(_open ? (_active + 1) % Math.Max(_options.Count, 1) : 0);
+                break;
+            case "ArrowUp":
+                await MoveAsync(_open && _active > 0 ? _active - 1 : _options.Count - 1);
+                break;
+            case "Home" when _open:
+                _active = 0;
+                break;
+            case "End" when _open:
+                _active = _options.Count - 1;
+                break;
+            case "Enter":
+                await EnterAsync();
+                break;
+            case "Escape":
+                Escape();
+                break;
+        }
+    }
+
+    // Opening the list (first arrow press) says how many entries it holds.
+    private async Task MoveAsync(int index)
+    {
+        if (_options.Count == 0)
+        {
+            await AnnounceCountAsync();
+            return;
+        }
+
+        var wasOpen = _open;
+        _open = true;
+        _active = index;
+        if (!wasOpen)
+        {
+            await AnnounceCountAsync();
+        }
+    }
+
+    private async Task EnterAsync()
+    {
+        if (_open && _active >= 0)
+        {
+            await PickAsync(_active);
+            return;
+        }
+
+        // Typing a whole name and pressing Enter picks it; a new entry is only ever made on purpose.
+        var exact = _options.FirstOrDefault(o => o.Entry is not null
+            && string.Equals(o.Entry.Name, _text.Trim(), StringComparison.CurrentCultureIgnoreCase));
+        if (exact is not null)
+        {
+            await PickAsync(_options.IndexOf(exact));
+        }
+        else if (_text.Trim().Length > 0)
+        {
+            await AnnounceAsync(L["ClsComboChoose"]);
+        }
+    }
+
+    private void Escape()
+    {
+        if (_open)
+        {
+            _open = false;
+            _active = -1;
+            return;
+        }
+
+        // A second Escape takes back what was typed.
+        (_text, _filtering) = (ClearAfterPick ? string.Empty : Value?.Name ?? string.Empty, false);
+        BuildOptions();
+    }
+
+    private async Task OnFocusOutAsync()
+    {
+        _open = false;
+        _active = -1;
+        if (ClearAfterPick)
+        {
+            (_text, _filtering) = (string.Empty, false);
+            return;
+        }
+
+        if (_text.Trim().Length == 0 && Value is not null)
+        {
+            // Emptied on purpose: the field is cleared.
+            _syncedId = null;
+            await ValueChanged.InvokeAsync(null);
+        }
+        else
+        {
+            (_text, _filtering) = (Value?.Name ?? string.Empty, false);
+        }
+    }
+
+    private async Task PickAsync(int index)
+    {
+        if (index < 0 || index >= _options.Count)
+        {
+            return;
+        }
+
+        var option = _options[index];
+        var entry = option.Entry;
+        if (entry is null && option.NewName is { } name && OnCreate is not null)
+        {
+            entry = await OnCreate(name);
+            if (entry is null)
+            {
+                await AnnounceAsync(L["ClsComboCreateFailed", name]);
+                return;
+            }
+        }
+
+        if (entry is null)
+        {
+            return;
+        }
+
+        _open = false;
+        _active = -1;
+        _syncedId = ClearAfterPick ? null : entry.Id;
+        (_text, _filtering) = (ClearAfterPick ? string.Empty : entry.Name, false);
+        await ValueChanged.InvokeAsync(entry);
+        await AnnounceAsync(L["ClsComboPicked", entry.Name]);
+        BuildOptions();
+    }
+
+    private Task AnnounceCountAsync()
+    {
+        var matches = _options.Count(o => o.Entry is not null);
+        var hasCreate = _options.Any(o => o.Entry is null);
+        var text = matches == 0
+            ? L["ClsComboNone"].Value
+            : matches == 1 ? L["ClsComboCountOne"].Value : L["ClsComboCount", matches].Value;
+        if (hasCreate)
+        {
+            text += " " + L["ClsComboLastCreate"];
+        }
+
+        return AnnounceAsync(text);
+    }
+
+    private async Task AnnounceAsync(string message)
+    {
+        if (_status is not null)
+        {
+            await _status.Announce(message);
+        }
+    }
+}

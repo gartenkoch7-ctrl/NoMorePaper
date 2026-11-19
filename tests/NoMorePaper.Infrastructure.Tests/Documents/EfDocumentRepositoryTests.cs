@@ -29,9 +29,9 @@ public sealed class EfDocumentRepositoryTests(PostgresFixture postgres)
         }
 
         var queries = new ListDocuments(new EfDocumentRepository(db), new FakeCurrentAccount(s_owner));
-        var first = await queries.ListAsync(1, 2, Ct);
-        var second = await queries.ListAsync(2, 2, Ct);
-        var last = await queries.ListAsync(3, 2, Ct);
+        var first = await queries.ListAsync(1, 2, DocumentFilter.None, Ct);
+        var second = await queries.ListAsync(2, 2, DocumentFilter.None, Ct);
+        var last = await queries.ListAsync(3, 2, DocumentFilter.None, Ct);
 
         Assert.Equal([ids[4], ids[3]], first.Select(d => d.Id));
         Assert.Equal([ids[2], ids[1]], second.Select(d => d.Id));
@@ -50,10 +50,10 @@ public sealed class EfDocumentRepositoryTests(PostgresFixture postgres)
 
         var queries = new ListDocuments(new EfDocumentRepository(db), new FakeCurrentAccount(s_owner));
 
-        Assert.Single(await queries.ListAsync(0, 0, Ct));
-        Assert.Single(await queries.ListAsync(-7, -1, Ct));
-        Assert.Equal(3, (await queries.ListAsync(1, 100_000, Ct)).Count);
-        Assert.Empty(await queries.ListAsync(int.MaxValue, 100, Ct));
+        Assert.Single(await queries.ListAsync(0, 0, DocumentFilter.None, Ct));
+        Assert.Single(await queries.ListAsync(-7, -1, DocumentFilter.None, Ct));
+        Assert.Equal(3, (await queries.ListAsync(1, 100_000, DocumentFilter.None, Ct)).Count);
+        Assert.Empty(await queries.ListAsync(int.MaxValue, 100, DocumentFilter.None, Ct));
     }
 
     [Fact]

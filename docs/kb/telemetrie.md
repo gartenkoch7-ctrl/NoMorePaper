@@ -51,7 +51,7 @@ und Annahme (3200–3204) sind nach Application umgezogen und haben ihre Nummern
 | 1000 | Information | `Server/Startup/StartupLog` | Start-Aufgaben (Migration) fertig, Dauer in ms |
 | 1001 | Critical | `Server/Startup/StartupLog` | Start-Aufgaben fehlgeschlagen, der Host beendet sich |
 | 1100 | Information | `Server/Documents/DocumentsLog` | Upload angenommen: Dokument-Id, Größe, Medientyp (ohne Dateinamen) |
-| 1101 | Warning | `Server/Documents/DocumentsLog` | Upload abgelehnt: Grund (`too-large`, `empty`, `type-not-allowed`, `not-multipart`, `malformed`) und Größe |
+| 1101 | Warning | `Server/Documents/DocumentsLog` | Upload abgelehnt: Grund (`too-large`, `empty`, `type-not-allowed`, `not-multipart`, `malformed`, `duplicate`) und Größe |
 | 1200 | Warning | `Server/Security/SecurityLog` | Ändernde API-Anfrage abgelehnt, mögliche fremde Seite: `Sec-Fetch-Site` als festes Wort (`cross-site`, `same-site`, `none`, `absent`, `other`) |
 | 1300 | Information | `Server/Accounts/AccountsLog` | Konto angemeldet (Anmeldung, Einrichtung, Einladung angenommen, Passwort geändert): nur Konto-Id |
 | 1301 | Warning | `Server/Accounts/AccountsLog` | Anmeldung fehlgeschlagen, falsches Passwort: Konto-Id |
@@ -71,12 +71,16 @@ und Annahme (3200–3204) sind nach Application umgezogen und haben ihre Nummern
 | 2105 | Warning | `Application/Processing/ProcessingLog` | Job konnte nicht geholt werden (nur Ausnahmetyp; nur der erste Fehler eines Ausfalls) |
 | 2106 | Information | `Application/Processing/ProcessingLog` | Jobs holen klappt nach einem Ausfall wieder |
 | 2107 | Error | `Application/Processing/ProcessingLog` | Fehlschlag konnte nicht gespeichert werden; der Job läuft nach Ablauf seiner Sperre erneut |
-| 2108 | Information | `Application/Processing/ProcessingLog` | Verarbeitung durch Herunterfahren abgebrochen (auch wenn der Versuch dabei mit einem Fehler endete); der Job ist zurückgegeben und läuft beim nächsten Start ohne Versuchszählung |
+| 2108 | Information | `Application/Processing/ProcessingLog` | Verarbeitung (OCR oder Erkennung) durch Herunterfahren abgebrochen (auch wenn der Versuch dabei mit einem Fehler endete); der Job ist zurückgegeben und läuft beim nächsten Start ohne Versuchszählung |
 | 2109 | Warning | `Application/Processing/ProcessingLog` | Arbeitsordner des Versuchs nicht gelöscht (nur Ausnahmetyp); ein Worker-Start nach einem Tag räumt ihn weg |
 | 2110 | Warning | `Application/Processing/ProcessingLog` | Versuch hat seinen Job an einen anderen Worker verloren (Sperre abgelaufen); Ergebnis bzw. Fehlschlag wird verworfen |
 | 2111 | Warning | `Application/Processing/ProcessingLog` | Job beim Herunterfahren nicht zurückgegeben (nur Ausnahmetyp); er läuft nach Ablauf seiner Sperre erneut |
 | 2112 | Information | `Worker/Processing/ProcessingLog` | Beim Start Reste älter als einen Tag aus dem Arbeitsordner `/data/tmp` entfernt: Anzahl |
 | 2113 | Warning | `Worker/Processing/ProcessingLog` | Rest im Arbeitsordner nicht entfernt (nur Ausnahmetyp); nur Platzverlust |
+| 2200 | Information | `Worker/Recognition/RecognitionLog` | Worker-Start: Erkennungsmodell wird vorbereitet |
+| 2201 | Warning | `Worker/Recognition/RecognitionLog` | Erkennungsmodell noch nicht bereit (nur Ausnahmetyp); nächster Versuch in s (30 s, verdoppelt bis 10 min) |
+| 2202 | Information | `Worker/Recognition/RecognitionLog` | Erkennungsmodell bereit: Dauer in ms (mit Download beim ersten Start) |
+| 2203 | Warning | `Worker/Recognition/RecognitionLog` | Bestand konnte nicht eingereiht werden (nur Ausnahmetyp); nächster Versuch in s |
 | 3000 | Information | `Infrastructure/Persistence/PersistenceLog` | Migration beginnt, Anzahl bekannter Migrationen |
 | 3001 | Information | `Infrastructure/Persistence/PersistenceLog` | Schema aktuell, Dauer in ms |
 | 3002 | Error | `Infrastructure/Persistence/PersistenceLog` | Migration fehlgeschlagen |
@@ -98,13 +102,22 @@ und Annahme (3200–3204) sind nach Application umgezogen und haben ihre Nummern
 | 3400 | Information | `Infrastructure/Composition/KeyRingCertificateGuard` | Schlüsselring mit Zertifikat verschlüsselt, Fingerabdruck (kein Geheimnis) |
 | 3401 | Warning | `Infrastructure/Composition/KeyRingCertificateGuard` | Kein Zertifikat konfiguriert, Schlüsselring unverschlüsselt (nur Development) |
 | 3410 | Warning | `Infrastructure/Composition/UnencryptedKeyRevocation` | Unverschlüsselte Schlüssel von vor dem Zertifikat (vor M2) widerrufen: Anzahl; alle Sitzungen enden einmal |
+| 3520 | Information | `Infrastructure/Recognition/OllamaLog` | Modell hat geantwortet: Dauer in ms, Tokens der Anfrage und der Antwort, Ladezeit des Modells in ms |
+| 3521 | Warning | `Infrastructure/Recognition/OllamaLog` | Antwort des Modells unbrauchbar: Grund (`done-reason-length`, `done-reason-other`, `no-content`, `invalid-response`) |
+| 3522 | Warning | `Infrastructure/Recognition/OllamaLog` | LLM-Dienst antwortete mit HTTP-Status (nur der Statuscode, nie der Text) |
+| 3523 | Warning | `Infrastructure/Recognition/OllamaLog` | LLM-Dienst nicht erreichbar (nur Ausnahmetyp, nie der Host) |
+| 3524 | Warning | `Infrastructure/Recognition/OllamaLog` | Zeitlimit der Anfrage überschritten (Sekunden); die Anfrage wurde abgebrochen |
+| 3525 | Information | `Infrastructure/Recognition/OllamaLog` | Modell ist vorhanden (konfigurierter Modellname) |
+| 3526 | Information | `Infrastructure/Recognition/OllamaLog` | Modell fehlt und wird geladen (`/api/pull`) |
+| 3527 | Information | `Infrastructure/Recognition/OllamaLog` | Modell geladen: Dauer in ms |
+| 3528 | Warning | `Infrastructure/Recognition/OllamaLog` | Anfrage füllt den Kontext (Tokens der Anfrage + 400 für die Antwort > 4096); Ollama hat womöglich den Anfang (Regeln, Listen) abgeschnitten |
 | 4000 | Information | `Web.Client/Telemetry/WebClientLog` | Kultur (Sprache) angewendet |
 | 4001 | Warning | `Web.Client/Telemetry/WebClientLog` | Gespeicherte Sprache wird nicht unterstützt, Standard wird genommen |
 | 4002 | Warning | `Web.Client/Telemetry/WebClientLog` | Sprachpräferenz nicht lesbar oder nicht speicherbar |
 | 4003 | Information | `Web.Client/Telemetry/WebClientLog` | Sprachwechsel angefordert |
 | 4100 | Information | `Web.Client/Documents/DocumentsLog` | Upload gestartet (Größe in Bytes) |
 | 4101 | Information | `Web.Client/Documents/DocumentsLog` | Upload vom Server angenommen |
-| 4102 | Warning | `Web.Client/Documents/DocumentsLog` | Upload abgelehnt (Grund: `empty`, `too-large`) |
+| 4102 | Warning | `Web.Client/Documents/DocumentsLog` | Upload abgelehnt (Grund: `empty`, `too-large`, `duplicate`) |
 | 4103 | Warning | `Web.Client/Documents/DocumentsLog` | API-Aufruf mit HTTP-Fehlercode beantwortet (Vorgang, Statuscode) |
 | 4104 | Warning | `Web.Client/Documents/DocumentsLog` | API nicht erreichbar oder unlesbare Antwort (Vorgang, Ausnahmetyp) |
 | 4105 | Debug | `Web.Client/Documents/DocumentsLog` | Dokumentliste geladen (Anzahl) |
@@ -139,6 +152,22 @@ und Annahme (3200–3204) sind nach Application umgezogen und haben ihre Nummern
 | 4412 | Debug | `Web.Client/Accounts/AccountsLog` | nicht angemeldet, Weiterleitung zur Anmeldung |
 | 4413 | Warning | `Web.Client/Accounts/AccountsLog` | Kopieren in die Zwischenablage fehlgeschlagen (Ausnahmetyp) |
 | 4414 | Information | `Web.Client/Accounts/AccountsLog` | Hinweis „Passwort per Rücksetzlink des Verwalters geändert“ bestätigt |
+| 4500 | Warning | `Web.Client/Classification/ClassificationLog` | Klassifikations-Aufruf mit HTTP-Fehlercode beantwortet (Vorgang, Statuscode) |
+| 4501 | Warning | `Web.Client/Classification/ClassificationLog` | Klassifikations-Aufruf nicht erreichbar oder unlesbare Antwort (Vorgang, Ausnahmetyp) |
+| 4502 | Debug | `Web.Client/Classification/ClassificationLog` | Angaben eines Dokuments geladen (Erkennungsstatus) |
+| 4503 | Information | `Web.Client/Classification/ClassificationLog` | Angaben bearbeitet und damit bestätigt |
+| 4504 | Information | `Web.Client/Classification/ClassificationLog` | Angaben bestätigt |
+| 4505 | Information | `Web.Client/Classification/ClassificationLog` | Bearbeiter eines Dokuments geändert (Anzahl) |
+| 4506 | Debug | `Web.Client/Classification/ClassificationLog` | Liste „Zu prüfen“ geladen (Anzahl) |
+| 4507 | Information | `Web.Client/Classification/ClassificationLog` | mögliches Duplikat behalten |
+| 4508 | Information | `Web.Client/Classification/ClassificationLog` | mögliches Duplikat gelöscht |
+| 4509 | Information | `Web.Client/Classification/ClassificationLog` | Listeneintrag angelegt (Liste, nie der Name) |
+| 4510 | Information | `Web.Client/Classification/ClassificationLog` | Listeneintrag umbenannt (Liste, nie der Name) |
+| 4511 | Information | `Web.Client/Classification/ClassificationLog` | Listeneinträge zusammengeführt (Liste, Anzahl) |
+| 4512 | Information | `Web.Client/Classification/ClassificationLog` | Dokumentfilter angewendet (Anzahl der Filter, Anzahl der Treffer) |
+| 4513 | Information | `Web.Client/Classification/ClassificationLog` | Upload abgelehnt, weil die Datei schon vorhanden ist |
+| 4514 | Debug | `Web.Client/Classification/ClassificationLog` | Anzahl der Dokumente „Zu prüfen“ für die Navigation nicht ladbar |
+| 4515 | Information | `Web.Client/Classification/ClassificationLog` | Speichern oder Bestätigen mit 409 abgelehnt, weil die Angaben inzwischen erkannt oder bestätigt wurden; Angaben neu geladen |
 | 5100 | Information | `Application/Accounts/AccountsLog` | Haushalt eingerichtet: Verwalter-Id, Anzahl übernommener Dokumente ohne Besitzer (M1) |
 | 5101 | Warning | `Application/Accounts/AccountsLog` | Einrichtung abgelehnt, Haushalt schon eingerichtet |
 | 5102 | Information | `Application/Accounts/AccountsLog` | Einladung erzeugt: Konto-Id des Verwalters, Ablaufzeit (nie der Link) |
@@ -152,8 +181,33 @@ und Annahme (3200–3204) sind nach Application umgezogen und haben ihre Nummern
 | 5110 | Information | `Application/Accounts/AccountsLog` | „Auf allen Geräten abmelden“: Konto-Id |
 | 5111 | Warning | `Application/Accounts/AccountsLog` | Verwalter-Aktion eines Mitglieds abgelehnt (403): Konto-Id, Aktion (`invite`, `list-members`, `remove-member`, `reset-link`) |
 | 5112 | Information | `Application/Accounts/AccountsLog` | Hinweis auf Zurücksetzen durch den Verwalter bestätigt: Konto-Id |
-| 5113 | Warning | `Application/Accounts/AccountsLog` | Änderung abgelehnt, weil das angemeldete Konto entfernt wurde (Cookie noch nicht geprüft): Konto-Id, Vorgang (`upload`, `set-privacy`, `change-password`, `acknowledge-reset`) |
+| 5113 | Warning | `Application/Accounts/AccountsLog` | Änderung abgelehnt, weil das angemeldete Konto entfernt wurde (Cookie noch nicht geprüft): Konto-Id, Vorgang (`upload`, `set-privacy`, `change-password`, `acknowledge-reset`, `edit-fields`, `confirm`, `set-editors`, `keep-duplicate`, `delete-duplicate`, `create-entry`, `rename-entry`, `merge-entries`) |
 | 5120 | Information | `Application/Documents/DocumentPrivacyLog` | Besitzer hat „privat“ umgestellt: Dokument-Id, neuer Wert, Konto-Id |
+| 5200 | Information | `Application/Recognition/RecognitionLog` | Erkennung beginnt: Dokument-Id, Versuch Nr. |
+| 5201 | Information | `Application/Recognition/RecognitionLog` | Dokument erkannt: Dauer in ms, Anzahl Beispiele, Anzahl von den Prüfungen verworfener Werte |
+| 5202 | Information | `Application/Recognition/RecognitionLog` | Erkennung übersprungen: Dokument-Id, Grund (`confirmed`, `no-owner`, `no-text`) |
+| 5203 | Warning | `Application/Recognition/RecognitionLog` | Erkennungsversuch fehlgeschlagen: technischer Grund (Ausnahmetyp, ggf. HTTP-Status), Zeitpunkt des nächsten Versuchs |
+| 5204 | Warning | `Application/Recognition/RecognitionLog` | Erkennung nach dem letzten Versuch aufgegeben; das Dokument bleibt „Done“ ohne Angaben |
+| 5205 | Information | `Application/Recognition/RecognitionLog` | Dokument wurde während der Erkennung bestätigt; Ergebnis verworfen |
+| 5206 | Debug | `Application/Recognition/RecognitionLog` | erkannter Wert verworfen, weil der Text ihn nicht stützt: Feld (`correspondent`, `date`, `amount`, `tags`), Dokument-Id – nie der Wert |
+| 5207 | Information | `Application/Recognition/RecognitionLog` | Dokument als mögliches Duplikat markiert: Dokument-Id, Id des ähnlichen Dokuments |
+| 5208 | Warning | `Application/Recognition/RecognitionLog` | Duplikatprüfung fehlgeschlagen (nur Ausnahmetyp); das Dokument bleibt ohne Hinweis |
+| 5209 | Information | `Application/Recognition/RecognitionLog` | Bestand zur Erkennung eingereiht: Anzahl |
+| 5210 | Warning | `Application/Recognition/RecognitionLog` | Erkennungsversuch hat seinen Job verloren (anderer Worker oder Dokument gelöscht); Ergebnis verworfen |
+| 5211 | Error | `Application/Recognition/RecognitionLog` | Fehlschlag der Erkennung nicht gespeichert (nur Ausnahmetyp); der Job läuft nach Ablauf seiner Sperre erneut |
+| 5212 | Information | `Application/Recognition/RecognitionLog` | Dokument wurde während der Erkennung geteilt; Ergebnis verworfen, Job sofort erneut mit den Listen des Haushalts (ADR-0023, Nachtrag) |
+| 5250 | Information | `Application/Classification/ClassificationLog` | Angaben eines Dokuments bearbeitet (gelten als bestätigt): Dokument-Id, Konto-Id |
+| 5251 | Information | `Application/Classification/ClassificationLog` | Angaben bestätigt: Dokument-Id, Konto-Id |
+| 5252 | Information | `Application/Classification/ClassificationLog` | Bearbeiter gesetzt: Dokument-Id, Konto-Id des Besitzers, Anzahl Bearbeiter |
+| 5253 | Information | `Application/Classification/ClassificationLog` | Mögliches Duplikat behalten (Hinweis entfernt): Dokument-Id, Konto-Id |
+| 5254 | Information | `Application/Classification/ClassificationLog` | Mögliches Duplikat vom Besitzer gelöscht: Dokument-Id, Konto-Id |
+| 5255 | Warning | `Application/Classification/ClassificationLog` | Dateien des gelöschten Duplikats nicht entfernt (nur Platzverlust): Dokument-Id, Ausnahmetyp |
+| 5256 | Warning | `Application/Classification/ClassificationLog` | Änderung an einem Dokument abgelehnt: Konto-Id, Ergebnis (`NotFound`, `Forbidden`, `Invalid`, `Conflict`), Vorgang (`edit-fields`, `confirm`, `set-editors`, `keep-duplicate`, `delete-duplicate`), Dokument-Id; `Conflict` bei `edit-fields`/`confirm`: Erkennungsstatus anders als der, mit dem die Seite die Angaben geladen hat |
+| 5257 | Information | `Application/Classification/ClassificationLog` | Listeneintrag gefunden oder angelegt: Konto-Id, Eintrag-Id, Liste (`Correspondent`, `DocumentType`, `Tag`) – nie der Name |
+| 5258 | Information | `Application/Classification/ClassificationLog` | Listeneintrag umbenannt: Konto-Id, Eintrag-Id, Liste |
+| 5259 | Information | `Application/Classification/ClassificationLog` | Listeneinträge zusammengeführt: Konto-Id, Anzahl Quellen, Liste, Ziel-Id |
+| 5260 | Warning | `Application/Classification/ClassificationLog` | Listenänderung abgelehnt: Konto-Id, Ergebnis (`NotFound`, `Forbidden`, `Invalid`), Vorgang (`create-entry`, `rename-entry`, `merge-entries`), Liste |
+| 5280 | Information | `Application/Documents/DocumentIntakeLog` | Upload abgelehnt, weil der Hochladende dieselbe Datei (SHA-256 des Originals) schon sehen darf: Konto-Id, Id des vorhandenen Dokuments |
 
 Web.Client: Die Ereignisse erscheinen nur in der Browser-Konsole und enthalten nur Sprachkürzel,
 Größen, Anzahlen, Statuscodes, Dauern und technische Fehlernamen – nie Dateinamen, Titel,
@@ -172,6 +226,7 @@ In WASM gibt es keine `ActivitySource` und kein `Meter` (kein Exporter).
 | `nomorepaper.search.query` | `NoMorePaper.Infrastructure` | eine Suche ausführen (Stämme, ggf. Ähnlichkeits-Rückfall) |
 | `nomorepaper.worker.heartbeat` | `NoMorePaper.Worker` | ein Heartbeat in `worker_heartbeats` schreiben |
 | `nomorepaper.processing.document` | `NoMorePaper.Application` | ein Verarbeitungsversuch eines Dokuments (OCR, Archiv speichern, abschließen); Tag `nomorepaper.processing.attempt` |
+| `nomorepaper.recognition.document` | `NoMorePaper.Application` | ein Erkennungsversuch (Listen, Beispiele, LLM, Prüfungen, Zuordnung); Tag `nomorepaper.recognition.attempt` |
 
 ### Messwerte
 
@@ -187,6 +242,12 @@ In WASM gibt es keine `ActivitySource` und kein `Meter` (kein Exporter).
 | `nomorepaper.processing.completed` | Counter | `NoMorePaper.Application` | erfolgreich verarbeitete Dokumente |
 | `nomorepaper.processing.failed` | Counter | `NoMorePaper.Application` | fehlgeschlagene Versuche, Tag `nomorepaper.processing.outcome` (`retry`/`failed` = aufgegeben) |
 | `nomorepaper.processing.duration` | Histogram (s) | `NoMorePaper.Application` | Dauer eines Versuchs, Tag `nomorepaper.processing.outcome` (`done`/`retry`/`failed`) |
+| `nomorepaper.recognition.completed` | Counter | `NoMorePaper.Application` | Erkennungsstufen beendet, Tag `nomorepaper.recognition.outcome` (`recognized`/`skipped`) |
+| `nomorepaper.recognition.failed` | Counter | `NoMorePaper.Application` | fehlgeschlagene Erkennungsversuche, Tag `nomorepaper.recognition.outcome` (`retry`/`given_up`) |
+| `nomorepaper.recognition.duration` | Histogram (s) | `NoMorePaper.Application` | Dauer eines Erkennungsversuchs, Tag `nomorepaper.recognition.outcome` |
+| `nomorepaper.recognition.rejected_values` | Counter | `NoMorePaper.Application` | von den Prüfungen verworfene Werte, Tag `nomorepaper.recognition.field` (`correspondent`/`date`/`amount`/`tags`) |
+| `nomorepaper.recognition.duplicates` | Counter | `NoMorePaper.Application` | als mögliches Duplikat markierte Dokumente (Inhalt) |
+| `nomorepaper.recognition.llm_duration` | Histogram (s) | `NoMorePaper.Infrastructure` | Dauer einer Anfrage an das lokale LLM (`/api/chat`) |
 
 ## Health
 - **Server** `/health`: 200, wenn die Datenbank erreichbar ist, sonst 503.

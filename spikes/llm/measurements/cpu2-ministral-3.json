@@ -1,0 +1,47 @@
+{
+  "header": {
+    "label": "cpu2-ministral-3",
+    "model": "ministral-3:8b-instruct-2512-q4_K_M",
+    "ollamaVersion": "0.40.16",
+    "contextTokens": 4096,
+    "threads": 2,
+    "headChars": 4500,
+    "tailChars": 1500,
+    "examples": 0,
+    "coldPrefix": false,
+    "startedUtc": "2026-11-19T02:29:25Z",
+    "loadedBytes": 5962297506
+  },
+  "records": [
+    {
+      "id": "02-telefonrechnung",
+      "textChars": 953,
+      "sentChars": 953,
+      "examplesSent": 0,
+      "wallSeconds": 108.1653172,
+      "loadSeconds": 7.579756399,
+      "promptSeconds": 64.994296,
+      "promptTokens": 1373,
+      "evalSeconds": 35.571017,
+      "evalTokens": 161,
+      "doneReason": "stop",
+      "content": "{\n  \"correspondent\": \"Nordkom\",\n  \"documentType\": \"Rechnung\",\n  \"summary\": \"Rechnung für den Internetanschluss (DSL 100) und Router-Miete für September 2026 in Höhe von 39,95 EUR, fällig ab 12.10.2026. Es wird eine Abbuchung vom Konto bei der Sparbank Lindental vorgenommen.\",\n  \"title\": \"Nordkom Rechnung September 2026\",\n  \"documentDate\": \"2026-10-05\",\n  \"amount\": 39.95,\n  \"currency\": \"EUR\",\n  \"tags\": [\"Internet\", \"Telefon\"]\n}",
+      "error": null
+    },
+    {
+      "id": "07-arztbrief",
+      "textChars": 1391,
+      "sentChars": 1391,
+      "examplesSent": 0,
+      "wallSeconds": 65.242764,
+      "loadSeconds": 0.001189622,
+      "promptSeconds": 27.614441,
+      "promptTokens": 1428,
+      "evalSeconds": 37.615035,
+      "evalTokens": 157,
+      "doneReason": "stop",
+      "content": "{\n  \"correspondent\": \"Dr. Petra Sommerfeld\",\n  \"documentType\": \"Arztbrief\",\n  \"summary\": \"Der Patient wurde auf arterielle Hypertonie untersucht und von strukturellen Herzerkrankungen befreit. Es werden Extrasystolen als Ursache für Herzstolpern vermutet. Empfohlen wird eine Medikation mit Ramipril und regelmäßige Blutdruckkontrollen.\",\n  \"title\": \"Untersuchung Herzstolpern 01.09.2026\",\n  \"documentDate\": \"2026-09-03\",\n  \"amount\": null,\n  \"currency\": null,\n  \"tags\": [\"Gesundheit\", \"Herz\"]\n}",
+      "error": null
+    }
+  ]
+}

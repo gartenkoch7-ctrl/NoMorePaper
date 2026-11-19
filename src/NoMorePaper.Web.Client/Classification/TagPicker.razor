@@ -1,0 +1,70 @@
+@inject IStringLocalizer<Strings> L
+
+@* The chosen tags as a list, each with its own remove button that names the tag, and a combobox to
+   add more (it can create tags). Removing hands focus to the combobox, since the button is gone. *@
+<fieldset class="tag-picker">
+    <legend>@Label</legend>
+    @if (Tags.Count == 0)
+    {
+        <p class="tag-none">@L["ClsNoTags"]</p>
+    }
+    else
+    {
+        <ul class="tag-list" aria-label="@L["ClsChosenTags"]">
+            @foreach (var tag in Tags)
+            {
+                <li @key="tag.Id">
+                    <span>@tag.Name</span>
+                    <button type="button" class="nmp-button" aria-label="@L["ClsRemoveTagFor", tag.Name]"
+                            @onclick="() => RemoveAsync(tag)">@L["ClsRemoveTag"]</button>
+                </li>
+            }
+        </ul>
+    }
+
+    <EntryCombobox @ref="_add" Id="@(Id + "-add")" Label="@L["ClsAddTag"]" Hint="@L["ClsAddTagHint"]"
+                   Entries="Available" ClearAfterPick="true" OnCreate="OnCreate" ValueChanged="AddAsync" />
+    <LiveRegion @ref="_status" />
+</fieldset>
+
+@code {
+    private EntryCombobox? _add;
+    private LiveRegion? _status;
+
+    [Parameter, EditorRequired] public string Id { get; set; } = string.Empty;
+
+    [Parameter, EditorRequired] public string Label { get; set; } = string.Empty;
+
+    [Parameter] public IReadOnlyList<EntryDto> Tags { get; set; } = [];
+
+    [Parameter] public EventCallback<IReadOnlyList<EntryDto>> TagsChanged { get; set; }
+
+    /// <summary>Every tag the person can see.</summary>
+    [Parameter] public IReadOnlyList<EntryDto> AllTags { get; set; } = [];
+
+    [Parameter] public Func<string, Task<EntryDto?>>? OnCreate { get; set; }
+
+    private IReadOnlyList<EntryDto> Available => [.. AllTags.Where(all => Tags.All(tag => tag.Id != all.Id))];
+
+    private async Task AddAsync(EntryDto? tag)
+    {
+        if (tag is not null && Tags.All(existing => existing.Id != tag.Id))
+        {
+            await TagsChanged.InvokeAsync([.. Tags, tag]);
+        }
+    }
+
+    private async Task RemoveAsync(EntryDto tag)
+    {
+        await TagsChanged.InvokeAsync([.. Tags.Where(existing => existing.Id != tag.Id)]);
+        if (_status is not null)
+        {
+            await _status.Announce(L["ClsTagRemoved", tag.Name]);
+        }
+
+        if (_add is not null)
+        {
+            await _add.FocusAsync();
+        }
+    }
+}

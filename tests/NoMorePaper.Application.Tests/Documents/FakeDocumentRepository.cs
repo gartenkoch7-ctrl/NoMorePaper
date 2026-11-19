@@ -21,6 +21,15 @@ internal sealed class FakeDocumentRepository : IDocumentRepository
     /// <summary>Viewer, page and page size of the last <see cref="ListAsync"/> call.</summary>
     public (Guid Viewer, int Page, int PageSize)? LastList { get; private set; }
 
+    /// <summary>The filter of the last <see cref="ListAsync"/> call.</summary>
+    public DocumentFilter? LastFilter { get; private set; }
+
+    /// <summary>What <see cref="FindVisibleBySha256Async"/> answers: an earlier document with the same file.</summary>
+    public Guid? VisibleDuplicate { get; set; }
+
+    /// <summary>Viewer and hash of the last <see cref="FindVisibleBySha256Async"/> call.</summary>
+    public (Guid Viewer, string Sha256)? LastHashLookup { get; private set; }
+
     /// <summary>The account of the last <see cref="GetAsync"/> call.</summary>
     public Guid? LastViewer { get; private set; }
 
@@ -46,10 +55,18 @@ internal sealed class FakeDocumentRepository : IDocumentRepository
     public Task<bool> ExistsAsync(Guid id, CancellationToken cancellationToken) =>
         ExistsFailure is not null ? throw ExistsFailure : Task.FromResult(Added.Exists(document => document.Id == id));
 
-    public Task<IReadOnlyList<DocumentSummary>> ListAsync(Guid viewerId, int page, int pageSize, CancellationToken cancellationToken)
+    public Task<IReadOnlyList<DocumentSummary>> ListAsync(
+        Guid viewerId, int page, int pageSize, DocumentFilter filter, CancellationToken cancellationToken)
     {
         LastList = (viewerId, page, pageSize);
+        LastFilter = filter;
         return Task.FromResult<IReadOnlyList<DocumentSummary>>([]);
+    }
+
+    public Task<Guid?> FindVisibleBySha256Async(Guid viewerId, string sha256, CancellationToken cancellationToken)
+    {
+        LastHashLookup = (viewerId, sha256);
+        return Task.FromResult(VisibleDuplicate);
     }
 
     public Task<DocumentDetail?> GetAsync(Guid id, Guid viewerId, CancellationToken cancellationToken)

@@ -18,7 +18,7 @@ public sealed class DocumentListTests(ServerFixture server)
 
         await Assertions.Expect(page.GetByRole(AriaRole.Table)).ToBeVisibleAsync();
         await Assertions.Expect(page.Locator("caption")).ToHaveTextAsync("Alle Dokumente, neueste zuerst");
-        await Assertions.Expect(page.GetByRole(AriaRole.Columnheader)).ToHaveTextAsync(["Titel", "Eingang", "Status"]);
+        await Assertions.Expect(page.GetByRole(AriaRole.Columnheader)).ToHaveTextAsync(["Titel", "Absender", "Dokumentart", "Dokumentdatum", "Betrag", "Eingang", "Status"]);
         await ExpectRowAsync(page, "Stromrechnung", "In Warteschlange");
         await ExpectRowAsync(page, "Mietvertrag", "Wird verarbeitet");
         await ExpectRowAsync(page, "Steuerbescheid", "Fertig");
@@ -91,7 +91,7 @@ public sealed class DocumentListTests(ServerFixture server)
         await ExpectRowAsync(page, "Brief", "Wird verarbeitet");
 
         // The list polls every 3 seconds while a document is in progress.
-        var announcement = page.Locator("main .live-region");
+        var announcement = page.Locator("main .documents-changes");
         await Assertions.Expect(announcement).ToContainTextAsync("Brief: Status Fertig");
         await ExpectRowAsync(page, "Brief", "Fertig");
     }
@@ -119,7 +119,7 @@ public sealed class DocumentListTests(ServerFixture server)
 
         await ExpectRowAsync(page, "Rechnung", "Fehlgeschlagen");
         // One message with both changes, not the second one cutting off the first.
-        await Assertions.Expect(page.Locator("main .live-region"))
+        await Assertions.Expect(page.Locator("main .documents-changes"))
             .ToHaveTextAsync("Brief: Status Fertig. Rechnung: Status Fehlgeschlagen");
     }
 

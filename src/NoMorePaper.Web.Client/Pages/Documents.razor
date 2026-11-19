@@ -9,7 +9,11 @@
 
 <MudText Typo="Typo.h1">@L["DocumentsHeading"]</MudText>
 
-<LiveRegion @ref="_changes" />
+<DocumentFilterBar ActiveCount="@DocumentFilterQuery.ActiveCount(_filter)" OnApply="ApplyFilterAsync" />
+
+@* Two regions: the state changes of the poll and the number of documents a filter found must not cut each other off. *@
+<LiveRegion @ref="_changes" Class="documents-changes" />
+<LiveRegion @ref="_count" Class="documents-count" />
 
 @if (_loading)
 {
@@ -25,7 +29,7 @@ else if (_error is not null)
 }
 else if (_documents.Length == 0)
 {
-    <p data-ready>@L["DocumentsEmpty"]</p>
+    <p data-ready>@(DocumentFilterQuery.ActiveCount(_filter) > 0 ? L["DocumentsEmptyFiltered"] : L["DocumentsEmpty"])</p>
 }
 else
 {
@@ -34,6 +38,10 @@ else
         <thead>
             <tr>
                 <th scope="col">@L["ColTitle"]</th>
+                <th scope="col">@L["ClsFieldCorrespondent"]</th>
+                <th scope="col">@L["ClsFieldType"]</th>
+                <th scope="col">@L["ClsFieldDate"]</th>
+                <th scope="col">@L["ClsFieldAmount"]</th>
                 <th scope="col">@L["ColReceived"]</th>
                 <th scope="col">@L["ColStatus"]</th>
             </tr>
@@ -54,8 +62,19 @@ else
                             {
                                 <PrivateBadge />
                             }
+                            @if (document.Recognition == DocumentRecognitionState.Automatic)
+                            {
+                                <span class="private-badge">
+                                    <MudIcon Icon="@Icons.Material.Filled.AutoAwesome" />
+                                    <span>@L["ClsRecognitionBadge"]</span>
+                                </span>
+                            }
                         </span>
                     </th>
+                    <td>@(document.Correspondent?.Name ?? L["ClsNoValue"].Value)</td>
+                    <td>@(document.DocumentType?.Name ?? L["ClsNoValue"].Value)</td>
+                    <td>@(document.DocumentDate is { } date ? FieldFormat.Date(date, CultureInfo.CurrentCulture) : L["ClsNoValue"].Value)</td>
+                    <td>@(document.Amount is { } amount ? FieldFormat.Amount(amount, CultureInfo.CurrentCulture) : L["ClsNoValue"].Value)</td>
                     <td><time datetime="@document.ReceivedAt.ToString("o", CultureInfo.InvariantCulture)">@document.ReceivedAt.ToLocalTime().ToString("g", CultureInfo.CurrentCulture)</time></td>
                     <td>
                         @* Symbol and text together: the state is never conveyed by an icon or colour alone. *@
@@ -75,8 +94,11 @@ else
     private DocumentSummaryDto[] _documents = [];
     private Dictionary<Guid, DocumentProcessingState> _lastStates = [];
     private LiveRegion? _changes;
+    private LiveRegion? _count;
+    private DocumentFilterDto? _filter;
     private string? _error;
     private bool _loading = true;
+    private bool _polling;
 
     protected override async Task OnInitializedAsync()
     {
@@ -93,11 +115,30 @@ else
         _ = PollAsync();
     }
 
+    // A new filter replaces the list, so the old state changes are not "changes" any more; the number of
+    // documents found is announced, because the list changes silently for a screen reader.
+    private async Task ApplyFilterAsync(DocumentFilterDto filter)
+    {
+        _filter = DocumentFilterQuery.ActiveCount(filter) == 0 ? null : filter;
+        _lastStates = [];
+        await LoadAsync(announceChanges: false);
+        var active = DocumentFilterQuery.ActiveCount(_filter);
+        Logger.FilterApplied(active, _documents.Length);
+        if (_count is not null)
+        {
+            await _count.Announce(_error is not null ? L["DocumentsLoadError", _error]
+                : _documents.Length == 0 ? L["FilterFoundNone"]
+                : _documents.Length == 1 ? L["FilterFoundOne"] : L["FilterFound", _documents.Length]);
+        }
+
+        _ = PollAsync();
+    }
+
     private bool InProgress => _documents.Any(d => d.State is DocumentProcessingState.Queued or DocumentProcessingState.Processing);
 
     private async Task LoadAsync(bool announceChanges)
     {
-        var result = await Api.ListAsync(ct: _cts.Token);
+        var result = await Api.ListAsync(filter: _filter, ct: _cts.Token);
         if (!result.IsSuccess)
         {
             _error = result.Error;
@@ -118,11 +159,13 @@ else
     // Polls only while something is queued or processing; ends on its own when all is settled.
     private async Task PollAsync()
     {
-        if (!InProgress)
+        // A filter change starts polling again; one loop is enough.
+        if (_polling || !InProgress)
         {
             return;
         }
 
+        _polling = true;
         Logger.ListPollingStarted();
         using var timer = new PeriodicTimer(_pollInterval);
         try
@@ -136,6 +179,10 @@ else
         catch (OperationCanceledException)
         {
             // The page was left.
+        }
+        finally
+        {
+            _polling = false;
         }
     }
 

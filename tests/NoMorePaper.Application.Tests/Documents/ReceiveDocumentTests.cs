@@ -14,6 +14,7 @@ public sealed class ReceiveDocumentTests
     private const int DiscardFailed = 3202;
     private const int KeptRecorded = 3203;
     private const int KeptUnverified = 3204;
+    private const int DuplicateRefused = 5280;
 
     private static readonly DateTimeOffset s_now = new(2026, 11, 18, 12, 0, 0, TimeSpan.Zero);
 
@@ -129,8 +130,24 @@ public sealed class ReceiveDocumentTests
         Assert.Equal([ReceiveFailed, DiscardFailed], _log.EventIds);
     }
 
+    [Fact]
+    public async Task Receive_WhenTheUploaderMaySeeTheSameFile_KeepsNothing_AndNamesTheExistingDocument()
+    {
+        var existing = Guid.CreateVersion7();
+        _documents.VisibleDuplicate = existing;
+
+        var result = await Receive().ReceiveAsync("a.pdf", "application/pdf", new MemoryStream([1, 2, 3]), isPrivate: false, Ct);
+
+        Assert.Equal(ReceiveResult.Duplicate(existing), result);
+        Assert.Equal((_current.Id, FakeDocumentStorage.Sha256), _documents.LastHashLookup);
+        Assert.Empty(_documents.Added);
+        Assert.Empty(_storage.Inbox);
+        Assert.Single(_storage.Discarded);
+        Assert.Equal([DuplicateRefused], _log.EventIds);
+    }
+
     private async Task<Guid> ReceiveAsync(string fileName, bool isPrivate = false) =>
-        await Receive().ReceiveAsync(fileName, "application/pdf", new MemoryStream([1, 2, 3]), isPrivate, Ct)
+        (await Receive().ReceiveAsync(fileName, "application/pdf", new MemoryStream([1, 2, 3]), isPrivate, Ct)).DocumentId
             ?? throw new InvalidOperationException("The signed-in account exists in these tests.");
 
     private ReceiveDocument Receive() => new(_documents, _storage, new FixedClock(s_now), _current, _log);

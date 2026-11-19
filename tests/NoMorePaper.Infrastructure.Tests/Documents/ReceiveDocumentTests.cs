@@ -29,7 +29,7 @@ public sealed class ReceiveDocumentTests(PostgresFixture postgres) : IDisposable
         await using var db = await MigratedContextAsync("intake_ok");
         var intake = CreateIntake(db);
 
-        var id = await intake.ReceiveAsync("Zahnarzt 2026.PDF", "application/pdf", new MemoryStream(s_content), isPrivate: false, Ct);
+        var id = (await intake.ReceiveAsync("Zahnarzt 2026.PDF", "application/pdf", new MemoryStream(s_content), isPrivate: false, Ct)).DocumentId;
 
         await using var verify = postgres.CreateContext("intake_ok");
         var document = await verify.Documents.SingleAsync(d => d.Id == id, Ct);
@@ -56,7 +56,7 @@ public sealed class ReceiveDocumentTests(PostgresFixture postgres) : IDisposable
         var now = new DateTimeOffset(2026, 5, 6, 7, 8, 9, TimeSpan.Zero);
         var intake = CreateIntake(db, new FixedClock(now));
 
-        var id = await intake.ReceiveAsync("a.png", "image/png", new MemoryStream(s_content), isPrivate: false, Ct);
+        var id = (await intake.ReceiveAsync("a.png", "image/png", new MemoryStream(s_content), isPrivate: false, Ct)).DocumentId;
 
         await using var verify = postgres.CreateContext("intake_clock");
         Assert.Equal(now, (await verify.Documents.SingleAsync(d => d.Id == id, Ct)).ReceivedAt);
@@ -68,7 +68,7 @@ public sealed class ReceiveDocumentTests(PostgresFixture postgres) : IDisposable
     {
         await using var db = await MigratedContextAsync("intake_path");
 
-        var id = await CreateIntake(db).ReceiveAsync("../../outside/secret.pdf", "application/pdf", new MemoryStream(s_content), isPrivate: false, Ct);
+        var id = (await CreateIntake(db).ReceiveAsync("../../outside/secret.pdf", "application/pdf", new MemoryStream(s_content), isPrivate: false, Ct)).DocumentId;
 
         Assert.True(File.Exists(Path.Combine(_sandbox.FullName, "inbox", $"{id}", "original.pdf")));
         Assert.Equal("secret.pdf", (await db.Documents.AsNoTracking().SingleAsync(d => d.Id == id, Ct)).Files.Single().FileName);
@@ -109,11 +109,12 @@ public sealed class ReceiveDocumentTests(PostgresFixture postgres) : IDisposable
     [Fact]
     public async Task Receive_WhenTheRecordCannotBeChecked_KeepsTheFile()
     {
-        // This database was never created, so both saving and the check afterwards fail.
+        // This database was never created, so both saving and the check afterwards fail. The duplicate
+        // check before them would fail too, so it is left out here.
         await using var db = postgres.CreateContext("intake_unmigrated");
 
         await Assert.ThrowsAnyAsync<Exception>(() =>
-            CreateIntake(db).ReceiveAsync("a.pdf", "application/pdf", new MemoryStream(s_content), isPrivate: false, Ct));
+            CreateIntake(db, repository: new WithoutDuplicateCheck(new EfDocumentRepository(db))).ReceiveAsync("a.pdf", "application/pdf", new MemoryStream(s_content), isPrivate: false, Ct));
 
         Assert.Single(InboxFolders());
     }
@@ -124,7 +125,7 @@ public sealed class ReceiveDocumentTests(PostgresFixture postgres) : IDisposable
         using var request = CancellationTokenSource.CreateLinkedTokenSource(Ct);
         await using var db = await MigratedContextAsync("intake_cancel_commit", new CancelBeforeSave(request));
 
-        var id = await CreateIntake(db).ReceiveAsync("a.pdf", "application/pdf", new MemoryStream(s_content), isPrivate: false, request.Token);
+        var id = (await CreateIntake(db).ReceiveAsync("a.pdf", "application/pdf", new MemoryStream(s_content), isPrivate: false, request.Token)).DocumentId;
 
         Assert.True(request.IsCancellationRequested);
         Assert.True(await db.ProcessingJobs.AsNoTracking().AnyAsync(j => j.DocumentId == id, Ct));
@@ -143,8 +144,8 @@ public sealed class ReceiveDocumentTests(PostgresFixture postgres) : IDisposable
         Assert.Empty(await db.ProcessingJobs.ToListAsync(Ct));
     }
 
-    private ReceiveDocument CreateIntake(AppDbContext db, TimeProvider? clock = null) => new(
-        new EfDocumentRepository(db),
+    private ReceiveDocument CreateIntake(AppDbContext db, TimeProvider? clock = null, IDocumentRepository? repository = null) => new(
+        repository ?? new EfDocumentRepository(db),
         new FileSystemDocumentStorage(_sandbox.FullName, new RecordingDirectorySync(), NullLogger<FileSystemDocumentStorage>.Instance),
         clock ?? TimeProvider.System,
         new FakeCurrentAccount(Guid.CreateVersion7()),

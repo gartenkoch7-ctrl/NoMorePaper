@@ -1,0 +1,219 @@
+@using System.Globalization
+@inject IStringLocalizer<Strings> L
+@inject ClassificationApi Api
+@inject IJSRuntime Js
+
+@* The filters of the document list. They hide behind a disclosure button (aria-expanded) so the list
+   stays first on a small or magnified screen; the choices load when it is opened for the first time.
+   It is a group, not a <form>, because the tag combobox uses Enter to pick. "Filtern" applies; the
+   page then announces how many documents match. *@
+<section class="filter-bar" aria-labelledby="filter-toggle">
+    <h2 class="filter-heading">
+        <button type="button" id="filter-toggle" class="nmp-button" aria-expanded="@(_open ? "true" : "false")"
+                aria-controls="filter-body" @onclick="ToggleAsync">@ToggleText</button>
+    </h2>
+    @* The content exists only while open: closed, it would add empty live regions and fields to the page. *@
+    <div id="filter-body" class="filter-body" role="group" aria-label="@L["FilterGroup"]" hidden="@(!_open)">
+        @if (_open)
+        {
+            if (_loadError is not null)
+            {
+                <div role="alert" class="error-box">
+                    <MudIcon Icon="@Icons.Material.Filled.Error" />
+                    <span>@L["FilterLoadError", _loadError]</span>
+                </div>
+                <button type="button" class="nmp-button" @onclick="LoadChoicesAsync">@L["Retry"]</button>
+            }
+
+            <div class="filter-grid">
+                <div class="form-field">
+                    <label for="filter-correspondent">@L["ClsFieldCorrespondent"]</label>
+                    <select id="filter-correspondent" class="form-input" @bind="_correspondent">
+                        <option value="">@L["FilterAll"]</option>
+                        @foreach (var entry in _correspondents)
+                        {
+                            <option value="@entry.Id">@entry.Name</option>
+                        }
+                    </select>
+                </div>
+                <div class="form-field">
+                    <label for="filter-type">@L["ClsFieldType"]</label>
+                    <select id="filter-type" class="form-input" @bind="_type">
+                        <option value="">@L["FilterAll"]</option>
+                        @foreach (var entry in _types)
+                        {
+                            <option value="@entry.Id">@entry.Name</option>
+                        }
+                    </select>
+                </div>
+                <div class="form-field">
+                    <label for="filter-from">@L["FilterFrom"]</label>
+                    <input id="filter-from" class="form-input" type="date" @bind="_from"
+                           aria-invalid="@(_form.IsInvalid("filter-from") ? "true" : null)" />
+                </div>
+                <div class="form-field">
+                    <label for="filter-to">@L["FilterTo"]</label>
+                    <input id="filter-to" class="form-input" type="date" @bind="_to" />
+                </div>
+                <div class="form-field">
+                    <label for="filter-amount-from">@L["FilterAmountFrom"]</label>
+                    <input id="filter-amount-from" class="form-input" type="text" inputmode="decimal" autocomplete="off"
+                           @bind="_amountFrom" @bind:event="oninput" aria-invalid="@(_form.IsInvalid("filter-amount-from") ? "true" : null)" />
+                </div>
+                <div class="form-field">
+                    <label for="filter-amount-to">@L["FilterAmountTo"]</label>
+                    <input id="filter-amount-to" class="form-input" type="text" inputmode="decimal" autocomplete="off"
+                           @bind="_amountTo" @bind:event="oninput" aria-invalid="@(_form.IsInvalid("filter-amount-to") ? "true" : null)" />
+                </div>
+                <div class="form-field">
+                    <label for="filter-private">@L["FilterVisibility"]</label>
+                    <select id="filter-private" class="form-input" @bind="_visibility">
+                        <option value="">@L["FilterAll"]</option>
+                        <option value="private">@L["FilterOnlyPrivate"]</option>
+                        <option value="shared">@L["FilterOnlyShared"]</option>
+                    </select>
+                </div>
+            </div>
+
+            <TagPicker Id="filter-tags" Label="@L["ClsFieldTags"]" Tags="_tags" TagsChanged="TagsChangedAsync" AllTags="_allTags" />
+            <div class="form-check">
+                <input id="filter-all-tags" type="checkbox" @bind="_allTagsNeeded" />
+                <label for="filter-all-tags">@L["FilterAllTags"]</label>
+            </div>
+
+            <LiveRegion @ref="_error" Assertive="true" Class="form-error" />
+            <div class="button-row">
+                <button type="button" id="filter-apply" class="nmp-button" @onclick="ApplyAsync">@L["FilterApply"]</button>
+                <button type="button" class="nmp-button" @onclick="ResetAsync">@L["FilterReset"]</button>
+            </div>
+        }
+    </div>
+</section>
+
+@code {
+    private readonly List<EntryDto> _correspondents = [];
+    private readonly List<EntryDto> _types = [];
+    private readonly List<EntryDto> _allTags = [];
+    private FormValidation _form = default!;
+    private LiveRegion? _error;
+    private IReadOnlyList<EntryDto> _tags = [];
+    private string _correspondent = string.Empty;
+    private string _type = string.Empty;
+    private DateOnly? _from;
+    private DateOnly? _to;
+    private string _amountFrom = string.Empty;
+    private string _amountTo = string.Empty;
+    private string _visibility = string.Empty;
+    private string? _loadError;
+    private bool _allTagsNeeded;
+    private bool _open;
+    private bool _loaded;
+
+    /// <summary>How many filters are on now, for the button text.</summary>
+    [Parameter] public int ActiveCount { get; set; }
+
+    [Parameter] public EventCallback<DocumentFilterDto> OnApply { get; set; }
+
+    private string ToggleText => ActiveCount == 0 ? L["FilterToggle"] : L["FilterToggleActive", ActiveCount];
+
+    protected override void OnInitialized() => _form = new FormValidation(L, Js);
+
+    private async Task ToggleAsync()
+    {
+        _open = !_open;
+        if (_open && !_loaded)
+        {
+            await LoadChoicesAsync();
+        }
+    }
+
+    private async Task LoadChoicesAsync()
+    {
+        _loadError = null;
+        foreach (var (kind, target) in new[]
+        {
+            (EntryKind.Correspondents, _correspondents), (EntryKind.DocumentTypes, _types), (EntryKind.Tags, _allTags),
+        })
+        {
+            var result = await Api.ListEntriesAsync(kind);
+            if (!result.IsSuccess)
+            {
+                _loadError = result.Error;
+                return;
+            }
+
+            target.Clear();
+            target.AddRange(result.Value ?? []);
+        }
+
+        _loaded = true;
+    }
+
+    private Task TagsChangedAsync(IReadOnlyList<EntryDto> tags)
+    {
+        _tags = tags;
+        return Task.CompletedTask;
+    }
+
+    private async Task ApplyAsync()
+    {
+        _form.Reset();
+        var culture = CultureInfo.CurrentCulture;
+        decimal? from = null, to = null;
+        if (_amountFrom.Trim().Length > 0)
+        {
+            if (FieldFormat.TryParseAmount(_amountFrom, culture, out var value))
+            {
+                from = value;
+            }
+            else
+            {
+                _form.Set("filter-amount-from", L["ClsErrorAmount"]);
+            }
+        }
+
+        if (!_form.HasIssue && _amountTo.Trim().Length > 0)
+        {
+            if (FieldFormat.TryParseAmount(_amountTo, culture, out var value))
+            {
+                to = value;
+            }
+            else
+            {
+                _form.Set("filter-amount-to", L["ClsErrorAmount"]);
+            }
+        }
+
+        var fromDate = _from;
+        var toDate = _to;
+        if (!_form.HasIssue && fromDate > toDate)
+        {
+            _form.Set("filter-from", L["FilterErrorDates"]);
+        }
+
+        if (await _form.ReportAsync(_error))
+        {
+            return;
+        }
+
+        await OnApply.InvokeAsync(new DocumentFilterDto(
+            Guid.TryParse(_correspondent, out var correspondent) ? correspondent : null,
+            Guid.TryParse(_type, out var type) ? type : null,
+            fromDate,
+            toDate,
+            _tags.Count == 0 ? null : [.. _tags.Select(tag => tag.Id)],
+            _allTagsNeeded,
+            from,
+            to,
+            _visibility switch { "private" => true, "shared" => false, _ => null }));
+    }
+
+    private async Task ResetAsync()
+    {
+        (_correspondent, _type, _amountFrom, _amountTo, _visibility) = (string.Empty, string.Empty, string.Empty, string.Empty, string.Empty);
+        (_from, _to) = (null, null);
+        (_tags, _allTagsNeeded) = ([], false);
+        _form.Reset();
+        await OnApply.InvokeAsync(new DocumentFilterDto());
+    }
+}

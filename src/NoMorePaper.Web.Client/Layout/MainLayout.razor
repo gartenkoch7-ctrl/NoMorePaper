@@ -3,6 +3,7 @@
 @inject IStringLocalizer<Strings> L
 @inject NavigationManager Navigation
 @inject AuthState Auth
+@inject ReviewCounter Review
 
 <MudThemeProvider Theme="_theme" IsDarkMode="true" />
 <MudPopoverProvider />
@@ -23,7 +24,9 @@
                 <li><a href="" aria-current="@(IsCurrent("") ? "page" : null)">@L["NavHome"]</a></li>
                 <li><a href="hochladen" aria-current="@(IsCurrent("hochladen") ? "page" : null)">@L["NavUpload"]</a></li>
                 <li><a href="dokumente" aria-current="@(IsCurrent("dokumente") ? "page" : null)">@L["NavDocuments"]</a></li>
+                <li><a href="zu-pruefen" aria-current="@(IsCurrent("zu-pruefen") ? "page" : null)">@(Review.Count is > 0 and var waiting ? L["NavReviewCount", waiting] : L["NavReview"])</a></li>
                 <li><a href="suche" aria-current="@(IsCurrent("suche") ? "page" : null)">@L["NavSearch"]</a></li>
+                <li><a href="listen" aria-current="@(IsCurrent("listen") ? "page" : null)">@L["NavLists"]</a></li>
                 <li><a href="konto" aria-current="@(IsCurrent("konto") ? "page" : null)">@L["NavAccount"]</a></li>
                 @if (Auth.IsAdmin)
                 {
@@ -52,12 +55,37 @@
     {
         Auth.Changed += OnAuthChanged;
         Navigation.LocationChanged += OnLocationChanged;
+        Review.Changed += OnReviewChanged;
     }
 
-    private void OnAuthChanged() => _ = InvokeAsync(StateHasChanged);
+    private void OnAuthChanged()
+    {
+        _ = InvokeAsync(StateHasChanged);
+        RefreshReviewCount();
+    }
+
+    private void OnReviewChanged() => _ = InvokeAsync(StateHasChanged);
 
     // The current page is marked in the navigation, so the layout renders again on navigation.
-    private void OnLocationChanged(object? sender, LocationChangedEventArgs e) => _ = InvokeAsync(StateHasChanged);
+    // The number of documents to review is asked again then too: uploads and the recognition
+    // add to it while the person is elsewhere.
+    private void OnLocationChanged(object? sender, LocationChangedEventArgs e)
+    {
+        _ = InvokeAsync(StateHasChanged);
+        RefreshReviewCount();
+    }
+
+    private void RefreshReviewCount()
+    {
+        if (Auth.IsSignedIn)
+        {
+            _ = Review.RefreshAsync();
+        }
+        else
+        {
+            Review.Set(null);
+        }
+    }
 
     private bool IsCurrent(string path) =>
         Navigation.ToBaseRelativePath(Navigation.Uri).Split('?', '#')[0] == path;
@@ -68,5 +96,6 @@
     {
         Auth.Changed -= OnAuthChanged;
         Navigation.LocationChanged -= OnLocationChanged;
+        Review.Changed -= OnReviewChanged;
     }
 }

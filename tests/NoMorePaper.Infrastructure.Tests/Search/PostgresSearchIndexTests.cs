@@ -1,4 +1,5 @@
 using Microsoft.Extensions.Logging.Abstractions;
+using NoMorePaper.Application.Documents;
 using NoMorePaper.Application.Search;
 using NoMorePaper.Domain.Documents;
 using NoMorePaper.Infrastructure.Persistence;
@@ -141,7 +142,7 @@ public sealed class PostgresSearchIndexTests(PostgresFixture postgres)
     }
 
     private static Task<IReadOnlyList<SearchHit>> SearchAsync(AppDbContext db, string query, int limit = 20) =>
-        new SearchDocuments(new PostgresSearchIndex(db, NullLogger<PostgresSearchIndex>.Instance), new FakeCurrentAccount(s_owner)).SearchAsync(query, limit, Ct);
+        new SearchDocuments(new PostgresSearchIndex(db, NullLogger<PostgresSearchIndex>.Instance), new FakeCurrentAccount(s_owner)).SearchAsync(query, limit, DocumentFilter.None, Ct);
 
     private static async Task<Guid> AddAsync(AppDbContext db, string title, string text)
     {

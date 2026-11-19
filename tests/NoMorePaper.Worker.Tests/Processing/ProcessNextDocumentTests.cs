@@ -33,7 +33,7 @@ public sealed class ProcessNextDocumentTests(PostgresFixture postgres)
         var document = await harness.DocumentAsync(id);
         Assert.Equal((ProcessingState.Done, FakeOcrEngine.Text), (document.State, document.ContentText));
         Assert.Equal("Scan 1.pdf", document.FindFile(DocumentFileKind.Archive)?.FileName);
-        Assert.Null(await harness.JobAsync(id));
+        Assert.Equal(JobStage.Recognition, (await harness.JobAsync(id))?.Stage);
 
         // OCR saw a working copy with a fixed name in the working folder, never the stored original.
         var (input, existed) = harness.Ocr.LastInput!.Value;

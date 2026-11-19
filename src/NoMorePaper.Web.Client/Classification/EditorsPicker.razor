@@ -1,0 +1,102 @@
+@inject IStringLocalizer<Strings> L
+@inject ClassificationApi Api
+@inject AuthState Auth
+@inject ILogger<EditorsPicker> Logger
+
+@* Only the owner sees this: who besides the owner may edit and confirm the fields. Native checkboxes
+   in a fieldset, so every member is a labelled control and the group has a name. *@
+<fieldset class="editors-picker">
+    <legend>@L["ClsEditorsHeading"]</legend>
+    <p class="form-hint">@L["ClsEditorsHint"]</p>
+    @if (_loadError is not null)
+    {
+        <div role="alert" class="error-box">
+            <MudIcon Icon="@Icons.Material.Filled.Error" />
+            <span>@L["ClsEditorsLoadError", _loadError]</span>
+        </div>
+    }
+    else if (_members is null)
+    {
+        <p role="status">@L["ClsEditorsLoading"]</p>
+    }
+    else if (_members.Length == 0)
+    {
+        <p>@L["ClsEditorsNone"]</p>
+    }
+    else
+    {
+        @foreach (var member in _members)
+        {
+            <div class="form-check" @key="member.Id">
+                <input id="editor-@member.Id.ToString("N")" type="checkbox" checked="@_selected.Contains(member.Id)"
+                       @onchange="args => Toggle(member.Id, args.Value is true)" />
+                <label for="editor-@member.Id.ToString("N")">@member.DisplayName</label>
+            </div>
+        }
+
+        <LiveRegion @ref="_error" Assertive="true" Class="form-error" />
+        <button type="button" class="nmp-button" disabled="@_busy" @onclick="SaveAsync">@L["ClsEditorsSave"]</button>
+    }
+</fieldset>
+
+@code {
+    private readonly HashSet<Guid> _selected = [];
+    private HouseholdMemberDto[]? _members;
+    private LiveRegion? _error;
+    private string? _loadError;
+    private bool _busy;
+
+    [Parameter, EditorRequired] public Guid DocumentId { get; set; }
+
+    /// <summary>The members who may edit now.</summary>
+    [Parameter] public IReadOnlyList<Guid> SelectedIds { get; set; } = [];
+
+    /// <summary>The choice was saved; the new list of editors.</summary>
+    [Parameter] public EventCallback<IReadOnlyList<Guid>> OnSaved { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        _selected.UnionWith(SelectedIds);
+        var result = await Api.ListHouseholdAsync();
+        if (!result.IsSuccess)
+        {
+            _loadError = result.Error;
+            return;
+        }
+
+        // The owner can always edit; listing the owner would only be confusing.
+        _members = [.. (result.Value ?? []).Where(member => member.Id != Auth.Me?.Id)];
+    }
+
+    private void Toggle(Guid id, bool on)
+    {
+        if (on)
+        {
+            _selected.Add(id);
+        }
+        else
+        {
+            _selected.Remove(id);
+        }
+    }
+
+    private async Task SaveAsync()
+    {
+        var ids = _members!.Where(member => _selected.Contains(member.Id)).Select(member => member.Id).ToArray();
+        _busy = true;
+        var result = await Api.SetEditorsAsync(DocumentId, ids);
+        _busy = false;
+        if (!result.IsSuccess)
+        {
+            if (_error is not null)
+            {
+                await _error.Announce(L["ErrorPrefix", result.Error!]);
+            }
+
+            return;
+        }
+
+        Logger.EditorsChanged(ids.Length);
+        await OnSaved.InvokeAsync(ids);
+    }
+}

@@ -36,9 +36,14 @@ internal sealed class FakeOcrEngine : IOcrEngine
         throw new InvalidOperationException("Not reached.");
     }
 
-    public static async Task<OcrResult> WriteArchiveAsync(string input, string output, CancellationToken cancellationToken)
-    {
-        await File.WriteAllTextAsync(output, "%PDF-1.7 archive", cancellationToken);
-        return new OcrResult(Text, 1);
-    }
+    public static Task<OcrResult> WriteArchiveAsync(string input, string output, CancellationToken cancellationToken) =>
+        Recognizes(Text)(input, output, cancellationToken);
+
+    /// <summary>Writes the archive and returns <paramref name="text"/> as the recognized text.</summary>
+    public static Func<string, string, CancellationToken, Task<OcrResult>> Recognizes(string text) =>
+        async (_, output, cancellationToken) =>
+        {
+            await File.WriteAllTextAsync(output, "%PDF-1.7 archive", cancellationToken);
+            return new OcrResult(text, 1);
+        };
 }

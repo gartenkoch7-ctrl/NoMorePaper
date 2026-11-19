@@ -4,8 +4,8 @@ namespace NoMorePaper.Application.Documents;
 
 /// <summary>
 /// Log events of document intake (docs/kb/telemetrie.md). The ids 3200–3204 come from the
-/// Infrastructure range, where intake lived in M1, and stay stable. Only ids, sizes and exception
-/// types: no file names or titles.
+/// Infrastructure range, where intake lived in M1, and stay stable; later ones are in the Application
+/// range. Only ids, sizes and exception types: no file names or titles.
 /// </summary>
 internal static partial class DocumentIntakeLog
 {
@@ -21,6 +21,9 @@ internal static partial class DocumentIntakeLog
     [LoggerMessage(EventId = 3203, Level = LogLevel.Warning, Message = "Document {DocumentId} was recorded although saving reported a failure; its received file is kept")]
     public static partial void KeptRecorded(this ILogger logger, Guid documentId);
 
-    [LoggerMessage(EventId = 3204, Level = LogLevel.Warning, Message = "Could not check whether document {DocumentId} was recorded ({ErrorType}); its received file is kept")]
+    [LoggerMessage(EventId = 5280, Level = LogLevel.Information, Message = "Upload of account {AccountId} refused: the same file is document {ExistingDocumentId}")]
+    public static partial void DuplicateRefused(this ILogger logger, Guid existingDocumentId, Guid accountId);
+
+    [LoggerMessage(EventId = 3204,Level = LogLevel.Warning, Message = "Could not check whether document {DocumentId} was recorded ({ErrorType}); its received file is kept")]
     public static partial void KeptUnverified(this ILogger logger, Guid documentId, string errorType);
 }
