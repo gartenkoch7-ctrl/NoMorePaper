@@ -52,7 +52,7 @@ public sealed class JobQueueTakeoverTests(PostgresFixture postgres)
         Assert.True(await queue.CompleteAsync(owner, "Rechnung", s_archive, Ct));
 
         Assert.Equal(ProcessingState.Done, (await data.DocumentAsync(owner.DocumentId)).State);
-        Assert.Null(await data.JobAsync(owner.DocumentId));
+        Assert.Equal(JobStage.Recognition, (await data.JobAsync(owner.DocumentId))!.Stage);
     }
 
     [Fact]

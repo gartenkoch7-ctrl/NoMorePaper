@@ -215,7 +215,76 @@ Typ-Listen mit `null`, `pattern`, `minItems`/`maxItems` und `enum` wurden von Ol
 - **Schlagwörter:** verwerfen, wenn sie normalisiert der Dokumentart oder dem Absender gleichen.
 - **Längen:** Titel höchstens 80 Zeichen, Zusammenfassung höchstens 500, sonst abschneiden.
 
+## Umsetzung im Worker (Spur A, M3)
+- **Ablauf:** Nach der OCR geht der Job in die Stufe `Recognition` über (gleiche Zeile in
+  `processing_jobs`, Spalten `stage` und `priority`). Direkt nach der OCR prüft der Worker auf
+  inhaltliche Duplikate; die Erkennung läuft danach als eigener Job-Durchlauf.
+- **Erkennung** (`Application/Recognition/RecognizeDocument`, `RecognitionAttempt`): Listen und
+  Beispiele immer aus Sicht des **Besitzers**; Kürzungsregel und Prüfungen wie oben; Namen werden
+  über `IClassificationStore.FindOrCreateAsync(Besitzer, …)` zu Einträgen (gleicher normalisierter
+  Name unter den sichtbaren, sonst neu); der Titel ersetzt den Dateinamen; `Document.Classify` setzt
+  `Recognition = Automatic`.
+- **Übersprungen** (Job entfernt, ohne LLM): bestätigte Dokumente, Dokumente ohne Besitzer (M1 vor
+  der Einrichtung) und Dokumente ohne Text. Die beiden letzten bekommen schon beim Abschluss der OCR
+  keinen Erkennungs-Job.
+- **Zeitlimits beim Start:** `/api/show` 30 s, `/api/pull` 2 h; danach neuer Versuch des Worker-Starts.
+- **Prüfungen, genauer als oben:** Ein Absendername ohne Wort mit vier Buchstaben (`AOK`) muss als
+  ganzes Wort im Text stehen. Die Jahreszahl zählt auch als kurzes Datum (`19.11.26`). Ein Datum darf
+  höchstens einen Tag nach dem heutigen UTC-Datum liegen (Zeitzonen). Ein ganzer Betrag ohne
+  Nachkommastellen (`1150`) zählt nur neben einer Währung (`1.150 €`, `EUR 1150`), sonst wären
+  Hausnummern und Jahreszahlen ein Beleg.
+- **Modell bereit:** Erkennungs-Jobs werden erst geholt, wenn der Worker-Start das Modell bestätigt
+  hat (`RecognitionReadiness`); bis dahin läuft nur die OCR. So verbrauchen neue Uploads ihre Versuche
+  nicht, während das Modell beim ersten Start lädt.
+- **Listen im Prompt stabil:** Passen alle Absender in die Grenze, bleibt die Reihenfolge alphabetisch,
+  damit der Systemtext gleich bleibt und Ollama ihn wiederverwendet.
+- **Bestätigung während der Erkennung:** Nach der Antwort des Modells liest der Worker das Dokument
+  neu; ist es inzwischen bestätigt, wird die Antwort verworfen und es entstehen keine Listeneinträge
+  (Ereignis 5205). Nur eine Änderung in den Millisekunden bis zum Abschluss verwirft die Antwort,
+  nachdem ihre neuen Einträge angelegt sind; sie bleiben unbenutzt und nur für den Besitzer sichtbar. Der Abschluss sperrt danach die Dokumentzeile (vor dem Job, gleiche Reihenfolge wie
+  beim Löschen) und übernimmt die Angaben nur, wenn das Dokument noch nicht bestätigt ist.
+  ⚠️ Bestätigen und Bearbeiten (Spur B) laden das Dokument ohne Sperre: Fällt ein Bestätigen genau in
+  die Millisekunden des Abschlusses, kann ein Dokument als bestätigt gelten, dessen Angaben vom
+  Modell stammen. Abhilfe bei der Integration: Zeile in Bestätigen/Bearbeiten mit `FOR UPDATE` laden
+  oder ein Concurrency-Token (`xmin`).
+- **Fehler:** Zeitlimit, HTTP-Fehler, nicht erreichbarer Dienst oder `done_reason` ≠ `stop` → neuer
+  Versuch nach 1, 5 und 30 Minuten; nach 4 Versuchen wird nur der Job gelöscht, das Dokument bleibt
+  „Done“ mit `Recognition = None`. Als Grund wird nur Ausnahmetyp bzw. HTTP-Status gespeichert.
+- **Listen im Prompt:** alle Dokumentarten; höchstens 100 Absender (die im Text genannten zuerst)
+  und 50 Schlagwörter. Abweichung von „die meistbenutzten“: Der Store liefert keine Nutzungszahlen,
+  aufgefüllt wird alphabetisch.
+- **Inhaltliche Duplikate** (`FindContentDuplicate`, `PostgresDuplicateFinder`): `pg_trgm`-Ähnlichkeit
+  ≥ 0,9 per `%`-Operator (`set_config('pg_trgm.similarity_threshold', …, true)` = `SET LOCAL`) gegen
+  fertige Dokumente, die der Besitzer sehen darf; das ähnlichste, bei Gleichstand das älteste; nie ein
+  Dokument, das schon als Duplikat dieses Dokuments markiert ist (der Hinweis zeigt nur in eine Richtung). Texte
+  unter **50 Zeichen** werden nicht verglichen (Fotos mit wenigen Wörtern). Läuft nur nach der OCR,
+  nicht für den Bestand.
+- **Bestand:** Beim Worker-Start erst das Modell sicherstellen (`/api/show`, fehlt es: `/api/pull`),
+  dann `EnqueueBacklog` (Priorität 10) für alle fertigen Dokumente mit Text, Besitzer und
+  `Recognition = None` ohne Job. Beide Schritte werden wiederholt (30 s, verdoppelt bis 10 min), bis
+  sie klappen. So verbraucht der Bestand seine Versuche nicht, während das Modell noch lädt. Dokumente,
+  deren Erkennung aufgegeben wurde, kommen beim nächsten Worker-Start wieder dran.
+- **Konfiguration** (`NoMorePaper:Recognition:…`, Umgebung `NoMorePaper__Recognition__…`):
+  `Endpoint` (Standard `http://ollama:11434`), `Model` (Standard ministral-3, siehe oben), `Timeout`
+  (Sekunden oder `hh:mm:ss`, Standard 300 s, höchstens 10 min wegen der Job-Sperre von 15 min),
+  `NumThread` (Standard 4, 0 = Ollama wählt). In
+  `docker-compose.yml` über `.env`: `NOMOREPAPER_LLM_MODEL`, `NOMOREPAPER_LLM_THREADS`.
+- **Compose:** Dienst `ollama` (`ollama/ollama:0.40.16`, `mem_limit`/`memswap_limit` 8 GB,
+  `LLAMA_ARG_CACHE_RAM=0`, `OLLAMA_NUM_PARALLEL=1`, `OLLAMA_MAX_LOADED_MODELS=1`, Volume `ollama`,
+  kein veröffentlichter Port). Für den Download braucht der Ollama-Container einmal Internet; es
+  gehen dabei keine Dokumentdaten hinaus.
+- **Tests:** ohne echtes Ollama (Fake-`IRecognizer`, Fake-HTTP-Handler für `OllamaRecognizer`).
+  `OllamaLiveTests` läuft nur, wenn `NOMOREPAPER_TEST_OLLAMA` auf ein Ollama mit geladenem Modell
+  zeigt (z. B. ein eigener Container auf `127.0.0.1:11500` mit dem Volume des Spikes); 2026-11-19
+  lokal grün, 55 s mit Laden des Modells.
+
 ## Offene Punkte
+- Inhaltliche Duplikate: Dauer der Trigramm-Suche mit sehr langen Texten (Verträge mit vielen Seiten)
+  und großem Archiv nicht gemessen; ggf. nur Anfang des Textes vergleichen. Monatliche Rechnungen
+  desselben Absenders können über 0,9 ähnlich sein (Schwelle am echten Bestand prüfen).
+- Ein Ausfall von Ollama länger als 36 Minuten verbraucht alle Versuche der wartenden Dokumente; sie
+  kommen erst beim nächsten Worker-Start über den Bestand wieder dran. Dokumente, deren Erkennung immer
+  scheitert, laufen bei jedem Worker-Start erneut vier Versuche.
 - Zeiten und Speicher auf dem Server messen; danach Zeitlimit und Kriterium „≤ 60 s“ festlegen.
 - Kürzungsregel, Beispiele und Prüfungen wurden mit Prompt-Cache gemessen bzw. nur nachgerechnet, nicht
   als Code erprobt.

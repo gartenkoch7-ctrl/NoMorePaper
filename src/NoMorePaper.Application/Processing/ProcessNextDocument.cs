@@ -1,37 +1,43 @@
-using System.Diagnostics;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using NoMorePaper.Application.Documents;
-using NoMorePaper.Application.Telemetry;
+using NoMorePaper.Application.Recognition;
 using NoMorePaper.Domain.Processing;
 
 namespace NoMorePaper.Application.Processing;
 
 /// <summary>
-/// Claims the next due job and runs a <see cref="ProcessingAttempt"/> in a working folder of its own.
-/// A failed attempt is recorded with a technical reason only (exception type, tool and exit code) and
-/// retried by the <see cref="RetryPolicy"/> unless the failure is permanent; a failed attempt or an
-/// unreachable queue never stops the caller's loop. On shutdown the job is handed back.
+/// Claims the next due job and runs its stage: OCR (<see cref="OcrStage"/>), followed by the content
+/// duplicate check (<see cref="FindContentDuplicate"/>), or recognition (<see cref="RecognizeDocument"/>).
+/// Each stage records its failures with a technical reason only and retries them by the
+/// <see cref="RetryPolicy"/>; a failed attempt or an unreachable queue never stops the caller's loop. On
+/// shutdown the job is handed back.
 /// </summary>
 /// <remarks>
 /// One instance per Worker (singleton): it remembers whether claiming fails, to log an outage once.
-/// Each call works in a scope of its own, because the queue holds a database context.
+/// Recognition jobs are claimed only once the model is ready (<see cref="RecognitionReadiness"/>).
+/// Each call works in a scope of its own, because the queue holds a database context; the use cases of
+/// recognition come from that scope.
 /// </remarks>
 public sealed class ProcessNextDocument(
     IServiceScopeFactory scopes,
     IDocumentStorage storage,
     IOcrEngine ocr,
     IWorkingFolder workingFolder,
+    RecognitionReadiness readiness,
     TimeProvider time,
     ILogger<ProcessNextDocument> logger)
 {
-    /// <summary>Longer than the OCR time limit (10 min) plus storing; a crashed Worker's job runs again after it.</summary>
+    /// <summary>
+    /// Longer than the OCR time limit (10 min) plus storing, and than the recognition time limit (5 min by
+    /// default); a crashed Worker's job runs again after it.
+    /// </summary>
     public static readonly TimeSpan LockFor = TimeSpan.FromMinutes(15);
 
     // Handing a job back must not wait for ever when the database is gone; the host stops soon after.
     private static readonly TimeSpan s_releaseTimeout = TimeSpan.FromSeconds(5);
 
-    private readonly ProcessingAttempt _attempt = new(storage, ocr, workingFolder);
+    private readonly OcrStage _ocr = new(storage, ocr, workingFolder, time, logger);
     private bool _claimFailing;
 
     /// <summary>Claims and processes the next due job, if any.</summary>
@@ -46,7 +52,7 @@ public sealed class ProcessNextDocument(
             JobClaim? claim;
             try
             {
-                claim = await queue.ClaimNextAsync(LockFor, stoppingToken).ConfigureAwait(false);
+                claim = await queue.ClaimNextAsync(LockFor, readiness.IsReady, stoppingToken).ConfigureAwait(false);
             }
             catch (Exception exception) when (!stoppingToken.IsCancellationRequested)
             {
@@ -71,56 +77,29 @@ public sealed class ProcessNextDocument(
                 return false;
             }
 
-            await ProcessAsync(queue, claim, stoppingToken).ConfigureAwait(false);
+            await RunStageAsync(scope.ServiceProvider, queue, claim, stoppingToken).ConfigureAwait(false);
             return true;
         }
     }
 
-    private async Task ProcessAsync(IJobQueue queue, JobClaim claim, CancellationToken stoppingToken)
+    private async Task RunStageAsync(IServiceProvider services, IJobQueue queue, JobClaim claim, CancellationToken stoppingToken)
     {
-        using var activity = ApplicationTelemetry.Source.StartActivity("nomorepaper.processing.document");
-        activity?.SetTag("nomorepaper.processing.attempt", claim.Attempt);
-        var started = time.GetTimestamp();
-        var id = claim.DocumentId;
-        logger.DocumentStarted(id, claim.Attempt);
-
-        if (claim.Attempt > RetryPolicy.MaxAttempts)
-        {
-            // Only possible when the Worker was killed during every attempt (crash, out of memory).
-            activity?.SetStatus(ActivityStatusCode.Error);
-            await RecordFailureAsync(queue, claim, "Processing was interrupted in every attempt", permanent: false, started, stoppingToken)
-                .ConfigureAwait(false);
-            return;
-        }
-
-        var work = workingFolder.CreateAttemptFolder();
+        string? text = null;
         try
         {
-            try
+            if (claim.Stage == JobStage.Recognition)
             {
-                var result = await _attempt.RunAsync(queue, claim, work, stoppingToken).ConfigureAwait(false);
-                if (result is null)
-                {
-                    logger.ClaimLost(claim.Attempt, id);
-                    return;
-                }
-
-                var elapsed = time.GetElapsedTime(started);
-                ProcessingLog.Completed.Add(1);
-                ProcessingLog.Duration.Record(elapsed.TotalSeconds, new KeyValuePair<string, object?>(ProcessingLog.OutcomeTag, "done"));
-                logger.DocumentDone(id, (long)elapsed.TotalMilliseconds, result.PageCount, result.Text.Length);
+                await services.GetRequiredService<RecognizeDocument>().RunAsync(queue, claim, stoppingToken).ConfigureAwait(false);
             }
-            catch (Exception exception) when (!stoppingToken.IsCancellationRequested)
+            else
             {
-                activity?.SetStatus(ActivityStatusCode.Error);
-                await RecordFailureAsync(queue, claim, TechnicalReason(exception), IsPermanent(exception), started, stoppingToken)
-                    .ConfigureAwait(false);
+                text = await _ocr.RunAsync(queue, claim, stoppingToken).ConfigureAwait(false);
             }
         }
         catch (Exception exception) when (stoppingToken.IsCancellationRequested)
         {
-            // Whatever failed while stopping (often a tool or the database cut off by the stop
-            // itself) is no real failure of the document: hand the job back instead of recording it.
+            // Whatever failed while stopping (often a tool, the model or the database cut off by the
+            // stop itself) is no real failure of the document: hand the job back instead of recording it.
             await ReleaseAsync(claim).ConfigureAwait(false);
             if (exception is OperationCanceledException)
             {
@@ -129,9 +108,19 @@ public sealed class ProcessNextDocument(
 
             throw new OperationCanceledException("The Worker stopped during the attempt.", exception, stoppingToken);
         }
-        finally
+
+        // After OCR is complete the job belongs to the recognition stage: the check only adds a hint
+        // to the document, and a stop during it has nothing to hand back.
+        if (text is not null)
         {
-            DeleteWorkingFolder(id, work);
+            try
+            {
+                await services.GetRequiredService<FindContentDuplicate>().RunAsync(claim.DocumentId, text, stoppingToken).ConfigureAwait(false);
+            }
+            catch (Exception exception) when (stoppingToken.IsCancellationRequested && exception is not OperationCanceledException)
+            {
+                throw new OperationCanceledException("The Worker stopped during the duplicate check.", exception, stoppingToken);
+            }
         }
     }
 
@@ -158,61 +147,6 @@ public sealed class ProcessNextDocument(
         catch (Exception exception)
         {
             logger.ReleaseFailed(claim.DocumentId, exception.GetType().Name);
-        }
-    }
-
-    private async Task RecordFailureAsync(
-        IJobQueue queue, JobClaim claim, string reason, bool permanent, long started, CancellationToken stoppingToken)
-    {
-        var id = claim.DocumentId;
-        try
-        {
-            var recorded = await queue.FailAsync(claim, reason, permanent, time.GetUtcNow(), stoppingToken).ConfigureAwait(false);
-            if (recorded.Outcome == FailureOutcome.ClaimLost)
-            {
-                logger.ClaimLost(claim.Attempt, id);
-                return;
-            }
-
-            var outcome = recorded.Outcome == FailureOutcome.GivenUp ? "failed" : "retry";
-            ProcessingLog.Failed.Add(1, new KeyValuePair<string, object?>(ProcessingLog.OutcomeTag, outcome));
-            ProcessingLog.Duration.Record(
-                time.GetElapsedTime(started).TotalSeconds, new KeyValuePair<string, object?>(ProcessingLog.OutcomeTag, outcome));
-            if (recorded.NextAttemptAt is { } nextAttemptAt)
-            {
-                logger.AttemptFailed(claim.Attempt, id, reason, nextAttemptAt);
-            }
-            else
-            {
-                logger.DocumentFailed(id, claim.Attempt, reason);
-            }
-        }
-        catch (Exception exception) when (!stoppingToken.IsCancellationRequested)
-        {
-            logger.FailureNotRecorded(id, exception.GetType().Name);
-        }
-    }
-
-    // The document itself cannot be processed: retrying would only repeat the failure.
-    private static bool IsPermanent(Exception exception) =>
-        exception is ExternalToolException { IsPermanent: true } or NotSupportedException;
-
-    // Exception messages may contain paths or tool output, so only the type (and tool and exit code) is kept.
-    private static string TechnicalReason(Exception exception) => exception switch
-    {
-        ExternalToolException tool => $"{nameof(ExternalToolException)}: {tool.Tool} exited with code {tool.ExitCode}",
-        _ => exception.GetType().Name,
-    };
-
-    private void DeleteWorkingFolder(Guid id, string work)
-    {
-        try
-        {
-            workingFolder.DeleteAttemptFolder(work);
-        }
-        catch (Exception exception) when (exception is IOException or UnauthorizedAccessException)
-        {
-            logger.CleanupFailed(id, exception.GetType().Name);
         }
     }
 }

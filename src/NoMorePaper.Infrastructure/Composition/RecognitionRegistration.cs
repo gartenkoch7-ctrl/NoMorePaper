@@ -1,0 +1,37 @@
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+using NoMorePaper.Application.Recognition;
+using NoMorePaper.Infrastructure.Recognition;
+
+namespace NoMorePaper.Infrastructure.Composition;
+
+/// <summary>Registers recognition (local LLM, examples, content duplicates); only the Worker recognizes.</summary>
+public static class RecognitionRegistration
+{
+    // A changed address of the service (container restarted) is picked up after this time.
+    private static readonly TimeSpan s_connectionLifetime = TimeSpan.FromMinutes(5);
+
+    /// <remarks>Configuration is read when the recognizer is first resolved, like in <c>AddInfrastructure</c>.</remarks>
+    public static IServiceCollection AddRecognition(this IServiceCollection services, IConfiguration configuration)
+    {
+        ArgumentNullException.ThrowIfNull(configuration);
+        services.AddSingleton(_ => OllamaSettings.Read(configuration));
+        services.AddSingleton<IRecognizer>(provider =>
+        {
+            var settings = provider.GetRequiredService<OllamaSettings>();
+            var http = new HttpClient(new SocketsHttpHandler { PooledConnectionLifetime = s_connectionLifetime })
+            {
+                BaseAddress = settings.Endpoint,
+
+                // Each call sets its own limit; downloading the model may take long.
+                Timeout = Timeout.InfiniteTimeSpan,
+            };
+            return new OllamaRecognizer(
+                http, settings, provider.GetRequiredService<TimeProvider>(), provider.GetRequiredService<ILogger<OllamaRecognizer>>());
+        });
+        services.AddScoped<IRecognitionExamples, EfRecognitionExamples>();
+        services.AddScoped<IDuplicateFinder, PostgresDuplicateFinder>();
+        return services;
+    }
+}
