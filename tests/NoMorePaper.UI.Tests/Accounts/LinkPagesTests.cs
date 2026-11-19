@@ -38,7 +38,7 @@ public sealed class LinkPagesTests(ServerFixture server)
         await using var session = await OpenAsync("/einladung/gut", fake, async page =>
         {
             await fake.Mocks.RespondAsync(page, "GET", "/api/invitations/gut", 200, new InvitationDto(DateTimeOffset.UtcNow.AddDays(6)));
-            await fake.Mocks.RespondAsync(page, "POST", "/api/invitations/gut/accept", 204, onCall: () => { });
+            await fake.Mocks.RespondAsync(page, "POST", "/api/invitations/gut/accept", 204, onCall: fake.MarkSignedIn);
         });
         var page = session.Page;
 
