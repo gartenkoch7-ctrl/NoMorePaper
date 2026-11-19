@@ -1,0 +1,33 @@
+From: "Hausrat Direkt Versicherung" <service@hausrat-direkt.example>
+To: dokumente@haushalt.example
+Subject: Ihre Beitragsrechnung 2027 zur Hausratversicherung
+Date: Mon, 16 Nov 2026 10:00:00 +0100
+Message-ID: <pdf01.br2027@hausrat-direkt.example>
+MIME-Version: 1.0
+Content-Type: multipart/mixed; boundary="b-pdf01"
+
+--b-pdf01
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8bit
+
+Sehr geehrte Frau Musterfrau,
+
+im Anhang finden Sie Ihre Beitragsrechnung für das Jahr 2027 zur Versicherungsnummer HR-448812.
+Der Jahresbeitrag von 96,40 EUR wird am 02.01.2027 per Lastschrift eingezogen.
+
+Mit freundlichen Grüßen
+Ihre Hausrat Direkt Versicherung
+
+--b-pdf01
+Content-Type: application/pdf; name="Beitragsrechnung_2027.pdf"
+Content-Disposition: attachment; filename="Beitragsrechnung_2027.pdf"
+Content-Transfer-Encoding: 7bit
+
+%PDF-1.4
+1 0 obj << /Type /Catalog /Pages 2 0 R >> endobj
+2 0 obj << /Type /Pages /Kids [3 0 R] /Count 1 >> endobj
+3 0 obj << /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] >> endobj
+trailer << /Root 1 0 R >>
+%%EOF
+
+--b-pdf01--

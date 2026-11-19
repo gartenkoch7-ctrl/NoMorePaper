@@ -1,0 +1,23 @@
+From: "FitPunkt Studio" <verwaltung@fitpunkt-studio.example>
+To: dokumente@haushalt.example
+Subject: Zahlungserinnerung: offener Mitgliedsbeitrag
+Date: Thu, 19 Nov 2026 14:12:00 +0100
+Message-ID: <text03.m19@fitpunkt-studio.example>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8bit
+
+Hallo Max Mustermann,
+
+leider konnten wir den Mitgliedsbeitrag für November nicht abbuchen; die Lastschrift wurde von Ihrer Bank zurückgegeben.
+
+Offener Betrag: 34,90 EUR
+Rücklastschriftgebühr: 3,50 EUR
+Zu zahlen: 38,40 EUR
+
+Mitgliedsnummer: FP-20931
+
+Bitte überweisen Sie 38,40 EUR bis zum 03.12.2026. Danach müssen wir Ihre Mitgliedskarte vorübergehend sperren.
+
+Viele Grüße
+Ihr FitPunkt-Team

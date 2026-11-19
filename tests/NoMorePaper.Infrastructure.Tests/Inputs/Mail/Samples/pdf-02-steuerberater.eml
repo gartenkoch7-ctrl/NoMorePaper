@@ -1,0 +1,34 @@
+From: "Kanzlei Beispiel Steuerberatung" <post@kanzlei-beispiel.example>
+To: dokumente@haushalt.example
+Subject: Einkommensteuerbescheid 2025 - bitte prüfen
+Date: Wed, 18 Nov 2026 16:20:00 +0100
+Message-ID: <pdf02.est2025@kanzlei-beispiel.example>
+MIME-Version: 1.0
+Content-Type: multipart/mixed; boundary="b-pdf02"
+
+--b-pdf02
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8bit
+
+Guten Tag Herr Mustermann,
+
+anbei erhalten Sie den Einkommensteuerbescheid 2025, den das Finanzamt uns übermittelt hat.
+Wir haben den Bescheid geprüft; er entspricht der Erklärung. Die Erstattung von 412,00 EUR geht in den nächsten Tagen auf Ihrem Konto ein.
+Ein Einspruch ist bis zum 18.12.2026 möglich, aus unserer Sicht aber nicht nötig.
+
+Freundliche Grüße
+Kanzlei Beispiel
+
+--b-pdf02
+Content-Type: application/pdf; name="ESt-Bescheid_2025.pdf"
+Content-Disposition: attachment; filename="ESt-Bescheid_2025.pdf"
+Content-Transfer-Encoding: 7bit
+
+%PDF-1.4
+1 0 obj << /Type /Catalog /Pages 2 0 R >> endobj
+2 0 obj << /Type /Pages /Kids [3 0 R] /Count 1 >> endobj
+3 0 obj << /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] >> endobj
+trailer << /Root 1 0 R >>
+%%EOF
+
+--b-pdf02--

@@ -1,0 +1,32 @@
+From: "Kita Sonnenblume" <leitung@kita-sonnenblume.example>
+To: dokumente@haushalt.example
+Subject: Gebührenbescheid Kita ab Januar
+Date: Fri, 06 Nov 2026 12:45:00 +0100
+Message-ID: <pdf03.gb01@kita-sonnenblume.example>
+MIME-Version: 1.0
+Content-Type: multipart/mixed; boundary="b-pdf03"
+
+--b-pdf03
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8bit
+
+Liebe Eltern,
+
+im Anhang der neue Gebührenbescheid. Bitte unterschreiben Sie die zweite Seite und geben Sie sie bis zum 27.11. in der Gruppe ab.
+
+Viele Grüße
+Die Kitaleitung
+
+--b-pdf03
+Content-Type: application/pdf; name="Gebuehrenbescheid.pdf"
+Content-Disposition: attachment; filename="Gebuehrenbescheid.pdf"
+Content-Transfer-Encoding: 7bit
+
+%PDF-1.4
+1 0 obj << /Type /Catalog /Pages 2 0 R >> endobj
+2 0 obj << /Type /Pages /Kids [3 0 R] /Count 1 >> endobj
+3 0 obj << /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] >> endobj
+trailer << /Root 1 0 R >>
+%%EOF
+
+--b-pdf03--

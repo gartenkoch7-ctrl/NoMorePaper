@@ -1,0 +1,36 @@
+From: "Funkwelle Mobil" <info@funkwelle-mobil.example>
+To: dokumente@haushalt.example
+Subject: Ihre neue Rechnung ist im Kundenportal
+Date: Tue, 03 Nov 2026 06:00:00 +0100
+Message-ID: <logo.pixel.1@funkwelle-mobil.example>
+MIME-Version: 1.0
+Content-Type: multipart/related; boundary="b-logo"
+
+--b-logo
+Content-Type: text/html; charset=utf-8
+Content-Transfer-Encoding: 8bit
+
+<html><head><style>p { color: #333 }</style></head><body>
+<img src="cid:logo@funkwelle" alt="Funkwelle Mobil">
+<p>Guten Tag,</p>
+<p>Ihre Rechnung für Oktober steht im <a href="https://kundenportal.funkwelle-mobil.example/rechnungen">Kundenportal</a> bereit.</p>
+<img src="cid:pixel@funkwelle" width="1" height="1">
+</body></html>
+
+--b-logo
+Content-Type: image/png; name="logo.png"
+Content-Disposition: inline; filename="logo.png"
+Content-ID: <logo@funkwelle>
+Content-Transfer-Encoding: base64
+
+iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==
+
+--b-logo
+Content-Type: image/gif; name="t.gif"
+Content-Disposition: inline; filename="t.gif"
+Content-ID: <pixel@funkwelle>
+Content-Transfer-Encoding: base64
+
+R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7
+
+--b-logo--
