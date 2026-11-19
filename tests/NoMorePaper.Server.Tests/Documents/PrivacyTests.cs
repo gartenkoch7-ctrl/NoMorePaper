@@ -2,6 +2,7 @@ using System.Net;
 using System.Net.Http.Json;
 using Microsoft.Extensions.DependencyInjection;
 using NoMorePaper.Contracts.Documents;
+using NoMorePaper.Contracts.Inputs;
 using NoMorePaper.Infrastructure.Persistence;
 using NoMorePaper.Server.Tests.Hosting;
 using Xunit;
@@ -41,6 +42,26 @@ public sealed class PrivacyTests(ApiFixture api)
         Assert.Equal((true, true), (own!.IsPrivate, own.IsMine));
         Assert.Equal((id, true, true), (ownHit.Id, ownHit.IsPrivate, ownHit.IsMine));
         Assert.Equal(HttpStatusCode.OK, (await owner.GetAsync($"/api/documents/{id}/files/original", Ct)).StatusCode);
+    }
+
+    [Fact]
+    public async Task AnUploadWithoutPrivateField_FollowsTheAccountsSetting_AnExplicitChoiceWins_AndABadValueIs400()
+    {
+        var (member, _) = await api.CreateMemberAsync("upload-private-by-account", Ct);
+        using var preference = await member.PutAsJsonAsync("/api/account/preferences", new AccountPreferencesDto(true, []), Ct);
+        Assert.Equal(HttpStatusCode.NoContent, preference.StatusCode);
+
+        // Lengths of their own: no other test's upload counts as the same file.
+        using var unchosen = await member.UploadAsync("ohne-wahl.pdf", SampleFiles.WithHead("%PDF-1.7\n"u8, 6011), null, Ct);
+        using var shared = await member.UploadAsync("geteilt.pdf", SampleFiles.WithHead("%PDF-1.7\n"u8, 6012), "false", Ct);
+        using var malformed = await member.UploadAsync("kaputt.pdf", SampleFiles.WithHead("%PDF-1.7\n"u8, 6013), "yes", Ct);
+
+        var (byAccount, appliedByAccount) = (await unchosen.Content.ReadFromJsonAsync<UploadResultDto>(Ct))!;
+        var (chosen, appliedChoice) = (await shared.Content.ReadFromJsonAsync<UploadResultDto>(Ct))!;
+        Assert.Equal((true, false), (appliedByAccount, appliedChoice));
+        Assert.True((await member.GetFromJsonAsync<DocumentDetailDto>($"/api/documents/{byAccount}", Ct))!.IsPrivate);
+        Assert.False((await member.GetFromJsonAsync<DocumentDetailDto>($"/api/documents/{chosen}", Ct))!.IsPrivate);
+        Assert.Equal(HttpStatusCode.BadRequest, malformed.StatusCode);
     }
 
     [Fact]

@@ -23,7 +23,10 @@ internal sealed class FieldsLookup(
             row.Recognition,
             Candidate(row)?.Id,
             row.EditorIds,
-            row.CanEdit(viewerId));
+            row.CanEdit(viewerId),
+            row.Source,
+            row.Mail,
+            row.NeedsOwnerCheck);
 
     /// <returns>The document <paramref name="row"/> may duplicate, if the viewer may see it.</returns>
     public DuplicateCandidate? Candidate(FieldsRow row) =>

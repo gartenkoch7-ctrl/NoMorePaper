@@ -1,0 +1,30 @@
+From: "Technikmarkt Online" <news@technikmarkt-online.example>
+To: dokumente@haushalt.example
+Subject: Artikel auf Ihrer Wunschliste sind jetzt reduziert
+Date: Sun, 15 Nov 2026 12:00:00 +0100
+Message-ID: <news04.wl88@technikmarkt-online.example>
+MIME-Version: 1.0
+Content-Type: multipart/alternative; boundary="b-news04"
+
+--b-news04
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8bit
+
+Guten Tag,
+
+gute Nachrichten: 2 Artikel auf Ihrer Wunschliste sind im Preis gesunken.
+- Kopfhörer mit Geräuschunterdrückung: jetzt 149,00 EUR statt 199,00 EUR
+- E-Book-Reader: jetzt 99,00 EUR statt 119,00 EUR
+
+Zur Wunschliste: https://technikmarkt-online.example/wunschliste
+
+Ihr Technikmarkt Online
+Abmelden: https://technikmarkt-online.example/abmelden
+
+--b-news04
+Content-Type: text/html; charset=utf-8
+Content-Transfer-Encoding: 8bit
+
+<html><body><p>Guten Tag,</p><p>gute Nachrichten: 2 Artikel auf Ihrer Wunschliste sind im Preis gesunken.</p></body></html>
+
+--b-news04--

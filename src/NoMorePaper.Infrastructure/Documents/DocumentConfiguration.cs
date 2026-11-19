@@ -41,6 +41,16 @@ internal sealed class DocumentConfiguration : IEntityTypeConfiguration<Document>
         builder.Property(document => document.OwnerId).HasColumnName("owner_id");
         builder.Property(document => document.IsPrivate).HasColumnName("is_private");
 
+        // Inputs (M4): where it came from; documents from before are uploads (default of the migration).
+        builder.Property(document => document.Source).HasColumnName("source").HasConversion<string>().HasMaxLength(EnumLength);
+        builder.Property(document => document.NeedsOwnerCheck).HasColumnName("needs_owner_check");
+        builder.ComplexProperty(document => document.MailOrigin, mail =>
+        {
+            mail.Property(origin => origin.SenderAddress).HasColumnName("mail_sender").HasMaxLength(MailOrigin.MaxSenderAddressLength);
+            mail.Property(origin => origin.Subject).HasColumnName("mail_subject").HasMaxLength(MailOrigin.MaxSubjectLength);
+            mail.Property(origin => origin.Note).HasColumnName("mail_note").HasMaxLength(MailOrigin.MaxNoteLength);
+        });
+
         builder.Property<NpgsqlTsVector>(SearchVectorProperty)
             .HasColumnName("search_vector")
             .HasComputedColumnSql(SearchVectorSql, stored: true);

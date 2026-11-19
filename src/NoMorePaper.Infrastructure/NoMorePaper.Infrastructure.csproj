@@ -14,10 +14,20 @@
     <PackageReference Include="Microsoft.AspNetCore.DataProtection" />
     <!-- Accounts (M2): user store, password hashing, lockout and security stamps of ASP.NET Identity. -->
     <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" />
+    <!-- Inputs (M4, ADR-0024): camera pages and mail texts as PDF (MIT). -->
+    <PackageReference Include="PDFsharp" />
+    <PackageReference Include="System.Security.Cryptography.Pkcs" />
+    <!-- Mail input (M4, ADR-0024): IMAP and MIME parsing (MIT). -->
+    <PackageReference Include="MailKit" />
     <!-- Design-time only (dotnet ef migrations); not passed on to Server, Worker or tests. -->
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- DejaVu Sans (Bitstream Vera licence, DejaVu-LICENSE.txt): PDFs need an embedded font, Linux containers have none. -->
+    <EmbeddedResource Include="Documents\Pdf\Fonts\*.ttf" LogicalName="NoMorePaper.Fonts.%(Filename)%(Extension)" />
   </ItemGroup>
 </Project>

@@ -23,10 +23,12 @@
             <ul>
                 <li><a href="" aria-current="@(IsCurrent("") ? "page" : null)">@L["NavHome"]</a></li>
                 <li><a href="hochladen" aria-current="@(IsCurrent("hochladen") ? "page" : null)">@L["NavUpload"]</a></li>
+                <li><a href="kamera" aria-current="@(IsCurrent("kamera") ? "page" : null)">@L["NavCamera"]</a></li>
                 <li><a href="dokumente" aria-current="@(IsCurrent("dokumente") ? "page" : null)">@L["NavDocuments"]</a></li>
                 <li><a href="zu-pruefen" aria-current="@(IsCurrent("zu-pruefen") ? "page" : null)">@(Review.Count is > 0 and var waiting ? L["NavReviewCount", waiting] : L["NavReview"])</a></li>
                 <li><a href="suche" aria-current="@(IsCurrent("suche") ? "page" : null)">@L["NavSearch"]</a></li>
                 <li><a href="listen" aria-current="@(IsCurrent("listen") ? "page" : null)">@L["NavLists"]</a></li>
+                <li><a href="eingaenge" aria-current="@(IsCurrent("eingaenge") ? "page" : null)">@L["NavInputs"]</a></li>
                 <li><a href="konto" aria-current="@(IsCurrent("konto") ? "page" : null)">@L["NavAccount"]</a></li>
                 @if (Auth.IsAdmin)
                 {

@@ -25,7 +25,8 @@ RUN apt-get update \
     && rm -rf /var/lib/apt/lists/*
 WORKDIR /app
 # Mount points owned by the app user: fresh named volumes inherit this ownership.
-RUN mkdir -p /data /dpkeys && chown "$APP_UID" /data /dpkeys
+# /scan: the scanner folder (volume scaninbox, shared with the samba service).
+RUN mkdir -p /data /dpkeys /scan && chown "$APP_UID" /data /dpkeys /scan
 # Binaries stay owned by root, so the app cannot modify itself.
 COPY --from=build /app .
 ENV ASPNETCORE_HTTP_PORTS=8080 \

@@ -216,6 +216,10 @@ namespace NoMorePaper.Infrastructure.Persistence.Migrations
                         .HasColumnType("boolean")
                         .HasColumnName("is_private");
 
+                    b.Property<bool>("NeedsOwnerCheck")
+                        .HasColumnType("boolean")
+                        .HasColumnName("needs_owner_check");
+
                     b.Property<Guid?>("OwnerId")
                         .HasColumnType("uuid")
                         .HasColumnName("owner_id");
@@ -239,6 +243,12 @@ namespace NoMorePaper.Infrastructure.Persistence.Migrations
                         .HasColumnType("tsvector")
                         .HasColumnName("search_vector")
                         .HasComputedColumnSql("setweight(to_tsvector('german'::regconfig, coalesce(title, '')), 'A') || to_tsvector('german'::regconfig, coalesce(content_text, '')) || to_tsvector('english'::regconfig, coalesce(content_text, ''))", true);
+
+                    b.Property<string>("Source")
+                        .IsRequired()
+                        .HasMaxLength(16)
+                        .HasColumnType("character varying(16)")
+                        .HasColumnName("source");
 
                     b.Property<string>("State")
                         .IsRequired()
@@ -270,6 +280,26 @@ namespace NoMorePaper.Infrastructure.Persistence.Migrations
                                 .HasPrecision(18, 4)
                                 .HasColumnType("numeric(18,4)")
                                 .HasColumnName("amount");
+                        });
+
+                    b.ComplexProperty(typeof(Dictionary<string, object>), "MailOrigin", "NoMorePaper.Domain.Documents.Document.MailOrigin#MailOrigin", b1 =>
+                        {
+                            b1.Property<string>("Note")
+                                .HasMaxLength(500)
+                                .HasColumnType("character varying(500)")
+                                .HasColumnName("mail_note");
+
+                            b1.Property<string>("SenderAddress")
+                                .IsRequired()
+                                .HasMaxLength(320)
+                                .HasColumnType("character varying(320)")
+                                .HasColumnName("mail_sender");
+
+                            b1.Property<string>("Subject")
+                                .IsRequired()
+                                .HasMaxLength(300)
+                                .HasColumnType("character varying(300)")
+                                .HasColumnName("mail_subject");
                         });
 
                     b.HasKey("Id");
@@ -494,6 +524,158 @@ namespace NoMorePaper.Infrastructure.Persistence.Migrations
                     b.ToTable("worker_heartbeats", (string)null);
                 });
 
+            modelBuilder.Entity("NoMorePaper.Infrastructure.Inputs.AccountPreferencesRow", b =>
+                {
+                    b.Property<Guid>("AccountId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("account_id");
+
+                    b.Property<bool>("NewDocumentsPrivate")
+                        .HasColumnType("boolean")
+                        .HasColumnName("new_documents_private");
+
+                    b.HasKey("AccountId");
+
+                    b.ToTable("account_preferences", (string)null);
+                });
+
+            modelBuilder.Entity("NoMorePaper.Infrastructure.Inputs.InputConnectionRow", b =>
+                {
+                    b.Property<string>("Kind")
+                        .HasMaxLength(16)
+                        .HasColumnType("character varying(16)")
+                        .HasColumnName("kind");
+
+                    b.Property<Guid>("AccountKey")
+                        .HasColumnType("uuid")
+                        .HasColumnName("account_key");
+
+                    b.Property<Guid?>("AccountId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("account_id");
+
+                    b.Property<byte[]>("Secret")
+                        .HasColumnType("bytea")
+                        .HasColumnName("secret");
+
+                    b.Property<string>("Settings")
+                        .IsRequired()
+                        .HasColumnType("jsonb")
+                        .HasColumnName("settings");
+
+                    b.Property<DateTimeOffset>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.HasKey("Kind", "AccountKey");
+
+                    b.HasIndex("AccountId");
+
+                    b.ToTable("input_connections", (string)null);
+                });
+
+            modelBuilder.Entity("NoMorePaper.Infrastructure.Inputs.InputStatusRow", b =>
+                {
+                    b.Property<string>("Kind")
+                        .HasMaxLength(16)
+                        .HasColumnType("character varying(16)")
+                        .HasColumnName("kind");
+
+                    b.Property<Guid>("AccountKey")
+                        .HasColumnType("uuid")
+                        .HasColumnName("account_key");
+
+                    b.Property<Guid?>("AccountId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("account_id");
+
+                    b.Property<DateTimeOffset?>("LastRunAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("last_run_at");
+
+                    b.Property<DateTimeOffset?>("LastSuccessAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("last_success_at");
+
+                    b.Property<bool>("NeedsAttention")
+                        .HasColumnType("boolean")
+                        .HasColumnName("needs_attention");
+
+                    b.Property<string>("Problem")
+                        .HasMaxLength(16)
+                        .HasColumnType("character varying(16)")
+                        .HasColumnName("problem");
+
+                    b.Property<long>("ReceivedTotal")
+                        .HasColumnType("bigint")
+                        .HasColumnName("received_total");
+
+                    b.HasKey("Kind", "AccountKey");
+
+                    b.HasIndex("AccountId");
+
+                    b.ToTable("input_status", (string)null);
+                });
+
+            modelBuilder.Entity("NoMorePaper.Infrastructure.Inputs.MailSenderRow", b =>
+                {
+                    b.Property<string>("Address")
+                        .HasMaxLength(320)
+                        .HasColumnType("character varying(320)")
+                        .HasColumnName("address");
+
+                    b.Property<Guid>("AccountId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("account_id");
+
+                    b.HasKey("Address");
+
+                    b.HasIndex("AccountId");
+
+                    b.ToTable("account_mail_senders", (string)null);
+                });
+
+            modelBuilder.Entity("NoMorePaper.Infrastructure.Inputs.SeenItemRow", b =>
+                {
+                    b.Property<string>("Kind")
+                        .HasMaxLength(16)
+                        .HasColumnType("character varying(16)")
+                        .HasColumnName("kind");
+
+                    b.Property<Guid>("AccountKey")
+                        .HasColumnType("uuid")
+                        .HasColumnName("account_key");
+
+                    b.Property<string>("List")
+                        .HasMaxLength(16)
+                        .HasColumnType("character varying(16)")
+                        .HasColumnName("list");
+
+                    b.Property<string>("KeyHash")
+                        .HasMaxLength(64)
+                        .HasColumnType("character(64)")
+                        .HasColumnName("key_hash")
+                        .IsFixedLength();
+
+                    b.Property<Guid?>("AccountId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("account_id");
+
+                    b.Property<int>("Failures")
+                        .HasColumnType("integer")
+                        .HasColumnName("failures");
+
+                    b.Property<DateTimeOffset>("SeenAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("seen_at");
+
+                    b.HasKey("Kind", "AccountKey", "List", "KeyHash");
+
+                    b.HasIndex("AccountId");
+
+                    b.ToTable("input_seen_items", (string)null);
+                });
+
             modelBuilder.Entity("NoMorePaper.Infrastructure.Processing.ProcessingJob", b =>
                 {
                     b.Property<Guid>("DocumentId")
@@ -710,6 +892,48 @@ namespace NoMorePaper.Infrastructure.Persistence.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("NoMorePaper.Infrastructure.Inputs.AccountPreferencesRow", b =>
+                {
+                    b.HasOne("NoMorePaper.Infrastructure.Accounts.AccountUser", null)
+                        .WithMany()
+                        .HasForeignKey("AccountId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("NoMorePaper.Infrastructure.Inputs.InputConnectionRow", b =>
+                {
+                    b.HasOne("NoMorePaper.Infrastructure.Accounts.AccountUser", null)
+                        .WithMany()
+                        .HasForeignKey("AccountId")
+                        .OnDelete(DeleteBehavior.Cascade);
+                });
+
+            modelBuilder.Entity("NoMorePaper.Infrastructure.Inputs.InputStatusRow", b =>
+                {
+                    b.HasOne("NoMorePaper.Infrastructure.Accounts.AccountUser", null)
+                        .WithMany()
+                        .HasForeignKey("AccountId")
+                        .OnDelete(DeleteBehavior.Cascade);
+                });
+
+            modelBuilder.Entity("NoMorePaper.Infrastructure.Inputs.MailSenderRow", b =>
+                {
+                    b.HasOne("NoMorePaper.Infrastructure.Accounts.AccountUser", null)
+                        .WithMany()
+                        .HasForeignKey("AccountId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("NoMorePaper.Infrastructure.Inputs.SeenItemRow", b =>
+                {
+                    b.HasOne("NoMorePaper.Infrastructure.Accounts.AccountUser", null)
+                        .WithMany()
+                        .HasForeignKey("AccountId")
+                        .OnDelete(DeleteBehavior.Cascade);
                 });
 
             modelBuilder.Entity("NoMorePaper.Infrastructure.Processing.ProcessingJob", b =>

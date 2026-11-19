@@ -28,6 +28,14 @@ internal sealed class FakeDocumentFieldsStore : IDocumentFieldsStore
     public Task<bool> AreVisibleAsync(Guid viewerId, ClassificationKind kind, IReadOnlyCollection<Guid> entryIds, CancellationToken cancellationToken) =>
         Task.FromResult(entryIds.All(VisibleEntries.Contains));
 
+    /// <summary>Entries only <see cref="EntryAudience.Account"/> of the given account sees, not the household.</summary>
+    public Dictionary<Guid, Guid> PrivateEntries { get; } = [];
+
+    public Task<bool> AreVisibleAsync(
+        Guid viewerId, ClassificationKind kind, IReadOnlyCollection<Guid> entryIds, EntryAudience audience, CancellationToken cancellationToken) =>
+        Task.FromResult(entryIds.All(id => VisibleEntries.Contains(id)
+            || (audience == EntryAudience.Account && PrivateEntries.TryGetValue(id, out var owner) && owner == viewerId)));
+
     public Task SaveAsync(CancellationToken cancellationToken)
     {
         Saves++;

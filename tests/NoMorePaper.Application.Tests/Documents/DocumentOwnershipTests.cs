@@ -20,7 +20,7 @@ public sealed class DocumentOwnershipTests
     [InlineData(false)]
     public async Task Receive_MakesTheSignedInAccountTheOwner(bool isPrivate)
     {
-        var receive = new ReceiveDocument(_documents, _storage, TimeProvider.System, _current, NullLogger<ReceiveDocument>.Instance);
+        var receive = Receive();
 
         await receive.ReceiveAsync("a.pdf", "application/pdf", new MemoryStream([1]), isPrivate, Ct);
 
@@ -61,7 +61,7 @@ public sealed class DocumentOwnershipTests
     {
         _current.Exists = false;
         var privacyLog = new RecordingLogger<SetDocumentPrivacy>();
-        var receive = new ReceiveDocument(_documents, _storage, TimeProvider.System, _current, NullLogger<ReceiveDocument>.Instance);
+        var receive = Receive();
 
         var received = await receive.ReceiveAsync("a.pdf", "application/pdf", new MemoryStream([1]), isPrivate: false, Ct);
         var privacy = await new SetDocumentPrivacy(_documents, _current, privacyLog).SetAsync(Guid.CreateVersion7(), true, Ct);
@@ -73,4 +73,10 @@ public sealed class DocumentOwnershipTests
         Assert.Null(_documents.LastPrivacy);
         Assert.Equal([5113], privacyLog.EventIds);
     }
+
+    private ReceiveDocument Receive() => new(
+        new IntakeDocument(
+            _documents, _storage, new FakeAccountStore(), new FakeAccountPreferencesStore(), TimeProvider.System, NullLogger<IntakeDocument>.Instance),
+        _current,
+        NullLogger<ReceiveDocument>.Instance);
 }

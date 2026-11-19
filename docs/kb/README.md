@@ -15,6 +15,7 @@ Thematisch aufgeteilt, damit Agents nur laden, was sie brauchen. Jede Datei blei
 | [konten.md](konten.md) | Konten und Haushalt: Rollen, Anmeldung, Sitzung, Tokens, Notfall-Code, private Dokumente |
 | [verarbeitung.md](verarbeitung.md) | Pipeline vom Upload bis Done: Warteschlange, Werkzeuge, Zeitlimits, gemessene Zeiten, bekannte Lücken |
 | [erkennung.md](erkennung.md) | Lokales LLM ordnet Dokumente ein: Modell, Prompt, JSON-Schema, Kürzungsregel, Trefferquoten, Zeiten, Speicher, Vorgaben für den Worker |
+| [eingaenge.md](eingaenge.md) | Eingänge (M4): Annahme mit Besitzer, Privat-Einstellung, Absender-Adressen, Herkunft unklar, Takt der Hintergrund-Eingänge, Geheimnisse, PDF, LLM-Zugang |
 
 Architekturentscheidungen: [../adr/](../adr/) · Roadmap & Meilensteine: [../plan/](../plan/README.md)
 

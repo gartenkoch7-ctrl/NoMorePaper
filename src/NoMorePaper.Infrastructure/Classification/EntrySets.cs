@@ -30,12 +30,12 @@ internal static class EntrySets
         _ => throw new ArgumentOutOfRangeException(nameof(kind), kind, "Unknown list."),
     };
 
-    /// <summary>Whether the account may see every one of <paramref name="entryIds"/>.</summary>
+    /// <summary>Whether the audience may see every one of <paramref name="entryIds"/>.</summary>
     public static async Task<bool> AllVisibleAsync(
-        AppDbContext db, ClassificationKind kind, Guid viewerId, IReadOnlyCollection<Guid> entryIds, CancellationToken cancellationToken)
+        AppDbContext db, ClassificationKind kind, Guid viewerId, IReadOnlyCollection<Guid> entryIds, EntryAudience audience, CancellationToken cancellationToken)
     {
         var ids = entryIds.Distinct().ToList();
-        var visible = await Visible(db, kind, viewerId, EntryAudience.Account).CountAsync(entry => ids.Contains(entry.Id), cancellationToken).ConfigureAwait(false);
+        var visible = await Visible(db, kind, viewerId, audience).CountAsync(entry => ids.Contains(entry.Id), cancellationToken).ConfigureAwait(false);
         return visible == ids.Count;
     }
 }

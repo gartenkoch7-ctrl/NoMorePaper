@@ -2,6 +2,7 @@ using NoMorePaper.Server.Accounts;
 using NoMorePaper.Server.Classification;
 using NoMorePaper.Server.Composition;
 using NoMorePaper.Server.Documents;
+using NoMorePaper.Server.Inputs;
 using NoMorePaper.Server.Search;
 using NoMorePaper.Server.Security;
 
@@ -31,6 +32,10 @@ api.MapAccountEndpoints();
 api.MapDocumentEndpoints();
 api.MapSearchEndpoints();
 api.MapClassificationEndpoints();
+api.MapPreferencesEndpoints();
+api.MapOwnerCheckEndpoints();
+api.MapInputStatusEndpoints();
+api.MapMailSettingsEndpoints();
 app.MapFallbackToFile("index.html");
 
 await app.RunAsync();

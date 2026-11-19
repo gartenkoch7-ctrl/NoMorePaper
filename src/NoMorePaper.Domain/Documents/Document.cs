@@ -4,7 +4,8 @@ namespace NoMorePaper.Domain.Documents;
 /// A received document with its files and processing state. Allowed transitions:
 /// <c>Queued → Processing → Done | Failed</c>; <c>Processing → Processing</c> is allowed, because a
 /// retry or a Worker taking over an abandoned job starts the same document again. Its fields
-/// (correspondent, type, date, …) and who may edit them are in <c>Document.Classification.cs</c>.
+/// (correspondent, type, date, …) and who may edit them are in <c>Document.Classification.cs</c>; its
+/// origin and the owner check in <c>Document.Intake.cs</c>.
 /// </summary>
 public sealed partial class Document
 {
@@ -16,13 +17,14 @@ public sealed partial class Document
 
     private readonly List<DocumentFile> _files = [];
 
-    private Document(Guid id, string title, DateTimeOffset receivedAt, Guid? ownerId, bool isPrivate)
+    private Document(Guid id, string title, DateTimeOffset receivedAt, Guid? ownerId, bool isPrivate, DocumentSource source)
     {
         Id = id;
         Title = title;
         ReceivedAt = receivedAt;
         OwnerId = ownerId;
         IsPrivate = isPrivate;
+        Source = source;
         State = ProcessingState.Queued;
     }
 
@@ -56,7 +58,9 @@ public sealed partial class Document
     /// <summary>Creates a queued document; the time comes from the caller's clock.</summary>
     /// <param name="ownerId">The account that received it.</param>
     /// <param name="isPrivate">Whether only <paramref name="ownerId"/> may see it.</param>
-    public static Document Receive(string title, DateTimeOffset receivedAt, Guid ownerId, bool isPrivate)
+    /// <param name="source">How it came in.</param>
+    public static Document Receive(
+        string title, DateTimeOffset receivedAt, Guid ownerId, bool isPrivate, DocumentSource source = DocumentSource.Upload)
     {
         RequireTitle(title);
         if (ownerId == Guid.Empty)
@@ -65,7 +69,7 @@ public sealed partial class Document
         }
 
         var utc = receivedAt.ToUniversalTime();
-        return new Document(Guid.CreateVersion7(utc), title, utc, ownerId, isPrivate);
+        return new Document(Guid.CreateVersion7(utc), title, utc, ownerId, isPrivate, source);
     }
 
     /// <summary>Whether the account may see this document: its owner always, everybody else only when it is not private.</summary>

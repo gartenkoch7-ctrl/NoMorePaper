@@ -9,6 +9,9 @@ namespace NoMorePaper.Application.Classification;
 /// <param name="PossibleDuplicateOf">The other document; <c>null</c> when there is none or the account may not see it.</param>
 /// <param name="EditorIds">Members besides the owner who may edit the fields.</param>
 /// <param name="CanEdit">The account may edit and confirm the fields.</param>
+/// <param name="Source">How the document came in.</param>
+/// <param name="Mail">"From the mail", for documents that came by mail.</param>
+/// <param name="NeedsOwnerCheck">The owner was unknown on arrival; the owner keeps it or hands it over.</param>
 public sealed record DocumentFieldsView(
     EntrySummary? Correspondent,
     EntrySummary? DocumentType,
@@ -19,4 +22,7 @@ public sealed record DocumentFieldsView(
     RecognitionState Recognition,
     Guid? PossibleDuplicateOf,
     IReadOnlyList<Guid> EditorIds,
-    bool CanEdit);
+    bool CanEdit,
+    DocumentSource Source,
+    MailOrigin? Mail,
+    bool NeedsOwnerCheck);

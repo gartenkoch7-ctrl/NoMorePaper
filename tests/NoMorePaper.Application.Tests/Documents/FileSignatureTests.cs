@@ -1,8 +1,7 @@
-using NoMorePaper.Server.Documents;
-using NoMorePaper.Server.Tests.Hosting;
+using NoMorePaper.Application.Documents;
 using Xunit;
 
-namespace NoMorePaper.Server.Tests.Documents;
+namespace NoMorePaper.Application.Tests.Documents;
 
 public sealed class FileSignatureTests
 {
@@ -13,13 +12,14 @@ public sealed class FileSignatureTests
     [InlineData("image/heic")]
     public void DetectMediaType_RecognizesAcceptedTypes(string expected)
     {
-        var file = expected switch
+        byte[] head = expected switch
         {
-            "application/pdf" => SampleFiles.Pdf(),
-            "image/jpeg" => SampleFiles.Jpeg(),
-            "image/png" => SampleFiles.Png(),
-            _ => SampleFiles.Heic(),
+            "application/pdf" => [.. "%PDF-1.7\n"u8],
+            "image/jpeg" => [0xFF, 0xD8, 0xFF, 0xE0, 0x00, 0x10, 0x4A, 0x46, 0x49, 0x46],
+            "image/png" => [0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A, 0x00, 0x00],
+            _ => [0x00, 0x00, 0x00, 0x18, .. "ftypheic"u8, 0x00, 0x00, 0x00, 0x00],
         };
+        byte[] file = [.. head, .. new byte[100]];
 
         Assert.Equal(expected, FileSignature.DetectMediaType(file.AsSpan(0, FileSignature.HeadLength)));
     }
@@ -38,7 +38,7 @@ public sealed class FileSignatureTests
     [Fact]
     public void DetectMediaType_RejectsOtherTypes()
     {
-        Assert.Null(FileSignature.DetectMediaType(SampleFiles.Text()));
+        Assert.Null(FileSignature.DetectMediaType("Just some text, not a document."u8));
         Assert.Null(FileSignature.DetectMediaType("<html><script>"u8));
         Assert.Null(FileSignature.DetectMediaType("MZ\x90\0"u8));
     }

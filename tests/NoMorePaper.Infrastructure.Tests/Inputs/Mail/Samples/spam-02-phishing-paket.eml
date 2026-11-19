@@ -1,0 +1,16 @@
+From: "Paketzustellung" <noreply@zustellung-info24.example>
+To: dokumente@haushalt.example
+Subject: Ihr Paket konnte nicht zugestellt werden - Zollgebühr offen
+Date: Wed, 18 Nov 2026 22:40:01 +0000
+Message-ID: <spam02.a1c3@zustellung-info24.example>
+MIME-Version: 1.0
+Content-Type: text/html; charset=utf-8
+Content-Transfer-Encoding: 8bit
+
+<html><body>
+<p>Hallo,</p>
+<p>Ihr Paket <b>DE-48291-XK</b> liegt in unserem Verteilzentrum. Für die Zustellung ist noch eine Zollgebühr von <b>1,99 EUR</b> offen.</p>
+<p>Bitte zahlen Sie die Gebühr innerhalb von 48 Stunden, sonst wird das Paket an den Absender zurückgeschickt.</p>
+<p><a href="https://paket-gebuehr-zahlen.example/pay?id=48291">Jetzt Gebühr bezahlen</a></p>
+<p>Ihr Zustellteam</p>
+</body></html>

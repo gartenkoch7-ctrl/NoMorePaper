@@ -28,6 +28,10 @@ public interface IAccountStore
     /// <summary>Whether the account exists (not removed); cheaper than <see cref="FindAsync"/>.</summary>
     Task<bool> ExistsAsync(Guid id, CancellationToken cancellationToken);
 
+    /// <summary>The administrator, who takes documents whose owner is unknown; the oldest one should there be several.</summary>
+    /// <returns><c>null</c> while the household is not set up.</returns>
+    Task<Guid?> FindAdministratorIdAsync(CancellationToken cancellationToken);
+
     /// <summary>All accounts, ordered by display name.</summary>
     Task<IReadOnlyList<Account>> ListAsync(CancellationToken cancellationToken);
 

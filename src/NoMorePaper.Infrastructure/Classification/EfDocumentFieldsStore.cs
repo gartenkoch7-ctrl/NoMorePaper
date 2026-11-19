@@ -29,7 +29,10 @@ public sealed class EfDocumentFieldsStore(AppDbContext db) : IDocumentFieldsStor
         document.Recognition,
         document.PossibleDuplicateOf,
         document.Tags.Select(tag => tag.TagId).ToList(),
-        document.Editors.Select(editor => editor.AccountId).ToList());
+        document.Editors.Select(editor => editor.AccountId).ToList(),
+        document.Source,
+        document.MailOrigin,
+        document.NeedsOwnerCheck);
 
     private IDbContextTransaction? _change;
 
@@ -47,7 +50,11 @@ public sealed class EfDocumentFieldsStore(AppDbContext db) : IDocumentFieldsStor
     }
 
     public Task<bool> AreVisibleAsync(Guid viewerId, ClassificationKind kind, IReadOnlyCollection<Guid> entryIds, CancellationToken cancellationToken) =>
-        EntrySets.AllVisibleAsync(db, kind, viewerId, entryIds, cancellationToken);
+        AreVisibleAsync(viewerId, kind, entryIds, EntryAudience.Account, cancellationToken);
+
+    public Task<bool> AreVisibleAsync(
+        Guid viewerId, ClassificationKind kind, IReadOnlyCollection<Guid> entryIds, EntryAudience audience, CancellationToken cancellationToken) =>
+        EntrySets.AllVisibleAsync(db, kind, viewerId, entryIds, audience, cancellationToken);
 
     public async Task SaveAsync(CancellationToken cancellationToken)
     {
@@ -109,12 +116,14 @@ public sealed class EfDocumentFieldsStore(AppDbContext db) : IDocumentFieldsStor
         ReviewFor(viewerId).CountAsync(cancellationToken);
 
     // "To review" for the viewer, one rule for the list and its number. The editing rule of
-    // Document.CanEdit; an editor of a private document is no editor.
+    // Document.CanEdit; an editor of a private document is no editor. A document waiting for its owner's
+    // check is the owner's alone to review (ADR-0024).
     private IQueryable<Document> ReviewFor(Guid viewerId) =>
         db.Documents.AsNoTracking()
             .Where(document => document.OwnerId != null
                 && (document.OwnerId == viewerId || (!document.IsPrivate && document.Editors.Any(editor => editor.AccountId == viewerId))))
             .Where(document => document.Recognition == RecognitionState.Automatic
+                || (document.NeedsOwnerCheck && document.OwnerId == viewerId)
                 || db.Documents.Any(other => other.Id == document.PossibleDuplicateOf && (other.OwnerId == viewerId || !other.IsPrivate)));
 
     // The privacy rule of Document.IsVisibleTo, as SQL.

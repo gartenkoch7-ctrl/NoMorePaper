@@ -41,4 +41,7 @@ internal static partial class ClassificationLog
 
     [LoggerMessage(EventId = 5260, Level = LogLevel.Warning, Message = "Account {AccountId} was refused ({Outcome}): {Action} on list {Kind}")]
     public static partial void EntryChangeRefused(this ILogger logger, Guid accountId, ChangeOutcome outcome, string action, ClassificationKind kind);
+
+    [LoggerMessage(EventId = 5261, Level = LogLevel.Information, Message = "Owner {AccountId} kept document {DocumentId}, whose owner was unknown on arrival")]
+    public static partial void OwnerCheckConfirmed(this ILogger logger, Guid documentId, Guid accountId);
 }

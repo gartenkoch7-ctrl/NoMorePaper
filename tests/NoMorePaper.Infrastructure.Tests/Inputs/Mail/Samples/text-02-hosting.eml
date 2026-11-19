@@ -1,0 +1,20 @@
+From: "Netzhafen Hosting" <buchhaltung@netzhafen-hosting.example>
+To: dokumente@haushalt.example
+Subject: Rechnung 2026-31877 für Ihr Webhosting-Paket
+Date: Sun, 01 Nov 2026 03:00:00 +0100
+Message-ID: <text02.inv31877@netzhafen-hosting.example>
+MIME-Version: 1.0
+Content-Type: text/html; charset=utf-8
+Content-Transfer-Encoding: 8bit
+
+<html><body>
+<p>Sehr geehrte Frau Musterfrau,</p>
+<p>vielen Dank für Ihr Vertrauen. Für Ihr Webhosting-Paket „Hafen M“ (Vertragsnummer WH-55021) berechnen wir:</p>
+<table>
+<tr><td>Hafen M, 01.11.2026 bis 31.10.2027</td><td>59,88 EUR</td></tr>
+<tr><td>Domain musterfrau-familie.example</td><td>12,00 EUR</td></tr>
+<tr><td><b>Rechnungsbetrag</b></td><td><b>71,88 EUR</b></td></tr>
+</table>
+<p>Bitte überweisen Sie den Betrag bis zum 15.11.2026 unter Angabe der Rechnungsnummer 2026-31877 auf unser Konto DE00 1234 5678 9000 0000 00.</p>
+<p>Mit freundlichen Grüßen<br>Netzhafen Hosting, Buchhaltung</p>
+</body></html>

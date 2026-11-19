@@ -3,6 +3,7 @@ using System.Net.Http.Json;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using Microsoft.Extensions.Logging;
+using NoMorePaper.Application.Processing;
 using NoMorePaper.Application.Recognition;
 
 namespace NoMorePaper.Infrastructure.Recognition;
@@ -13,7 +14,7 @@ namespace NoMorePaper.Infrastructure.Recognition;
 /// compose network only; nothing leaves the own network (ADR-0002).
 /// </summary>
 /// <remarks>Owns its <see cref="HttpClient"/>, whose own time limit is off: each call sets its own.</remarks>
-public sealed class OllamaRecognizer(HttpClient http, OllamaSettings settings, TimeProvider time, ILogger<OllamaRecognizer> logger)
+public sealed class OllamaRecognizer(HttpClient http, OllamaSettings settings, LlmGate gate, TimeProvider time, ILogger<OllamaRecognizer> logger)
     : IRecognizer, IDisposable
 {
     /// <summary>Largest measured request with the shortening rule was 2 228 tokens, plus the answer.</summary>
@@ -66,6 +67,9 @@ public sealed class OllamaRecognizer(HttpClient http, OllamaSettings settings, T
     public async Task<RecognitionResult> RecognizeAsync(RecognitionRequest request, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(request);
+
+        // Waiting for mail checks must end while the job's lock still covers a whole request.
+        using var lease = await gate.EnterAsync(LlmPriority.Recognition, MaxWait(settings), cancellationToken).ConfigureAwait(false);
         using var timeout = new CancellationTokenSource(settings.Timeout, time);
         using var linked = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, timeout.Token);
         var started = time.GetTimestamp();
@@ -111,6 +115,16 @@ public sealed class OllamaRecognizer(HttpClient http, OllamaSettings settings, T
     }
 
     public void Dispose() => http.Dispose();
+
+    /// <summary>
+    /// How long a recognition waits for the <see cref="LlmGate"/>: the job's lock minus the request's time
+    /// limit and a minute to spare (at least 4 min, as <see cref="OllamaSettings.MaxTimeout"/> leaves 5).
+    /// </summary>
+    public static TimeSpan MaxWait(OllamaSettings settings)
+    {
+        ArgumentNullException.ThrowIfNull(settings);
+        return ProcessNextDocument.LockFor - settings.Timeout - TimeSpan.FromMinutes(1);
+    }
 
     private JsonObject ChatRequest(RecognitionRequest request)
     {

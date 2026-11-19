@@ -12,7 +12,8 @@ vorführen** kann.
 | M1 | [Durchstich, Barrierefreiheit + iCloud-Spike](m1-durchstich.md) | PDF hochladen → Worker → OCR → PDF/A → Volltextsuche; dunkle Kontrast-App, Viewer mit Shader „intelligent invertiert“, scharfer Zoom, Screenreader (ADR-0010/0011); Spike entscheidet, ob iCloud in .NET machbar ist (ADR-0005) | L+ | in develop 2026-11-18 – NVDA-Prüfung, iCloud-Test, OCR-Zeit auf dem Server offen |
 | M2 | [Konten & Haushalt](m2-konten.md) | **Schritt 0: Anwendungsfälle (Annahme, Verarbeitung, Suche) nach Application verschieben, Server/Worker dünn (M1-Review, AGENTS.md §2.2)**; Anmeldung, Haushalt mit mehreren Konten, „privat“-Markierung, Betrieb über Tailscale, DE/EN | M | in develop 2026-11-19 – NVDA-Prüfung, iPhone über tailscale serve offen |
 | M3 | [Erkennung & Ordnung](m3-erkennung.md) | Ollama ordnet Absender, Art, Datum, Betrag, Tags zu; Korrektur in der UI; Filter; Duplikat-Erkennung | L | in develop 2026-11-19 – NVDA-Prüfung, Erkennungszeit auf dem Server, erster Start mit Modell offen |
-| M4 | Eingänge & Scan-Bearbeitung | **vorher: HTTPS-Zugang entscheiden, Schlüsselring verschlüsseln (ADR-0015)**; PWA-Kamera mit Kantenerkennung, Scanner-Ordner, IMAP, iCloud-Sync; Seiten drehen/löschen/umsortieren/zuschneiden, zusammenfügen/teilen, Stapel-Trennung als Vorschlag, Versionen + Papierkorb (ADR-0013) | L+ | offen |
+| M4 | [Eingänge](m4-eingaenge.md) | PWA-Kamera mit Kantenerkennung, Ansagen und Auto-Auslöser; Scanner-Ordner (Samba); Mail mit Spam-Prüfung durch das LLM; iCloud-Sync (nach Nutzertest, ADR-0018); Seite „Eingänge“ (ADR-0024) | L | Integration fertig 2026-11-19, CI grün (ohne iCloud) – iPhone-/NVDA-Prüfung, iCloud-Test offen |
+| M4b | Scan-Bearbeitung | Seiten drehen/löschen/umsortieren/zuschneiden, zusammenfügen/teilen, Stapel-Trennung als Vorschlag, Versionen + Papierkorb (ADR-0013) | M | offen |
 | M5 | Fristen, Kalender & Home Assistant | Fristen erkennen und auflisten, Fristarten mit Übernahme-/Vorlauf-Einstellung, iCloud-Kalender per CalDAV (ADR-0012), API-Token, HA-Integration (HACS) mit Sensoren und Erinnerungen | L | offen |
 | M6 | Verträge & Kosten | Verträge mit LLM-Vorschlag, Kostenübersicht nach Kategorie und Jahr, Kündigungsfrist → Frist, Preiserhöhung erkennen (ADR-0014) | M | offen |
 | M7 | Backup, Steuer-Export & Release 1.0 | Verschlüsseltes Backup mit getestetem Restore, Steuer-Export, Doku, Tag `v1.0.0` | M | offen |
@@ -23,13 +24,14 @@ Größen: **S** ≈ wenige Tage · **M** ≈ 1–2 Wochen · **L** ≈ 2–4 Woc
 
 ```
 M0 ─► M1 ─► M2 ─┬─► M3 ─┬─► M5 ─► M6 ─┐
-                └─► M4 ─┴─────────────┴─► M7
+                └─► M4 ─┴─► M4b ────────┴─► M7
 ```
 - **Barrierefreiheit zuerst:** Ab M1 ist jede Oberfläche nutzbar für den sehbehinderten
   Hauptnutzer; ein Shader-Spike in M1 legt Renderer, Schwellen und Foto-Erkennung fest.
 - **Risiko zuerst:** Der iCloud-Spike läuft in M1 parallel zum Durchstich. Scheitert er, wird
   vor M4 per ADR auf einen Fallback umgestellt.
-- M3 und M4 können parallel laufen (gemeinsames Eingangs-Interface aus M1).
+- M3 und M4 können parallel laufen; M4 nutzt die Erkennung aus M3 (Spam-Prüfung der Mail).
+- M4b nach M4: Stapel-Trennung betrifft vor allem den Scanner-Ordner.
 - M5 braucht die Fristen-Felder aus M3.
 - M6 braucht Fristen und Kalender aus M5 (Kündigungsfristen laufen als normale Fristen).
 

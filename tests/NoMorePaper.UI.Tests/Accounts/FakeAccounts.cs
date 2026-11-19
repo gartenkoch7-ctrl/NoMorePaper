@@ -63,6 +63,16 @@ internal sealed class FakeAccounts
                 ContentType = _signedIn ? "application/json" : "application/problem+json",
                 Body = _signedIn ? "[]" : "{}",
             }));
+        // The account page and the upload page read the account's preferences; a test about them mocks its own
+        // answer (registered later, so it wins).
+        await page.RouteAsync(new Regex("/api/account/preferences$"), route => route.Request.Method != "GET"
+            ? route.FallbackAsync()
+            : route.FulfillAsync(new RouteFulfillOptions
+            {
+                Status = _signedIn ? 200 : 401,
+                ContentType = _signedIn ? "application/json" : "application/problem+json",
+                Body = _signedIn ? "{\"newDocumentsPrivate\":false,\"mailSenders\":[]}" : "{}",
+            }));
         await page.RouteAsync(new Regex("/api/review/count$"), route => route.Request.Method != "GET"
             ? route.FallbackAsync()
             : route.FulfillAsync(new RouteFulfillOptions

@@ -1,10 +1,10 @@
-namespace NoMorePaper.Server.Documents;
+namespace NoMorePaper.Application.Documents;
 
 /// <summary>
 /// Recognizes the accepted file types by their first bytes, never by the name or the type the
-/// uploader claims. Pure logic.
+/// uploader claims. Pure logic; used by the upload and the inputs (scanner folder, mail).
 /// </summary>
-internal static class FileSignature
+public static class FileSignature
 {
     /// <summary>Bytes of a file that <see cref="DetectMediaType"/> needs.</summary>
     public const int HeadLength = 16;

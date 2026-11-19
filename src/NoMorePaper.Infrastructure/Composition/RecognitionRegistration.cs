@@ -1,6 +1,7 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using NoMorePaper.Application.Inputs.Mail;
 using NoMorePaper.Application.Recognition;
 using NoMorePaper.Infrastructure.Recognition;
 
@@ -17,6 +18,9 @@ public static class RecognitionRegistration
     {
         ArgumentNullException.ThrowIfNull(configuration);
         services.AddSingleton(_ => OllamaSettings.Read(configuration));
+
+        // One request to Ollama at a time, for recognition and the mail check (ADR-0024).
+        services.AddSingleton<LlmGate>();
         services.AddSingleton<IRecognizer>(provider =>
         {
             var settings = provider.GetRequiredService<OllamaSettings>();
@@ -28,7 +32,26 @@ public static class RecognitionRegistration
                 Timeout = Timeout.InfiniteTimeSpan,
             };
             return new OllamaRecognizer(
-                http, settings, provider.GetRequiredService<TimeProvider>(), provider.GetRequiredService<ILogger<OllamaRecognizer>>());
+                http,
+                settings,
+                provider.GetRequiredService<LlmGate>(),
+                provider.GetRequiredService<TimeProvider>(),
+                provider.GetRequiredService<ILogger<OllamaRecognizer>>());
+        });
+        services.AddSingleton<IMailAssessor>(provider =>
+        {
+            var settings = provider.GetRequiredService<OllamaSettings>();
+            var http = new HttpClient(new SocketsHttpHandler { PooledConnectionLifetime = s_connectionLifetime })
+            {
+                BaseAddress = settings.Endpoint,
+                Timeout = Timeout.InfiniteTimeSpan,
+            };
+            return new OllamaMailAssessor(
+                http,
+                settings,
+                provider.GetRequiredService<LlmGate>(),
+                provider.GetRequiredService<TimeProvider>(),
+                provider.GetRequiredService<ILogger<OllamaMailAssessor>>());
         });
         services.AddScoped<IRecognitionExamples, EfRecognitionExamples>();
         services.AddScoped<IDuplicateFinder, PostgresDuplicateFinder>();

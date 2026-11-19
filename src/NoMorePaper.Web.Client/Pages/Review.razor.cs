@@ -4,9 +4,11 @@ using Microsoft.AspNetCore.Components.Web;
 using Microsoft.Extensions.Localization;
 using Microsoft.Extensions.Logging;
 using Microsoft.JSInterop;
+using NoMorePaper.Contracts.Accounts;
 using NoMorePaper.Contracts.Classification;
 using NoMorePaper.Web.Client.Accessibility;
 using NoMorePaper.Web.Client.Classification;
+using NoMorePaper.Web.Client.Documents;
 using NoMorePaper.Web.Client.Localization;
 
 namespace NoMorePaper.Web.Client.Pages;
@@ -26,6 +28,9 @@ public sealed partial class Review
     private Guid? _editing;
     private string? _loadError;
     private bool _loading = true;
+
+    // Loaded once for all "Herkunft unklar" sections of the list, not once per document; again only after a failure.
+    private Task<ApiResult<HouseholdMemberDto[]>>? _household;
 
     [Inject] private IStringLocalizer<Strings> L { get; set; } = default!;
 
@@ -58,6 +63,11 @@ public sealed partial class Review
         }
 
         _items = result.Value ?? [];
+        if (_items.Any(item => item.Fields.NeedsOwnerCheck) && (_household is null || (_household.IsCompleted && _household is not { IsCompletedSuccessfully: true, Result.IsSuccess: true })))
+        {
+            _household = Api.ListHouseholdAsync();
+        }
+
         Logger.ReviewLoaded(_items.Length);
         Counter.Set(_items.Length);
     }
@@ -100,6 +110,9 @@ public sealed partial class Review
         Logger.DuplicateKept();
         await DoneAsync(item, "ReviewKept");
     }
+
+    private Task OwnerAnsweredAsync(ReviewItemDto item, OwnerCheckAnswer answer) => DoneAsync(
+        item, answer.HandedOver ? "InpOwnerCheckHandedOver" : "InpOwnerCheckKept", extra: answer.ReceiverName);
 
     private void StartEdit(ReviewItemDto item) => _editing = item.Id;
 
@@ -174,11 +187,11 @@ public sealed partial class Review
     }
 
     // Loads the list again (the item may be gone, or still there for its other reason) and says what is left.
-    private async Task DoneAsync(ReviewItemDto item, string messageKey, string? title = null)
+    private async Task DoneAsync(ReviewItemDto item, string messageKey, string? title = null, string? extra = null)
     {
         var index = Array.FindIndex(_items, other => other.Id == item.Id);
         await LoadAsync();
-        var message = L[messageKey, title ?? item.Title].Value;
+        var message = L[messageKey, title ?? item.Title, extra ?? string.Empty].Value;
         if (_loadError is not null)
         {
             // The action worked, but what is left is unknown; the error box says why.

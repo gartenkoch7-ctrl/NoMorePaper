@@ -20,4 +20,10 @@ public enum RecognitionCommit
     /// view. The job is handed back (the attempt does not count) to run again with the household's view.
     /// </summary>
     SharedMeanwhile,
+
+    /// <summary>
+    /// Nothing was taken: the document was handed over to another account since the fields were made
+    /// with the previous owner's lists. The job is handed back (the attempt does not count).
+    /// </summary>
+    OwnerChanged,
 }

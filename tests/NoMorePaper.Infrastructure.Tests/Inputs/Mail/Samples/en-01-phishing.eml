@@ -1,0 +1,16 @@
+From: "Account Security" <security-alert@cloudstorage-support-team.example>
+To: dokumente@haushalt.example
+Subject: Action required: your storage account will be deleted
+Date: Wed, 18 Nov 2026 02:14:00 +0000
+Message-ID: <en01.del@cloudstorage-support-team.example>
+MIME-Version: 1.0
+Content-Type: text/html; charset=utf-8
+Content-Transfer-Encoding: 8bit
+
+<html><body>
+<p>Dear user,</p>
+<p>Your cloud storage has exceeded its limit and all your photos and files will be permanently deleted within 12 hours.</p>
+<p>To keep your files, verify your account and payment details now:</p>
+<p><a href="https://verify-account-storage.example/signin">Verify my account</a></p>
+<p>Security Team</p>
+</body></html>

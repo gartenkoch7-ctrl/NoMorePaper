@@ -6,6 +6,7 @@ using NoMorePaper.Infrastructure.Composition;
 using NoMorePaper.Infrastructure.Ocr;
 using NoMorePaper.Infrastructure.Telemetry;
 using NoMorePaper.Worker.Heartbeat;
+using NoMorePaper.Worker.Inputs;
 using NoMorePaper.Worker.Processing;
 using NoMorePaper.Worker.Recognition;
 using NoMorePaper.Worker.Telemetry;
@@ -42,6 +43,12 @@ internal static class WorkerComposition
         // Recognition by the local LLM (Ollama on the compose network) and its start: model, backlog.
         builder.Services.AddRecognition(builder.Configuration);
         builder.Services.AddHostedService<RecognitionStartup>();
+
+        // Background inputs (ADR-0024): scanner folder, mail, iCloud. Their intake asks the account
+        // store for the owner and the administrator.
+        builder.Services.AddAccountStore();
+        builder.Services.AddInputSources(builder.Configuration);
+        builder.Services.AddHostedService<InputScheduler>();
 
         return builder;
     }

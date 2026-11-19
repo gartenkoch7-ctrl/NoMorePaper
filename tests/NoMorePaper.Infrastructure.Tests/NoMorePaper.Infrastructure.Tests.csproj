@@ -14,4 +14,11 @@
     <PackageReference Include="Testcontainers.PostgreSql" />
     <PackageReference Include="Microsoft.Extensions.Configuration" />
   </ItemGroup>
+
+  <ItemGroup>
+    <!-- Two photographed pages (white with a line of text), for the PDF composer. -->
+    <None Include="Inputs\Samples\*.jpg" CopyToOutputDirectory="PreserveNewest" />
+    <!-- Synthetic mails for the mail input (M4, track C), with the expected verdicts. -->
+    <None Include="Inputs\Mail\Samples\*" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
 </Project>

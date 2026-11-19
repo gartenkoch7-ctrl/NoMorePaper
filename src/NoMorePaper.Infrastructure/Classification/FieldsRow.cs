@@ -17,7 +17,10 @@ internal sealed record FieldsRow(
     RecognitionState Recognition,
     Guid? PossibleDuplicateOf,
     List<Guid> TagIds,
-    List<Guid> EditorIds)
+    List<Guid> EditorIds,
+    DocumentSource Source,
+    MailOrigin? Mail,
+    bool NeedsOwnerCheck)
 {
     /// <summary><c>Document.CanEdit</c> on the loaded columns.</summary>
     public bool CanEdit(Guid accountId) =>

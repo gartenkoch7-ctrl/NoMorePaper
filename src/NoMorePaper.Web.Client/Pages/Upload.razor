@@ -9,12 +9,9 @@
 
 @* Applies to the files chosen next. It comes before the file input in reading and tab order:
    choosing a file starts the upload at once, so a screen reader user must meet this switch first.
-   A native checkbox with a visible label and a hint that says what "private" means. *@
-<div class="form-check">
-    <input id="upload-private" type="checkbox" @bind="_private" aria-describedby="upload-private-hint" />
-    <label for="upload-private">@L["PrivateLabel"]</label>
-</div>
-<p id="upload-private-hint" class="form-hint">@L["UploadPrivateHint"]</p>
+   A native checkbox with a visible label and a hint that says what "private" means; without a change the
+   account's setting decides (also when it cannot be loaded: the switch then says so). *@
+<PrivateSwitch @ref="_privacy" Id="upload-private" Hint="@L["UploadPrivateHint"]" />
 
 @* Dropping a file on the field is only an extra: the file input itself is the real control and
    works with keyboard and screen reader alone. *@
@@ -90,7 +87,7 @@
     private readonly List<UploadOutcome> _results = [];
     private LiveRegion? _progress;
     private SkippedFiles? _skipped;
-    private bool _private;
+    private PrivateSwitch? _privacy;
 
     private async Task OnFilesChangedAsync(InputFileChangeEventArgs args)
     {
@@ -102,11 +99,11 @@
         var announcement = _skipped is null ? null : $"{_skipped.Notice} {SkippedNamesAnnouncement(_skipped.Names)}";
 
         // The switch applies to the files chosen now, even if it is changed while they go up.
-        var isPrivate = _private;
+        var choice = _privacy?.Choice;
         for (var i = 0; i < batch.Count; i++)
         {
             // The notice joins the last announcement; a separate one right after would cut it off.
-            await UploadOneAsync(batch[i], isPrivate, i == batch.Count - 1 ? announcement : null);
+            await UploadOneAsync(batch[i], choice, i == batch.Count - 1 ? announcement : null);
         }
     }
 
@@ -124,11 +121,12 @@
         return L["UploadSkippedNames", rest > 0 ? L["UploadSkippedMore", list, rest].Value : list];
     }
 
-    private async Task UploadOneAsync(IBrowserFile file, bool isPrivate, string? notice)
+    // choice: what is sent (null: the account decides). The result says what the server applied.
+    private async Task UploadOneAsync(IBrowserFile file, bool? choice, string? notice)
     {
         await AnnounceAsync(L["UploadInProgress", file.Name]);
-        var result = await Api.UploadAsync(file, isPrivate);
-        var outcome = new UploadOutcome(file.Name, result.Value?.Id, result.Error, isPrivate, result.ExistingId, result.IsDuplicate);
+        var result = await Api.UploadAsync(file, choice);
+        var outcome = new UploadOutcome(file.Name, result.Value?.Id, result.Error, result.Value?.IsPrivate ?? false, result.ExistingId, result.IsDuplicate);
         _results.Insert(0, outcome);
         if (outcome.IsDuplicate)
         {
@@ -143,7 +141,7 @@
         await AnnounceAsync(notice is null ? message : $"{message} {notice}");
     }
 
-    // Says whether the file went up private or shared, so a mistake is noticed right away.
+    // Says whether the file went up private or shared (as the server applied it), so a mistake is noticed right away.
     private string SuccessText(UploadOutcome outcome)
         => L[outcome.IsPrivate ? "UploadSuccessPrivate" : "UploadSuccessShared", outcome.FileName];
 

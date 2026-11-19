@@ -1062,4 +1062,517 @@
   <data name="UploadShowExisting" xml:space="preserve">
     <value>Show the existing document for “{0}”</value>
   </data>
+  <data name="InpErrorSenderInvalid" xml:space="preserve">
+    <value>A sender address is not valid, or there are more than 20.</value>
+  </data>
+  <data name="InpErrorSenderTaken" xml:space="preserve">
+    <value>Another account has this sender address already.</value>
+  </data>
+  <data name="NavInputs" xml:space="preserve">
+    <value>Inputs</value>
+  </data>
+  <data name="InpTitle" xml:space="preserve">
+    <value>Inputs</value>
+  </data>
+  <data name="InpHeading" xml:space="preserve">
+    <value>Inputs</value>
+  </data>
+  <data name="InpIntro" xml:space="preserve">
+    <value>Here you see whether the ways documents come in besides uploading are running: scanner folder, mail and iCloud Drive.</value>
+  </data>
+  <data name="InpRefresh" xml:space="preserve">
+    <value>Refresh now</value>
+  </data>
+  <data name="InpLoading" xml:space="preserve">
+    <value>Loading inputs …</value>
+  </data>
+  <data name="InpLoadError" xml:space="preserve">
+    <value>The inputs could not be loaded: {0}</value>
+  </data>
+  <data name="InpUpdated" xml:space="preserve">
+    <value>As of {0}</value>
+  </data>
+  <data name="InpChanged" xml:space="preserve">
+    <value>The inputs have changed. {0}</value>
+  </data>
+  <data name="InpNothingNew" xml:space="preserve">
+    <value>Refreshed. Nothing has changed.</value>
+  </data>
+  <data name="InpKindScannerFolder" xml:space="preserve">
+    <value>Scanner folder</value>
+  </data>
+  <data name="InpKindMail" xml:space="preserve">
+    <value>Mail</value>
+  </data>
+  <data name="InpKindICloud" xml:space="preserve">
+    <value>iCloud Drive</value>
+  </data>
+  <data name="InpScannerText" xml:space="preserve">
+    <value>Files the scanner puts into the folder on the home network. Each account has its own subfolder there.</value>
+  </data>
+  <data name="InpMailText" xml:space="preserve">
+    <value>Documents that arrive as mail at the household's address.</value>
+  </data>
+  <data name="InpMailSpamFolder" xml:space="preserve">
+    <value>Mails recognized as spam are in the mailbox folder "NoMorePaper-Spam". If you move a mail from there back to the inbox, it is read in without the spam check.</value>
+  </data>
+  <data name="InpMailSetUp" xml:space="preserve">
+    <value>Set up mail</value>
+  </data>
+  <data name="InpMailSettings" xml:space="preserve">
+    <value>Mail settings</value>
+  </data>
+  <data name="InpMailAdminOnly" xml:space="preserve">
+    <value>The administrator sets up the mailbox.</value>
+  </data>
+  <data name="InpICloudText" xml:space="preserve">
+    <value>Files from an iCloud folder that each account chooses with its own Apple ID. NoMorePaper only reads.</value>
+  </data>
+  <data name="InpICloudNone" xml:space="preserve">
+    <value>Not set up yet.</value>
+  </data>
+  <data name="InpICloudSetUp" xml:space="preserve">
+    <value>Set up iCloud</value>
+  </data>
+  <data name="InpICloudSettings" xml:space="preserve">
+    <value>iCloud settings</value>
+  </data>
+  <data name="InpICloudRenewCode" xml:space="preserve">
+    <value>Renew code</value>
+  </data>
+  <data name="InpStateNever" xml:space="preserve">
+    <value>Has not run yet.</value>
+  </data>
+  <data name="InpStateOk" xml:space="preserve">
+    <value>Runs without problems.</value>
+  </data>
+  <data name="InpStateProblem" xml:space="preserve">
+    <value>Problem: {0}.</value>
+  </data>
+  <data name="InpStateProblemAttention" xml:space="preserve">
+    <value>Problem: {0}. This needs your attention.</value>
+  </data>
+  <data name="InpLastRun" xml:space="preserve">
+    <value>Last check</value>
+  </data>
+  <data name="InpLastSuccess" xml:space="preserve">
+    <value>Last success</value>
+  </data>
+  <data name="InpNever" xml:space="preserve">
+    <value>never</value>
+  </data>
+  <data name="InpWhen" xml:space="preserve">
+    <value>{0} ({1})</value>
+  </data>
+  <data name="InpAgeNow" xml:space="preserve">
+    <value>just now</value>
+  </data>
+  <data name="InpAgeMinute" xml:space="preserve">
+    <value>1 minute ago</value>
+  </data>
+  <data name="InpAgeMinutes" xml:space="preserve">
+    <value>{0} minutes ago</value>
+  </data>
+  <data name="InpAgeHour" xml:space="preserve">
+    <value>1 hour ago</value>
+  </data>
+  <data name="InpAgeHours" xml:space="preserve">
+    <value>{0} hours ago</value>
+  </data>
+  <data name="InpAgeDay" xml:space="preserve">
+    <value>1 day ago</value>
+  </data>
+  <data name="InpAgeDays" xml:space="preserve">
+    <value>{0} days ago</value>
+  </data>
+  <data name="InpProblemNotConfigured" xml:space="preserve">
+    <value>The input is not set up yet</value>
+  </data>
+  <data name="InpProblemSignInFailed" xml:space="preserve">
+    <value>Sign-in failed, please check the credentials</value>
+  </data>
+  <data name="InpProblemCodeNeeded" xml:space="preserve">
+    <value>Apple asks for a new code</value>
+  </data>
+  <data name="InpProblemUnreachable" xml:space="preserve">
+    <value>The input's server cannot be reached</value>
+  </data>
+  <data name="InpProblemLlmUnavailable" xml:space="preserve">
+    <value>The local recognition (Ollama) cannot be reached</value>
+  </data>
+  <data name="InpProblemThrottled" xml:space="preserve">
+    <value>The service is slowing down requests, the next try comes later</value>
+  </data>
+  <data name="InpProblemProtocolChanged" xml:space="preserve">
+    <value>The service answers differently than expected</value>
+  </data>
+  <data name="InpProblemFailed" xml:space="preserve">
+    <value>The run failed unexpectedly</value>
+  </data>
+  <data name="InpProblemUnknown" xml:space="preserve">
+    <value>Unknown problem</value>
+  </data>
+  <data name="InpOwnerCheckHeading" xml:space="preserve">
+    <value>Origin unclear</value>
+  </data>
+  <data name="InpOwnerCheckText" xml:space="preserve">
+    <value>Origin unclear – only visible to you. The document arrived without a recognizable owner and stays private until you decide.</value>
+  </data>
+  <data name="InpOwnerCheckKeep" xml:space="preserve">
+    <value>Fits</value>
+  </data>
+  <data name="InpOwnerCheckKeepFor" xml:space="preserve">
+    <value>Fits: {0}</value>
+  </data>
+  <data name="InpOwnerCheckHandOverLabel" xml:space="preserve">
+    <value>Hand over to</value>
+  </data>
+  <data name="InpOwnerCheckHint" xml:space="preserve">
+    <value>Whoever gets the document becomes its owner. Their setting for new documents (private or shared) applies.</value>
+  </data>
+  <data name="InpOwnerCheckPick" xml:space="preserve">
+    <value>Choose account</value>
+  </data>
+  <data name="InpOwnerCheckHandOver" xml:space="preserve">
+    <value>Hand over</value>
+  </data>
+  <data name="InpOwnerCheckHandOverFor" xml:space="preserve">
+    <value>Hand over: {0}</value>
+  </data>
+  <data name="InpOwnerCheckNoOthers" xml:space="preserve">
+    <value>There is no other account you could hand the document over to.</value>
+  </data>
+  <data name="InpOwnerCheckLoadError" xml:space="preserve">
+    <value>The accounts could not be loaded: {0}</value>
+  </data>
+  <data name="InpOwnerCheckPickFirst" xml:space="preserve">
+    <value>Choose an account first.</value>
+  </data>
+  <data name="InpOwnerCheckAnswered" xml:space="preserve">
+    <value>The document has been checked in the meantime. Reload the page.</value>
+  </data>
+  <data name="InpOwnerCheckKept" xml:space="preserve">
+    <value>"{0}" stays with you.</value>
+  </data>
+  <data name="InpOwnerCheckHandedOver" xml:space="preserve">
+    <value>"{0}" handed over to {1}.</value>
+  </data>
+  <data name="InpOwnerCheckToDocuments" xml:space="preserve">
+    <value>To the documents</value>
+  </data>
+  <data name="InpPrefsHeading" xml:space="preserve">
+    <value>Inputs and new documents</value>
+  </data>
+  <data name="InpPrefsLoading" xml:space="preserve">
+    <value>Loading settings …</value>
+  </data>
+  <data name="InpPrefsLoadError" xml:space="preserve">
+    <value>The settings could not be loaded: {0}</value>
+  </data>
+  <data name="InpPrefsPrivateLabel" xml:space="preserve">
+    <value>File new documents as private</value>
+  </data>
+  <data name="InpPrefsPrivateHint" xml:space="preserve">
+    <value>Applies to documents that come in through scanner folder, mail, iCloud and camera, and is preselected when uploading. Only you see private documents.</value>
+  </data>
+  <data name="InpPrefsPrivateOn" xml:space="preserve">
+    <value>New documents are now filed as private.</value>
+  </data>
+  <data name="InpPrefsPrivateOff" xml:space="preserve">
+    <value>New documents are now shared with the household.</value>
+  </data>
+  <data name="InpPrefsSendersHeading" xml:space="preserve">
+    <value>Sender addresses for mail</value>
+  </data>
+  <data name="InpPrefsSendersHint" xml:space="preserve">
+    <value>Mails from these addresses belong to your account. An address can belong to one account only, and at most {0} addresses are possible.</value>
+  </data>
+  <data name="InpPrefsSendersNone" xml:space="preserve">
+    <value>No address entered yet.</value>
+  </data>
+  <data name="InpPrefsRemove" xml:space="preserve">
+    <value>Remove</value>
+  </data>
+  <data name="InpPrefsRemoveFor" xml:space="preserve">
+    <value>Remove: {0}</value>
+  </data>
+  <data name="InpPrefsAddLabel" xml:space="preserve">
+    <value>Add sender address</value>
+  </data>
+  <data name="InpPrefsAdd" xml:space="preserve">
+    <value>Add</value>
+  </data>
+  <data name="InpPrefsAdded" xml:space="preserve">
+    <value>Address {0} added.</value>
+  </data>
+  <data name="InpPrefsRemoved" xml:space="preserve">
+    <value>Address {0} removed.</value>
+  </data>
+  <data name="InpPrefsAlreadyListed" xml:space="preserve">
+    <value>This address is already in your list.</value>
+  </data>
+  <data name="MailTitle" xml:space="preserve">
+    <value>Mail input – NoMorePaper</value>
+  </data>
+  <data name="MailHeading" xml:space="preserve">
+    <value>Set up the mail input</value>
+  </data>
+  <data name="MailAdminOnly" xml:space="preserve">
+    <value>Only the administrator can set up the household's mailbox.</value>
+  </data>
+  <data name="MailLoading" xml:space="preserve">
+    <value>Loading the mailbox settings …</value>
+  </data>
+  <data name="MailExplain" xml:space="preserve">
+    <value>NoMorePaper fetches the mails of this mailbox every 5 minutes. Attachments become documents, important mails without attachment are kept as PDF, advertising and fraud go to the folder "NoMorePaper-Spam". The password is stored encrypted and never shown again.</value>
+  </data>
+  <data name="MailFieldHost" xml:space="preserve">
+    <value>Mail server (IMAP)</value>
+  </data>
+  <data name="MailHintHost" xml:space="preserve">
+    <value>For example imap.example.com</value>
+  </data>
+  <data name="MailFieldPort" xml:space="preserve">
+    <value>Port</value>
+  </data>
+  <data name="MailHintPort" xml:space="preserve">
+    <value>Usually 993 with SSL/TLS or 143 with STARTTLS.</value>
+  </data>
+  <data name="MailFieldSecurity" xml:space="preserve">
+    <value>Encryption</value>
+  </data>
+  <data name="MailSecuritySsl" xml:space="preserve">
+    <value>SSL/TLS</value>
+  </data>
+  <data name="MailSecurityStartTls" xml:space="preserve">
+    <value>STARTTLS</value>
+  </data>
+  <data name="MailFieldUser" xml:space="preserve">
+    <value>User name</value>
+  </data>
+  <data name="MailFieldPassword" xml:space="preserve">
+    <value>Password of the mailbox</value>
+  </data>
+  <data name="MailHintPasswordStored" xml:space="preserve">
+    <value>A password is stored. Leave the field empty to keep it.</value>
+  </data>
+  <data name="MailHintPasswordNone" xml:space="preserve">
+    <value>No password stored yet.</value>
+  </data>
+  <data name="MailFieldAuthServId" xml:space="preserve">
+    <value>Id of the own mail server (authserv-id, optional)</value>
+  </data>
+  <data name="MailHintAuthServId" xml:space="preserve">
+    <value>Found at the start of the header "Authentication-Results" of received mails, for example mx.example.com. Only with it does a mail from a stored sender address belong to that account; without it every sender counts as unknown.</value>
+  </data>
+  <data name="MailSave" xml:space="preserve">
+    <value>Save</value>
+  </data>
+  <data name="MailTest" xml:space="preserve">
+    <value>Test connection</value>
+  </data>
+  <data name="MailFoldersHeading" xml:space="preserve">
+    <value>Folders in the mailbox</value>
+  </data>
+  <data name="MailFoldersExplain" xml:space="preserve">
+    <value>NoMorePaper creates three folders: "Verarbeitet" for mails taken in, "NoMorePaper-Spam" for advertising and fraud, "NoMorePaper-Fehler" for mails that failed three times. Move a mail from "NoMorePaper-Spam" back into the inbox and it is taken in without spam check.</value>
+  </data>
+  <data name="MailSaved" xml:space="preserve">
+    <value>Mailbox settings saved.</value>
+  </data>
+  <data name="MailTesting" xml:space="preserve">
+    <value>Testing the connection …</value>
+  </data>
+  <data name="MailTestOk" xml:space="preserve">
+    <value>Connection works: signed in to the mail server.</value>
+  </data>
+  <data name="MailTestSignInFailed" xml:space="preserve">
+    <value>The mail server refused the sign-in. Check user name and password.</value>
+  </data>
+  <data name="MailTestUnreachable" xml:space="preserve">
+    <value>The mail server cannot be reached. Check server, port and encryption.</value>
+  </data>
+  <data name="MailErrorInvalid" xml:space="preserve">
+    <value>Server, port, user name or id are not valid.</value>
+  </data>
+  <data name="MailErrorPort" xml:space="preserve">
+    <value>The port must be a number from 1 to 65535.</value>
+  </data>
+  <data name="MailOriginHeading" xml:space="preserve">
+    <value>From the mail</value>
+  </data>
+  <data name="MailOriginNote" xml:space="preserve">
+    <value>Note</value>
+  </data>
+  <data name="MailOriginNoNote" xml:space="preserve">
+    <value>No note in the mail text</value>
+  </data>
+  <data name="MailOriginSender" xml:space="preserve">
+    <value>Sender</value>
+  </data>
+  <data name="MailOriginSubject" xml:space="preserve">
+    <value>Subject</value>
+  </data>
+  <data name="NavCamera" xml:space="preserve">
+    <value>Camera</value>
+  </data>
+  <data name="CamTitle" xml:space="preserve">
+    <value>Camera – NoMorePaper</value>
+  </data>
+  <data name="CamHeading" xml:space="preserve">
+    <value>Capture with the camera</value>
+  </data>
+  <data name="CamIntro" xml:space="preserve">
+    <value>Put the sheet on a dark surface and hold the phone above it. The app tells you where to move the phone and takes the page by itself as soon as it is fully visible and the picture is still. Several pages become one document.</value>
+  </data>
+  <data name="CamTones" xml:space="preserve">
+    <value>Tones</value>
+  </data>
+  <data name="CamTonesHint" xml:space="preserve">
+    <value>Like a parking aid: the higher and faster the tones, the better the sheet is in the picture. Applies to this device only.</value>
+  </data>
+  <data name="CamPrivateHint" xml:space="preserve">
+    <value>Only you see private documents. This applies to the document made with &quot;Done&quot;.</value>
+  </data>
+  <data name="CamStart" xml:space="preserve">
+    <value>Start camera</value>
+  </data>
+  <data name="CamStarting" xml:space="preserve">
+    <value>Loading the camera and the edge detection. The first time this can take a while.</value>
+  </data>
+  <data name="CamReady" xml:space="preserve">
+    <value>The camera is on. Hold the phone above the sheet.</value>
+  </data>
+  <data name="CamCapture" xml:space="preserve">
+    <value>Take picture</value>
+  </data>
+  <data name="CamDiscard" xml:space="preserve">
+    <value>Discard last page</value>
+  </data>
+  <data name="CamDone" xml:space="preserve">
+    <value>Done</value>
+  </data>
+  <data name="CamPagesHeading" xml:space="preserve">
+    <value>Pages taken</value>
+  </data>
+  <data name="CamNoPages" xml:space="preserve">
+    <value>No page taken yet.</value>
+  </data>
+  <data name="CamPageItem" xml:space="preserve">
+    <value>Page {0}</value>
+  </data>
+  <data name="CamPageTaken" xml:space="preserve">
+    <value>Page {0} taken. Put down the next page or choose &quot;Done&quot;.</value>
+  </data>
+  <data name="CamDiscarded" xml:space="preserve">
+    <value>Last page discarded. Pages now: {0}.</value>
+  </data>
+  <data name="CamNothingTaken" xml:space="preserve">
+    <value>No page was taken.</value>
+  </data>
+  <data name="CamTooManyPages" xml:space="preserve">
+    <value>More than {0} pages do not fit into one document. This page was not taken. Choose &quot;Done&quot;.</value>
+  </data>
+  <data name="CamUploading" xml:space="preserve">
+    <value>Saving the document. Pages: {0}.</value>
+  </data>
+  <data name="CamSavedShared" xml:space="preserve">
+    <value>The document was saved as shared and is waiting to be processed. Pages: {0}.</value>
+  </data>
+  <data name="CamSavedPrivate" xml:space="preserve">
+    <value>The document was saved as private and is waiting to be processed. Pages: {0}.</value>
+  </data>
+  <data name="CamShowInList" xml:space="preserve">
+    <value>Show the new document in the document list</value>
+  </data>
+  <data name="CamShowExisting" xml:space="preserve">
+    <value>View the existing document</value>
+  </data>
+  <data name="CamUploadFailed" xml:space="preserve">
+    <value>The document was not saved: {0} The pages are still here; choose &quot;Done&quot; again.</value>
+  </data>
+  <data name="CamUploadInstead" xml:space="preserve">
+    <value>Upload a file instead</value>
+  </data>
+  <data name="CamErrorDenied" xml:space="preserve">
+    <value>Camera access is not allowed. Allow it in the browser settings and reload the page.</value>
+  </data>
+  <data name="CamErrorNoCamera" xml:space="preserve">
+    <value>No camera was found.</value>
+  </data>
+  <data name="CamErrorBusy" xml:space="preserve">
+    <value>Another app is using the camera. Close it and try again.</value>
+  </data>
+  <data name="CamErrorUnsupported" xml:space="preserve">
+    <value>This browser does not allow the camera here. Open NoMorePaper through its https address.</value>
+  </data>
+  <data name="CamErrorOpenCv" xml:space="preserve">
+    <value>The edge detection could not be loaded.</value>
+  </data>
+  <data name="CamErrorFailed" xml:space="preserve">
+    <value>The camera could not be started.</value>
+  </data>
+  <data name="CamErrorEnded" xml:space="preserve">
+    <value>The camera stopped.</value>
+  </data>
+  <data name="CamErrorCapture" xml:space="preserve">
+    <value>The page could not be taken. Try again.</value>
+  </data>
+  <data name="CamErrorRejected" xml:space="preserve">
+    <value>The server did not accept the pages.</value>
+  </data>
+  <data name="CamErrorTooLarge" xml:space="preserve">
+    <value>The pages are too large (at most 15 MB each, 150 MB together).</value>
+  </data>
+  <data name="CamHintSearch" xml:space="preserve">
+    <value>No sheet in the picture.</value>
+  </data>
+  <data name="CamHintFarther" xml:space="preserve">
+    <value>Further away.</value>
+  </data>
+  <data name="CamHintCloser" xml:space="preserve">
+    <value>Closer.</value>
+  </data>
+  <data name="CamHintLeft" xml:space="preserve">
+    <value>Move left.</value>
+  </data>
+  <data name="CamHintRight" xml:space="preserve">
+    <value>Move right.</value>
+  </data>
+  <data name="CamHintUp" xml:space="preserve">
+    <value>Move up.</value>
+  </data>
+  <data name="CamHintDown" xml:space="preserve">
+    <value>Move down.</value>
+  </data>
+  <data name="CamHintHold" xml:space="preserve">
+    <value>Hold still.</value>
+  </data>
+  <data name="CamHintLabel" xml:space="preserve">
+    <value>Hint: {0}</value>
+  </data>
+  <data name="MailErrorPasswordAgain" xml:space="preserve">
+    <value>Server, port, encryption or user name changed. Enter the password again – the stored one only applies to the previous access.</value>
+  </data>
+  <data name="MailErrorUnencrypted" xml:space="preserve">
+    <value>A connection without encryption is not allowed. Choose TLS or STARTTLS.</value>
+  </data>
+  <data name="MailHintPasswordAgain" xml:space="preserve">
+    <value>Server or user changed: enter the password again.</value>
+  </data>
+  <data name="InpICloudPending" xml:space="preserve">
+    <value>iCloud follows – waiting for the test with an Apple ID.</value>
+  </data>
+  <data name="InpErrorSendersFull" xml:space="preserve">
+    <value>At most {0} sender addresses are possible. Remove one first.</value>
+  </data>
+  <data name="PrivateUnknown" xml:space="preserve">
+    <value>State unknown: your account setting could not be loaded. Unless you change it, the document is filed private or shared as your account setting says.</value>
+  </data>
+  <data name="InpProblemUnknownFolder" xml:space="preserve">
+    <value>A subfolder of the scanner folder belongs to no account; its files stay where they are</value>
+  </data>
+  <data name="InpProblemStuckItems" xml:space="preserve">
+    <value>Some mails or files are stuck – see the mailbox folder “NoMorePaper-Fehler” or the inbox</value>
+  </data>
 </root>

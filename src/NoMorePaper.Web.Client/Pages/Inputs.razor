@@ -1,0 +1,93 @@
+@page "/eingaenge"
+@using NoMorePaper.Web.Client.Inputs
+
+<PageTitle>@L["InpTitle"]</PageTitle>
+
+<MudText Typo="Typo.h1" id="inputs-heading" tabindex="-1">@L["InpHeading"]</MudText>
+<p>@L["InpIntro"]</p>
+
+<div class="button-row">
+    <button type="button" id="inputs-refresh" class="nmp-button" @onclick="RefreshByHandAsync">@L["InpRefresh"]</button>
+</div>
+<LiveRegion @ref="_status" />
+
+@if (_loadError is not null)
+{
+    <div role="alert" class="error-box" data-ready>
+        <MudIcon Icon="@Icons.Material.Filled.Error" />
+        <span>@L["InpLoadError", _loadError]</span>
+    </div>
+    <button type="button" id="inputs-retry" class="nmp-button" @onclick="RefreshByHandAsync">@L["Retry"]</button>
+}
+else if (_rows is null)
+{
+    <p role="status">@L["InpLoading"]</p>
+}
+else
+{
+    <p data-ready>@L["InpUpdated", _now.ToLocalTime().ToString("T", System.Globalization.CultureInfo.CurrentCulture)]</p>
+
+    <section aria-labelledby="inputs-scanner-heading">
+        <MudText Typo="Typo.h2" id="inputs-scanner-heading">@L["InpKindScannerFolder"]</MudText>
+        <p>@L["InpScannerText"]</p>
+        @foreach (var row in RowsOf("scanner-folder"))
+        {
+            <InputsEntry Row="row" Now="_now" />
+        }
+        @if (!HasRows("scanner-folder"))
+        {
+            <p>@L["InpStateNever"]</p>
+        }
+    </section>
+
+    <section aria-labelledby="inputs-mail-heading">
+        <MudText Typo="Typo.h2" id="inputs-mail-heading">@L["InpKindMail"]</MudText>
+        <p>@L["InpMailText"]</p>
+        <p>@L["InpMailSpamFolder"]</p>
+        @foreach (var row in RowsOf("mail"))
+        {
+            <InputsEntry Row="row" Now="_now" />
+        }
+        @if (!HasRows("mail"))
+        {
+            <p>@L["InpStateNever"]</p>
+        }
+
+        @if (Auth.IsAdmin)
+        {
+            <p><a href="eingaenge/mail">@L[MailNotConfigured ? "InpMailSetUp" : "InpMailSettings"]</a></p>
+        }
+        else
+        {
+            <p>@L["InpMailAdminOnly"]</p>
+        }
+    </section>
+
+    <section aria-labelledby="inputs-icloud-heading">
+        <MudText Typo="Typo.h2" id="inputs-icloud-heading">@L["InpKindICloud"]</MudText>
+        <p>@L["InpICloudText"]</p>
+        @foreach (var row in RowsOf("icloud"))
+        {
+            <InputsEntry Row="row" Now="_now" />
+        }
+        @if (!HasRows("icloud"))
+        {
+            <p>@L["InpICloudNone"]</p>
+        }
+
+        <p id="inputs-icloud-action">
+            @if (!ICloudPageExists)
+            {
+                @L["InpICloudPending"]
+            }
+            else if (MyCodeNeeded)
+            {
+                <a href="eingaenge/icloud">@L["InpICloudRenewCode"]</a>
+            }
+            else
+            {
+                <a href="eingaenge/icloud">@L[HasRows("icloud") ? "InpICloudSettings" : "InpICloudSetUp"]</a>
+            }
+        </p>
+    </section>
+}

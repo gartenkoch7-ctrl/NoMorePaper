@@ -9,7 +9,8 @@ namespace NoMorePaper.Server.Documents;
 
 /// <summary>
 /// <c>POST /api/documents</c>: checks size and real file type before anything is stored. The uploader
-/// becomes the owner; form field <c>private</c> (<c>true</c>/<c>false</c>) hides it from everybody else.
+/// becomes the owner; form field <c>private</c> (<c>true</c>/<c>false</c>) hides it from everybody else; without the field the
+/// account's setting for new documents decides.
 /// Errors are ProblemDetails: 400 nothing usable sent, 413 too large, 415 type not allowed, 401 the
 /// account was removed, 409 the uploader may already see a document with exactly this file (extension
 /// <c>existingId</c>). Scoped, like the <see cref="ReceiveDocument"/> use case it hands the file to.
@@ -95,9 +96,9 @@ internal sealed class DocumentUpload(ReceiveDocument receive, AccountSessions se
             var received = await receive.ReceiveAsync(file.FileName, mediaType, content, isPrivate, cancellationToken).ConfigureAwait(false);
             switch (received)
             {
-                case { Status: ReceiveStatus.Received, DocumentId: { } id }:
+                case { Status: ReceiveStatus.Received, DocumentId: { } id, IsPrivate: var isPrivateApplied }:
                     logger.UploadAccepted(id, file.Length, mediaType);
-                    return Results.Accepted($"/api/documents/{id}", new UploadResultDto(id));
+                    return Results.Accepted($"/api/documents/{id}", new UploadResultDto(id, isPrivateApplied));
 
                 case { Status: ReceiveStatus.Duplicate, DocumentId: { } existingId }:
                     return Reject(
@@ -113,17 +114,23 @@ internal sealed class DocumentUpload(ReceiveDocument receive, AccountSessions se
         }
     }
 
-    private static bool TryReadPrivate(IFormCollection form, out bool isPrivate)
+    // No field: no choice (null), the account's setting for new documents decides.
+    private static bool TryReadPrivate(IFormCollection form, out bool? isPrivate)
     {
         var values = form[PrivateField];
+        isPrivate = null;
         if (values.Count == 0)
         {
-            isPrivate = false;
             return true;
         }
 
-        isPrivate = false;
-        return values.Count == 1 && bool.TryParse(values[0], out isPrivate);
+        if (values.Count != 1 || !bool.TryParse(values[0], out var chosen))
+        {
+            return false;
+        }
+
+        isPrivate = chosen;
+        return true;
     }
 
     private static async Task<string?> DetectAsync(IFormFile file, CancellationToken cancellationToken)

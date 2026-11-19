@@ -3,6 +3,8 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 using NoMorePaper.Application.Accounts;
 using NoMorePaper.Application.Classification;
 using NoMorePaper.Application.Documents;
+using NoMorePaper.Application.Inputs;
+using NoMorePaper.Application.Inputs.Mail;
 using NoMorePaper.Application.Processing;
 using NoMorePaper.Application.Recognition;
 using NoMorePaper.Application.Search;
@@ -19,12 +21,15 @@ public static class ApplicationServiceCollectionExtensions
     public static IServiceCollection AddApplication(this IServiceCollection services)
     {
         services.TryAddSingleton(TimeProvider.System);
+        services.AddScoped<IntakeDocument>();
         services.AddScoped<ReceiveDocument>();
         services.AddScoped<ListDocuments>();
         services.AddScoped<GetDocument>();
         services.AddScoped<OpenDocumentFile>();
         services.AddScoped<SearchDocuments>();
         services.AddScoped<SetDocumentPrivacy>();
+        services.AddScoped<ListInputStatus>();
+        services.AddScoped<ConfigureMailbox>();
         services.AddAccounts();
         services.AddClassification();
         return services;
@@ -43,6 +48,8 @@ public static class ApplicationServiceCollectionExtensions
         services.AddScoped<CreateEntry>();
         services.AddScoped<RenameEntry>();
         services.AddScoped<MergeEntries>();
+        services.AddScoped<ConfirmOwnerCheck>();
+        services.AddScoped<HandOverDocument>();
     }
 
     private static void AddAccounts(this IServiceCollection services)
@@ -63,13 +70,16 @@ public static class ApplicationServiceCollectionExtensions
         services.AddScoped<CreateResetLink>();
         services.AddScoped<ResetPassword>();
         services.AddScoped<ResetWithEmergencyCode>();
+        services.AddScoped<GetPreferences>();
+        services.AddScoped<ChangePreferences>();
     }
 
     /// <summary>
-    /// The processing use cases (Worker): OCR, recognition, content duplicates and the backlog. Need
-    /// <see cref="IOcrEngine"/>, <see cref="IWorkingFolder"/>, <see cref="IRecognizer"/>,
-    /// <see cref="IRecognitionExamples"/> and <see cref="IDuplicateFinder"/>, which only the Worker
-    /// provides, hence apart from <see cref="AddApplication"/>.
+    /// The processing use cases (Worker): OCR, recognition, content duplicates, the backlog, and the
+    /// intake of the background inputs. Need <see cref="IOcrEngine"/>, <see cref="IWorkingFolder"/>,
+    /// <see cref="IRecognizer"/>, <see cref="IRecognitionExamples"/> and <see cref="IDuplicateFinder"/>, which
+    /// only the Worker provides, hence apart from <see cref="AddApplication"/>; the intake needs
+    /// <see cref="IAccountStore"/>, which the Worker registers too.
     /// </summary>
     public static IServiceCollection AddDocumentProcessing(this IServiceCollection services)
     {
@@ -79,6 +89,13 @@ public static class ApplicationServiceCollectionExtensions
         services.AddScoped<RecognizeDocument>();
         services.AddScoped<FindContentDuplicate>();
         services.AddScoped<EnqueueBacklog>();
+
+        // The background inputs (ADR-0024) take files in without a signed-in account.
+        services.AddScoped<IntakeDocument>();
+
+        // The mail input asks the local LLM (IMailAssessor), which only the Worker provides.
+        services.AddScoped<MailIntake>();
+        services.AddScoped<ProcessMailbox>();
         return services;
     }
 }

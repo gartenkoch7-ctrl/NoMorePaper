@@ -5,6 +5,7 @@ using Microsoft.Extensions.Logging.Abstractions;
 using NoMorePaper.Application.Documents;
 using NoMorePaper.Domain.Documents;
 using NoMorePaper.Infrastructure.Documents;
+using NoMorePaper.Infrastructure.Inputs;
 using NoMorePaper.Infrastructure.Persistence;
 using NoMorePaper.Infrastructure.Tests.Accounts;
 using NoMorePaper.Infrastructure.Tests.Persistence;
@@ -145,9 +146,13 @@ public sealed class ReceiveDocumentTests(PostgresFixture postgres) : IDisposable
     }
 
     private ReceiveDocument CreateIntake(AppDbContext db, TimeProvider? clock = null, IDocumentRepository? repository = null) => new(
-        repository ?? new EfDocumentRepository(db),
-        new FileSystemDocumentStorage(_sandbox.FullName, new RecordingDirectorySync(), NullLogger<FileSystemDocumentStorage>.Instance),
-        clock ?? TimeProvider.System,
+        new IntakeDocument(
+            repository ?? new EfDocumentRepository(db),
+            new FileSystemDocumentStorage(_sandbox.FullName, new RecordingDirectorySync(), NullLogger<FileSystemDocumentStorage>.Instance),
+            new EveryAccountExists(),
+            new EfAccountPreferencesStore(db),
+            clock ?? TimeProvider.System,
+            NullLogger<IntakeDocument>.Instance),
         new FakeCurrentAccount(Guid.CreateVersion7()),
         NullLogger<ReceiveDocument>.Instance);
 

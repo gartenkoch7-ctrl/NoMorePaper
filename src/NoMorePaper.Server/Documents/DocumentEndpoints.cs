@@ -21,6 +21,7 @@ internal static class DocumentEndpoints
         // CrossSiteRequestGuard refuses changing requests from other sites.
         group.MapPost("/", (HttpRequest request, DocumentUpload upload, CancellationToken cancellationToken) =>
             upload.HandleAsync(request, cancellationToken));
+        group.MapPageUpload();
         group.MapGet("/", ListAsync);
         group.MapGet("/{id:guid}", GetAsync);
         group.MapGet("/{id:guid}/files/{kind}", DownloadAsync);

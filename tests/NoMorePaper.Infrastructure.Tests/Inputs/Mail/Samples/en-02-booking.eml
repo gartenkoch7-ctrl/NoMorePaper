@@ -1,0 +1,24 @@
+From: "Harbour View Hotel" <reservations@harbourview-hotel.example>
+To: dokumente@haushalt.example
+Subject: Booking confirmation HV-20931 - invoice
+Date: Mon, 09 Nov 2026 15:00:00 +0000
+Message-ID: <en02.hv20931@harbourview-hotel.example>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8bit
+
+Dear Mr Mustermann,
+
+thank you for your booking. Please find your confirmation and invoice below.
+
+Booking number: HV-20931
+Arrival: 18 December 2026
+Departure: 21 December 2026
+Room: Double room with sea view, 3 nights, breakfast included
+Total: 486.00 GBP (incl. VAT)
+
+The amount has been charged to your credit card ending in 0042.
+Free cancellation is possible until 11 December 2026.
+
+Kind regards
+Harbour View Hotel, Reservations

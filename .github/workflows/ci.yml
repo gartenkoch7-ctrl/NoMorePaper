@@ -11,7 +11,9 @@ permissions:
 
 jobs:
   build-test:
-    runs-on: ubuntu-latest
+    # Pinned: Playwright's --with-deps knows only the Ubuntu releases of its version; a moving
+    # ubuntu-latest broke the browser install (M4, run 28/29).
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
 
@@ -35,7 +37,14 @@ jobs:
         run: |
           $script = Get-ChildItem tests/NoMorePaper.UI.Tests/bin/Release -Recurse -Filter playwright.ps1 | Select-Object -First 1
           if (-not $script) { throw 'playwright.ps1 not found in UI test build output' }
-          & $script.FullName install --with-deps chromium
+          # apt mirrors and the browser CDN fail now and then; three tries before the run is red.
+          foreach ($try in 1..3) {
+            & $script.FullName install --with-deps chromium
+            if ($LASTEXITCODE -eq 0) { exit 0 }
+            Write-Warning "Playwright install failed (try $try of 3)"
+            Start-Sleep -Seconds 20
+          }
+          exit 1
 
       # The OCR tests skip themselves without these tools; here they run with the Worker image's packages.
       # libheif-plugin-libde265 decodes HEIC like the Worker; libheif-plugin-x265 only lets the tests encode a HEIC sample.

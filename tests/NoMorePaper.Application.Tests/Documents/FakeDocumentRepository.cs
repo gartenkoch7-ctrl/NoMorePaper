@@ -69,6 +69,18 @@ internal sealed class FakeDocumentRepository : IDocumentRepository
         return Task.FromResult(VisibleDuplicate);
     }
 
+    /// <summary>What <see cref="FindOwnedBySha256Async"/> answers: an earlier document of the owner with the same file.</summary>
+    public Guid? OwnedDuplicate { get; set; }
+
+    /// <summary>Owner and hash of the last <see cref="FindOwnedBySha256Async"/> call.</summary>
+    public (Guid Owner, string Sha256)? LastOwnedLookup { get; private set; }
+
+    public Task<Guid?> FindOwnedBySha256Async(Guid ownerId, string sha256, CancellationToken cancellationToken)
+    {
+        LastOwnedLookup = (ownerId, sha256);
+        return Task.FromResult(OwnedDuplicate);
+    }
+
     public Task<DocumentDetail?> GetAsync(Guid id, Guid viewerId, CancellationToken cancellationToken)
     {
         LastViewer = viewerId;
