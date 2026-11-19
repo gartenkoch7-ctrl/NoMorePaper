@@ -13,21 +13,20 @@ public sealed class ReceiveDocument(IntakeDocument intake, ICurrentAccount curre
 {
     /// <param name="fileName">Name the file was received with; cleaned by the intake, so callers may pass it unchecked.</param>
     /// <param name="mediaType">The detected type of the content, not what the uploader claimed.</param>
-    /// <param name="isPrivate">Whether only the signed-in account, which becomes the owner, may see it.</param>
+    /// <param name="isPrivate">
+    /// Whether only the signed-in account, which becomes the owner, may see it; <c>null</c> when the browser sent
+    /// no choice: the account's setting for new documents decides.
+    /// </param>
     /// <param name="cancellationToken">Cancels storing the file; once the file is stored, the commit runs to its end.</param>
     /// <returns>
     /// The new, queued document; the document with the same file if the uploader may see one (nothing is
     /// kept); or that the signed-in account was removed (nothing is stored).
     /// </returns>
     public Task<ReceiveResult> ReceiveAsync(
-        string fileName, string mediaType, Stream content, bool isPrivate, CancellationToken cancellationToken) =>
+        string fileName, string mediaType, Stream content, bool? isPrivate, CancellationToken cancellationToken) =>
         ReceiveAsync(fileName, mediaType, content, isPrivate, DocumentSource.Upload, cancellationToken);
 
-    /// <inheritdoc cref="ReceiveAsync(string, string, Stream, bool, CancellationToken)"/>
-    /// <param name="isPrivate">
-    /// Whether only the signed-in account, which becomes the owner, may see it; <c>null</c> when the browser sent
-    /// no choice: the account's setting for new documents decides.
-    /// </param>
+    /// <inheritdoc cref="ReceiveAsync(string, string, Stream, bool?, CancellationToken)"/>
     /// <param name="source">How it came in: <see cref="DocumentSource.Upload"/> or <see cref="DocumentSource.Camera"/>.</param>
     public async Task<ReceiveResult> ReceiveAsync(
         string fileName, string mediaType, Stream content, bool? isPrivate, DocumentSource source, CancellationToken cancellationToken)

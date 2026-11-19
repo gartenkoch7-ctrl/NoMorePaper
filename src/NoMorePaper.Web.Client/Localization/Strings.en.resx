@@ -1266,9 +1266,6 @@
   <data name="InpOwnerCheckToDocuments" xml:space="preserve">
     <value>To the documents</value>
   </data>
-  <data name="InpUploadPresetFailed" xml:space="preserve">
-    <value>Your setting for new documents could not be loaded. Check the "Private" switch yourself.</value>
-  </data>
   <data name="InpPrefsHeading" xml:space="preserve">
     <value>Inputs and new documents</value>
   </data>
@@ -1569,9 +1566,6 @@
   <data name="MailHintPasswordAgain" xml:space="preserve">
     <value>Server or user changed: enter the password again.</value>
   </data>
-  <data name="CamPrivateUnknown" xml:space="preserve">
-    <value>State unknown: your account setting could not be loaded. Unless you change it, the document is filed private or shared as your account setting says.</value>
-  </data>
   <data name="CamSavedByAccount" xml:space="preserve">
     <value>The document was saved as your account setting says and is waiting to be processed. Pages: {0}.</value>
   </data>
@@ -1580,5 +1574,11 @@
   </data>
   <data name="InpErrorSendersFull" xml:space="preserve">
     <value>At most {0} sender addresses are possible. Remove one first.</value>
+  </data>
+  <data name="PrivateUnknown" xml:space="preserve">
+    <value>State unknown: your account setting could not be loaded. Unless you change it, the document is filed private or shared as your account setting says.</value>
+  </data>
+  <data name="UploadSuccessByAccount" xml:space="preserve">
+    <value>{0} was uploaded as your account setting says and is waiting to be processed.</value>
   </data>
 </root>

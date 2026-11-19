@@ -31,7 +31,7 @@ public sealed partial class CameraPrivacyTests(ServerFixture server, FakeCameraB
         var page = session.Page;
 
         await Assertions.Expect(page.Locator("#cam-private-hint")).ToContainTextAsync("Konto");
-        Assert.True(await page.Locator("#cam-private").EvaluateAsync<bool>("box => box.indeterminate"));
+        await Assertions.Expect(page.Locator("#cam-private")).ToHaveJSPropertyAsync("indeterminate", true);
         await Assertions.Expect(page.Locator("#cam-private")).Not.ToBeCheckedAsync();
 
         await page.Locator("#cam-start").ClickAsync();

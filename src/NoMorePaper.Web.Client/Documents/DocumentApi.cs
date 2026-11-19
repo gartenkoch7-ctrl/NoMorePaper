@@ -22,7 +22,8 @@ public sealed class DocumentApi(HttpClient http, IStringLocalizer<Strings> local
 {
     public const long MaxUploadBytes = 100L * 1024 * 1024;
 
-    public async Task<ApiResult<UploadResultDto>> UploadAsync(IBrowserFile file, bool isPrivate = false, CancellationToken ct = default)
+    /// <param name="isPrivate">The person's own choice; <c>null</c> sends none, and the server takes the account's setting.</param>
+    public async Task<ApiResult<UploadResultDto>> UploadAsync(IBrowserFile file, bool? isPrivate = null, CancellationToken ct = default)
     {
         if (file.Size == 0)
         {
@@ -45,11 +46,13 @@ public sealed class DocumentApi(HttpClient http, IStringLocalizer<Strings> local
                 ? type
                 : new MediaTypeHeaderValue("application/octet-stream");
             // The privacy field goes first so a server reading the form as a stream knows it before the file.
-            using var form = new MultipartFormDataContent
+            using var form = new MultipartFormDataContent();
+            if (isPrivate is { } choice)
             {
-                { new StringContent(isPrivate ? "true" : "false"), "private" },
-                { part, "file", file.Name },
-            };
+                form.Add(new StringContent(choice ? "true" : "false"), "private");
+            }
+
+            form.Add(part, "file", file.Name);
             form.Headers.Add("X-NoMorePaper-Request", "1");
             using var response = await http.PostAsync("api/documents", form, ct);
             if (response.StatusCode == HttpStatusCode.Conflict)

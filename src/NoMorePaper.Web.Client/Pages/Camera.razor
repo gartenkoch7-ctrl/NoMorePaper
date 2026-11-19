@@ -1,5 +1,4 @@
 @page "/kamera"
-@using NoMorePaper.Web.Client.Camera
 
 <PageTitle>@L["CamTitle"]</PageTitle>
 
@@ -29,7 +28,7 @@
 </div>
 <p id="cam-tones-hint" class="form-hint">@L["CamTonesHint"]</p>
 
-<CameraPrivacy @ref="_privacy" />
+<PrivateSwitch @ref="_privacy" Id="cam-private" Hint="@L["CamPrivateHint"]" />
 
 @if (!_running)
 {

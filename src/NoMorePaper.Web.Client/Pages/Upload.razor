@@ -1,7 +1,6 @@
 @page "/hochladen"
 @inject IStringLocalizer<Strings> L
 @inject DocumentApi Api
-@inject NoMorePaper.Web.Client.Inputs.PreferencesApi Preferences
 @inject ILogger<Upload> Logger
 
 <PageTitle>@L["UploadTitle"]</PageTitle>
@@ -10,17 +9,9 @@
 
 @* Applies to the files chosen next. It comes before the file input in reading and tab order:
    choosing a file starts the upload at once, so a screen reader user must meet this switch first.
-   A native checkbox with a visible label and a hint that says what "private" means. *@
-<div class="form-check">
-    <input id="upload-private" type="checkbox" @bind="Private" aria-describedby="upload-private-hint" />
-    <label for="upload-private">@L["PrivateLabel"]</label>
-</div>
-<p id="upload-private-hint" class="form-hint">@L["UploadPrivateHint"]</p>
-@if (_presetFailed)
-{
-    @* The switch then stays at "shared"; say so, so nobody uploads something private by mistake. *@
-    <p role="status" class="form-hint">@L["InpUploadPresetFailed"]</p>
-}
+   A native checkbox with a visible label and a hint that says what "private" means; without a change the
+   account's setting decides (also when it cannot be loaded: the switch then says so). *@
+<PrivateSwitch @ref="_privacy" Id="upload-private" Hint="@L["UploadPrivateHint"]" />
 
 @* Dropping a file on the field is only an extra: the file input itself is the real control and
    works with keyboard and screen reader alone. *@
@@ -96,31 +87,7 @@
     private readonly List<UploadOutcome> _results = [];
     private LiveRegion? _progress;
     private SkippedFiles? _skipped;
-    private bool _private;
-    private bool _touched;
-    private bool _presetFailed;
-
-    // The switch is set by the account's choice for new documents; a choice made on this page wins.
-    private bool Private
-    {
-        get => _private;
-        set => (_private, _touched) = (value, true);
-    }
-
-    protected override async Task OnInitializedAsync()
-    {
-        var preferences = await Preferences.GetAsync();
-        if (!preferences.IsSuccess || preferences.Value is null)
-        {
-            _presetFailed = true;
-            return;
-        }
-
-        if (!_touched)
-        {
-            _private = preferences.Value.NewDocumentsPrivate;
-        }
-    }
+    private PrivateSwitch? _privacy;
 
     private async Task OnFilesChangedAsync(InputFileChangeEventArgs args)
     {
@@ -132,11 +99,11 @@
         var announcement = _skipped is null ? null : $"{_skipped.Notice} {SkippedNamesAnnouncement(_skipped.Names)}";
 
         // The switch applies to the files chosen now, even if it is changed while they go up.
-        var isPrivate = _private;
+        var (choice, isPrivate) = (_privacy?.Choice, _privacy?.Effective);
         for (var i = 0; i < batch.Count; i++)
         {
             // The notice joins the last announcement; a separate one right after would cut it off.
-            await UploadOneAsync(batch[i], isPrivate, i == batch.Count - 1 ? announcement : null);
+            await UploadOneAsync(batch[i], choice, isPrivate, i == batch.Count - 1 ? announcement : null);
         }
     }
 
@@ -154,10 +121,11 @@
         return L["UploadSkippedNames", rest > 0 ? L["UploadSkippedMore", list, rest].Value : list];
     }
 
-    private async Task UploadOneAsync(IBrowserFile file, bool isPrivate, string? notice)
+    // choice: what is sent (null: the account decides); isPrivate: what the result says (null: not known here).
+    private async Task UploadOneAsync(IBrowserFile file, bool? choice, bool? isPrivate, string? notice)
     {
         await AnnounceAsync(L["UploadInProgress", file.Name]);
-        var result = await Api.UploadAsync(file, isPrivate);
+        var result = await Api.UploadAsync(file, choice);
         var outcome = new UploadOutcome(file.Name, result.Value?.Id, result.Error, isPrivate, result.ExistingId, result.IsDuplicate);
         _results.Insert(0, outcome);
         if (outcome.IsDuplicate)
@@ -175,7 +143,7 @@
 
     // Says whether the file went up private or shared, so a mistake is noticed right away.
     private string SuccessText(UploadOutcome outcome)
-        => L[outcome.IsPrivate ? "UploadSuccessPrivate" : "UploadSuccessShared", outcome.FileName];
+        => L[outcome.IsPrivate switch { true => "UploadSuccessPrivate", false => "UploadSuccessShared", null => "UploadSuccessByAccount" }, outcome.FileName];
 
     private async Task AnnounceAsync(string message)
     {
@@ -185,7 +153,7 @@
         }
     }
 
-    private sealed record UploadOutcome(string FileName, Guid? Id, string? Error, bool IsPrivate, Guid? ExistingId, bool IsDuplicate);
+    private sealed record UploadOutcome(string FileName, Guid? Id, string? Error, bool? IsPrivate, Guid? ExistingId, bool IsDuplicate);
 
     private sealed record SkippedFiles(string Notice, IReadOnlyList<string> Names);
 }

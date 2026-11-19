@@ -145,8 +145,11 @@ Stand: Schritt 0 (gemeinsame Bausteine). Die Spuren A–E ergänzen ihre Abschni
 - Konto-Seite (`Accounts/PreferencesSection`): „Neue Dokumente privat ablegen“ und die Absender-Liste
   speichern jede Änderung sofort (`PUT /api/account/preferences` mit dem ganzen Stand) und sagen sie an;
   eine abgelehnte Adresse bleibt im Feld und bekommt den Fokus. Bei 20 Adressen (Höchstzahl) sagt ein eigener Text
-  die Höchstzahl statt „ungültig“. Upload-Seite: Privat-Schalter aus der
-  Einstellung; ist sie nicht ladbar, steht das als Text da und der Schalter bleibt aus.
+  die Höchstzahl statt „ungültig“. Upload- und Kamera-Seite: gemeinsamer
+  Schalter `Documents/PrivateSwitch`, vorbelegt aus der Einstellung; gesendet wird `private` nur, wenn die Person
+  ihn geändert hat, sonst entscheidet der Server nach der Konto-Einstellung (`POST /api/documents` und
+  `/api/documents/pages` ohne Feld → Einstellung; ungültiger Wert weiter 400). Ist die Einstellung nicht ladbar,
+  steht der Schalter im dritten Zustand („gemischt“) und der Hinweis sagt, dass die Konto-Einstellung gilt.
 - Besitzer prüfen (`Classification/OwnerCheckSection`) im Viewer und in „Zu prüfen“: „Passt so: <Titel>“
   und „Weitergeben an“ (Auswahl der anderen Konten aus `GET /api/household`) mit Knopf „Weitergeben: <Titel>“.
   Ohne Wahl: Fehlertext und Fokus auf die Auswahl. Nach der Weitergabe sagt der Viewer, wohin das Dokument

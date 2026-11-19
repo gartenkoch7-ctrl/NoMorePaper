@@ -26,7 +26,7 @@ public sealed partial class Camera : IAsyncDisposable
     private ElementReference _captureButton;
     private ElementReference _savedBox;
     private ElementReference _doneButton;
-    private CameraPrivacy? _privacy;
+    private PrivateSwitch? _privacy;
     private bool _focusSaved;
     private ITimer? _poll;
     private DateTimeOffset? _takenAt;

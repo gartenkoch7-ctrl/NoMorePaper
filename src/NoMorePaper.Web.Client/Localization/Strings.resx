@@ -1266,9 +1266,6 @@
   <data name="InpOwnerCheckToDocuments" xml:space="preserve">
     <value>Zu den Dokumenten</value>
   </data>
-  <data name="InpUploadPresetFailed" xml:space="preserve">
-    <value>Deine Einstellung für neue Dokumente konnte nicht geladen werden. Prüfe den Schalter „Privat“ selbst.</value>
-  </data>
   <data name="InpPrefsHeading" xml:space="preserve">
     <value>Eingänge und neue Dokumente</value>
   </data>
@@ -1569,9 +1566,6 @@
   <data name="MailHintPasswordAgain" xml:space="preserve">
     <value>Server oder Benutzer wurden geändert: Gib das Passwort neu ein.</value>
   </data>
-  <data name="CamPrivateUnknown" xml:space="preserve">
-    <value>Stand unbekannt: Deine Konto-Einstellung ließ sich nicht laden. Ohne Änderung wird das Dokument nach deiner Konto-Einstellung privat oder geteilt abgelegt.</value>
-  </data>
   <data name="CamSavedByAccount" xml:space="preserve">
     <value>Das Dokument wurde nach deiner Konto-Einstellung gespeichert und wartet auf die Verarbeitung. Seiten: {0}.</value>
   </data>
@@ -1580,5 +1574,11 @@
   </data>
   <data name="InpErrorSendersFull" xml:space="preserve">
     <value>Es sind höchstens {0} Absender-Adressen möglich. Entferne zuerst eine.</value>
+  </data>
+  <data name="PrivateUnknown" xml:space="preserve">
+    <value>Stand unbekannt: Deine Konto-Einstellung ließ sich nicht laden. Ohne Änderung wird das Dokument nach deiner Konto-Einstellung privat oder geteilt abgelegt.</value>
+  </data>
+  <data name="UploadSuccessByAccount" xml:space="preserve">
+    <value>{0} wurde nach deiner Konto-Einstellung hochgeladen und wartet auf die Verarbeitung.</value>
   </data>
 </root>
