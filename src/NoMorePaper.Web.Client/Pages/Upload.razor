@@ -1,6 +1,7 @@
 @page "/hochladen"
 @inject IStringLocalizer<Strings> L
 @inject DocumentApi Api
+@inject NoMorePaper.Web.Client.Inputs.PreferencesApi Preferences
 @inject ILogger<Upload> Logger
 
 <PageTitle>@L["UploadTitle"]</PageTitle>
@@ -11,10 +12,15 @@
    choosing a file starts the upload at once, so a screen reader user must meet this switch first.
    A native checkbox with a visible label and a hint that says what "private" means. *@
 <div class="form-check">
-    <input id="upload-private" type="checkbox" @bind="_private" aria-describedby="upload-private-hint" />
+    <input id="upload-private" type="checkbox" @bind="Private" aria-describedby="upload-private-hint" />
     <label for="upload-private">@L["PrivateLabel"]</label>
 </div>
 <p id="upload-private-hint" class="form-hint">@L["UploadPrivateHint"]</p>
+@if (_presetFailed)
+{
+    @* The switch then stays at "shared"; say so, so nobody uploads something private by mistake. *@
+    <p role="status" class="form-hint">@L["InpUploadPresetFailed"]</p>
+}
 
 @* Dropping a file on the field is only an extra: the file input itself is the real control and
    works with keyboard and screen reader alone. *@
@@ -91,6 +97,30 @@
     private LiveRegion? _progress;
     private SkippedFiles? _skipped;
     private bool _private;
+    private bool _touched;
+    private bool _presetFailed;
+
+    // The switch is set by the account's choice for new documents; a choice made on this page wins.
+    private bool Private
+    {
+        get => _private;
+        set => (_private, _touched) = (value, true);
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        var preferences = await Preferences.GetAsync();
+        if (!preferences.IsSuccess || preferences.Value is null)
+        {
+            _presetFailed = true;
+            return;
+        }
+
+        if (!_touched)
+        {
+            _private = preferences.Value.NewDocumentsPrivate;
+        }
+    }
 
     private async Task OnFilesChangedAsync(InputFileChangeEventArgs args)
     {

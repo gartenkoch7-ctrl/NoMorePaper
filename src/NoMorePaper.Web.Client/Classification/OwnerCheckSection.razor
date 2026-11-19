@@ -1,0 +1,164 @@
+@using NoMorePaper.Contracts.Accounts
+@using NoMorePaper.Web.Client.Inputs
+@inject IStringLocalizer<Strings> L
+@inject ClassificationApi Classification
+@inject OwnerCheckApi Api
+@inject AuthState Auth
+@inject ILogger<OwnerCheckSection> Logger
+
+@* A document of unknown origin: private with its owner until he keeps it ("Passt so") or hands it over to
+   another account. Both are plain buttons with the document's title in their name; "Weitergeben" works
+   with a native select, so keyboard and screen reader need nothing else. Nothing here is announced by
+   colour. The parent decides what happens after an answer (reload, announcement, focus). *@
+@if (NeedsCheck)
+{
+    <section class="owner-check" aria-labelledby="@(Prefix)-heading">
+        <MudText Typo="Typo.h3" id="@(Prefix + "-heading")">@L["InpOwnerCheckHeading"]</MudText>
+        <p>
+            <MudIcon Icon="@Icons.Material.Filled.Lock" />
+            <span>@L["InpOwnerCheckText"]</span>
+        </p>
+        <LiveRegion @ref="_error" Assertive="true" Class="form-error" />
+        <div class="button-row">
+            <button type="button" id="@(Prefix)-keep" class="nmp-button" disabled="@_busy"
+                    aria-label="@L["InpOwnerCheckKeepFor", Title]" @onclick="KeepAsync">@L["InpOwnerCheckKeep"]</button>
+        </div>
+        @if (_loadError is not null)
+        {
+            <div role="alert" class="error-box">
+                <MudIcon Icon="@Icons.Material.Filled.Error" />
+                <span>@L["InpOwnerCheckLoadError", _loadError]</span>
+            </div>
+        }
+        else if (_others is not null && _others.Length == 0)
+        {
+            <p>@L["InpOwnerCheckNoOthers"]</p>
+        }
+        else if (_others is not null)
+        {
+            <div class="form-field">
+                <label for="@(Prefix)-target">@L["InpOwnerCheckHandOverLabel"]</label>
+                <p id="@(Prefix)-target-hint" class="form-hint">@L["InpOwnerCheckHint"]</p>
+                <div class="form-field-row">
+                    <select id="@(Prefix)-target" class="form-input" @bind="_target" aria-describedby="@(Prefix)-target-hint"
+                            aria-invalid="@(_targetMissing ? "true" : null)">
+                        <option value="">@L["InpOwnerCheckPick"]</option>
+                        @foreach (var member in _others)
+                        {
+                            <option value="@member.Id">@member.DisplayName</option>
+                        }
+                    </select>
+                    <button type="button" id="@(Prefix)-hand-over" class="nmp-button" disabled="@_busy"
+                            aria-label="@L["InpOwnerCheckHandOverFor", Title]" @onclick="HandOverAsync">@L["InpOwnerCheckHandOver"]</button>
+                </div>
+            </div>
+        }
+    </section>
+}
+
+@code {
+    private HouseholdMemberDto[]? _others;
+    private LiveRegion? _error;
+    private PendingFocus _focus = default!;
+    private string? _loadError;
+    private string _target = string.Empty;
+    private bool _targetMissing;
+    private bool _busy;
+    private bool _loaded;
+
+    [Inject] private IJSRuntime Js { get; set; } = default!;
+
+    /// <summary>The document waits for the owner check; without it nothing is shown.</summary>
+    [Parameter] public bool NeedsCheck { get; set; }
+
+    [Parameter, EditorRequired] public Guid DocumentId { get; set; }
+
+    /// <summary>The document's title: it names the buttons, since several documents can be on one page.</summary>
+    [Parameter, EditorRequired] public string Title { get; set; } = string.Empty;
+
+    /// <summary>Distinguishes the ids when several sections are on one page.</summary>
+    [Parameter] public string Prefix { get; set; } = "owner-check";
+
+    /// <summary>An answer was saved; the parent loads again and moves focus.</summary>
+    [Parameter] public EventCallback<OwnerCheckAnswer> OnAnswered { get; set; }
+
+    protected override void OnInitialized() => _focus = new PendingFocus(Js);
+
+    protected override Task OnAfterRenderAsync(bool firstRender) => _focus.ApplyAsync();
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (!NeedsCheck || _loaded)
+        {
+            return;
+        }
+
+        _loaded = true;
+        var result = await Classification.ListHouseholdAsync();
+        if (!result.IsSuccess)
+        {
+            _loadError = result.Error;
+            Logger.InputsPageFailed("load-household");
+            return;
+        }
+
+        // The owner keeps the document by "Passt so"; handing it to oneself would only be confusing.
+        _others = [.. (result.Value ?? []).Where(member => member.Id != Auth.Me?.Id)];
+    }
+
+    private async Task KeepAsync()
+    {
+        if (!await TryAsync(() => Api.KeepAsync(DocumentId), "owner-check", Prefix + "-keep"))
+        {
+            return;
+        }
+
+        Logger.OwnerCheckKept();
+        await OnAnswered.InvokeAsync(new OwnerCheckAnswer(false));
+    }
+
+    private async Task HandOverAsync()
+    {
+        _targetMissing = false;
+        var receiver = _others?.FirstOrDefault(member => member.Id.ToString() == _target);
+        if (receiver is null)
+        {
+            _targetMissing = true;
+            _focus.On(Prefix + "-target");
+            await AnnounceAsync(L["ErrorPrefix", L["InpOwnerCheckPickFirst"].Value]);
+            return;
+        }
+
+        if (!await TryAsync(() => Api.HandOverAsync(DocumentId, receiver.Id), "hand-over", Prefix + "-hand-over"))
+        {
+            return;
+        }
+
+        Logger.DocumentHandedOver();
+        await OnAnswered.InvokeAsync(new OwnerCheckAnswer(true, receiver.DisplayName));
+    }
+
+    private async Task<bool> TryAsync(Func<Task<ApiResult<bool>>> call, string code, string focusId)
+    {
+        _busy = true;
+        var result = await call();
+        _busy = false;
+        if (result.IsSuccess)
+        {
+            return true;
+        }
+
+        Logger.InputsPageFailed(code);
+        _focus.On(focusId);
+        await AnnounceAsync(L["ErrorPrefix", result.Error!]);
+        return false;
+    }
+
+    private async Task AnnounceAsync(string message)
+    {
+        if (_error is not null)
+        {
+            await _error.Announce(message);
+        }
+    }
+}

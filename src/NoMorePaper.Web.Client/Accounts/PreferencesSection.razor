@@ -1,0 +1,167 @@
+@using NoMorePaper.Contracts.Inputs
+@using NoMorePaper.Web.Client.Inputs
+@inject IStringLocalizer<Strings> L
+@inject PreferencesApi Api
+@inject IJSRuntime Js
+@inject ILogger<PreferencesSection> Logger
+
+@* The account's choices for the inputs: whether new documents are private, and the mail addresses whose
+   mails belong to the account. Every change is saved at once and announced, so there is no "save" step
+   to forget. Removing and adding keep focus on a control that still exists. *@
+<section aria-labelledby="inputs-prefs-heading">
+    <MudText Typo="Typo.h2" id="inputs-prefs-heading">@L["InpPrefsHeading"]</MudText>
+    <LiveRegion @ref="_status" />
+    <LiveRegion @ref="_error" Assertive="true" Class="form-error" />
+    @if (_loadError is not null)
+    {
+        <div role="alert" class="error-box">
+            <MudIcon Icon="@Icons.Material.Filled.Error" />
+            <span>@L["InpPrefsLoadError", _loadError]</span>
+        </div>
+        <button type="button" id="prefs-retry" class="nmp-button" @onclick="LoadAsync">@L["Retry"]</button>
+    }
+    else if (_prefs is null)
+    {
+        <p role="status">@L["InpPrefsLoading"]</p>
+    }
+    else
+    {
+        <div class="form-check">
+            <input @key="_version" id="prefs-private" type="checkbox" checked="@_prefs.NewDocumentsPrivate" disabled="@_busy"
+                   aria-describedby="prefs-private-hint" @onchange="args => SetPrivateAsync(args.Value is true)" />
+            <label for="prefs-private">@L["InpPrefsPrivateLabel"]</label>
+        </div>
+        <p id="prefs-private-hint" class="form-hint">@L["InpPrefsPrivateHint"]</p>
+
+        <MudText Typo="Typo.h3" id="prefs-senders-heading">@L["InpPrefsSendersHeading"]</MudText>
+        <p>@L["InpPrefsSendersHint", MaxSenders]</p>
+        @if (_prefs.MailSenders.Count == 0)
+        {
+            <p>@L["InpPrefsSendersNone"]</p>
+        }
+        else
+        {
+            <ul class="sender-list" aria-labelledby="prefs-senders-heading">
+                @foreach (var sender in _prefs.MailSenders)
+                {
+                    <li @key="sender">
+                        <span>@sender</span>
+                        <button type="button" class="nmp-button" disabled="@_busy" aria-label="@L["InpPrefsRemoveFor", sender]"
+                                @onclick="() => RemoveAsync(sender)">@L["InpPrefsRemove"]</button>
+                    </li>
+                }
+            </ul>
+        }
+
+        <form class="account-form" novalidate @onsubmit="AddAsync">
+            <FormField Id="prefs-sender-new" Label="@L["InpPrefsAddLabel"]" Autocomplete="off"
+                       @bind-Value="_newSender" Invalid="_invalidAdd" />
+            <button type="submit" class="nmp-button" disabled="@_busy">@L["InpPrefsAdd"]</button>
+        </form>
+    }
+</section>
+
+@code {
+    private const int MaxSenders = 20;
+
+    private LiveRegion? _status;
+    private LiveRegion? _error;
+    private PendingFocus _focus = default!;
+    private AccountPreferencesDto? _prefs;
+    private string? _loadError;
+    private string _newSender = string.Empty;
+    private bool _invalidAdd;
+    private bool _busy;
+    private int _version;
+
+    protected override async Task OnInitializedAsync()
+    {
+        _focus = new PendingFocus(Js);
+        await LoadAsync();
+    }
+
+    protected override Task OnAfterRenderAsync(bool firstRender) => _focus.ApplyAsync();
+
+    private async Task LoadAsync()
+    {
+        _loadError = null;
+        var result = await Api.GetAsync();
+        if (!result.IsSuccess || result.Value is null)
+        {
+            _loadError = result.Error ?? L["ErrorUnreachable"];
+            Logger.InputsPageFailed("load-preferences");
+            return;
+        }
+
+        _prefs = result.Value;
+    }
+
+    private Task SetPrivateAsync(bool isPrivate) =>
+        SaveAsync(_prefs! with { NewDocumentsPrivate = isPrivate }, L[isPrivate ? "InpPrefsPrivateOn" : "InpPrefsPrivateOff"], "prefs-private");
+
+    private Task RemoveAsync(string sender)
+    {
+        var senders = _prefs!.MailSenders.Where(other => other != sender).ToArray();
+        // The removed row is gone afterwards: focus goes to the field for the next address.
+        return SaveAsync(_prefs with { MailSenders = senders }, L["InpPrefsRemoved", sender], "prefs-sender-new");
+    }
+
+    private async Task AddAsync()
+    {
+        _invalidAdd = false;
+        var address = _newSender.Trim().ToLowerInvariant();
+        var problem = address.Length == 0 ? L["ErrorRequired", L["InpPrefsAddLabel"]].Value
+            : _prefs!.MailSenders.Contains(address) ? L["InpPrefsAlreadyListed"].Value
+            : _prefs.MailSenders.Count >= MaxSenders ? L["InpErrorSenderInvalid"].Value
+            : null;
+        if (problem is not null)
+        {
+            await RefuseAsync(problem, "prefs-sender-new", invalid: true);
+            return;
+        }
+
+        if (await SaveAsync(_prefs! with { MailSenders = [.. _prefs.MailSenders, address] }, L["InpPrefsAdded", address], "prefs-sender-new"))
+        {
+            _newSender = string.Empty;
+        }
+    }
+
+    // Saves the whole preferences; the page shows the server's state only after it accepted them.
+    private async Task<bool> SaveAsync(AccountPreferencesDto wanted, string announcement, string focusId)
+    {
+        _busy = true;
+        var result = await Api.SaveAsync(wanted);
+        _busy = false;
+        if (!result.IsSuccess)
+        {
+            Logger.InputsPageFailed("save-preferences");
+            // The checkbox shows what was clicked, not what is saved: draw it again from the saved state.
+            _version++;
+            var senderRefused = result.Field == PreferencesApi.SendersField;
+            await RefuseAsync(result.Error!, senderRefused ? "prefs-sender-new" : focusId, invalid: senderRefused);
+            return false;
+        }
+
+        _focus.On(focusId);
+        _prefs = wanted;
+        _error?.Clear();
+        Logger.PreferencesSaved(wanted.MailSenders.Count);
+        if (_status is not null)
+        {
+            await _status.Announce(announcement);
+        }
+
+        return true;
+    }
+
+    // The text stays visible and is announced; a refused address keeps what was typed and gets focus.
+    private async Task RefuseAsync(string message, string focusId, bool invalid)
+    {
+        _invalidAdd = invalid;
+        _focus.On(focusId);
+        if (_error is not null)
+        {
+            await _error.Announce(L["ErrorPrefix", message]);
+        }
+    }
+}

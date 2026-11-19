@@ -139,11 +139,11 @@ Daraus abgeleitet:
 - [ ] „Code erneuern“ auf der Seite „Eingänge“, voll per Screenreader
 
 ### E. Einstellungen und Seite „Eingänge“
-- [ ] Konto-Seite: „Neue Dokumente privat“ (Schalter), Absender-Adressen (Liste)
-- [ ] Seite `/eingaenge`: je Eingang Zustand als Text (nie nur Farbe), letzter Abruf, letzte Meldung,
+- [x] Konto-Seite: „Neue Dokumente privat“ (Schalter), Absender-Adressen (Liste)
+- [x] Seite `/eingaenge`: je Eingang Zustand als Text (nie nur Farbe), letzter Abruf, letzte Meldung,
       Aktion („einrichten“, „Code erneuern“); Live-Region bei Änderung
-- [ ] „Herkunft unklar“ im Viewer und in „Zu prüfen“: „Passt so“ und „Weitergeben an …“ per Tastatur
-- [ ] API: `GET /api/inputs`
+- [x] „Herkunft unklar“ im Viewer und in „Zu prüfen“: „Passt so“ und „Weitergeben an …“ per Tastatur
+- [x] API: `GET /api/inputs`
 
 ### F. Tests und Doku
 - [ ] Unit: Zuordnung des Besitzers, Spam-Regeln (Konto-Absender nie Spam, bekannte Spam-ID), fertige

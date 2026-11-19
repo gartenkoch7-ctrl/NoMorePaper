@@ -101,6 +101,9 @@ public sealed partial class Review
         await DoneAsync(item, "ReviewKept");
     }
 
+    private Task OwnerAnsweredAsync(ReviewItemDto item, OwnerCheckAnswer answer) => DoneAsync(
+        item, answer.HandedOver ? "InpOwnerCheckHandedOver" : "InpOwnerCheckKept", extra: answer.ReceiverName);
+
     private void StartEdit(ReviewItemDto item) => _editing = item.Id;
 
     private void CancelEdit(ReviewItemDto item)
@@ -174,11 +177,11 @@ public sealed partial class Review
     }
 
     // Loads the list again (the item may be gone, or still there for its other reason) and says what is left.
-    private async Task DoneAsync(ReviewItemDto item, string messageKey, string? title = null)
+    private async Task DoneAsync(ReviewItemDto item, string messageKey, string? title = null, string? extra = null)
     {
         var index = Array.FindIndex(_items, other => other.Id == item.Id);
         await LoadAsync();
-        var message = L[messageKey, title ?? item.Title].Value;
+        var message = L[messageKey, title ?? item.Title, extra ?? string.Empty].Value;
         if (_loadError is not null)
         {
             // The action worked, but what is left is unknown; the error box says why.

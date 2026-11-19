@@ -1068,4 +1068,256 @@
   <data name="InpErrorSenderTaken" xml:space="preserve">
     <value>Another account has this sender address already.</value>
   </data>
+  <data name="NavInputs" xml:space="preserve">
+    <value>Inputs</value>
+  </data>
+  <data name="InpTitle" xml:space="preserve">
+    <value>Inputs</value>
+  </data>
+  <data name="InpHeading" xml:space="preserve">
+    <value>Inputs</value>
+  </data>
+  <data name="InpIntro" xml:space="preserve">
+    <value>Here you see whether the ways documents come in besides uploading are running: scanner folder, mail and iCloud Drive.</value>
+  </data>
+  <data name="InpRefresh" xml:space="preserve">
+    <value>Refresh now</value>
+  </data>
+  <data name="InpLoading" xml:space="preserve">
+    <value>Loading inputs …</value>
+  </data>
+  <data name="InpLoadError" xml:space="preserve">
+    <value>The inputs could not be loaded: {0}</value>
+  </data>
+  <data name="InpUpdated" xml:space="preserve">
+    <value>As of {0}</value>
+  </data>
+  <data name="InpChanged" xml:space="preserve">
+    <value>The inputs have changed. {0}</value>
+  </data>
+  <data name="InpNothingNew" xml:space="preserve">
+    <value>Refreshed. Nothing has changed.</value>
+  </data>
+  <data name="InpKindScannerFolder" xml:space="preserve">
+    <value>Scanner folder</value>
+  </data>
+  <data name="InpKindMail" xml:space="preserve">
+    <value>Mail</value>
+  </data>
+  <data name="InpKindICloud" xml:space="preserve">
+    <value>iCloud Drive</value>
+  </data>
+  <data name="InpScannerText" xml:space="preserve">
+    <value>Files the scanner puts into the folder on the home network. Each account has its own subfolder there.</value>
+  </data>
+  <data name="InpMailText" xml:space="preserve">
+    <value>Documents that arrive as mail at the household's address.</value>
+  </data>
+  <data name="InpMailSpamFolder" xml:space="preserve">
+    <value>Mails recognized as spam are in the mailbox folder "NoMorePaper-Spam". If you move a mail from there back to the inbox, it is read in without the spam check.</value>
+  </data>
+  <data name="InpMailSetUp" xml:space="preserve">
+    <value>Set up mail</value>
+  </data>
+  <data name="InpMailSettings" xml:space="preserve">
+    <value>Mail settings</value>
+  </data>
+  <data name="InpMailAdminOnly" xml:space="preserve">
+    <value>The administrator sets up the mailbox.</value>
+  </data>
+  <data name="InpICloudText" xml:space="preserve">
+    <value>Files from an iCloud folder that each account chooses with its own Apple ID. NoMorePaper only reads.</value>
+  </data>
+  <data name="InpICloudNone" xml:space="preserve">
+    <value>Not set up yet.</value>
+  </data>
+  <data name="InpICloudSetUp" xml:space="preserve">
+    <value>Set up iCloud</value>
+  </data>
+  <data name="InpICloudSettings" xml:space="preserve">
+    <value>iCloud settings</value>
+  </data>
+  <data name="InpICloudRenewCode" xml:space="preserve">
+    <value>Renew code</value>
+  </data>
+  <data name="InpStateNever" xml:space="preserve">
+    <value>Has not run yet.</value>
+  </data>
+  <data name="InpStateOk" xml:space="preserve">
+    <value>Runs without problems.</value>
+  </data>
+  <data name="InpStateProblem" xml:space="preserve">
+    <value>Problem: {0}.</value>
+  </data>
+  <data name="InpStateProblemAttention" xml:space="preserve">
+    <value>Problem: {0}. This needs your attention.</value>
+  </data>
+  <data name="InpLastRun" xml:space="preserve">
+    <value>Last check</value>
+  </data>
+  <data name="InpLastSuccess" xml:space="preserve">
+    <value>Last success</value>
+  </data>
+  <data name="InpNever" xml:space="preserve">
+    <value>never</value>
+  </data>
+  <data name="InpWhen" xml:space="preserve">
+    <value>{0} ({1})</value>
+  </data>
+  <data name="InpAgeNow" xml:space="preserve">
+    <value>just now</value>
+  </data>
+  <data name="InpAgeMinute" xml:space="preserve">
+    <value>1 minute ago</value>
+  </data>
+  <data name="InpAgeMinutes" xml:space="preserve">
+    <value>{0} minutes ago</value>
+  </data>
+  <data name="InpAgeHour" xml:space="preserve">
+    <value>1 hour ago</value>
+  </data>
+  <data name="InpAgeHours" xml:space="preserve">
+    <value>{0} hours ago</value>
+  </data>
+  <data name="InpAgeDay" xml:space="preserve">
+    <value>1 day ago</value>
+  </data>
+  <data name="InpAgeDays" xml:space="preserve">
+    <value>{0} days ago</value>
+  </data>
+  <data name="InpProblemNotConfigured" xml:space="preserve">
+    <value>The input is not set up yet</value>
+  </data>
+  <data name="InpProblemSignInFailed" xml:space="preserve">
+    <value>Sign-in failed, please check the credentials</value>
+  </data>
+  <data name="InpProblemCodeNeeded" xml:space="preserve">
+    <value>Apple asks for a new code</value>
+  </data>
+  <data name="InpProblemUnreachable" xml:space="preserve">
+    <value>The input's server cannot be reached</value>
+  </data>
+  <data name="InpProblemLlmUnavailable" xml:space="preserve">
+    <value>The local recognition (Ollama) cannot be reached</value>
+  </data>
+  <data name="InpProblemThrottled" xml:space="preserve">
+    <value>The service is slowing down requests, the next try comes later</value>
+  </data>
+  <data name="InpProblemProtocolChanged" xml:space="preserve">
+    <value>The service answers differently than expected</value>
+  </data>
+  <data name="InpProblemUnknownFolder" xml:space="preserve">
+    <value>The chosen folder was not found</value>
+  </data>
+  <data name="InpProblemStuckItems" xml:space="preserve">
+    <value>Some items cannot be read in and stay where they are</value>
+  </data>
+  <data name="InpProblemFailed" xml:space="preserve">
+    <value>The run failed unexpectedly</value>
+  </data>
+  <data name="InpProblemUnknown" xml:space="preserve">
+    <value>Unknown problem</value>
+  </data>
+  <data name="InpOwnerCheckHeading" xml:space="preserve">
+    <value>Origin unclear</value>
+  </data>
+  <data name="InpOwnerCheckText" xml:space="preserve">
+    <value>Origin unclear – only visible to you. The document arrived without a recognizable owner and stays private until you decide.</value>
+  </data>
+  <data name="InpOwnerCheckKeep" xml:space="preserve">
+    <value>Fits</value>
+  </data>
+  <data name="InpOwnerCheckKeepFor" xml:space="preserve">
+    <value>Fits: {0}</value>
+  </data>
+  <data name="InpOwnerCheckHandOverLabel" xml:space="preserve">
+    <value>Hand over to</value>
+  </data>
+  <data name="InpOwnerCheckHint" xml:space="preserve">
+    <value>Whoever gets the document becomes its owner. Their setting for new documents (private or shared) applies.</value>
+  </data>
+  <data name="InpOwnerCheckPick" xml:space="preserve">
+    <value>Choose account</value>
+  </data>
+  <data name="InpOwnerCheckHandOver" xml:space="preserve">
+    <value>Hand over</value>
+  </data>
+  <data name="InpOwnerCheckHandOverFor" xml:space="preserve">
+    <value>Hand over: {0}</value>
+  </data>
+  <data name="InpOwnerCheckNoOthers" xml:space="preserve">
+    <value>There is no other account you could hand the document over to.</value>
+  </data>
+  <data name="InpOwnerCheckLoadError" xml:space="preserve">
+    <value>The accounts could not be loaded: {0}</value>
+  </data>
+  <data name="InpOwnerCheckPickFirst" xml:space="preserve">
+    <value>Choose an account first.</value>
+  </data>
+  <data name="InpOwnerCheckAnswered" xml:space="preserve">
+    <value>The document has been checked in the meantime. Reload the page.</value>
+  </data>
+  <data name="InpOwnerCheckKept" xml:space="preserve">
+    <value>"{0}" stays with you.</value>
+  </data>
+  <data name="InpOwnerCheckHandedOver" xml:space="preserve">
+    <value>"{0}" handed over to {1}.</value>
+  </data>
+  <data name="InpOwnerCheckToDocuments" xml:space="preserve">
+    <value>To the documents</value>
+  </data>
+  <data name="InpUploadPresetFailed" xml:space="preserve">
+    <value>Your setting for new documents could not be loaded. Check the "Private" switch yourself.</value>
+  </data>
+  <data name="InpPrefsHeading" xml:space="preserve">
+    <value>Inputs and new documents</value>
+  </data>
+  <data name="InpPrefsLoading" xml:space="preserve">
+    <value>Loading settings …</value>
+  </data>
+  <data name="InpPrefsLoadError" xml:space="preserve">
+    <value>The settings could not be loaded: {0}</value>
+  </data>
+  <data name="InpPrefsPrivateLabel" xml:space="preserve">
+    <value>File new documents as private</value>
+  </data>
+  <data name="InpPrefsPrivateHint" xml:space="preserve">
+    <value>Applies to documents that come in through scanner folder, mail, iCloud and camera, and is preselected when uploading. Only you see private documents.</value>
+  </data>
+  <data name="InpPrefsPrivateOn" xml:space="preserve">
+    <value>New documents are now filed as private.</value>
+  </data>
+  <data name="InpPrefsPrivateOff" xml:space="preserve">
+    <value>New documents are now shared with the household.</value>
+  </data>
+  <data name="InpPrefsSendersHeading" xml:space="preserve">
+    <value>Sender addresses for mail</value>
+  </data>
+  <data name="InpPrefsSendersHint" xml:space="preserve">
+    <value>Mails from these addresses belong to your account. An address can belong to one account only, and at most {0} addresses are possible.</value>
+  </data>
+  <data name="InpPrefsSendersNone" xml:space="preserve">
+    <value>No address entered yet.</value>
+  </data>
+  <data name="InpPrefsRemove" xml:space="preserve">
+    <value>Remove</value>
+  </data>
+  <data name="InpPrefsRemoveFor" xml:space="preserve">
+    <value>Remove: {0}</value>
+  </data>
+  <data name="InpPrefsAddLabel" xml:space="preserve">
+    <value>Add sender address</value>
+  </data>
+  <data name="InpPrefsAdd" xml:space="preserve">
+    <value>Add</value>
+  </data>
+  <data name="InpPrefsAdded" xml:space="preserve">
+    <value>Address {0} added.</value>
+  </data>
+  <data name="InpPrefsRemoved" xml:space="preserve">
+    <value>Address {0} removed.</value>
+  </data>
+  <data name="InpPrefsAlreadyListed" xml:space="preserve">
+    <value>This address is already in your list.</value>
+  </data>
 </root>

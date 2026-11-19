@@ -61,7 +61,7 @@ public sealed class AccountPageTests(ServerFixture server)
 
         await FillAsync(page, Current, New, New);
 
-        await Assertions.Expect(page.Locator("main [role=status]")).ToHaveTextAsync("Das Passwort wurde geändert.");
+        await Assertions.Expect(page.Locator("section[aria-labelledby=password-heading] [role=status]")).ToHaveTextAsync("Das Passwort wurde geändert.");
         await Assertions.Expect(page.Locator("#account-current")).ToHaveValueAsync(string.Empty);
         Assert.Contains("\"newPassword\":\"" + New + "\"", fake.Mocks.BodyOf("POST", "/api/account/password"), StringComparison.Ordinal);
     }
