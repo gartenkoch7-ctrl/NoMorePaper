@@ -128,6 +128,16 @@ Die Annahme behält 3200/3201 und nennt dort die Quelle.
 | 3526 | Information | `Infrastructure/Recognition/OllamaLog` | Modell fehlt und wird geladen (`/api/pull`) |
 | 3527 | Information | `Infrastructure/Recognition/OllamaLog` | Modell geladen: Dauer in ms |
 | 3528 | Warning | `Infrastructure/Recognition/OllamaLog` | Anfrage füllt den Kontext (Tokens der Anfrage + 400 für die Antwort > 4096); Ollama hat womöglich den Anfang (Regeln, Listen) abgeschnitten |
+| 3600 | Debug | `Infrastructure/Inputs/ScannerFolder/ScannerFolderLog` | Scanner-Ordner gelesen: fertige Dateien, davon angenommen (Anzahlen) |
+| 3601 | Warning | `Infrastructure/Inputs/ScannerFolder/ScannerFolderLog` | Datei nach `Fehler/` verschoben: Grund (`unknown-type`), nie der Name |
+| 3602 | Warning | `Infrastructure/Inputs/ScannerFolder/ScannerFolderLog` | Angenommene Datei nicht löschbar (Ausnahmetyp); der nächste Lauf verwirft sie als Dublette |
+| 3603 | Information | `Infrastructure/Inputs/ScannerFolder/ScannerFolderLog` | Unterordner für ein Konto angelegt (Konto-Id) |
+| 3604 | Warning | `Infrastructure/Inputs/ScannerFolder/ScannerFolderLog` | Unterordner ohne Konto: Anzahl; ihre Dateien bleiben liegen (Problem `UnknownFolder`) |
+| 3605 | Warning | `Infrastructure/Inputs/ScannerFolder/ScannerFolderLog` | Datei nicht annehmbar (Ausnahmetyp, z. B. Datenbank weg); sie bleibt für den nächsten Lauf (Problem `Failed`) |
+| 3606 | Warning | `Infrastructure/Inputs/ScannerFolder/ScannerFolderLog` | Scanner-Ordner fehlt oder ist nicht lesbar: Grund (`missing` oder Ausnahmetyp) |
+| 3607 | Information | `Infrastructure/Inputs/ScannerFolder/ScannerFolderLog` | Datei hat sich während der Annahme geändert; sie bleibt und wird neu gelesen |
+| 3608 | Warning | `Infrastructure/Inputs/ScannerFolder/ScannerFolderLog` | Unterordner eines Kontos nicht anlegbar (Konto-Id, Ausnahmetyp) |
+| 3609 | Warning | `Infrastructure/Inputs/ScannerFolder/ScannerFolderLog` | Datei nicht nach `Fehler/` verschiebbar (Ausnahmetyp oder `NameTaken`); sie bleibt |
 | 3900 | Information | `Infrastructure/Documents/Pdf/PdfLog` | PDF erzeugt: Art (`images` = Kamera-Seiten, `text` = Mailtext), Seiten, Größe in Bytes, Dauer in ms – nie Text |
 | 3901 | Warning | `Infrastructure/Security/SecretLog` | Gespeichertes Geheimnis nicht entschlüsselbar: Zweck (`MailPassword`, `ICloudSession`); es muss neu eingegeben werden |
 | 3902 | Warning | `Infrastructure/Recognition/OllamaLog` | `LlmGate`: Ollama blieb belegt, eine Anfrage gab nach der Höchstwartezeit auf: Priorität (`Recognition`, `Mail`), Wartezeit in ms |
