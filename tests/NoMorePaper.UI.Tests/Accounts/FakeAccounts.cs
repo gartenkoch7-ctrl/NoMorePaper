@@ -53,6 +53,16 @@ internal sealed class FakeAccounts
             RetryAfterSeconds is null ? null : new Dictionary<string, string> { ["Retry-After"] = RetryAfterSeconds },
             () => _signedIn = LoginStatus == 204);
         await Mocks.RespondAsync(page, "POST", "/api/auth/logout(-everywhere)?", 204, onCall: () => _signedIn = false);
+        // The navigation asks for the review count on every page; without a real session the server
+        // would answer 401 and the app would sign out.
+        await page.RouteAsync(new Regex("/api/review$"), route => route.Request.Method != "GET"
+            ? route.FallbackAsync()
+            : route.FulfillAsync(new RouteFulfillOptions
+            {
+                Status = _signedIn ? 200 : 401,
+                ContentType = _signedIn ? "application/json" : "application/problem+json",
+                Body = _signedIn ? "[]" : "{}",
+            }));
     }
 
     // With resets, the answer also carries the oldest one as adminResetAt, as the server does.
