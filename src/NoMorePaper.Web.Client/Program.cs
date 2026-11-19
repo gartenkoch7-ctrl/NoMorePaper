@@ -4,6 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 using MudBlazor.Services;
 using NoMorePaper.Web.Client;
 using NoMorePaper.Web.Client.Accounts;
+using NoMorePaper.Web.Client.Classification;
 using NoMorePaper.Web.Client.Documents;
 using NoMorePaper.Web.Client.Localization;
 using NoMorePaper.Web.Client.Viewer;
@@ -24,6 +25,8 @@ builder.Services.AddScoped(services => new HttpClient(new UnauthorizedHandler(se
 builder.Services.AddScoped<AccountApi>();
 builder.Services.AddScoped<AuthState>();
 builder.Services.AddScoped<DocumentApi>();
+builder.Services.AddScoped<ClassificationApi>();
+builder.Services.AddScoped<ReviewCounter>();
 builder.Services.AddScoped<ViewerInterop>();
 builder.Services.AddScoped<ThumbnailRenderer>();
 builder.Services.AddSingleton<ViewerPreferences>();

@@ -104,7 +104,7 @@ und Annahme (3200–3204) sind nach Application umgezogen und haben ihre Nummern
 | 4003 | Information | `Web.Client/Telemetry/WebClientLog` | Sprachwechsel angefordert |
 | 4100 | Information | `Web.Client/Documents/DocumentsLog` | Upload gestartet (Größe in Bytes) |
 | 4101 | Information | `Web.Client/Documents/DocumentsLog` | Upload vom Server angenommen |
-| 4102 | Warning | `Web.Client/Documents/DocumentsLog` | Upload abgelehnt (Grund: `empty`, `too-large`) |
+| 4102 | Warning | `Web.Client/Documents/DocumentsLog` | Upload abgelehnt (Grund: `empty`, `too-large`, `duplicate`) |
 | 4103 | Warning | `Web.Client/Documents/DocumentsLog` | API-Aufruf mit HTTP-Fehlercode beantwortet (Vorgang, Statuscode) |
 | 4104 | Warning | `Web.Client/Documents/DocumentsLog` | API nicht erreichbar oder unlesbare Antwort (Vorgang, Ausnahmetyp) |
 | 4105 | Debug | `Web.Client/Documents/DocumentsLog` | Dokumentliste geladen (Anzahl) |
@@ -139,6 +139,21 @@ und Annahme (3200–3204) sind nach Application umgezogen und haben ihre Nummern
 | 4412 | Debug | `Web.Client/Accounts/AccountsLog` | nicht angemeldet, Weiterleitung zur Anmeldung |
 | 4413 | Warning | `Web.Client/Accounts/AccountsLog` | Kopieren in die Zwischenablage fehlgeschlagen (Ausnahmetyp) |
 | 4414 | Information | `Web.Client/Accounts/AccountsLog` | Hinweis „Passwort per Rücksetzlink des Verwalters geändert“ bestätigt |
+| 4500 | Warning | `Web.Client/Classification/ClassificationLog` | Klassifikations-Aufruf mit HTTP-Fehlercode beantwortet (Vorgang, Statuscode) |
+| 4501 | Warning | `Web.Client/Classification/ClassificationLog` | Klassifikations-Aufruf nicht erreichbar oder unlesbare Antwort (Vorgang, Ausnahmetyp) |
+| 4502 | Debug | `Web.Client/Classification/ClassificationLog` | Angaben eines Dokuments geladen (Erkennungsstatus) |
+| 4503 | Information | `Web.Client/Classification/ClassificationLog` | Angaben bearbeitet und damit bestätigt |
+| 4504 | Information | `Web.Client/Classification/ClassificationLog` | Angaben bestätigt |
+| 4505 | Information | `Web.Client/Classification/ClassificationLog` | Bearbeiter eines Dokuments geändert (Anzahl) |
+| 4506 | Debug | `Web.Client/Classification/ClassificationLog` | Liste „Zu prüfen“ geladen (Anzahl) |
+| 4507 | Information | `Web.Client/Classification/ClassificationLog` | mögliches Duplikat behalten |
+| 4508 | Information | `Web.Client/Classification/ClassificationLog` | mögliches Duplikat gelöscht |
+| 4509 | Information | `Web.Client/Classification/ClassificationLog` | Listeneintrag angelegt (Liste, nie der Name) |
+| 4510 | Information | `Web.Client/Classification/ClassificationLog` | Listeneintrag umbenannt (Liste, nie der Name) |
+| 4511 | Information | `Web.Client/Classification/ClassificationLog` | Listeneinträge zusammengeführt (Liste, Anzahl) |
+| 4512 | Information | `Web.Client/Classification/ClassificationLog` | Dokumentfilter angewendet (Anzahl der Filter, Anzahl der Treffer) |
+| 4513 | Information | `Web.Client/Classification/ClassificationLog` | Upload abgelehnt, weil die Datei schon vorhanden ist |
+| 4514 | Debug | `Web.Client/Classification/ClassificationLog` | Anzahl der Dokumente „Zu prüfen“ für die Navigation nicht ladbar |
 | 5100 | Information | `Application/Accounts/AccountsLog` | Haushalt eingerichtet: Verwalter-Id, Anzahl übernommener Dokumente ohne Besitzer (M1) |
 | 5101 | Warning | `Application/Accounts/AccountsLog` | Einrichtung abgelehnt, Haushalt schon eingerichtet |
 | 5102 | Information | `Application/Accounts/AccountsLog` | Einladung erzeugt: Konto-Id des Verwalters, Ablaufzeit (nie der Link) |

@@ -1,0 +1,11 @@
+@page "/listen"
+@inject IStringLocalizer<Strings> L
+
+<PageTitle>@L["ListsTitle"]</PageTitle>
+
+<MudText Typo="Typo.h1">@L["ListsHeading"]</MudText>
+<p>@L["ListsIntro"]</p>
+
+<ListSection Kind="EntryKind.Correspondents" Heading="@L["ListsCorrespondents"]" />
+<ListSection Kind="EntryKind.DocumentTypes" Heading="@L["ListsDocumentTypes"]" />
+<ListSection Kind="EntryKind.Tags" Heading="@L["ListsTags"]" />

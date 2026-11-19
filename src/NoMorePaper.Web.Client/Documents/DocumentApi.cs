@@ -1,3 +1,4 @@
+using System.Net;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Text.Json;
@@ -5,7 +6,9 @@ using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.Extensions.Localization;
 using Microsoft.Extensions.Logging;
 using NoMorePaper.Contracts.Accounts;
+using NoMorePaper.Contracts.Classification;
 using NoMorePaper.Contracts.Documents;
+using NoMorePaper.Web.Client.Classification;
 using NoMorePaper.Web.Client.Localization;
 
 namespace NoMorePaper.Web.Client.Documents;
@@ -49,6 +52,11 @@ public sealed class DocumentApi(HttpClient http, IStringLocalizer<Strings> local
             };
             form.Headers.Add("X-NoMorePaper-Request", "1");
             using var response = await http.PostAsync("api/documents", form, ct);
+            if (response.StatusCode == HttpStatusCode.Conflict)
+            {
+                return await DuplicateAsync(response, ct);
+            }
+
             var result = await ReadAsync<UploadResultDto>(response, "upload", ct);
             if (result.IsSuccess)
             {
@@ -63,8 +71,10 @@ public sealed class DocumentApi(HttpClient http, IStringLocalizer<Strings> local
         }
     }
 
-    public Task<ApiResult<DocumentSummaryDto[]>> ListAsync(int page = 1, int pageSize = 50, CancellationToken ct = default)
-        => GetAsync<DocumentSummaryDto[]>($"api/documents?page={page}&pageSize={pageSize}", "list", ct);
+    public Task<ApiResult<DocumentSummaryDto[]>> ListAsync(
+        int page = 1, int pageSize = 50, DocumentFilterDto? filter = null, CancellationToken ct = default)
+        => GetAsync<DocumentSummaryDto[]>(
+            $"api/documents?page={page}&pageSize={pageSize}{DocumentFilterQuery.Build(filter)}", "list", ct);
 
     public Task<ApiResult<DocumentDetailDto>> GetAsync(Guid id, CancellationToken ct = default)
         => GetAsync<DocumentDetailDto>($"api/documents/{id}", "detail", ct);
@@ -96,6 +106,30 @@ public sealed class DocumentApi(HttpClient http, IStringLocalizer<Strings> local
         {
             return Unreachable<bool>("privacy", ex);
         }
+    }
+
+    // 409 on upload: the same file is already there. The ProblemDetails names it in "existingId".
+    private async Task<ApiResult<UploadResultDto>> DuplicateAsync(HttpResponseMessage response, CancellationToken ct)
+    {
+        logger.UploadRejected("duplicate");
+        Guid? existing = null;
+        try
+        {
+            var problem = await response.Content.ReadFromJsonAsync<JsonElement>(ct);
+            if (problem.ValueKind == JsonValueKind.Object
+                && problem.TryGetProperty("existingId", out var id)
+                && id.ValueKind == JsonValueKind.String
+                && id.TryGetGuid(out var parsed))
+            {
+                existing = parsed;
+            }
+        }
+        catch (JsonException)
+        {
+            // No readable extension: the message still says the file exists.
+        }
+
+        return new ApiResult<UploadResultDto>(null, localizer["UploadDuplicate"], ExistingId: existing, IsDuplicate: true);
     }
 
     private async Task<ApiResult<T>> GetAsync<T>(string uri, string operation, CancellationToken ct)

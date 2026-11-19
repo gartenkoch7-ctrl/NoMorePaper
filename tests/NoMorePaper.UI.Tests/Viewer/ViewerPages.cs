@@ -1,6 +1,8 @@
 using System.Text.RegularExpressions;
 using Microsoft.Playwright;
+using NoMorePaper.Contracts.Classification;
 using NoMorePaper.Contracts.Documents;
+using NoMorePaper.UI.Tests.Classification;
 using NoMorePaper.UI.Tests.Documents;
 using NoMorePaper.UI.Tests.Hosting;
 
@@ -27,7 +29,9 @@ internal static class ViewerPages
         Func<IPage, Task>? prepare = null,
         bool archive = true,
         string originalType = "application/pdf",
-        DocumentProcessingState state = DocumentProcessingState.Done)
+        DocumentProcessingState state = DocumentProcessingState.Done,
+        DocumentFieldsDto? fields = null,
+        bool isMine = false)
     {
         var session = await server.OpenAsync("/", culture);
         try
@@ -41,8 +45,10 @@ internal static class ViewerPages
 
             var original = new DocumentFileDto("brief.pdf", originalType, pdf.Length, "0");
             var archiveFile = archive ? new DocumentFileDto("brief.pdf", "application/pdf", pdf.Length, "0") : null;
-            var detail = new DocumentDetailDto(id, Title, DateTimeOffset.UtcNow, state, null, original, archiveFile);
+            var detail = new DocumentDetailDto(id, Title, DateTimeOffset.UtcNow, state, null, original, archiveFile, IsMine: isMine);
             await ApiMocks.RespondAsync(page, new Regex($"/api/documents/{id}$"), "GET", detail);
+            // The "Angaben" panel asks for the fields; nothing recognized, nothing editable here.
+            await ApiMocks.RespondAsync(page, new Regex($"/api/documents/{id}/fields$"), "GET", fields ?? ClassificationSamples.NoFields());
             await page.RouteAsync(new Regex($"/api/documents/{id}/files/(original|archive)$"), route => route.FulfillAsync(
                 new RouteFulfillOptions { Status = 200, ContentType = "application/pdf", BodyBytes = pdf }));
             // Client-side navigation: the routes above are in place before the page fetches.
@@ -60,5 +66,5 @@ internal static class ViewerPages
     /// <summary>Waits until the first page is rendered and its state was reported.</summary>
     public static Task WaitUntilShownAsync(IPage page) => page.Locator($"{Stage}[data-ready]").WaitForAsync();
 
-    public static ILocator Announcement(IPage page) => page.Locator("main .live-region");
+    public static ILocator Announcement(IPage page) => page.Locator("main .viewer-announcer");
 }
