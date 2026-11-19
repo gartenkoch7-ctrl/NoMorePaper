@@ -1206,12 +1206,6 @@
   <data name="InpProblemProtocolChanged" xml:space="preserve">
     <value>The service answers differently than expected</value>
   </data>
-  <data name="InpProblemUnknownFolder" xml:space="preserve">
-    <value>The chosen folder was not found</value>
-  </data>
-  <data name="InpProblemStuckItems" xml:space="preserve">
-    <value>Some items cannot be read in and stay where they are</value>
-  </data>
   <data name="InpProblemFailed" xml:space="preserve">
     <value>The run failed unexpectedly</value>
   </data>
@@ -1566,9 +1560,6 @@
   <data name="MailHintPasswordAgain" xml:space="preserve">
     <value>Server or user changed: enter the password again.</value>
   </data>
-  <data name="CamSavedByAccount" xml:space="preserve">
-    <value>The document was saved as your account setting says and is waiting to be processed. Pages: {0}.</value>
-  </data>
   <data name="InpICloudPending" xml:space="preserve">
     <value>iCloud follows – waiting for the test with an Apple ID.</value>
   </data>
@@ -1578,7 +1569,10 @@
   <data name="PrivateUnknown" xml:space="preserve">
     <value>State unknown: your account setting could not be loaded. Unless you change it, the document is filed private or shared as your account setting says.</value>
   </data>
-  <data name="UploadSuccessByAccount" xml:space="preserve">
-    <value>{0} was uploaded as your account setting says and is waiting to be processed.</value>
+  <data name="InpProblemUnknownFolder" xml:space="preserve">
+    <value>A subfolder of the scanner folder belongs to no account; its files stay where they are</value>
+  </data>
+  <data name="InpProblemStuckItems" xml:space="preserve">
+    <value>Some mails or files are stuck – see the mailbox folder “NoMorePaper-Fehler” or the inbox</value>
   </data>
 </root>

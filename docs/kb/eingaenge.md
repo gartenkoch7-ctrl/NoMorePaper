@@ -150,6 +150,9 @@ Stand: Schritt 0 (gemeinsame Bausteine). Die Spuren A–E ergänzen ihre Abschni
   ihn geändert hat, sonst entscheidet der Server nach der Konto-Einstellung (`POST /api/documents` und
   `/api/documents/pages` ohne Feld → Einstellung; ungültiger Wert weiter 400). Ist die Einstellung nicht ladbar,
   steht der Schalter im dritten Zustand („gemischt“) und der Hinweis sagt, dass die Konto-Einstellung gilt.
+  Die Antwort (`UploadResultDto.isPrivate`) nennt, wie der Server es angewendet hat; danach richtet sich die
+  Ansage „privat/geteilt“ (der Server kennt evtl. eine neuere Einstellung als die Seite). `data-ready` am
+  Schalter zeigt, dass die Einstellung abgefragt ist (geladen oder gescheitert) – UI-Tests warten darauf.
 - Besitzer prüfen (`Classification/OwnerCheckSection`) im Viewer und in „Zu prüfen“: „Passt so: <Titel>“
   und „Weitergeben an“ (Auswahl der anderen Konten aus `GET /api/household`) mit Knopf „Weitergeben: <Titel>“.
   Ohne Wahl: Fehlertext und Fokus auf die Auswahl. Nach der Weitergabe sagt der Viewer, wohin das Dokument
@@ -296,7 +299,7 @@ danach: gleiche Quoten, keine IBAN mehr im Hinweis, Median 10,3 s. Einmal ein va
 Phishing-Mails sind geschickter. Auf dem Server neu messen.
 
 **Einrichtung (Verwalter):** Seite `/eingaenge/mail` (`MailSettings.razor`), API `GET/PUT /api/inputs/mail`
-(nie das Passwort, nur `hasPassword`; leeres Passwort behält das gespeicherte, **aber nur für denselben Zugang**:
+(nie das Passwort, nur `hasPassword`; leeres oder nur aus Leerzeichen bestehendes Passwort behält das gespeicherte, **aber nur für denselben Zugang**:
 ändern sich Server, Port, Verschlüsselung oder Benutzername, muss das Passwort neu eingegeben werden – auch für
 den Test –, sonst ginge das gespeicherte Passwort an einen beliebigen Server; ohne gespeichertes oder bei
 geändertem Zugang → 400 `password: required`. Nur TLS oder STARTTLS: `security: none` → 400

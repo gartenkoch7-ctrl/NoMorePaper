@@ -54,6 +54,26 @@ public sealed class MailSettingsTests(ServerFixture server)
     }
 
     [Fact]
+    public async Task ABlankPassword_IsNotSent_TheStoredOneStays_AndWithoutOneItIsMissing()
+    {
+        var mocks = new AccountMocks();
+        await using var session = await OpenAsync(mocks);
+        var page = session.Page;
+
+        await page.Locator("#mail-password").FillAsync("   ");
+        await page.GetByRole(AriaRole.Button, new() { Name = "Speichern" }).ClickAsync();
+
+        await Assertions.Expect(page.Locator("main [role=status]").First).ToHaveTextAsync("Einstellungen des Postfachs gespeichert.");
+        Assert.Contains("\"password\":null", mocks.BodyOf("PUT", Path), StringComparison.Ordinal);
+
+        await page.Locator("#mail-host").FillAsync("imap.anderer.example");
+        await page.Locator("#mail-password").FillAsync("  ");
+        await page.GetByRole(AriaRole.Button, new() { Name = "Speichern" }).ClickAsync();
+        await Assertions.Expect(page.Locator("#mail-password")).ToBeFocusedAsync();
+        Assert.Single(mocks.Requests, request => request.Method == "PUT");
+    }
+
+    [Fact]
     public async Task ANewPassword_IsSentOnce_ThenTheFieldIsEmptyAgain()
     {
         var mocks = new AccountMocks();

@@ -61,8 +61,9 @@ public sealed class PageUploadTests(ApiFixture api)
         using var unchosen = await PostAsync(member, [CameraPages.PortraitJpeg()]);
         using var shared = await PostAsync(member, [CameraPages.LandscapeJpeg()], isPrivate: "false");
 
-        var byAccount = (await unchosen.Content.ReadFromJsonAsync<UploadResultDto>(Ct))!.Id;
-        var chosen = (await shared.Content.ReadFromJsonAsync<UploadResultDto>(Ct))!.Id;
+        var (byAccount, appliedByAccount) = (await unchosen.Content.ReadFromJsonAsync<UploadResultDto>(Ct))!;
+        var (chosen, appliedChoice) = (await shared.Content.ReadFromJsonAsync<UploadResultDto>(Ct))!;
+        Assert.Equal((true, false), (appliedByAccount, appliedChoice));
         Assert.True((await member.GetFromJsonAsync<DocumentDetailDto>($"/api/documents/{byAccount}", Ct))!.IsPrivate);
         Assert.False((await member.GetFromJsonAsync<DocumentDetailDto>($"/api/documents/{chosen}", Ct))!.IsPrivate);
     }

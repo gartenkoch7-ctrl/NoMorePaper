@@ -7,7 +7,7 @@ namespace NoMorePaper.Application.Inputs.Mail;
 /// <summary>
 /// The administrator sets up the household's mailbox (ADR-0024): server, port, security, user name, the own
 /// server's <c>authserv-id</c> and the password, which is stored only encrypted (<see cref="ISecretProtector"/>)
-/// and never given back. An empty password keeps the stored one, but only for the same server and user
+/// and never given back. An empty or blank password keeps the stored one, but only for the same server and user
 /// (<see cref="MailboxSettings.IsSameSignIn"/>); another server or user needs the password again.
 /// </summary>
 public sealed class ConfigureMailbox(
@@ -31,7 +31,7 @@ public sealed class ConfigureMailbox(
         return new MailboxSetup(stored is null ? null : MailboxSettings.Parse(stored.Settings), stored?.Secret is not null);
     }
 
-    /// <param name="password">A new password, or <c>null</c>/empty to keep the stored one (same server and user only).</param>
+    /// <param name="password">A new password, or <c>null</c>/empty/blank to keep the stored one (same server and user only).</param>
     public async Task<MailboxSetupStatus> SaveAsync(MailboxSettings settings, string? password, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(settings);
@@ -41,7 +41,7 @@ public sealed class ConfigureMailbox(
             return status;
         }
 
-        var secret = string.IsNullOrEmpty(password) ? stored!.Secret : secrets.Protect(SecretPurposes.MailPassword, password);
+        var secret = string.IsNullOrWhiteSpace(password) ? stored!.Secret : secrets.Protect(SecretPurposes.MailPassword, password);
         await connections.SaveAsync(new InputConnection(InputKind.Mail, null, settings.ToJson(), secret, clock.GetUtcNow()), cancellationToken)
             .ConfigureAwait(false);
         return MailboxSetupStatus.Done;
@@ -65,7 +65,7 @@ public sealed class ConfigureMailbox(
         string plain;
         try
         {
-            plain = string.IsNullOrEmpty(password) ? secrets.Unprotect(SecretPurposes.MailPassword, stored!.Secret!) : password;
+            plain = string.IsNullOrWhiteSpace(password) ? secrets.Unprotect(SecretPurposes.MailPassword, stored!.Secret!) : password;
         }
         catch (SecretUnreadableException)
         {
@@ -96,7 +96,7 @@ public sealed class ConfigureMailbox(
         }
 
         var stored = await connections.GetAsync(InputKind.Mail, null, cancellationToken).ConfigureAwait(false);
-        return string.IsNullOrEmpty(password) && !MayUseStoredPassword(stored, settings)
+        return string.IsNullOrWhiteSpace(password) && !MayUseStoredPassword(stored, settings)
             ? (MailboxSetupStatus.PasswordMissing, stored)
             : (MailboxSetupStatus.Done, stored);
     }

@@ -96,9 +96,9 @@ internal sealed class DocumentUpload(ReceiveDocument receive, AccountSessions se
             var received = await receive.ReceiveAsync(file.FileName, mediaType, content, isPrivate, cancellationToken).ConfigureAwait(false);
             switch (received)
             {
-                case { Status: ReceiveStatus.Received, DocumentId: { } id }:
+                case { Status: ReceiveStatus.Received, DocumentId: { } id, IsPrivate: var isPrivateApplied }:
                     logger.UploadAccepted(id, file.Length, mediaType);
-                    return Results.Accepted($"/api/documents/{id}", new UploadResultDto(id));
+                    return Results.Accepted($"/api/documents/{id}", new UploadResultDto(id, isPrivateApplied));
 
                 case { Status: ReceiveStatus.Duplicate, DocumentId: { } existingId }:
                     return Reject(

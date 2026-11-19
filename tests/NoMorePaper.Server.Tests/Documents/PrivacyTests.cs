@@ -56,8 +56,9 @@ public sealed class PrivacyTests(ApiFixture api)
         using var shared = await member.UploadAsync("geteilt.pdf", SampleFiles.WithHead("%PDF-1.7\n"u8, 6012), "false", Ct);
         using var malformed = await member.UploadAsync("kaputt.pdf", SampleFiles.WithHead("%PDF-1.7\n"u8, 6013), "yes", Ct);
 
-        var byAccount = (await unchosen.Content.ReadFromJsonAsync<UploadResultDto>(Ct))!.Id;
-        var chosen = (await shared.Content.ReadFromJsonAsync<UploadResultDto>(Ct))!.Id;
+        var (byAccount, appliedByAccount) = (await unchosen.Content.ReadFromJsonAsync<UploadResultDto>(Ct))!;
+        var (chosen, appliedChoice) = (await shared.Content.ReadFromJsonAsync<UploadResultDto>(Ct))!;
+        Assert.Equal((true, false), (appliedByAccount, appliedChoice));
         Assert.True((await member.GetFromJsonAsync<DocumentDetailDto>($"/api/documents/{byAccount}", Ct))!.IsPrivate);
         Assert.False((await member.GetFromJsonAsync<DocumentDetailDto>($"/api/documents/{chosen}", Ct))!.IsPrivate);
         Assert.Equal(HttpStatusCode.BadRequest, malformed.StatusCode);

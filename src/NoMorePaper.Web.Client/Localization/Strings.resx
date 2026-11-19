@@ -1206,12 +1206,6 @@
   <data name="InpProblemProtocolChanged" xml:space="preserve">
     <value>Der Dienst antwortet anders als erwartet</value>
   </data>
-  <data name="InpProblemUnknownFolder" xml:space="preserve">
-    <value>Der gewählte Ordner wurde nicht gefunden</value>
-  </data>
-  <data name="InpProblemStuckItems" xml:space="preserve">
-    <value>Einige Elemente lassen sich nicht einlesen und bleiben liegen</value>
-  </data>
   <data name="InpProblemFailed" xml:space="preserve">
     <value>Der Lauf ist unerwartet fehlgeschlagen</value>
   </data>
@@ -1566,9 +1560,6 @@
   <data name="MailHintPasswordAgain" xml:space="preserve">
     <value>Server oder Benutzer wurden geändert: Gib das Passwort neu ein.</value>
   </data>
-  <data name="CamSavedByAccount" xml:space="preserve">
-    <value>Das Dokument wurde nach deiner Konto-Einstellung gespeichert und wartet auf die Verarbeitung. Seiten: {0}.</value>
-  </data>
   <data name="InpICloudPending" xml:space="preserve">
     <value>iCloud folgt – wartet auf den Test mit Apple-ID.</value>
   </data>
@@ -1578,7 +1569,10 @@
   <data name="PrivateUnknown" xml:space="preserve">
     <value>Stand unbekannt: Deine Konto-Einstellung ließ sich nicht laden. Ohne Änderung wird das Dokument nach deiner Konto-Einstellung privat oder geteilt abgelegt.</value>
   </data>
-  <data name="UploadSuccessByAccount" xml:space="preserve">
-    <value>{0} wurde nach deiner Konto-Einstellung hochgeladen und wartet auf die Verarbeitung.</value>
+  <data name="InpProblemUnknownFolder" xml:space="preserve">
+    <value>Ein Unterordner im Scanner-Ordner gehört zu keinem Konto; seine Dateien bleiben liegen</value>
+  </data>
+  <data name="InpProblemStuckItems" xml:space="preserve">
+    <value>Einige Mails oder Dateien hängen fest – siehe den Postfach-Ordner „NoMorePaper-Fehler“ bzw. den Posteingang</value>
   </data>
 </root>

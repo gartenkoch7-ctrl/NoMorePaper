@@ -15,7 +15,6 @@ public sealed partial class Camera
         }
 
         // Unchanged switch: no choice is sent, the server takes the account's setting (also when it did not load here).
-        var isPrivate = _privacy?.Effective;
         var result = await Upload.UploadPagesAsync(jpegs, _privacy?.Choice, _takenAt ?? Time.GetLocalNow());
         _uploading = false;
         _focusCapture = _running;
@@ -31,18 +30,11 @@ public sealed partial class Camera
         _pages = await Interop.ClearAsync(count);
         _takenAt = _pages == 0 ? null : Time.GetLocalNow();
         _saved = result.Value is { } saved
-            ? new SavedDocument(saved.Id, SavedText(isPrivate, count), false)
+            ? new SavedDocument(saved.Id, L[saved.IsPrivate ? "CamSavedPrivate" : "CamSavedShared", count], false)
             : new SavedDocument(result.ExistingId, result.Error ?? string.Empty, true);
         _focusSaved = !_running;
         await AnnounceAsync(_saved.Message);
     }
-
-    private string SavedText(bool? isPrivate, int count) => isPrivate switch
-    {
-        true => L["CamSavedPrivate", count],
-        false => L["CamSavedShared", count],
-        null => L["CamSavedByAccount", count],
-    };
 
     private sealed record SavedDocument(Guid? Id, string Message, bool IsDuplicate);
 }

@@ -45,6 +45,21 @@ public sealed class ConfigureMailboxTests
     }
 
     [Fact]
+    public async Task ABlankPassword_CountsAsNone_KeepsTheStoredOne_AndIsMissingWithoutOne()
+    {
+        Assert.Equal(MailboxSetupStatus.PasswordMissing, await Configure().SaveAsync(s_settings, "   ", Ct));
+        Assert.Equal((MailboxSetupStatus.PasswordMissing, (MailboxProbeResult?)null), await Configure().TestAsync(s_settings, " \t", Ct));
+
+        await Configure().SaveAsync(s_settings, "geheim", Ct);
+        Assert.Equal(MailboxSetupStatus.Done, await Configure().SaveAsync(s_settings, "   ", Ct));
+        Assert.Equal((MailboxSetupStatus.Done, MailboxProbeResult.Ok), await Configure().TestAsync(s_settings, "  ", Ct));
+
+        Assert.Equal("MailPassword:geheim", Encoding.UTF8.GetString(_connections.Stored!.Secret!));
+        Assert.Equal("geheim", _probe.Password);
+        Assert.Equal(MailboxSetupStatus.PasswordMissing, await Configure().SaveAsync(s_settings with { Host = "evil.example" }, "  ", Ct));
+    }
+
+    [Fact]
     public async Task Test_UsesTheGivenPassword_OrTheStoredOne_ForTheSameServerAndUser()
     {
         _probe.Result = MailboxProbeResult.SignInFailed;

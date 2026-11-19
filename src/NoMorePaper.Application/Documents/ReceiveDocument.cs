@@ -46,7 +46,7 @@ public sealed class ReceiveDocument(IntakeDocument intake, ICurrentAccount curre
         var accepted = await intake.AcceptAsync(request, isPrivate, DuplicateScope.Visible, cancellationToken).ConfigureAwait(false);
         return accepted switch
         {
-            { Status: IntakeStatus.Received, DocumentId: { } id } => ReceiveResult.Received(id),
+            { Status: IntakeStatus.Received, DocumentId: { } id } => ReceiveResult.Received(id, accepted.IsPrivate),
             { Status: IntakeStatus.AlreadyThere, DocumentId: { } existing } => ReceiveResult.Duplicate(existing),
             { Status: IntakeStatus.OwnerGone } => ReceiveResult.AccountGone,
             _ => throw new InvalidOperationException($"Unexpected intake result {accepted.Status} for a known owner."),

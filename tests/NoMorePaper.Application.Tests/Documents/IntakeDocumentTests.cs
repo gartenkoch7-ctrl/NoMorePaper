@@ -29,7 +29,7 @@ public sealed class IntakeDocumentTests
         var result = await AcceptAsync(s_owner, isPrivate: null);
 
         var document = Assert.Single(_documents.Added);
-        Assert.Equal(IntakeResult.Received(document.Id), result);
+        Assert.Equal(IntakeResult.Received(document.Id, document.IsPrivate), result);
         Assert.Equal((s_owner, newDocumentsPrivate, false, DocumentSource.ScannerFolder), (document.OwnerId, document.IsPrivate, document.NeedsOwnerCheck, document.Source));
         Assert.Equal([3200], _log.EventIds);
     }

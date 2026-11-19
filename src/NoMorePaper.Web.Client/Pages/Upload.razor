@@ -99,11 +99,11 @@
         var announcement = _skipped is null ? null : $"{_skipped.Notice} {SkippedNamesAnnouncement(_skipped.Names)}";
 
         // The switch applies to the files chosen now, even if it is changed while they go up.
-        var (choice, isPrivate) = (_privacy?.Choice, _privacy?.Effective);
+        var choice = _privacy?.Choice;
         for (var i = 0; i < batch.Count; i++)
         {
             // The notice joins the last announcement; a separate one right after would cut it off.
-            await UploadOneAsync(batch[i], choice, isPrivate, i == batch.Count - 1 ? announcement : null);
+            await UploadOneAsync(batch[i], choice, i == batch.Count - 1 ? announcement : null);
         }
     }
 
@@ -121,12 +121,12 @@
         return L["UploadSkippedNames", rest > 0 ? L["UploadSkippedMore", list, rest].Value : list];
     }
 
-    // choice: what is sent (null: the account decides); isPrivate: what the result says (null: not known here).
-    private async Task UploadOneAsync(IBrowserFile file, bool? choice, bool? isPrivate, string? notice)
+    // choice: what is sent (null: the account decides). The result says what the server applied.
+    private async Task UploadOneAsync(IBrowserFile file, bool? choice, string? notice)
     {
         await AnnounceAsync(L["UploadInProgress", file.Name]);
         var result = await Api.UploadAsync(file, choice);
-        var outcome = new UploadOutcome(file.Name, result.Value?.Id, result.Error, isPrivate, result.ExistingId, result.IsDuplicate);
+        var outcome = new UploadOutcome(file.Name, result.Value?.Id, result.Error, result.Value?.IsPrivate ?? false, result.ExistingId, result.IsDuplicate);
         _results.Insert(0, outcome);
         if (outcome.IsDuplicate)
         {
@@ -141,9 +141,9 @@
         await AnnounceAsync(notice is null ? message : $"{message} {notice}");
     }
 
-    // Says whether the file went up private or shared, so a mistake is noticed right away.
+    // Says whether the file went up private or shared (as the server applied it), so a mistake is noticed right away.
     private string SuccessText(UploadOutcome outcome)
-        => L[outcome.IsPrivate switch { true => "UploadSuccessPrivate", false => "UploadSuccessShared", null => "UploadSuccessByAccount" }, outcome.FileName];
+        => L[outcome.IsPrivate ? "UploadSuccessPrivate" : "UploadSuccessShared", outcome.FileName];
 
     private async Task AnnounceAsync(string message)
     {
@@ -153,7 +153,7 @@
         }
     }
 
-    private sealed record UploadOutcome(string FileName, Guid? Id, string? Error, bool? IsPrivate, Guid? ExistingId, bool IsDuplicate);
+    private sealed record UploadOutcome(string FileName, Guid? Id, string? Error, bool IsPrivate, Guid? ExistingId, bool IsDuplicate);
 
     private sealed record SkippedFiles(string Notice, IReadOnlyList<string> Names);
 }

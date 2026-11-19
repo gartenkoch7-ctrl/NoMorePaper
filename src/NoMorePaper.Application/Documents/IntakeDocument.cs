@@ -123,7 +123,7 @@ public sealed class IntakeDocument(
 
             s_received.Add(1, new KeyValuePair<string, object?>(SourceTag, request.Source.ToString()));
             logger.Received(document.Id, request.Source, stored.SizeBytes, request.MediaType);
-            return IntakeResult.Received(document.Id);
+            return IntakeResult.Received(document.Id, document.IsPrivate);
         }
         catch (Exception exception)
         {

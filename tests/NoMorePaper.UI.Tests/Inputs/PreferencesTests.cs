@@ -169,10 +169,11 @@ public sealed class PreferencesTests(ServerFixture server)
         var fake = new FakeInputs { PreferencesGetStatus = 500 };
         await using var session = await fake.OpenAsync(server, "/hochladen");
         var page = session.Page;
-        await NoMorePaper.UI.Tests.Documents.ApiMocks.UploadAsync(page, new { id = Guid.NewGuid() });
+        await NoMorePaper.UI.Tests.Documents.ApiMocks.UploadAsync(page, new { id = Guid.NewGuid(), isPrivate = true });
         var sent = page.WaitForRequestAsync(request => request.Method == "POST" && request.Url.EndsWith("/api/documents", StringComparison.Ordinal));
 
         await Assertions.Expect(page.Locator("#upload-private-hint")).ToContainTextAsync("Stand unbekannt: Deine Konto-Einstellung ließ sich nicht laden.");
+        await Assertions.Expect(page.Locator("#upload-private")).ToHaveAttributeAsync("data-ready", "true");
         await Assertions.Expect(page.Locator("#upload-private")).ToHaveJSPropertyAsync("indeterminate", true);
         await page.Locator("#upload-input").SetInputFilesAsync(new FilePayload
         {
@@ -184,7 +185,7 @@ public sealed class PreferencesTests(ServerFixture server)
         var body = (await sent).PostData ?? string.Empty;
         Assert.Contains("brief.pdf", body, StringComparison.Ordinal);
         Assert.DoesNotMatch(new Regex("name=\"?private\"?"), body);
-        await Assertions.Expect(page.Locator(".upload-results li")).ToContainTextAsync("brief.pdf wurde nach deiner Konto-Einstellung hochgeladen");
+        await Assertions.Expect(page.Locator(".upload-results li")).ToContainTextAsync("brief.pdf wurde privat hochgeladen");
     }
 
     [Theory]

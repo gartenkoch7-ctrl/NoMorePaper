@@ -55,7 +55,7 @@ internal static class MailSettingsEndpoints
         var status = await configure.SaveAsync(settings, body!.Password, cancellationToken).ConfigureAwait(false);
         if (status == MailboxSetupStatus.Done)
         {
-            var renewed = !string.IsNullOrEmpty(body.Password);
+            var renewed = !string.IsNullOrWhiteSpace(body.Password);
             logger.MailboxSaved(current.Id, settings.Security, renewed);
             return Results.NoContent();
         }

@@ -5,9 +5,10 @@
 
 @* The "private" switch of the upload and camera pages, preset from the account. It sends a choice only when
    the person changed it; otherwise the server applies the account's setting. Should that setting not load,
-   the switch never claims "shared": it is in its third state ("mixed") and the hint says the account decides. *@
+   the switch never claims "shared": it is in its third state ("mixed") and the hint says the account decides.
+   data-ready marks that the account's setting was asked (loaded or failed), so tests do not race it. *@
 <div class="form-check">
-    <input id="@Id" type="checkbox" checked="@(Effective ?? false)" aria-describedby="@(Id + "-hint")"
+    <input id="@Id" type="checkbox" checked="@(Effective ?? false)" aria-describedby="@(Id + "-hint")" data-ready="@(_loaded ? "true" : null)"
            @onchange="args => _choice = args.Value is true" />
     <label for="@Id">@L["PrivateLabel"]</label>
 </div>

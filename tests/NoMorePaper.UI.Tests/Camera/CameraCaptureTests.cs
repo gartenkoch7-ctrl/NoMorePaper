@@ -54,7 +54,7 @@ public sealed partial class CameraCaptureTests(ServerFixture server, FakeCameraB
 
         await page.GetByRole(AriaRole.Button, new PageGetByRoleOptions { Name = "Fertig" }).ClickAsync();
 
-        await Assertions.Expect(status).ToContainTextAsync("Das Dokument wurde geteilt gespeichert");
+        await Assertions.Expect(status).ToContainTextAsync("Das Dokument wurde privat gespeichert");
         await Assertions.Expect(page.GetByRole(AriaRole.Link, new PageGetByRoleOptions { Name = "Neues Dokument in der Dokumentenliste zeigen" }))
             .ToHaveAttributeAsync("href", $"dokumente#doc-{UploadRecorder.Id:N}");
         await Assertions.Expect(page.Locator(".camera-no-pages")).ToBeVisibleAsync();
@@ -117,7 +117,10 @@ public sealed partial class CameraCaptureTests(ServerFixture server, FakeCameraB
     [GeneratedRegex(@"/api/documents/pages$")]
     private static partial Regex PagesUrl();
 
-    /// <summary>Answers the page upload with 202 and keeps the multipart body it received.</summary>
+    /// <summary>
+    /// Answers the page upload with 202 (applied as private: the page must say what the server applied, not the
+    /// untouched switch) and keeps the multipart body it received.
+    /// </summary>
     private sealed class UploadRecorder
     {
         public static readonly Guid Id = Guid.Parse("0193a4b2-0000-7000-8000-000000000001");
@@ -132,7 +135,7 @@ public sealed partial class CameraCaptureTests(ServerFixture server, FakeCameraB
             {
                 Status = 202,
                 ContentType = "application/json",
-                Body = Encoding.UTF8.GetString(System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(new { id = Id })),
+                Body = Encoding.UTF8.GetString(System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(new { id = Id, isPrivate = true })),
             });
         }
     }

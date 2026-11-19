@@ -170,7 +170,8 @@ public sealed partial class MailSettings
         }
 
         var authServId = string.IsNullOrWhiteSpace(_authServId) ? null : _authServId.Trim();
-        var password = _password.Length == 0 ? null : _password;
+        // Blank is no password: it keeps the stored one (the server treats it the same).
+        var password = string.IsNullOrWhiteSpace(_password) ? null : _password;
         return new MailSettingsRequestDto(_host.Trim(), int.Parse(_port, CultureInfo.InvariantCulture), _security, _user.Trim(), authServId, password);
     }
 }

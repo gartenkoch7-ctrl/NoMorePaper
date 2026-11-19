@@ -70,7 +70,7 @@ Netzwerk-Scanner legen ihre Scans per SMB in die Freigabe `scan`; der Worker lie
    Verwalter und stehen bei ihm in „Zu prüfen“.
    Jeder Kontoordner enthält die versteckte Datei `.nomorepaper-owner` (Konto-Id) – nicht löschen. Wird ein
    Konto entfernt und später ein neues mit demselben Anmeldenamen angelegt, liest der Worker den alten Ordner
-   nicht (Problem `UnknownFolder` auf der Seite „Eingänge“, Log 3610): alte Scans von Hand prüfen, den Ordner leeren
+   nicht (Seite „Eingänge“: „Ein Unterordner im Scanner-Ordner gehört zu keinem Konto …“, Log 3610): alte Scans von Hand prüfen, den Ordner leeren
    und löschen; danach legt der Worker den Ordner für das neue Konto an.
 4. Nicht lesbare Dateien (kein PDF, JPEG, PNG, HEIC) liegen danach in `\\<host>\scan\Fehler`.
 
