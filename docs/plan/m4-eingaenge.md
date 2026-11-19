@@ -165,7 +165,7 @@ Daraus abgeleitet:
 - [x] Mail: an den 24 Testmails kein wichtiges Dokument als Spam, ≥ 90 % Spam erkannt – gemessen 2026-11-19: Spam 9/9, wichtige Dokumente als Spam 0/10, „ist Dokument“ 19/19 (Entwicklungs-PC, `eingaenge.md`)
 - [x] Keine Zugangsdaten, Mailtexte, Betreffs, Adressen oder Dateinamen in Logs; Passwörter nur verschlüsselt
 - [ ] Seite „Eingänge“ zeigt Fehler jedes Eingangs als Text; axe 0 Verstöße; NVDA-Prüfung durch den Nutzer
-- [ ] CI grün
+- [x] CI grün (Run 31, 2abfa26; Runner auf ubuntu-24.04 festgelegt)
 
 ## Parallelisierung
 
