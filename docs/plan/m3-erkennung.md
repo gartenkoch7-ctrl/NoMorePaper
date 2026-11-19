@@ -159,7 +159,73 @@ Schritt 0 ─┬─► Spur A (2 Worker) ─────────────
 | P4 | Spur C UI | **Sonnet** | `medium` |
 | P5 | Doku | **Haiku** | `low` |
 
-Dateitabellen für P2–P4 folgen nach P0 (sie hängen an dessen Typen).
+Grundlage für P2–P4: Typen und Ports aus P0 (`4eb2172`): `Document.Classify/Edit/Confirm/SetEditors/
+CanEdit/MarkPossibleDuplicate`, `DocumentFields`, `Money`, `ClassificationKind`, `ClassificationName`,
+`IClassificationStore`, `IRecognizer`/`RecognitionRequest`/`RecognitionResult`, `VisibilitySql.Entries`,
+DTOs in `Contracts/Classification`.
+
+**API-Vertrag B ↔ C** (B baut, C nutzt; Fehler als `ProblemDetails`; alle Routen brauchen Anmeldung):
+
+| Route | Antwort |
+|---|---|
+| `GET /api/documents?…&correspondentId&documentTypeId&from&to&tagIds=a,b&allTags&amountFrom&amountTo&isPrivate` | wie bisher; `DocumentSummaryDto` erhält optional `Correspondent`, `DocumentType` (`EntryDto?`), `DocumentDate`, `Amount` (`MoneyDto?`), `Recognition` |
+| `GET /api/search?q=&…` (gleiche Filter) | `SearchHitDto` erhält dieselben optionalen Felder |
+| `GET /api/documents/{id}/fields` | `DocumentFieldsDto`; 404 wenn nicht sichtbar; `PossibleDuplicateOf` nur, wenn der Betrachter das andere Dokument sehen darf |
+| `PUT /api/documents/{id}/fields` `EditFieldsRequestDto` | 204; 403 ohne Bearbeitungsrecht; 400 ungültig |
+| `POST /api/documents/{id}/confirm` | 204; 403 |
+| `PUT /api/documents/{id}/editors` `SetEditorsRequestDto` | 204; 403 nicht Besitzer; 400 unbekanntes Mitglied |
+| `POST /api/documents/{id}/duplicate/keep` | 204 (Hinweis entfernen); 403 |
+| `DELETE /api/documents/{id}` | 204; nur Besitzer und nur, solange „mögliches Duplikat“ gesetzt ist (Papierkorb kommt in M4); 403/409 sonst |
+| `GET /api/review` | `ReviewItemDto[]` (nur bearbeitbare, automatisch erkannt oder mögliches Duplikat, neueste zuerst) |
+| `GET /api/classification/{correspondents\|document-types\|tags}` | `EntryDto[]` (Sichtbarkeitsregel) |
+| `POST /api/classification/{kind}` `{ name }` | 200 `EntryDto` (vorhandener bei gleichem normalisiertem Namen, sonst neu) |
+| `PUT /api/classification/{kind}/{id}` `RenameEntryDto` | 204; 403 ohne Recht an allen betroffenen Dokumenten; 404 |
+| `POST /api/classification/{kind}/merge` `MergeEntriesDto` | 204; 403; 404 |
+| `GET /api/household` | `[{ id, displayName }]` aller Mitglieder (für die Bearbeiter-Auswahl; für alle Angemeldeten) |
+| `POST /api/documents` (Upload) | zusätzlich 409 mit `existingId` (Erweiterung im `ProblemDetails`), wenn dieselbe Datei unter den für den Hochladenden sichtbaren Dokumenten liegt |
+
+### Paket P2 – Erkennung im Worker (Spur A) · Modell: **Opus** · Effort: `high`
+| Datei | neu/ändern | Was genau | Tests | ca. Zeilen |
+|---|---|---|---|---|
+| `processing_jobs` + Migration | ändern | Spalten `stage` (`Ocr`/`Recognition`, Werk `Ocr`) und `priority` (int, Werk 0; Bestand 10); Claim sortiert nach `priority`, dann `next_attempt_at` | Infrastructure.Tests | 40 |
+| `Application/Processing/ProcessNextDocument.cs` (+ `ProcessingAttempt`) | ändern | nach erfolgreicher OCR den Job **nicht löschen**, sondern auf `stage = Recognition`, `attempt = 0`, `next_attempt_at = now` setzen (gleiche Transaktion wie `Complete`); Stufe `Recognition` ruft `RecognizeDocument` | Worker.Tests | 60 |
+| `Application/Recognition/RecognizeDocument.cs` | neu | Dokument laden; `Recognition == Confirmed` → nur Job beenden; Anfrage bauen: Text gekürzt nach `erkennung.md` (Spike), sichtbare Listen des **Besitzers**, Beispiele: bis zu 3 `Confirmed`-Dokumente des Absenders, dessen normalisierter Name im Text vorkommt, nur aus für den Besitzer sichtbaren Dokumenten; Ergebnis über `IClassificationStore.FindOrCreateAsync(owner, …)` zuordnen (Absender/Art/Tags), Titel übernehmen, `Document.Classify`; Fehler: Wiederholung wie OCR (1/5/30 min), nach 4 Versuchen Job löschen, Dokument bleibt `Done` mit `Recognition = None` | Application.Tests | 180 |
+| `Application/Recognition/FindContentDuplicate.cs` + Port `IDuplicateFinder` | neu | nach der OCR: ähnlichstes **für den Besitzer sichtbares** anderes Dokument mit Trigramm-Ähnlichkeit ≥ 0,9 (Umsetzung in Infrastructure mit `SET LOCAL pg_trgm.similarity_threshold`, `%`-Operator, Index) → `MarkPossibleDuplicate` | Application/Infrastructure.Tests | 100 |
+| `Application/Recognition/EnqueueBacklog.cs` | neu | beim Worker-Start einmalig: Jobs `stage = Recognition`, `priority = 10` für alle `Done`-Dokumente mit `Recognition = None` ohne Job | Worker.Tests | 60 |
+| `Infrastructure/Recognition/OllamaRecognizer.cs`, `OllamaSchema.cs`, `RecognitionPrompt.cs` | neu | setzt `IRecognizer` um: `/api/chat`, JSON-Schema, Temperatur 0, Prompt und Schema aus dem Spike (`spikes/llm`), Zeitlimit und Modell aus Konfiguration `NoMorePaper:Recognition:{Endpoint,Model,Timeout}` | Infrastructure.Tests mit Fake-HTTP | 250 |
+| `Infrastructure/Classification/ClassificationStore.cs` | neu | **nur** `VisibleEntriesAsync` und `FindOrCreateAsync` (Abgleich über `NormalizedName` unter den für den Akteur sichtbaren Einträgen, sonst neu anlegen); `Rename`/`Merge` baut Spur B in derselben Klasse → Merge-Hotspot, A legt die Datei an | Infrastructure.Tests | 120 |
+| `docker-compose.yml`, `.env.example` | ändern | Dienst `ollama` (gepinnte Version aus dem Spike, kein veröffentlichter Port, `mem_limit: 8g`, Volume `ollama`), Worker-Umgebung `NoMorePaper__Recognition__Endpoint=http://ollama:11434`; Modell wird beim Worker-Start per `/api/pull` geholt, falls es fehlt (Ereignis loggen) | Compose-Lauf | 40 |
+| Telemetrie | neu | Worker 2200–2299, Infrastructure 3520–3599, Application 5200–5249 (nie Dokumenttext, Namen oder Zusammenfassung loggen) | – | 60 |
+- **Akzeptanz:** Tests grün mit Fake-Recognizer; Compose: Upload → OCR → Erkennung setzt Felder; Bestand wird nachgeholt; mögliches Duplikat wird markiert
+
+### Paket P3 – API, Filter, exakte Duplikate (Spur B) · Modell: **Opus** · Effort: `high`
+| Datei | neu/ändern | Was genau | Tests | ca. Zeilen |
+|---|---|---|---|---|
+| `Application/Classification/*` | neu | Anwendungsfälle: `GetDocumentFields`, `EditDocumentFields` (Rechteprüfung `CanEdit`, Einträge per Id müssen für den Akteur sichtbar sein), `ConfirmDocument`, `SetDocumentEditors` (nur Mitglieder des Haushalts), `KeepDuplicate`, `DeleteDuplicate`, `ListReview`, `ListEntries`, `CreateEntry`, `RenameEntry`, `MergeEntries` | Application.Tests | je < 120 |
+| `Infrastructure/Classification/ClassificationStore.cs` | ergänzen | `RenameAsync`, `MergeAsync`: erlaubt nur, wenn der Akteur **jedes** Dokument mit diesem Eintrag bearbeiten darf (eine SQL-Prüfung); Zusammenführen hängt Dokumente um und löscht die Quellen in einer Transaktion | Infrastructure.Tests | 120 |
+| `IDocumentRepository`/`ISearchIndex` + Umsetzungen | ändern | Filter laut Vertrag (parametrisiert), Felder in Liste/Suche, exakter Duplikat-Check `FindVisibleBySha256(viewer, sha)` | Infrastructure.Tests | 150 |
+| `Application/Documents/ReceiveDocument.cs` | ändern | vor dem Speichern Duplikat-Check (Hash beim Lesen des Streams berechnen; bei Treffer Eingang verwerfen) → Ergebnis „Duplikat von X“ | Application.Tests | 40 |
+| `Server/Classification/*`, `Server/Documents/*` | neu/ändern | Routen laut Vertrag, 409 mit `existingId` | Server.Tests | ~300 |
+| `Contracts` | ändern | Filter-/Feld-Erweiterungen laut Vertrag | – | 40 |
+| Tests | neu | Rechte (Bearbeiter, nicht Besitzer, privat), Zusammenführen ohne Recht → 403, Sichtbarkeit in Listen/Review/Duplikaten, Filter-Kombinationen, 409 nur bei sichtbarem Original | – | ~600 |
+- **Telemetrie:** Server 1500–1599, Application 5250–5299
+- **Akzeptanz:** alle Tests grün; Datenschutz-Tests aus Aufgabe 5 grün
+
+### Paket P4 – Oberfläche (Spur C) · Modell: **Sonnet** · Effort: `medium`
+| Datei | neu/ändern | Was genau | Tests | ca. Zeilen |
+|---|---|---|---|---|
+| `Web.Client/Classification/ClassificationApi.cs` | neu | Client für alle neuen Routen | UI.Tests | 150 |
+| `Classification/EntryCombobox.razor` | neu | barrierefreies Kombinationsfeld (ARIA 1.2 Combobox mit Listbox, Pfeiltasten, Enter, Esc, „„X“ neu anlegen“ als letzte Option, Treffer-Anzahl per Live-Region) für Absender und Art | UI.Tests | 200 |
+| `Classification/TagPicker.razor` | neu | Tags als Liste von Schaltern mit Entfernen, Hinzufügen über `EntryCombobox` | UI.Tests | 120 |
+| `Viewer/DocumentFieldsPanel.razor` | neu | Bereich „Angaben“ im Viewer: Zusammenfassung als erstes, Felder als Beschreibungsliste, „automatisch erkannt“ als Text, „Bearbeiten“-Formular, „Bestätigen“, Bearbeiter-Auswahl (Checkboxen der Haushaltsmitglieder, nur Besitzer) | UI.Tests | 250 |
+| `Pages/Review.razor` (`/zu-pruefen`) | neu | Liste mit Zusammenfassung und Feldern, „Bestätigen“/„Bearbeiten“ je Eintrag, mögliche Duplikate mit Vergleich und „Behalten“/„Löschen“ (Bestätigungsdialog wie Mitglieder-Seite) | UI.Tests | 220 |
+| `Pages/Documents.razor` + `Classification/DocumentFilterBar.razor` | ändern/neu | Filterleiste (Absender, Art, Zeitraum, Tags, Betrag, privat/geteilt), Ergebnisanzahl per Live-Region, Spalten Absender/Art/Datum/Betrag | UI.Tests | 200 |
+| `Pages/Lists.razor` (`/listen`) | neu | Absender, Arten, Tags: umbenennen und zusammenführen (Auswahl + Ziel + Bestätigung); 403 verständlich erklären | UI.Tests | 200 |
+| `Pages/Upload.razor` | ändern | 409 → „Diese Datei ist schon vorhanden“ mit Link | UI.Tests | 20 |
+| `MainLayout.razor`, `Strings*.resx` | ändern | Navigation „Zu prüfen“ (mit Anzahl), „Listen“; Texte DE/EN | – | 150 |
+| `tests/NoMorePaper.UI.Tests/Classification/*` | neu | axe DE/EN auf allen neuen Seiten/Bereichen; Tastatur: Combobox, Bearbeiten/Bestätigen, Filter, Zusammenführen mit Bestätigung; Mocks nach Muster `ApiMocks` | selbst | ~600 |
+- **Telemetrie:** Web.Client 4500–4599
+- **Akzeptanz:** alle UI-Tests grün (gegen Mocks; echte API nach dem Merge)
 
 ### Paket P0 – Modell und Schema · Modell: **Opus** · Effort: `high`
 | Datei | neu/ändern | Was genau | Tests | ca. Zeilen |
