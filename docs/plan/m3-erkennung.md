@@ -57,17 +57,17 @@ Daraus abgeleitet (Datenschutz, ADR-0002/M2):
 - [ ] Ergebnis: Modell, Prompt, Kontextlänge (gekürzter Text), Grenzen → ADR-0022 + `docs/kb/erkennung.md`
 
 ### 2. Erkennung im Worker
-- [ ] Nach der OCR: Schritt „Erkennung“ in derselben Warteschlange (eigene Stufe, eigene Wiederholungen;
+- [x] Nach der OCR: Schritt „Erkennung“ in derselben Warteschlange (eigene Stufe, eigene Wiederholungen;
       ein Fehler der Erkennung lässt das Dokument „Done“ mit `Recognition = None`)
-- [ ] Ollama-Client (Infrastructure), Zeitlimit, Modellname aus Konfiguration
-- [ ] Anfrage: gekürzter OCR-Text, sichtbare Listen des **Besitzers**, bis zu 3 bestätigte Beispiele
+- [x] Ollama-Client (Infrastructure), Zeitlimit, Modellname aus Konfiguration
+- [x] Anfrage: gekürzter OCR-Text, sichtbare Listen des **Besitzers**, bis zu 3 bestätigte Beispiele
       desselben Absenders aus für den Besitzer sichtbaren Dokumenten
-- [ ] Zuordnung: Absender/Art an vorhandene Einträge anlehnen (normalisierter Name, Ähnlichkeit),
+- [x] Zuordnung: Absender/Art an vorhandene Einträge anlehnen (normalisierter Name, Ähnlichkeit),
       sonst neuer Eintrag; Titel ersetzt den Dateinamen-Titel; Werte als „automatisch“ markieren
-- [ ] Nachträgliche Erkennung des Bestands mit niedriger Priorität
-- [ ] Inhaltliche Duplikate: nach der OCR Ähnlichkeit (Trigramme) gegen für den Besitzer sichtbare
+- [x] Nachträgliche Erkennung des Bestands mit niedriger Priorität
+- [x] Inhaltliche Duplikate: nach der OCR Ähnlichkeit (Trigramme) gegen für den Besitzer sichtbare
       Dokumente; über Schwelle → `PossibleDuplicateOf`
-- [ ] `docker-compose.yml`: Dienst `ollama` (nur im Compose-Netz, Volume für Modelle, RAM-Grenze 8 GB),
+- [x] `docker-compose.yml`: Dienst `ollama` (nur im Compose-Netz, Volume für Modelle, RAM-Grenze 8 GB),
       Modell wird beim ersten Start geladen
 
 ### 3. API und Anwendungsfälle

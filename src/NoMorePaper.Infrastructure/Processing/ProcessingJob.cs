@@ -1,17 +1,25 @@
+using NoMorePaper.Application.Processing;
+
 namespace NoMorePaper.Infrastructure.Processing;
 
 /// <summary>
 /// Queue entry for one document (table <c>processing_jobs</c>). Workers claim due jobs with
 /// <c>FOR UPDATE SKIP LOCKED</c> and set <see cref="LockedUntil"/>, so a crashed Worker's job
-/// becomes due again once the lock has expired.
+/// becomes due again once the lock has expired. The job goes through the <see cref="JobStage"/>s in order.
 /// </summary>
 public sealed class ProcessingJob
 {
     public required Guid DocumentId { get; init; }
 
+    /// <summary>Which step the job is at; a new job starts with OCR.</summary>
+    public JobStage Stage { get; set; }
+
+    /// <summary>Lower numbers are claimed first; new uploads have 0, the recognition backlog more.</summary>
+    public int Priority { get; set; }
+
     /// <summary>
-    /// Attempts counted so far; 0 until a Worker claims the job. An attempt handed back on shutdown
-    /// does not count.
+    /// Attempts of the current stage counted so far; 0 until a Worker claims the job. An attempt handed
+    /// back on shutdown does not count.
     /// </summary>
     public int Attempt { get; set; }
 

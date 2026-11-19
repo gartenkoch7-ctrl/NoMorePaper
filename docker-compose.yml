@@ -1,4 +1,4 @@
-# NoMorePaper stack: Server, Worker, Postgres (docs/kb/architektur.md).
+# NoMorePaper stack: Server, Worker, Postgres, Ollama (docs/kb/architektur.md).
 # First copy .env.example to .env and set POSTGRES_PASSWORD. Remote access only via Tailscale (ADR-0002).
 name: nomorepaper
 
@@ -77,11 +77,17 @@ services:
       OTEL_EXPORTER_OTLP_ENDPOINT: ${OTEL_EXPORTER_OTLP_ENDPOINT:-}
       NoMorePaper__KeyRingCertificatePath: /run/secrets/keyring.pfx
       NoMorePaper__KeyRingCertificatePassword: ${NOMOREPAPER_KEYRING_CERT_PASSWORD:?Set NOMOREPAPER_KEYRING_CERT_PASSWORD in .env}
+      # Recognition by the local LLM (docs/kb/erkennung.md); the Worker downloads the model on its first start.
+      NoMorePaper__Recognition__Endpoint: http://ollama:11434
+      NoMorePaper__Recognition__Model: ${NOMOREPAPER_LLM_MODEL:-ministral-3:8b-instruct-2512-q4_K_M}
+      NoMorePaper__Recognition__NumThread: ${NOMOREPAPER_LLM_THREADS:-4}
     # No published port: /health is only for the container healthcheck.
     depends_on:
       server:
         # The Server applies the migrations; a healthy Server means the schema is current.
         condition: service_healthy
+      ollama:
+        condition: service_started
     healthcheck:
       # The Worker image is Ubuntu-based and has curl instead of wget (Dockerfile.worker).
       test: ["CMD", "curl", "-fsS", "-o", "/dev/null", "http://127.0.0.1:8080/health"]
@@ -90,7 +96,24 @@ services:
       retries: 5
       start_period: 30s
 
+  # Local LLM for recognition, CPU only (ADR-0004, ADR-0022). Documents never leave this network.
+  ollama:
+    image: ollama/ollama:0.40.16
+    restart: unless-stopped
+    # 8 GB in total; the model takes 6.9 GB with a context of 4096 tokens (docs/kb/erkennung.md).
+    mem_limit: 8g
+    memswap_limit: 8g
+    environment:
+      # Without it llama-server keeps earlier prompts in memory until the kernel kills it (spike, OOM).
+      LLAMA_ARG_CACHE_RAM: "0"
+      OLLAMA_NUM_PARALLEL: "1"
+      OLLAMA_MAX_LOADED_MODELS: "1"
+    volumes:
+      - ollama:/root/.ollama
+    # No published port: only the Worker reaches it on the compose network.
+
 volumes:
   data:
   pgdata:
   dpkeys:
+  ollama:

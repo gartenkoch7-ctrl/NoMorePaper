@@ -6,5 +6,6 @@ namespace NoMorePaper.Application.Processing;
 /// Token of this claim, new for every claim; every later call of the queue acts only while the job
 /// still carries it.
 /// </param>
-/// <param name="Attempt">Attempt number this claim counts as (1 for the first).</param>
-public sealed record JobClaim(Guid DocumentId, Guid ClaimId, int Attempt);
+/// <param name="Attempt">Attempt number this claim counts as within its stage (1 for the first).</param>
+/// <param name="Stage">Which step the job is at.</param>
+public sealed record JobClaim(Guid DocumentId, Guid ClaimId, int Attempt, JobStage Stage);

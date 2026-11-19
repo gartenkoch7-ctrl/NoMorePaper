@@ -4,6 +4,7 @@ using NoMorePaper.Application.Accounts;
 using NoMorePaper.Application.Classification;
 using NoMorePaper.Application.Documents;
 using NoMorePaper.Application.Processing;
+using NoMorePaper.Application.Recognition;
 using NoMorePaper.Application.Search;
 
 namespace NoMorePaper.Application.Composition;
@@ -65,13 +66,19 @@ public static class ApplicationServiceCollectionExtensions
     }
 
     /// <summary>
-    /// The processing use case (Worker). Needs <see cref="IOcrEngine"/> and <see cref="IWorkingFolder"/>,
-    /// which only the Worker provides, hence apart from <see cref="AddApplication"/>.
+    /// The processing use cases (Worker): OCR, recognition, content duplicates and the backlog. Need
+    /// <see cref="IOcrEngine"/>, <see cref="IWorkingFolder"/>, <see cref="IRecognizer"/>,
+    /// <see cref="IRecognitionExamples"/> and <see cref="IDuplicateFinder"/>, which only the Worker
+    /// provides, hence apart from <see cref="AddApplication"/>.
     /// </summary>
     public static IServiceCollection AddDocumentProcessing(this IServiceCollection services)
     {
         services.TryAddSingleton(TimeProvider.System);
         services.AddSingleton<ProcessNextDocument>();
+        services.AddSingleton<RecognitionReadiness>();
+        services.AddScoped<RecognizeDocument>();
+        services.AddScoped<FindContentDuplicate>();
+        services.AddScoped<EnqueueBacklog>();
         return services;
     }
 }

@@ -520,9 +520,19 @@ namespace NoMorePaper.Infrastructure.Persistence.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("next_attempt_at");
 
+                    b.Property<int>("Priority")
+                        .HasColumnType("integer")
+                        .HasColumnName("priority");
+
+                    b.Property<string>("Stage")
+                        .IsRequired()
+                        .HasMaxLength(16)
+                        .HasColumnType("character varying(16)")
+                        .HasColumnName("stage");
+
                     b.HasKey("DocumentId");
 
-                    b.HasIndex("NextAttemptAt");
+                    b.HasIndex("Priority", "NextAttemptAt");
 
                     b.ToTable("processing_jobs", (string)null);
                 });

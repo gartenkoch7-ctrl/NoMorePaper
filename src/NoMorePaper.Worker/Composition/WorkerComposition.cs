@@ -7,6 +7,7 @@ using NoMorePaper.Infrastructure.Ocr;
 using NoMorePaper.Infrastructure.Telemetry;
 using NoMorePaper.Worker.Heartbeat;
 using NoMorePaper.Worker.Processing;
+using NoMorePaper.Worker.Recognition;
 using NoMorePaper.Worker.Telemetry;
 
 namespace NoMorePaper.Worker.Composition;
@@ -37,6 +38,10 @@ internal static class WorkerComposition
             provider.GetRequiredService<ILogger<WorkingFolder>>()));
         builder.Services.AddSingleton<IWorkingFolder>(provider => provider.GetRequiredService<WorkingFolder>());
         builder.Services.AddHostedService<DocumentProcessor>();
+
+        // Recognition by the local LLM (Ollama on the compose network) and its start: model, backlog.
+        builder.Services.AddRecognition(builder.Configuration);
+        builder.Services.AddHostedService<RecognitionStartup>();
 
         return builder;
     }

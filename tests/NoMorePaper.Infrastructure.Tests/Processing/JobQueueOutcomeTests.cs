@@ -32,14 +32,16 @@ public sealed class JobQueueOutcomeTests(PostgresFixture postgres)
     }
 
     [Fact]
-    public async Task Complete_StoresTextAndArchiveFile_AndRemovesTheJob()
+    public async Task Complete_StoresTextAndArchiveFile_AndMovesTheJobOnToRecognition()
     {
         var data = await QueueDatabase.CreateAsync(postgres, "queue_complete");
         var id = await data.AddQueuedDocumentAsync(s_start, fileName: "Brief vom Amt.jpeg");
+        data.Time.Now = s_start.AddMinutes(2);
         await using (var db = data.Context())
         {
             var queue = data.Queue(db);
             var job = (await queue.ClaimNextAsync(QueueDatabase.LockFor, Ct))!;
+            Assert.Equal(JobStage.Ocr, job.Stage);
             await queue.StartAsync(job, Ct);
             Assert.True(await queue.CompleteAsync(job, "Rechnung", new StoredFile(4711, QueueDatabase.Sha256), Ct));
         }
@@ -50,7 +52,9 @@ public sealed class JobQueueOutcomeTests(PostgresFixture postgres)
         var archive = document.FindFile(DocumentFileKind.Archive);
         Assert.NotNull(archive);
         Assert.Equal(("Brief vom Amt.pdf", "application/pdf", 4711L), (archive.FileName, archive.MediaType, archive.SizeBytes));
-        Assert.Null(await data.JobAsync(id));
+        var next = await data.JobAsync(id);
+        Assert.Equal((JobStage.Recognition, 0, s_start.AddMinutes(2)), (next!.Stage, next.Attempt, next.NextAttemptAt));
+        Assert.Equal((null, null, null), (next.ClaimId, next.LockedUntil, next.LastError));
     }
 
     [Fact]
@@ -171,7 +175,7 @@ public sealed class JobQueueOutcomeTests(PostgresFixture postgres)
         var data = await QueueDatabase.CreateAsync(postgres, "queue_fail_gone");
         await using var db = data.Context();
 
-        var recorded = await data.Queue(db).FailAsync(new JobClaim(Guid.CreateVersion7(), Guid.NewGuid(), 1), "IOException", permanent: false, s_start, Ct);
+        var recorded = await data.Queue(db).FailAsync(new JobClaim(Guid.CreateVersion7(), Guid.NewGuid(), 1, JobStage.Ocr), "IOException", permanent: false, s_start, Ct);
 
         Assert.Equal(FailureOutcome.ClaimLost, recorded.Outcome);
     }
