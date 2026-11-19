@@ -9,16 +9,20 @@ namespace NoMorePaper.Application.Classification;
 /// </summary>
 public interface IClassificationStore
 {
-    /// <summary>The entries of the list that <paramref name="viewerId"/> may see, ordered by name.</summary>
-    Task<IReadOnlyList<EntrySummary>> VisibleEntriesAsync(Guid viewerId, ClassificationKind kind, CancellationToken cancellationToken);
+    /// <summary>The entries of the list that <paramref name="audience"/> may see, ordered by name.</summary>
+    /// <param name="viewerId">The account for <see cref="EntryAudience.Account"/>.</param>
+    Task<IReadOnlyList<EntrySummary>> VisibleEntriesAsync(
+        Guid viewerId, ClassificationKind kind, EntryAudience audience, CancellationToken cancellationToken);
 
     /// <summary>
-    /// The entry visible to <paramref name="actorId"/> whose normalized name equals that of
+    /// The entry <paramref name="audience"/> may see whose normalized name equals that of
     /// <paramref name="name"/> (<see cref="ClassificationName.Normalize"/>), or a new entry created by
-    /// <paramref name="actorId"/>.
+    /// <paramref name="actorId"/>. With <see cref="EntryAudience.Household"/> an equal entry used only in
+    /// private documents (or by none) is not reused: the new one has the same name, which the lists allow.
     /// </summary>
     /// <exception cref="ArgumentException">The name is invalid (<see cref="ClassificationName.Clean"/>).</exception>
-    Task<EntrySummary> FindOrCreateAsync(Guid actorId, ClassificationKind kind, string name, CancellationToken cancellationToken);
+    Task<EntrySummary> FindOrCreateAsync(
+        Guid actorId, ClassificationKind kind, string name, EntryAudience audience, CancellationToken cancellationToken);
 
     /// <summary>Renames an entry, if <paramref name="actorId"/> may edit every document that uses it.</summary>
     /// <exception cref="ArgumentException">The name is invalid (<see cref="ClassificationName.Clean"/>).</exception>

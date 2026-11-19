@@ -27,7 +27,7 @@ public sealed class CreateEntry(IClassificationStore store, ICurrentAccount curr
             return new CreatedEntry(ChangeOutcome.Invalid, null);
         }
 
-        var entry = await store.FindOrCreateAsync(current.Id, kind, cleaned, cancellationToken).ConfigureAwait(false);
+        var entry = await store.FindOrCreateAsync(current.Id, kind, cleaned, EntryAudience.Account, cancellationToken).ConfigureAwait(false);
         logger.EntryFoundOrCreated(current.Id, entry.Id, kind);
         return new CreatedEntry(ChangeOutcome.Changed, entry);
     }

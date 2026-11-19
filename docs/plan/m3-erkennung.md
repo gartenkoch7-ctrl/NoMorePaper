@@ -49,12 +49,12 @@ Daraus abgeleitet (Datenschutz, ADR-0002/M2):
 - [x] Contracts: DTOs für Felder, Listen, Filter, „Zu prüfen“
 
 ### 1. LLM-Spike (2 Tage, zuerst)
-- [ ] Zwei bis drei 7–8B-Modelle aus der Ollama-Bibliothek mit **offener Lizenz** (Apache-2.0, MIT o. ä.;
+- [x] Zwei bis drei 7–8B-Modelle aus der Ollama-Bibliothek mit **offener Lizenz** (Apache-2.0, MIT o. ä.;
       Lizenz je Modell prüfen) auf 20 **selbst erzeugten** deutschen Testdokumenten (Rechnung, Vertrag,
       Bescheid, Werbung, Arztbrief, englische Rechnung …) mit bekannten Sollwerten
-- [ ] Strukturierte Ausgabe über Ollamas JSON-Schema (`format`), Temperatur 0
-- [ ] Messen: Trefferquote je Feld, Dauer je Dokument auf CPU (Docker, RAM-Grenze 8 GB), Speicher
-- [ ] Ergebnis: Modell, Prompt, Kontextlänge (gekürzter Text), Grenzen → ADR-0022 + `docs/kb/erkennung.md`
+- [x] Strukturierte Ausgabe über Ollamas JSON-Schema (`format`), Temperatur 0
+- [x] Messen: Trefferquote je Feld, Dauer je Dokument auf CPU (Docker, RAM-Grenze 8 GB), Speicher
+- [x] Ergebnis: Modell, Prompt, Kontextlänge (gekürzter Text), Grenzen → ADR-0022 + `docs/kb/erkennung.md`
 
 ### 2. Erkennung im Worker
 - [x] Nach der OCR: Schritt „Erkennung“ in derselben Warteschlange (eigene Stufe, eigene Wiederholungen;
@@ -71,37 +71,37 @@ Daraus abgeleitet (Datenschutz, ADR-0002/M2):
       Modell wird beim ersten Start geladen
 
 ### 3. API und Anwendungsfälle
-- [ ] Felder bearbeiten (nur mit Bearbeitungsrecht), Bestätigen (`Confirmed`), Bearbeiter setzen
+- [x] Felder bearbeiten (nur mit Bearbeitungsrecht), Bestätigen (`Confirmed`), Bearbeiter setzen
       (nur Besitzer), Duplikat-Hinweis auflösen (behalten / Dokument löschen)
-- [ ] Listen: anzeigen (Sichtbarkeitsregel), anlegen, umbenennen, zusammenführen (Rechte-Regel)
-- [ ] Filter in Liste und Suche: Absender, Art, Zeitraum, Tags (alle/irgendeiner), Betrag von–bis,
+- [x] Listen: anzeigen (Sichtbarkeitsregel), anlegen, umbenennen, zusammenführen (Rechte-Regel)
+- [x] Filter in Liste und Suche: Absender, Art, Zeitraum, Tags (alle/irgendeiner), Betrag von–bis,
       privat/geteilt; „Zu prüfen“ (automatisch erkannt oder mögliches Duplikat, nur bearbeitbare)
-- [ ] Upload: gleiche Datei (SHA-256 des Originals) unter den für den Hochladenden sichtbaren
+- [x] Upload: gleiche Datei (SHA-256 des Originals) unter den für den Hochladenden sichtbaren
       Dokumenten → 409 mit Link; sonst normal
 
 ### 4. Oberfläche
-- [ ] Viewer: Bereich „Angaben“ mit Zusammenfassung zuerst (für Screenreader), Feldern, Bearbeiten
+- [x] Viewer: Bereich „Angaben“ mit Zusammenfassung zuerst (für Screenreader), Feldern, Bearbeiten
       (Kombinationsfeld mit „neu anlegen“ für Absender/Art, Tags, Datum, Betrag), „Bestätigen“,
       Bearbeiter auswählen, Kennzeichnung „automatisch erkannt“ als Text
-- [ ] Seite „Zu prüfen“: Liste mit Zusammenfassung, Bestätigen/Korrigieren ohne Viewer möglich,
+- [x] Seite „Zu prüfen“: Liste mit Zusammenfassung, Bestätigen/Korrigieren ohne Viewer möglich,
       mögliche Duplikate mit Vergleich (Titel, Datum, Absender) und „Behalten“/„Löschen“
-- [ ] Dokumentliste: Filterleiste (Tastatur, Ergebnisanzahl per Live-Region), Spalten Absender, Art,
+- [x] Dokumentliste: Filterleiste (Tastatur, Ergebnisanzahl per Live-Region), Spalten Absender, Art,
       Datum, Betrag
-- [ ] Seite „Listen“: Absender, Arten, Tags umbenennen und zusammenführen (mit Bestätigung)
-- [ ] Upload: Hinweis „schon vorhanden“ mit Link
+- [x] Seite „Listen“: Absender, Arten, Tags umbenennen und zusammenführen (mit Bestätigung)
+- [x] Upload: Hinweis „schon vorhanden“ mit Link
 
 ### 5. Tests und Doku
-- [ ] Tests mit Fake-`IRecognizer` (kein Ollama in Unit/Integration); ein Integrationstest mit echtem
+- [x] Tests mit Fake-`IRecognizer` (kein Ollama in Unit/Integration); ein Integrationstest mit echtem
       Ollama nur in CI-optionalem Lauf (übersprungen, wenn nicht erreichbar)
-- [ ] Datenschutz-Tests: privater Absender nicht in fremder Liste, keine fremden privaten Beispiele,
+- [x] Datenschutz-Tests: privater Absender nicht in fremder Liste, keine fremden privaten Beispiele,
       keine Duplikat-Meldung über fremde private Dokumente, Zusammenführen ohne Recht → 403
-- [ ] UI: axe DE/EN auf allen neuen Seiten/Bereichen, Tastaturtests für Bearbeiten, Bestätigen, Filter
-- [ ] KB `erkennung.md`, ADR-0022 (Modell), ADR-0023 (Listen, Sichtbarkeit, Bearbeitungsrecht), Katalog
+- [x] UI: axe DE/EN auf allen neuen Seiten/Bereichen, Tastaturtests für Bearbeiten, Bestätigen, Filter
+- [x] KB `erkennung.md`, ADR-0022 (Modell), ADR-0023 (Listen, Sichtbarkeit, Bearbeitungsrecht), Katalog
 
 ## Akzeptanzkriterien
 - [ ] Testsatz: Absender und Art in ≥ 85 % richtig, Datum und Betrag in ≥ 90 % (Spike-Werte, ⚠️ werden im Spike bestätigt oder angepasst)
 - [ ] Erkennung ≤ 60 s je Dokument auf dem Server (CPU) ⚠️ messen
-- [ ] Keine Information aus fremden privaten Dokumenten in Listen, Beispielen oder Duplikat-Meldungen
+- [x] Keine Information aus fremden privaten Dokumenten in Listen, Beispielen oder Duplikat-Meldungen
 - [ ] axe 0 Verstöße; NVDA-Prüfung „Angaben“ und „Zu prüfen“ durch den Nutzer
 - [ ] CI grün
 
@@ -171,12 +171,13 @@ DTOs in `Contracts/Classification`.
 | `GET /api/documents?…&correspondentId&documentTypeId&from&to&tagIds=a,b&allTags&amountFrom&amountTo&isPrivate` | wie bisher; `DocumentSummaryDto` erhält optional `Correspondent`, `DocumentType` (`EntryDto?`), `DocumentDate`, `Amount` (`MoneyDto?`), `Recognition` |
 | `GET /api/search?q=&…` (gleiche Filter) | `SearchHitDto` erhält dieselben optionalen Felder |
 | `GET /api/documents/{id}/fields` | `DocumentFieldsDto`; 404 wenn nicht sichtbar; `PossibleDuplicateOf` nur, wenn der Betrachter das andere Dokument sehen darf |
-| `PUT /api/documents/{id}/fields` `EditFieldsRequestDto` | 204; 403 ohne Bearbeitungsrecht; 400 ungültig |
-| `POST /api/documents/{id}/confirm` | 204; 403 |
+| `PUT /api/documents/{id}/fields` `EditFieldsRequestDto` (mit gesehenem `Recognition`) | 204; 403 ohne Bearbeitungsrecht; 400 ungültig; 409 inzwischen erkannt/bestätigt |
+| `POST /api/documents/{id}/confirm` `ConfirmRequestDto(Recognition)` | 204; 403; 409 inzwischen erkannt/bestätigt |
 | `PUT /api/documents/{id}/editors` `SetEditorsRequestDto` | 204; 403 nicht Besitzer; 400 unbekanntes Mitglied |
 | `POST /api/documents/{id}/duplicate/keep` | 204 (Hinweis entfernen); 403 |
 | `DELETE /api/documents/{id}` | 204; nur Besitzer und nur, solange „mögliches Duplikat“ gesetzt ist (Papierkorb kommt in M4); 403/409 sonst |
 | `GET /api/review` | `ReviewItemDto[]` (nur bearbeitbare, automatisch erkannt oder mögliches Duplikat, neueste zuerst) |
+| `GET /api/review/count` | Anzahl wie `GET /api/review` (für die Navigation) |
 | `GET /api/classification/{correspondents\|document-types\|tags}` | `EntryDto[]` (Sichtbarkeitsregel) |
 | `POST /api/classification/{kind}` `{ name }` | 200 `EntryDto` (vorhandener bei gleichem normalisiertem Namen, sonst neu) |
 | `PUT /api/classification/{kind}/{id}` `RenameEntryDto` | 204; 403 ohne Recht an allen betroffenen Dokumenten; 404 |

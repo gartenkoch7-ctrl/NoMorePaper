@@ -67,4 +67,8 @@ internal static partial class ClassificationLog
     [LoggerMessage(EventId = 4514, EventName = "ReviewCountUnavailable", Level = LogLevel.Debug,
         Message = "The number of documents to review could not be loaded")]
     public static partial void ReviewCountUnavailable(this ILogger logger);
+
+    [LoggerMessage(EventId = 4515, EventName = "FieldsChangedMeanwhile", Level = LogLevel.Information,
+        Message = "Saving or confirming the fields was refused because they changed meanwhile; they were loaded again")]
+    public static partial void FieldsChangedMeanwhile(this ILogger logger);
 }

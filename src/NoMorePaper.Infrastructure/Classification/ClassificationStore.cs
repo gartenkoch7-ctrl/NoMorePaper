@@ -12,8 +12,9 @@ namespace NoMorePaper.Infrastructure.Classification;
 /// </summary>
 public sealed class ClassificationStore(AppDbContext db, TimeProvider clock) : IClassificationStore
 {
-    public async Task<IReadOnlyList<EntrySummary>> VisibleEntriesAsync(Guid viewerId, ClassificationKind kind, CancellationToken cancellationToken) =>
-        await EntrySets.Visible(db, kind, viewerId)
+    public async Task<IReadOnlyList<EntrySummary>> VisibleEntriesAsync(
+        Guid viewerId, ClassificationKind kind, EntryAudience audience, CancellationToken cancellationToken) =>
+        await EntrySets.Visible(db, kind, viewerId, audience)
             .AsNoTracking()
             .OrderBy(entry => entry.Name)
             .ThenBy(entry => entry.Id)
@@ -21,14 +22,16 @@ public sealed class ClassificationStore(AppDbContext db, TimeProvider clock) : I
             .ToListAsync(cancellationToken)
             .ConfigureAwait(false);
 
-    public async Task<EntrySummary> FindOrCreateAsync(Guid actorId, ClassificationKind kind, string name, CancellationToken cancellationToken)
+    public async Task<EntrySummary> FindOrCreateAsync(
+        Guid actorId, ClassificationKind kind, string name, EntryAudience audience, CancellationToken cancellationToken)
     {
         var cleaned = ClassificationName.Clean(name, nameof(name));
         var normalized = ClassificationName.Normalize(cleaned);
 
-        // The oldest of several equal entries, so repeated calls agree. Entries the actor may not see are
-        // never matched: that would attach (and reveal) another account's private entry.
-        var found = await EntrySets.Visible(db, kind, actorId)
+        // The oldest of several equal entries, so repeated calls agree. Entries the audience may not see
+        // are never matched: that would attach (and reveal) another account's private entry, or, for a
+        // shared document, the actor's own private-only one. The name index is not unique on purpose.
+        var found = await EntrySets.Visible(db, kind, actorId, audience)
             .AsNoTracking()
             .Where(entry => entry.NormalizedName == normalized)
             .OrderBy(entry => entry.Id)

@@ -52,10 +52,10 @@ internal sealed class QueueDatabase(PostgresFixture postgres, string database)
 
     /// <summary>A done document with a job at the recognition stage, as OCR leaves it.</summary>
     /// <returns>The id of the new document.</returns>
-    public async Task<Guid> AddRecognitionJobAsync(DateTimeOffset nextAttemptAt, int priority = 0)
+    public async Task<Guid> AddRecognitionJobAsync(DateTimeOffset nextAttemptAt, int priority = 0, bool isPrivate = false)
     {
         await using var db = Context();
-        var document = Document.Receive("Scan 1", Start, s_owner, isPrivate: false);
+        var document = Document.Receive("Scan 1", Start, s_owner, isPrivate);
         document.AttachFile(new DocumentFile(DocumentFileKind.Original, "Scan 1.jpg", "image/jpeg", 10, Sha256));
         document.StartProcessing();
         document.Complete("Rechnung");

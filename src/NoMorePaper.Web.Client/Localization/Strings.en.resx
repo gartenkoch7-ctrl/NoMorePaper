@@ -822,6 +822,9 @@
   <data name="ClsErrorDeleteConflict" xml:space="preserve">
     <value>Only a document marked as a possible duplicate can be deleted here.</value>
   </data>
+  <data name="ClsErrorChangedMeanwhile" xml:space="preserve">
+    <value>The details were changed meanwhile and have been loaded again. Please check them once more.</value>
+  </data>
   <data name="ClsErrorRenameForbidden" xml:space="preserve">
     <value>You may not change this entry because you may not edit all documents that use it.</value>
   </data>

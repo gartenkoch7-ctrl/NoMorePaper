@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.Text.Json;
 using System.Text.RegularExpressions;
 using Microsoft.Playwright;
@@ -19,6 +20,12 @@ internal sealed class FakeReview(params ReviewItemDto[] items)
     private readonly List<ReviewItemDto> _items = [.. items];
 
     public AccountMocks Mocks { get; } = new();
+
+    /// <summary>
+    /// Answer of confirming and saving: 204, or 409 for somebody who confirmed the item meanwhile (it is
+    /// confirmed either way, so the reload no longer lists it).
+    /// </summary>
+    public int ConfirmStatus { get; set; } = 204;
 
     /// <summary>Answer of the delete call (204 deletes).</summary>
     public int DeleteStatus { get; set; } = 204;
@@ -45,13 +52,16 @@ internal sealed class FakeReview(params ReviewItemDto[] items)
                 Body = JsonSerializer.Serialize(_items, _json),
             })
             : route.FallbackAsync());
+        await page.RouteAsync(new Regex("/api/review/count$"), route => route.Request.Method == "GET"
+            ? route.FulfillAsync(new RouteFulfillOptions { Status = 200, ContentType = "application/json", Body = _items.Count.ToString(CultureInfo.InvariantCulture) })
+            : route.FallbackAsync());
         foreach (var item in _items.ToArray())
         {
             var id = item.Id;
-            await Mocks.RespondAsync(page, "POST", $"/api/documents/{id}/confirm", 204, onCall: () => Replace(id, confirmed: true));
+            await Mocks.RespondAsync(page, "POST", $"/api/documents/{id}/confirm", ConfirmStatus, onCall: () => Replace(id, confirmed: true));
             await Mocks.RespondAsync(page, "POST", $"/api/documents/{id}/duplicate/keep", 204, onCall: () => Replace(id, keepDuplicate: true));
             await Mocks.RespondAsync(page, "DELETE", $"/api/documents/{id}", DeleteStatus, onCall: () => Remove(id));
-            await Mocks.RespondAsync(page, "PUT", $"/api/documents/{id}/fields", 204, onCall: () => Replace(id, confirmed: true));
+            await Mocks.RespondAsync(page, "PUT", $"/api/documents/{id}/fields", ConfirmStatus, onCall: () => Replace(id, confirmed: true));
         }
 
         await ClassificationMocks.ListsAsync(Mocks, page);

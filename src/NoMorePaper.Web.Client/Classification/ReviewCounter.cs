@@ -15,10 +15,11 @@ public sealed class ReviewCounter(ClassificationApi api, ILogger<ReviewCounter> 
 
     public async Task RefreshAsync()
     {
-        var result = await api.ListReviewAsync();
+        // Only the number: this runs on every page change.
+        var result = await api.CountReviewAsync();
         if (result.IsSuccess)
         {
-            Set(result.Value?.Length ?? 0);
+            Set(result.Value);
         }
         else
         {

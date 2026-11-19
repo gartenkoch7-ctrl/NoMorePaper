@@ -16,7 +16,10 @@ internal sealed class FakeDocumentFieldsStore : IDocumentFieldsStore
 
     public List<Guid> Deleted { get; } = [];
 
-    /// <summary>Viewer of the last read (<see cref="GetFieldsAsync"/>, <see cref="ListReviewAsync"/>).</summary>
+    /// <summary>What <see cref="CountReviewAsync"/> answers.</summary>
+    public int ReviewCount { get; set; }
+
+    /// <summary>Viewer of the last read (<see cref="GetFieldsAsync"/>, <see cref="ListReviewAsync"/>, <see cref="CountReviewAsync"/>).</summary>
     public Guid? LastViewer { get; private set; }
 
     public Task<Document?> FindVisibleAsync(Guid documentId, Guid viewerId, CancellationToken cancellationToken) =>
@@ -48,6 +51,12 @@ internal sealed class FakeDocumentFieldsStore : IDocumentFieldsStore
     {
         LastViewer = viewerId;
         return Task.FromResult<IReadOnlyList<ReviewItem>>([]);
+    }
+
+    public Task<int> CountReviewAsync(Guid viewerId, CancellationToken cancellationToken)
+    {
+        LastViewer = viewerId;
+        return Task.FromResult(ReviewCount);
     }
 
     /// <summary>Adds a document of <paramref name="owner"/> to the store.</summary>

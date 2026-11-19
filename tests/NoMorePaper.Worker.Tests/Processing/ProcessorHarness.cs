@@ -100,10 +100,11 @@ internal sealed class ProcessorHarness : IAsyncDisposable
 
     /// <summary>Receives a PDF like the upload does: original in the inbox, queued document, due job.</summary>
     /// <param name="attemptsSoFar">Attempts already counted on the job.</param>
+    /// <param name="isPrivate">Whether the document is private to its owner.</param>
     /// <returns>The id of the new document.</returns>
-    public async Task<Guid> AddQueuedDocumentAsync(int attemptsSoFar = 0)
+    public async Task<Guid> AddQueuedDocumentAsync(int attemptsSoFar = 0, bool isPrivate = false)
     {
-        var document = Document.Receive("Scan 1", Start, s_owner, isPrivate: false);
+        var document = Document.Receive("Scan 1", Start, s_owner, isPrivate);
         using var content = new MemoryStream("%PDF-1.7 original"u8.ToArray());
         var stored = await Storage.SaveInboxAsync(document.Id, FileName, content, Ct);
         document.AttachFile(new DocumentFile(DocumentFileKind.Original, FileName, "application/pdf", stored.SizeBytes, stored.Sha256));

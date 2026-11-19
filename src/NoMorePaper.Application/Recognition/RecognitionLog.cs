@@ -67,4 +67,7 @@ internal static partial class RecognitionLog
 
     [LoggerMessage(EventId = 5211, Level = LogLevel.Error, Message = "Could not record the failed recognition of document {DocumentId} ({ErrorType}); the job runs again when its lock expires")]
     public static partial void FailureNotRecorded(this ILogger logger, Guid documentId, string errorType);
+
+    [LoggerMessage(EventId = 5212, Level = LogLevel.Information, Message = "Document {DocumentId} was shared during recognition; the result is discarded and the job runs again with the household's lists")]
+    public static partial void SharedMeanwhile(this ILogger logger, Guid documentId);
 }

@@ -822,6 +822,9 @@
   <data name="ClsErrorDeleteConflict" xml:space="preserve">
     <value>Gelöscht werden kann nur ein Dokument, das als mögliches Duplikat markiert ist.</value>
   </data>
+  <data name="ClsErrorChangedMeanwhile" xml:space="preserve">
+    <value>Die Angaben wurden inzwischen geändert und neu geladen. Bitte prüfe sie noch einmal.</value>
+  </data>
   <data name="ClsErrorRenameForbidden" xml:space="preserve">
     <value>Du darfst diesen Eintrag nicht ändern, weil du nicht alle Dokumente bearbeiten darfst, in denen er vorkommt.</value>
   </data>

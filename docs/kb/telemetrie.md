@@ -167,6 +167,7 @@ und Annahme (3200–3204) sind nach Application umgezogen und haben ihre Nummern
 | 4512 | Information | `Web.Client/Classification/ClassificationLog` | Dokumentfilter angewendet (Anzahl der Filter, Anzahl der Treffer) |
 | 4513 | Information | `Web.Client/Classification/ClassificationLog` | Upload abgelehnt, weil die Datei schon vorhanden ist |
 | 4514 | Debug | `Web.Client/Classification/ClassificationLog` | Anzahl der Dokumente „Zu prüfen“ für die Navigation nicht ladbar |
+| 4515 | Information | `Web.Client/Classification/ClassificationLog` | Speichern oder Bestätigen mit 409 abgelehnt, weil die Angaben inzwischen erkannt oder bestätigt wurden; Angaben neu geladen |
 | 5100 | Information | `Application/Accounts/AccountsLog` | Haushalt eingerichtet: Verwalter-Id, Anzahl übernommener Dokumente ohne Besitzer (M1) |
 | 5101 | Warning | `Application/Accounts/AccountsLog` | Einrichtung abgelehnt, Haushalt schon eingerichtet |
 | 5102 | Information | `Application/Accounts/AccountsLog` | Einladung erzeugt: Konto-Id des Verwalters, Ablaufzeit (nie der Link) |
@@ -194,13 +195,14 @@ und Annahme (3200–3204) sind nach Application umgezogen und haben ihre Nummern
 | 5209 | Information | `Application/Recognition/RecognitionLog` | Bestand zur Erkennung eingereiht: Anzahl |
 | 5210 | Warning | `Application/Recognition/RecognitionLog` | Erkennungsversuch hat seinen Job verloren (anderer Worker oder Dokument gelöscht); Ergebnis verworfen |
 | 5211 | Error | `Application/Recognition/RecognitionLog` | Fehlschlag der Erkennung nicht gespeichert (nur Ausnahmetyp); der Job läuft nach Ablauf seiner Sperre erneut |
+| 5212 | Information | `Application/Recognition/RecognitionLog` | Dokument wurde während der Erkennung geteilt; Ergebnis verworfen, Job sofort erneut mit den Listen des Haushalts (ADR-0023, Nachtrag) |
 | 5250 | Information | `Application/Classification/ClassificationLog` | Angaben eines Dokuments bearbeitet (gelten als bestätigt): Dokument-Id, Konto-Id |
 | 5251 | Information | `Application/Classification/ClassificationLog` | Angaben bestätigt: Dokument-Id, Konto-Id |
 | 5252 | Information | `Application/Classification/ClassificationLog` | Bearbeiter gesetzt: Dokument-Id, Konto-Id des Besitzers, Anzahl Bearbeiter |
 | 5253 | Information | `Application/Classification/ClassificationLog` | Mögliches Duplikat behalten (Hinweis entfernt): Dokument-Id, Konto-Id |
 | 5254 | Information | `Application/Classification/ClassificationLog` | Mögliches Duplikat vom Besitzer gelöscht: Dokument-Id, Konto-Id |
 | 5255 | Warning | `Application/Classification/ClassificationLog` | Dateien des gelöschten Duplikats nicht entfernt (nur Platzverlust): Dokument-Id, Ausnahmetyp |
-| 5256 | Warning | `Application/Classification/ClassificationLog` | Änderung an einem Dokument abgelehnt: Konto-Id, Ergebnis (`NotFound`, `Forbidden`, `Invalid`, `Conflict`), Vorgang (`edit-fields`, `confirm`, `set-editors`, `keep-duplicate`, `delete-duplicate`), Dokument-Id |
+| 5256 | Warning | `Application/Classification/ClassificationLog` | Änderung an einem Dokument abgelehnt: Konto-Id, Ergebnis (`NotFound`, `Forbidden`, `Invalid`, `Conflict`), Vorgang (`edit-fields`, `confirm`, `set-editors`, `keep-duplicate`, `delete-duplicate`), Dokument-Id; `Conflict` bei `edit-fields`/`confirm`: Erkennungsstatus anders als der, mit dem die Seite die Angaben geladen hat |
 | 5257 | Information | `Application/Classification/ClassificationLog` | Listeneintrag gefunden oder angelegt: Konto-Id, Eintrag-Id, Liste (`Correspondent`, `DocumentType`, `Tag`) – nie der Name |
 | 5258 | Information | `Application/Classification/ClassificationLog` | Listeneintrag umbenannt: Konto-Id, Eintrag-Id, Liste |
 | 5259 | Information | `Application/Classification/ClassificationLog` | Listeneinträge zusammengeführt: Konto-Id, Anzahl Quellen, Liste, Ziel-Id |

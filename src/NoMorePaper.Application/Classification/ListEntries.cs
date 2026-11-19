@@ -7,5 +7,5 @@ namespace NoMorePaper.Application.Classification;
 public sealed class ListEntries(IClassificationStore store, ICurrentAccount current)
 {
     public Task<IReadOnlyList<EntrySummary>> ListAsync(ClassificationKind kind, CancellationToken cancellationToken) =>
-        store.VisibleEntriesAsync(current.Id, kind, cancellationToken);
+        store.VisibleEntriesAsync(current.Id, kind, EntryAudience.Account, cancellationToken);
 }

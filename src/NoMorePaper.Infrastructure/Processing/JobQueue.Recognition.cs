@@ -21,7 +21,8 @@ public sealed partial class JobQueue
     }
 
     /// <inheritdoc />
-    public async Task<RecognitionCommit> CompleteRecognitionAsync(JobClaim claim, DocumentFields? fields, CancellationToken cancellationToken)
+    public async Task<RecognitionCommit> CompleteRecognitionAsync(
+        JobClaim claim, DocumentFields? fields, bool wasPrivate, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(claim);
         var transaction = await db.Database.BeginTransactionAsync(cancellationToken).ConfigureAwait(false);
@@ -30,7 +31,7 @@ public sealed partial class JobQueue
             // The document first, then the job: deleting a document locks them in this order too (the
             // job goes by cascade), so the two never wait for each other. A confirmation committed
             // before is seen below; confirmed fields are never overwritten.
-            await db.Database.ExecuteSqlAsync($"SELECT 1 FROM documents WHERE id = {claim.DocumentId} FOR UPDATE", cancellationToken)
+            await db.Database.ExecuteSqlAsync($"SELECT 1 FROM documents WHERE id = {claim.DocumentId} FOR NO KEY UPDATE", cancellationToken)
                 .ConfigureAwait(false);
             var job = await LockClaimedJobAsync(claim, cancellationToken).ConfigureAwait(false);
             if (job is null)
@@ -42,6 +43,19 @@ public sealed partial class JobQueue
             if (fields is not null)
             {
                 var document = await FindDocumentAsync(claim.DocumentId, cancellationToken).ConfigureAwait(false);
+                if (wasPrivate && !document.IsPrivate)
+                {
+                    // Shared since the fields were made from the owner's private view (ADR-0023,
+                    // addendum): checked under the row lock, so sharing cannot slip in before the
+                    // commit. Nothing is taken; the job is handed back like ReleaseAsync does.
+                    job.Attempt--;
+                    job.ClaimId = null;
+                    job.LockedUntil = null;
+                    await db.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+                    await transaction.CommitAsync(cancellationToken).ConfigureAwait(false);
+                    return RecognitionCommit.SharedMeanwhile;
+                }
+
                 if (document.Recognition != RecognitionState.Confirmed)
                 {
                     document.Classify(fields);

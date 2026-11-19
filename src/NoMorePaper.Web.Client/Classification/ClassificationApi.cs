@@ -21,11 +21,13 @@ public sealed class ClassificationApi(HttpClient http, IStringLocalizer<Strings>
     public Task<ApiResult<DocumentFieldsDto>> GetFieldsAsync(Guid id, CancellationToken ct = default)
         => GetAsync<DocumentFieldsDto>($"api/documents/{id}/fields", "fields", ct);
 
+    /// <summary>Saves the fields; 409 (<see cref="ApiResult{T}.IsConflict"/>) when they changed since <see cref="EditFieldsRequestDto.Recognition"/>.</summary>
     public Task<ApiResult<bool>> EditFieldsAsync(Guid id, EditFieldsRequestDto request, CancellationToken ct = default)
-        => SendAsync(HttpMethod.Put, $"api/documents/{id}/fields", request, "edit-fields", null, ct);
+        => SendAsync(HttpMethod.Put, $"api/documents/{id}/fields", request, "edit-fields", ChangedMeanwhile, ct);
 
-    public Task<ApiResult<bool>> ConfirmAsync(Guid id, CancellationToken ct = default)
-        => SendAsync(HttpMethod.Post, $"api/documents/{id}/confirm", null, "confirm", null, ct);
+    /// <summary>Confirms the fields shown with <paramref name="seen"/>; 409 (<see cref="ApiResult{T}.IsConflict"/>) when they changed since.</summary>
+    public Task<ApiResult<bool>> ConfirmAsync(Guid id, DocumentRecognitionState seen, CancellationToken ct = default)
+        => SendAsync(HttpMethod.Post, $"api/documents/{id}/confirm", new ConfirmRequestDto(seen), "confirm", ChangedMeanwhile, ct);
 
     public Task<ApiResult<bool>> SetEditorsAsync(Guid id, IReadOnlyList<Guid> editorIds, CancellationToken ct = default)
         => SendAsync(HttpMethod.Put, $"api/documents/{id}/editors", new SetEditorsRequestDto(editorIds), "set-editors", null, ct);
@@ -45,6 +47,10 @@ public sealed class ClassificationApi(HttpClient http, IStringLocalizer<Strings>
 
     public Task<ApiResult<ReviewItemDto[]>> ListReviewAsync(CancellationToken ct = default)
         => GetAsync<ReviewItemDto[]>("api/review", "review", ct);
+
+    /// <summary>Only the number of documents to review, for the navigation.</summary>
+    public Task<ApiResult<int>> CountReviewAsync(CancellationToken ct = default)
+        => GetAsync<int>("api/review/count", "review-count", ct);
 
     public Task<ApiResult<EntryDto[]>> ListEntriesAsync(EntryKind kind, CancellationToken ct = default)
         => GetAsync<EntryDto[]>($"api/classification/{EntryKinds.Route(kind)}", "entries", ct);
@@ -90,6 +96,8 @@ public sealed class ClassificationApi(HttpClient http, IStringLocalizer<Strings>
         => GetAsync<HouseholdMemberDto[]>("api/household", "household", ct);
 
     private Func<int, string?> ListStatus(string forbiddenKey) => status => status == 403 ? localizer[forbiddenKey].Value : null;
+
+    private string? ChangedMeanwhile(int status) => status == 409 ? localizer["ClsErrorChangedMeanwhile"].Value : null;
 
     private async Task<ApiResult<T>> GetAsync<T>(string uri, string operation, CancellationToken ct)
     {
@@ -170,7 +178,7 @@ public sealed class ClassificationApi(HttpClient http, IStringLocalizer<Strings>
     private ApiResult<T> Failed<T>(string operation, int status, Func<int, string?>? special)
     {
         logger.ClassificationCallFailed(operation, status);
-        return new ApiResult<T>(default, special?.Invoke(status) ?? MessageFor(status));
+        return new ApiResult<T>(default, special?.Invoke(status) ?? MessageFor(status), IsConflict: status == 409);
     }
 
     private string MessageFor(int status) => status switch

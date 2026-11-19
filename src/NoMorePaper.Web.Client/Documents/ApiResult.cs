@@ -9,7 +9,12 @@ namespace NoMorePaper.Web.Client.Documents;
 /// For an upload the server refused as a duplicate (409): the document that already holds the same file.
 /// </param>
 /// <param name="IsDuplicate">The upload was refused because the same file exists (the id may be unknown).</param>
-public sealed record ApiResult<T>(T? Value, string? Error, string? Field = null, Guid? ExistingId = null, bool IsDuplicate = false)
+/// <param name="IsConflict">
+/// A change was refused with 409 because the data changed meanwhile (classification calls); the page
+/// loads it again instead of keeping what it showed.
+/// </param>
+public sealed record ApiResult<T>(
+    T? Value, string? Error, string? Field = null, Guid? ExistingId = null, bool IsDuplicate = false, bool IsConflict = false)
 {
     public bool IsSuccess => Error is null;
 }

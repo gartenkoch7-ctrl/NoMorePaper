@@ -70,7 +70,14 @@ public sealed partial class Review
 
     private async Task ConfirmAsync(ReviewItemDto item)
     {
-        var result = await Api.ConfirmAsync(item.Id);
+        var result = await Api.ConfirmAsync(item.Id, item.Fields.Recognition);
+        if (result.IsConflict)
+        {
+            Logger.FieldsChangedMeanwhile();
+            await ChangedMeanwhileAsync(item);
+            return;
+        }
+
         if (!result.IsSuccess)
         {
             await FailAsync(result.Error!, "review-edit-" + item.Id.ToString("N"));
@@ -106,6 +113,21 @@ public sealed partial class Review
     {
         _editing = null;
         await DoneAsync(item, "ReviewSaved", newTitle ?? item.Title);
+    }
+
+    // Recognized, or confirmed for the first time, since the list was loaded: load it again, say so (as an
+    // error, so it interrupts) and go back to the item, the heading or "Erneut versuchen" (FocusAfterLoad).
+    private async Task ChangedMeanwhileAsync(ReviewItemDto item)
+    {
+        _editing = null;
+        await LoadAsync();
+        var again = _items.FirstOrDefault(other => other.Id == item.Id);
+        FocusAfterLoad(again);
+        if (_error is not null)
+        {
+            // Without a reload the text must not claim one; the error box says why it failed.
+            await _error.Announce(L[_loadError is null ? "ClsErrorChangedMeanwhile" : "ClsErrorConflict"]);
+        }
     }
 
     private void AskDelete(ReviewItemDto item)
@@ -156,13 +178,27 @@ public sealed partial class Review
     {
         var index = Array.FindIndex(_items, other => other.Id == item.Id);
         await LoadAsync();
+        var message = L[messageKey, title ?? item.Title].Value;
+        if (_loadError is not null)
+        {
+            // The action worked, but what is left is unknown; the error box says why.
+            await AnnounceAsync(message);
+            FocusAfterLoad(null);
+            return;
+        }
+
         var left = _items.Length == 0 ? L["ReviewNoneLeft"].Value : CountText(_items.Length);
-        await AnnounceAsync($"{L[messageKey, title ?? item.Title]} {left}");
+        await AnnounceAsync($"{message} {left}");
 
         var next = _items.FirstOrDefault(other => other.Id == item.Id)
             ?? (_items.Length == 0 ? null : _items[Math.Clamp(index, 0, _items.Length - 1)]);
-        _focus.On(next is null ? "review-heading" : "review-h-" + next.Id.ToString("N"));
+        FocusAfterLoad(next);
     }
+
+    // After loading the list again: the item, or the heading when none is left. When the list could not
+    // be loaded, nothing of it is shown, so focus goes to "Erneut versuchen" next to the error.
+    private void FocusAfterLoad(ReviewItemDto? item) =>
+        _focus.On(_loadError is not null ? "review-retry" : item is null ? "review-heading" : "review-h-" + item.Id.ToString("N"));
 
     private async Task FailAsync(string message, string focusId)
     {

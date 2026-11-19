@@ -17,7 +17,7 @@
             <MudIcon Icon="@Icons.Material.Filled.Error" />
             <span>@L["ClsFieldsLoadError", _loadError]</span>
         </div>
-        <button type="button" class="nmp-button" @onclick="LoadAsync">@L["Retry"]</button>
+        <button type="button" id="fields-retry" class="nmp-button" @onclick="LoadAsync">@L["Retry"]</button>
     }
     else if (_fields is null)
     {
@@ -57,7 +57,7 @@
         @if (_editing)
         {
             <DocumentFieldsEditor DocumentId="DocumentId" DocumentTitle="@Title" Fields="_fields"
-                                  OnSaved="SavedAsync" OnCancel="CancelEdit" />
+                                  OnSaved="SavedAsync" OnCancel="CancelEdit" OnConflict="ChangedMeanwhileAsync" />
         }
         else if (_fields.CanEdit)
         {
@@ -155,9 +155,21 @@
 
     private async Task ConfirmAsync()
     {
+        if (_fields is null)
+        {
+            return;
+        }
+
         _busy = true;
-        var result = await Api.ConfirmAsync(DocumentId);
+        var result = await Api.ConfirmAsync(DocumentId, _fields.Recognition);
         _busy = false;
+        if (result.IsConflict)
+        {
+            Logger.FieldsChangedMeanwhile();
+            await ChangedMeanwhileAsync();
+            return;
+        }
+
         if (!result.IsSuccess)
         {
             await AnnounceAsync(L["ErrorPrefix", result.Error!]);
@@ -169,6 +181,25 @@
         _ = Counter.RefreshAsync();
         FocusEdit();
         await AnnounceAsync(L["ClsConfirmed"]);
+    }
+
+    // Recognized, or confirmed for the first time, since the fields were shown: show what is there now and
+    // say so, focus back on "Bearbeiten", so nothing is saved or confirmed unseen. If loading them fails,
+    // only the error box is shown: focus goes to its "Erneut versuchen" and the text does not claim a reload.
+    private async Task ChangedMeanwhileAsync()
+    {
+        _editing = false;
+        await LoadAsync();
+        _ = Counter.RefreshAsync();
+        if (_loadError is not null)
+        {
+            _focus.On("fields-retry");
+            await AnnounceAsync(L["ClsErrorConflict"]);
+            return;
+        }
+
+        FocusEdit();
+        await AnnounceAsync(L["ClsErrorChangedMeanwhile"]);
     }
 
     private async Task EditorsSavedAsync(IReadOnlyList<Guid> editorIds)

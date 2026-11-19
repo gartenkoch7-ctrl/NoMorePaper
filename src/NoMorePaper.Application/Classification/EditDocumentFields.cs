@@ -31,6 +31,15 @@ public sealed class EditDocumentFields(IDocumentFieldsStore documents, ICurrentA
             return outcome;
         }
 
+        // Under the row lock FindVisibleAsync took: fields recognized, or confirmed for the first time,
+        // since the editor loaded them are never overwritten unseen (later edits of confirmed fields are
+        // not detected: the state stays confirmed).
+        if (document.Recognition != edit.SeenRecognition)
+        {
+            logger.DocumentChangeRefused(current.Id, ChangeOutcome.Conflict, Action, id);
+            return ChangeOutcome.Conflict;
+        }
+
         if (!await EntriesVisibleAsync(fields, cancellationToken).ConfigureAwait(false))
         {
             logger.DocumentChangeRefused(current.Id, ChangeOutcome.Invalid, Action, id);

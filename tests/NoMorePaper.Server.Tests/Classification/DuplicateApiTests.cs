@@ -63,6 +63,10 @@ public sealed class DuplicateApiTests(ApiFixture api)
         Assert.Equal("Abschlag für November.", mine[1].Fields.Summary);
         Assert.DoesNotContain(theirs!, item => item.Id == automatic || item.Id == copy);
         Assert.Null((await owner.GetFromJsonAsync<DocumentFieldsDto>($"/api/documents/{hiddenCopy}/fields", Ct))!.PossibleDuplicateOf);
+
+        // The number for the navigation follows the same rule.
+        Assert.Equal(mine.Length, await owner.GetFromJsonAsync<int>("/api/review/count", Ct));
+        Assert.Equal(theirs!.Length, await other.GetFromJsonAsync<int>("/api/review/count", Ct));
     }
 
     [Fact]

@@ -31,7 +31,7 @@ public sealed class EditDocumentFieldsTests
     public async Task TheOwner_SetsAllFields_WhichCountAsConfirmed()
     {
         var document = _documents.Add(_current.Id, isPrivate: true);
-        var edit = new FieldsEdit("Stromrechnung", s_correspondent, null, new DateOnly(2026, 11, 1), 84.20m, "EUR", "Strom für Oktober.", [s_tag]);
+        var edit = new FieldsEdit("Stromrechnung", s_correspondent, null, new DateOnly(2026, 11, 1), 84.20m, "EUR", "Strom für Oktober.", [s_tag], RecognitionState.None);
 
         Assert.Equal(ChangeOutcome.Changed, await EditAsync(document.Id, edit));
 
@@ -118,12 +118,27 @@ public sealed class EditDocumentFieldsTests
     }
 
     [Fact]
+    public async Task FieldsRecognizedSinceTheEditorLoadedThem_AreAConflict_AndStay()
+    {
+        var document = _documents.Add(_current.Id, isPrivate: false);
+        document.Classify(new DocumentFields("Erkannt", null, null, null, null, "Vom Modell.", []));
+
+        // The form was opened while the recognition still ran (no fields yet).
+        Assert.Equal(ChangeOutcome.Conflict, await EditAsync(document.Id, Edit()));
+        Assert.Equal((0, RecognitionState.Automatic, "Vom Modell."), (_documents.Saves, document.Recognition, document.Summary));
+        Assert.Equal([Refused], _log.EventIds);
+
+        Assert.Equal(ChangeOutcome.Changed, await EditAsync(document.Id, Edit() with { SeenRecognition = RecognitionState.Automatic }));
+        Assert.Equal(RecognitionState.Confirmed, document.Recognition);
+    }
+
+    [Fact]
     public async Task ABlankSummary_ClearsIt_AndANullTitleKeepsTheTitle()
     {
         var document = _documents.Add(_current.Id, isPrivate: false);
         await EditAsync(document.Id, Edit() with { Summary = "Alt." });
 
-        Assert.Equal(ChangeOutcome.Changed, await EditAsync(document.Id, Edit() with { Summary = "  " }));
+        Assert.Equal(ChangeOutcome.Changed, await EditAsync(document.Id, Edit() with { Summary = "  ", SeenRecognition = RecognitionState.Confirmed }));
 
         Assert.Equal(("Brief", null), (document.Title, document.Summary));
     }
@@ -139,7 +154,7 @@ public sealed class EditDocumentFieldsTests
         Assert.Equal([AccountGone], _log.EventIds);
     }
 
-    private static FieldsEdit Edit() => new(null, s_correspondent, null, null, null, null, null, []);
+    private static FieldsEdit Edit() => new(null, s_correspondent, null, null, null, null, null, [], RecognitionState.None);
 
     private Task<ChangeOutcome> EditAsync(Guid id, FieldsEdit edit) =>
         new EditDocumentFields(_documents, _current, _log).EditAsync(id, edit, Ct);

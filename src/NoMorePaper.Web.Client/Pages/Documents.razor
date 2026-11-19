@@ -71,10 +71,10 @@ else
                             }
                         </span>
                     </th>
-                    <td>@(document.Correspondent?.Name)</td>
-                    <td>@(document.DocumentType?.Name)</td>
-                    <td>@(document.DocumentDate is { } date ? FieldFormat.Date(date, CultureInfo.CurrentCulture) : null)</td>
-                    <td>@(document.Amount is { } amount ? FieldFormat.Amount(amount, CultureInfo.CurrentCulture) : null)</td>
+                    <td>@(document.Correspondent?.Name ?? L["ClsNoValue"].Value)</td>
+                    <td>@(document.DocumentType?.Name ?? L["ClsNoValue"].Value)</td>
+                    <td>@(document.DocumentDate is { } date ? FieldFormat.Date(date, CultureInfo.CurrentCulture) : L["ClsNoValue"].Value)</td>
+                    <td>@(document.Amount is { } amount ? FieldFormat.Amount(amount, CultureInfo.CurrentCulture) : L["ClsNoValue"].Value)</td>
                     <td><time datetime="@document.ReceivedAt.ToString("o", CultureInfo.InvariantCulture)">@document.ReceivedAt.ToLocalTime().ToString("g", CultureInfo.CurrentCulture)</time></td>
                     <td>
                         @* Symbol and text together: the state is never conveyed by an icon or colour alone. *@

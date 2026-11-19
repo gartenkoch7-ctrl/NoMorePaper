@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging.Abstractions;
+using NoMorePaper.Application.Classification;
 using NoMorePaper.Domain.Classification;
 using NoMorePaper.Domain.Documents;
 using NoMorePaper.Infrastructure.Classification;
@@ -103,6 +104,23 @@ public sealed class EntryVisibilityTests(PostgresFixture postgres)
         Assert.Equal(["Altbestand"], await VisibleNamesAsync(db, ClassificationKind.Correspondent, s_bob));
     }
 
+    [Theory]
+    [InlineData(ClassificationKind.Correspondent)]
+    [InlineData(ClassificationKind.DocumentType)]
+    [InlineData(ClassificationKind.Tag)]
+    public async Task TheHousehold_SeesOnlyEntriesASharedDocumentUses_NotTheOwnersPrivateOrUnusedOnes(ClassificationKind kind)
+    {
+        await using var db = await MigratedContextAsync("entries_household_" + kind.ToString().ToLowerInvariant());
+        var therapy = await AddEntryAsync(db, kind, "Psychotherapie", s_anna);
+        await AddDocumentAsync(db, s_anna, isPrivate: true, kind, therapy);
+        await AddEntryAsync(db, kind, "Noch unbenutzt", s_anna);
+        var power = await AddEntryAsync(db, kind, "Stadtwerke", s_bob);
+        await AddDocumentAsync(db, s_bob, isPrivate: false, kind, power);
+
+        Assert.Equal(["Noch unbenutzt", "Psychotherapie", "Stadtwerke"], await VisibleNamesAsync(db, kind, s_anna));
+        Assert.Equal(["Stadtwerke"], await VisibleNamesAsync(db, kind, s_anna, EntryAudience.Household));
+    }
+
     [Fact]
     public async Task TheRule_ComposesWithFurtherFilters()
     {
@@ -112,7 +130,7 @@ public sealed class EntryVisibilityTests(PostgresFixture postgres)
         var normalized = ClassificationName.Normalize("stadtwerke-münchen");
 
         var found = await db.Correspondents
-            .FromSql(VisibilitySql.Entries(ClassificationKind.Correspondent, s_anna))
+            .FromSql(VisibilitySql.Entries(ClassificationKind.Correspondent, s_anna, EntryAudience.Account))
             .Where(entry => entry.NormalizedName == normalized)
             .Select(entry => entry.Name)
             .ToListAsync(Ct);
@@ -148,9 +166,10 @@ public sealed class EntryVisibilityTests(PostgresFixture postgres)
         return document;
     }
 
-    private static Task<List<string>> VisibleNamesAsync(AppDbContext db, ClassificationKind kind, Guid viewer)
+    private static Task<List<string>> VisibleNamesAsync(
+        AppDbContext db, ClassificationKind kind, Guid viewer, EntryAudience audience = EntryAudience.Account)
     {
-        var sql = VisibilitySql.Entries(kind, viewer);
+        var sql = VisibilitySql.Entries(kind, viewer, audience);
         var names = kind switch
         {
             ClassificationKind.Correspondent => db.Correspondents.FromSql(sql).Select(entry => entry.Name),

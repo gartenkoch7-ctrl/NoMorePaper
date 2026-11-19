@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using NoMorePaper.Application.Classification;
 using NoMorePaper.Domain.Classification;
 using NoMorePaper.Infrastructure.Persistence;
 
@@ -7,10 +8,10 @@ namespace NoMorePaper.Infrastructure.Classification;
 /// <summary>The entries of one list as a query, all or only those an account may see (<see cref="VisibilitySql"/>).</summary>
 internal static class EntrySets
 {
-    /// <summary>Tracked entries the account may see; EF composes further filters around the rule.</summary>
-    public static IQueryable<ClassificationEntry> Visible(AppDbContext db, ClassificationKind kind, Guid viewerId)
+    /// <summary>Tracked entries the audience may see (<see cref="VisibilitySql.Entries"/>); EF composes further filters around the rule.</summary>
+    public static IQueryable<ClassificationEntry> Visible(AppDbContext db, ClassificationKind kind, Guid viewerId, EntryAudience audience)
     {
-        var sql = VisibilitySql.Entries(kind, viewerId);
+        var sql = VisibilitySql.Entries(kind, viewerId, audience);
         return kind switch
         {
             ClassificationKind.Correspondent => db.Correspondents.FromSql(sql),
@@ -34,7 +35,7 @@ internal static class EntrySets
         AppDbContext db, ClassificationKind kind, Guid viewerId, IReadOnlyCollection<Guid> entryIds, CancellationToken cancellationToken)
     {
         var ids = entryIds.Distinct().ToList();
-        var visible = await Visible(db, kind, viewerId).CountAsync(entry => ids.Contains(entry.Id), cancellationToken).ConfigureAwait(false);
+        var visible = await Visible(db, kind, viewerId, EntryAudience.Account).CountAsync(entry => ids.Contains(entry.Id), cancellationToken).ConfigureAwait(false);
         return visible == ids.Count;
     }
 }

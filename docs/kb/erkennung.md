@@ -224,6 +224,19 @@ Typ-Listen mit `null`, `pattern`, `minItems`/`maxItems` und `enum` wurden von Ol
   über `IClassificationStore.FindOrCreateAsync(Besitzer, …)` zu Einträgen (gleicher normalisierter
   Name unter den sichtbaren, sonst neu); der Titel ersetzt den Dateinamen; `Document.Classify` setzt
   `Recognition = Automatic`.
+- **Geteilte Dokumente** (ADR-0023, Nachtrag 2026-11-19): Ist das Dokument nicht privat, nimmt die
+  Erkennung `EntryAudience.Household` statt `Account`. Im Prompt stehen dann nur Einträge, die ein
+  nicht privates Dokument verwendet, Beispiele kommen nur aus nicht privaten Dokumenten, und
+  `FindOrCreateAsync` übernimmt nur einen solchen Eintrag. Sonst entsteht ein **neuer** Eintrag mit
+  demselben Namen; der Namensindex ist absichtlich nicht eindeutig, es gibt keine Kollision. Der
+  private Eintrag (z. B. Tag „Psychotherapie“) bleibt privat. Folge: Ein unbenutzter, selbst
+  angelegter Eintrag wird für geteilte Dokumente auch nicht genommen; es kann ein Doppel entstehen,
+  das man unter „Listen“ zusammenführt. Wird ein privates Dokument **während** der Erkennung geteilt,
+  verwirft der Worker die Antwort beim zweiten Lesen und gibt den Job sofort zurück (`ReleaseAsync`,
+  Versuch zählt nicht, Ereignis 5212); der nächste Durchlauf nimmt die Sicht des Haushalts. Wird es
+  erst danach geteilt (während `FindOrCreateAsync`), prüft `CompleteRecognitionAsync(…, wasPrivate, …)`
+  das unter der Zeilensperre (`FOR NO KEY UPDATE`): keine Angaben, Job in derselben Transaktion
+  zurück (`RecognitionCommit.SharedMeanwhile`, Versuch −1; Test `DocumentChangeLockTests`).
 - **Übersprungen** (Job entfernt, ohne LLM): bestätigte Dokumente, Dokumente ohne Besitzer (M1 vor
   der Einrichtung) und Dokumente ohne Text. Die beiden letzten bekommen schon beim Abschluss der OCR
   keinen Erkennungs-Job.
@@ -243,10 +256,18 @@ Typ-Listen mit `null`, `pattern`, `minItems`/`maxItems` und `enum` wurden von Ol
   (Ereignis 5205). Nur eine Änderung in den Millisekunden bis zum Abschluss verwirft die Antwort,
   nachdem ihre neuen Einträge angelegt sind; sie bleiben unbenutzt und nur für den Besitzer sichtbar. Der Abschluss sperrt danach die Dokumentzeile (vor dem Job, gleiche Reihenfolge wie
   beim Löschen) und übernimmt die Angaben nur, wenn das Dokument noch nicht bestätigt ist.
-  ⚠️ Bestätigen und Bearbeiten (Spur B) laden das Dokument ohne Sperre: Fällt ein Bestätigen genau in
-  die Millisekunden des Abschlusses, kann ein Dokument als bestätigt gelten, dessen Angaben vom
-  Modell stammen. Abhilfe bei der Integration: Zeile in Bestätigen/Bearbeiten mit `FOR UPDATE` laden
-  oder ein Concurrency-Token (`xmin`).
+  Bestätigen, Bearbeiten, Bearbeiter setzen und Duplikat behalten/löschen laden das Dokument über
+  `EfDocumentFieldsStore.FindVisibleAsync` ebenfalls mit `FOR NO KEY UPDATE` (nicht `FOR UPDATE`: das kollidiert mit dem `FOR KEY SHARE` jedes Fremdschlüssel-Inserts, z. B. beim Zusammenführen von Tags → Deadlock) in einer Transaktion, die erst
+  beim Speichern endet. Erkennung und Änderung durch eine Person warten so aufeinander; ein
+  abgelehnter Versuch gibt die Sperre am Ende der Anfrage frei (Test `DocumentChangeLockTests`).
+  **Offene Seite während der Erkennung:** Bearbeiten (`PUT …/fields`, `EditFieldsRequestDto.Recognition`)
+  und Bestätigen (`POST …/confirm`, `ConfirmRequestDto`) schicken den Erkennungsstatus mit, mit dem die
+  Seite die Angaben geladen hat (Pflichtfeld). Der Server vergleicht ihn unter der Zeilensperre; ist er
+  inzwischen ein anderer (erkannt oder von jemand anderem bestätigt), antwortet er 409 und ändert
+  nichts. Die Oberfläche lädt die Angaben neu, schließt das Formular und sagt „Die Angaben wurden
+  inzwischen geändert und neu geladen …“ an (Ereignisse 5256 `Conflict`, 4515). Nicht abgedeckt: Zwei
+  Personen bearbeiten nacheinander ein schon bestätigtes Dokument (Status bleibt `Confirmed`); dafür
+  bräuchte es eine Versionsnummer.
 - **Fehler:** Zeitlimit, HTTP-Fehler, nicht erreichbarer Dienst oder `done_reason` ≠ `stop` → neuer
   Versuch nach 1, 5 und 30 Minuten; nach 4 Versuchen wird nur der Job gelöscht, das Dokument bleibt
   „Done“ mit `Recognition = None`. Als Grund wird nur Ausnahmetyp bzw. HTTP-Status gespeichert.

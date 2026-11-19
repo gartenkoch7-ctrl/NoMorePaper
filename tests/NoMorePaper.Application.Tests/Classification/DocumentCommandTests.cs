@@ -25,12 +25,26 @@ public sealed class DocumentCommandTests
         var log = new RecordingLogger<ConfirmDocument>();
         var confirm = new ConfirmDocument(_documents, _current, log);
 
-        Assert.Equal(ChangeOutcome.Changed, await confirm.ConfirmAsync(mine.Id, Ct));
-        Assert.Equal(ChangeOutcome.Forbidden, await confirm.ConfirmAsync(theirs.Id, Ct));
-        Assert.Equal(ChangeOutcome.NotFound, await confirm.ConfirmAsync(Guid.CreateVersion7(), Ct));
+        Assert.Equal(ChangeOutcome.Changed, await confirm.ConfirmAsync(mine.Id, RecognitionState.None, Ct));
+        Assert.Equal(ChangeOutcome.Forbidden, await confirm.ConfirmAsync(theirs.Id, RecognitionState.None, Ct));
+        Assert.Equal(ChangeOutcome.NotFound, await confirm.ConfirmAsync(Guid.CreateVersion7(), RecognitionState.None, Ct));
 
         Assert.Equal((RecognitionState.Confirmed, RecognitionState.None), (mine.Recognition, theirs.Recognition));
         Assert.Equal([5251, 5256, 5256], log.EventIds);
+    }
+
+    [Fact]
+    public async Task Confirm_WithAnOutdatedState_IsAConflict_AndConfirmsNothing()
+    {
+        var document = _documents.Add(_current.Id, isPrivate: false);
+        document.Classify(new DocumentFields("Erkannt", null, null, null, null, "Kurz.", []));
+        var log = new RecordingLogger<ConfirmDocument>();
+
+        // The page still showed the document before the recognition finished.
+        Assert.Equal(ChangeOutcome.Conflict, await new ConfirmDocument(_documents, _current, log).ConfirmAsync(document.Id, RecognitionState.None, Ct));
+
+        Assert.Equal((0, RecognitionState.Automatic), (_documents.Saves, document.Recognition));
+        Assert.Equal([5256], log.EventIds);
     }
 
     [Fact]
@@ -120,7 +134,7 @@ public sealed class DocumentCommandTests
         var document = Duplicate(_current.Id);
         _current.Exists = false;
 
-        Assert.Equal(ChangeOutcome.AccountGone, await new ConfirmDocument(_documents, _current, new RecordingLogger<ConfirmDocument>()).ConfirmAsync(document.Id, Ct));
+        Assert.Equal(ChangeOutcome.AccountGone, await new ConfirmDocument(_documents, _current, new RecordingLogger<ConfirmDocument>()).ConfirmAsync(document.Id, RecognitionState.None, Ct));
         Assert.Equal(ChangeOutcome.AccountGone, await new KeepDuplicate(_documents, _current, new RecordingLogger<KeepDuplicate>()).KeepAsync(document.Id, Ct));
         Assert.Equal(ChangeOutcome.AccountGone, await Delete().DeleteAsync(document.Id, Ct));
         Assert.Equal(
@@ -139,6 +153,11 @@ public sealed class DocumentCommandTests
 
         _current.Id = Guid.CreateVersion7();
         await new ListReview(_documents, _current).ListAsync(Ct);
+        Assert.Equal(_current.Id, _documents.LastViewer);
+
+        _current.Id = Guid.CreateVersion7();
+        _documents.ReviewCount = 4;
+        Assert.Equal(4, await new ListReview(_documents, _current).CountAsync(Ct));
         Assert.Equal(_current.Id, _documents.LastViewer);
     }
 

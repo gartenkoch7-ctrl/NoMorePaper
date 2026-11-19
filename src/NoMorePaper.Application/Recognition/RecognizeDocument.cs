@@ -67,6 +67,12 @@ public sealed class RecognizeDocument(
             return;
         }
 
+        if (outcome.Commit == RecognitionCommit.SharedMeanwhile)
+        {
+            logger.SharedMeanwhile(id);
+            return;
+        }
+
         var elapsed = time.GetElapsedTime(started);
         var recognized = outcome.Commit == RecognitionCommit.Classified;
         var tag = new KeyValuePair<string, object?>(RecognitionLog.OutcomeTag, recognized ? "recognized" : "skipped");

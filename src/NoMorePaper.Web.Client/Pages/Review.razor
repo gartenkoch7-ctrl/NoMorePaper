@@ -18,7 +18,7 @@ else if (_loadError is not null)
         <MudIcon Icon="@Icons.Material.Filled.Error" />
         <span>@L["ReviewLoadError", _loadError]</span>
     </div>
-    <button type="button" class="nmp-button" @onclick="LoadAsync">@L["Retry"]</button>
+    <button type="button" id="review-retry" class="nmp-button" @onclick="LoadAsync">@L["Retry"]</button>
 }
 else if (_items.Length == 0)
 {
@@ -121,7 +121,7 @@ else
                     {
                         <DocumentFieldsEditor DocumentId="item.Id" DocumentTitle="@item.Title" Fields="item.Fields"
                                               Prefix="@("review-" + key)" OnSaved="newTitle => SavedAsync(item, newTitle)"
-                                              OnCancel="() => CancelEdit(item)" />
+                                              OnCancel="() => CancelEdit(item)" OnConflict="() => ChangedMeanwhileAsync(item)" />
                     }
                     else
                     {

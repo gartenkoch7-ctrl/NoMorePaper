@@ -14,4 +14,10 @@ public enum RecognitionCommit
 
     /// <summary>Nothing was changed: the job is gone or another Worker has claimed it since.</summary>
     ClaimLost,
+
+    /// <summary>
+    /// Nothing was taken: the document was shared since the fields were made from the owner's private
+    /// view. The job is handed back (the attempt does not count) to run again with the household's view.
+    /// </summary>
+    SharedMeanwhile,
 }

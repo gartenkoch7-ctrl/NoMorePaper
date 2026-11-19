@@ -74,7 +74,13 @@ public interface IJobQueue
     /// <see cref="Document.Classify"/>, unless the document has been confirmed by now, and removes the job.
     /// </summary>
     /// <param name="fields">Recognized fields, or <c>null</c> to only remove the job.</param>
-    Task<RecognitionCommit> CompleteRecognitionAsync(JobClaim claim, DocumentFields? fields, CancellationToken cancellationToken);
+    /// <param name="wasPrivate">
+    /// The document was private when the fields were made, so they come from the owner's private view.
+    /// If it is shared by now, checked under the row lock, nothing is taken and the job is handed back
+    /// like <see cref="ReleaseAsync"/> (<see cref="RecognitionCommit.SharedMeanwhile"/>).
+    /// </param>
+    Task<RecognitionCommit> CompleteRecognitionAsync(
+        JobClaim claim, DocumentFields? fields, bool wasPrivate, CancellationToken cancellationToken);
 
     /// <summary>
     /// Queues recognition for every done document with text and owner that has no fields

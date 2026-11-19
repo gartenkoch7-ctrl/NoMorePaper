@@ -20,7 +20,7 @@ public sealed class EntryUseCaseTests
         var entries = await new ListEntries(_store, _current).ListAsync(ClassificationKind.Tag, Ct);
 
         Assert.Single(entries);
-        Assert.Equal((_current.Id, "list Tag"), (_store.LastAccount, Assert.Single(_store.Calls)));
+        Assert.Equal((_current.Id, "list Tag Account"), (_store.LastAccount, Assert.Single(_store.Calls)));
     }
 
     [Fact]
@@ -31,7 +31,7 @@ public sealed class EntryUseCaseTests
         var created = await new CreateEntry(_store, _current, log).CreateAsync(ClassificationKind.Correspondent, "  Stadtwerke  ", Ct);
 
         Assert.Equal((ChangeOutcome.Changed, "Stadtwerke"), (created.Outcome, created.Entry?.Name));
-        Assert.Equal((_current.Id, "find-or-create Correspondent Stadtwerke"), (_store.LastAccount, Assert.Single(_store.Calls)));
+        Assert.Equal((_current.Id, "find-or-create Correspondent Stadtwerke Account"), (_store.LastAccount, Assert.Single(_store.Calls)));
         Assert.Equal([5257], log.EventIds);
     }
 

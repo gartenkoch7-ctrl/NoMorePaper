@@ -10,4 +10,8 @@ public sealed class ListReview(IDocumentFieldsStore documents, ICurrentAccount c
 {
     public Task<IReadOnlyList<ReviewItem>> ListAsync(CancellationToken cancellationToken) =>
         documents.ListReviewAsync(current.Id, cancellationToken);
+
+    /// <summary>How many documents <see cref="ListAsync"/> would return, counted in the database.</summary>
+    public Task<int> CountAsync(CancellationToken cancellationToken) =>
+        documents.CountReviewAsync(current.Id, cancellationToken);
 }

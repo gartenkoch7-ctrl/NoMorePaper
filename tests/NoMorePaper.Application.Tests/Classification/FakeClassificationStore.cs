@@ -16,15 +16,17 @@ internal sealed class FakeClassificationStore : IClassificationStore
     /// <summary>The sources of the last <see cref="MergeAsync"/> call.</summary>
     public IReadOnlyCollection<Guid>? LastSources { get; private set; }
 
-    public Task<IReadOnlyList<EntrySummary>> VisibleEntriesAsync(Guid viewerId, ClassificationKind kind, CancellationToken cancellationToken)
+    public Task<IReadOnlyList<EntrySummary>> VisibleEntriesAsync(
+        Guid viewerId, ClassificationKind kind, EntryAudience audience, CancellationToken cancellationToken)
     {
-        Record(viewerId, $"list {kind}");
+        Record(viewerId, $"list {kind} {audience}");
         return Task.FromResult<IReadOnlyList<EntrySummary>>([new EntrySummary(Guid.CreateVersion7(), "Stadtwerke")]);
     }
 
-    public Task<EntrySummary> FindOrCreateAsync(Guid actorId, ClassificationKind kind, string name, CancellationToken cancellationToken)
+    public Task<EntrySummary> FindOrCreateAsync(
+        Guid actorId, ClassificationKind kind, string name, EntryAudience audience, CancellationToken cancellationToken)
     {
-        Record(actorId, $"find-or-create {kind} {name}");
+        Record(actorId, $"find-or-create {kind} {name} {audience}");
         return Task.FromResult(new EntrySummary(Guid.CreateVersion7(), name));
     }
 

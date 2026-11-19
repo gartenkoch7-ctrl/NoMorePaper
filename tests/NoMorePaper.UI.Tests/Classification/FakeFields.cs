@@ -17,6 +17,9 @@ namespace NoMorePaper.UI.Tests.Classification;
 /// </summary>
 internal sealed class FakeFields(Guid id, DocumentFieldsDto fields, bool isMine = false)
 {
+    /// <summary>The summary somebody else saved when a call answers 409.</summary>
+    public const string ChangedSummary = "Inzwischen von Ben geändert.";
+
     private static readonly JsonSerializerOptions _json = new(JsonSerializerDefaults.Web);
     private readonly FakeAccounts _accounts = new();
 
@@ -26,8 +29,11 @@ internal sealed class FakeFields(Guid id, DocumentFieldsDto fields, bool isMine 
 
     public DocumentFieldsDto Current { get; private set; } = fields;
 
-    /// <summary>Answer of the save call (204 saves).</summary>
+    /// <summary>Answer of the save call (204 saves; 409 plays somebody who changed the fields meanwhile).</summary>
     public int SaveStatus { get; set; } = 204;
+
+    /// <summary>Answer of the confirm call (204 confirms; 409 as for <see cref="SaveStatus"/>).</summary>
+    public int ConfirmStatus { get; set; } = 204;
 
     /// <summary>The signed-in account the household list must leave out (the owner).</summary>
     public Guid MeId => _accounts.Me.Id;
@@ -52,7 +58,7 @@ internal sealed class FakeFields(Guid id, DocumentFieldsDto fields, bool isMine 
             })
             : route.FallbackAsync());
         await Mocks.RespondAsync(page, "PUT", $"/api/documents/{Id}/fields", SaveStatus, onCall: Saved);
-        await Mocks.RespondAsync(page, "POST", $"/api/documents/{Id}/confirm", 204, onCall: Confirmed);
+        await Mocks.RespondAsync(page, "POST", $"/api/documents/{Id}/confirm", ConfirmStatus, onCall: Confirmed);
         await Mocks.RespondAsync(page, "PUT", $"/api/documents/{Id}/editors", 204);
         await Mocks.RespondAsync(page, "GET", "/api/review", 200, Array.Empty<ReviewItemDto>());
         await Mocks.RespondAsync(page, "GET", "/api/household", 200, new HouseholdMemberDto[]
@@ -63,10 +69,19 @@ internal sealed class FakeFields(Guid id, DocumentFieldsDto fields, bool isMine 
         await ClassificationMocks.ListsAsync(Mocks, page);
     }
 
-    private void Confirmed() => Current = Current with { Recognition = DocumentRecognitionState.Confirmed };
+    private void Confirmed() => Current = ConfirmStatus == 409
+        ? ChangedMeanwhile()
+        : Current with { Recognition = DocumentRecognitionState.Confirmed };
+
+    private DocumentFieldsDto ChangedMeanwhile() => Current with { Summary = ChangedSummary, Recognition = DocumentRecognitionState.Confirmed };
 
     private void Saved()
     {
+        if (SaveStatus == 409)
+        {
+            Current = ChangedMeanwhile();
+        }
+
         if (SaveStatus != 204)
         {
             return;

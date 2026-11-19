@@ -102,6 +102,9 @@
 
     [Parameter] public EventCallback OnCancel { get; set; }
 
+    /// <summary>Saving was refused because the fields changed meanwhile (409); the page loads them again and says so.</summary>
+    [Parameter] public EventCallback OnConflict { get; set; }
+
     protected override async Task OnInitializedAsync()
     {
         _form = new FormValidation(L, Js);
@@ -202,12 +205,22 @@
             _date,
             amount,
             _summary.Trim().Length == 0 ? null : _summary.Trim(),
-            [.. _tags.Select(tag => tag.Id)]);
+            [.. _tags.Select(tag => tag.Id)],
+            Fields.Recognition);
         _busy = true;
         var result = await Api.EditFieldsAsync(DocumentId, request);
         _busy = false;
         if (!result.IsSuccess)
         {
+            // Recognized, or confirmed for the first time, since the form was opened: the page loads the
+            // fields again instead of overwriting values nobody has seen.
+            if (result.IsConflict && OnConflict.HasDelegate)
+            {
+                Logger.FieldsChangedMeanwhile();
+                await OnConflict.InvokeAsync();
+                return;
+            }
+
             if (_error is not null)
             {
                 await _error.Announce(L["ErrorPrefix", result.Error!]);

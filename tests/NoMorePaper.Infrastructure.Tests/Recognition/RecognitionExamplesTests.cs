@@ -1,3 +1,4 @@
+using NoMorePaper.Application.Classification;
 using NoMorePaper.Domain.Classification;
 using NoMorePaper.Domain.Documents;
 using NoMorePaper.Infrastructure.Persistence;
@@ -31,7 +32,7 @@ public sealed class RecognitionExamplesTests(PostgresFixture postgres)
         await ConfirmedAsync(db, s_other, isPrivate: true, Seed.Fields(correspondent));
         await Seed.DocumentAsync(db, s_owner, isPrivate: false, Seed.Fields(correspondent), text: "nur automatisch");
 
-        var examples = await new EfRecognitionExamples(db).FindAsync(s_owner, [correspondent], Guid.CreateVersion7(), 3, Ct);
+        var examples = await new EfRecognitionExamples(db).FindAsync(s_owner, EntryAudience.Account, [correspondent], Guid.CreateVersion7(), 3, Ct);
 
         Assert.Equal(2, examples.Count);
         Assert.Equal(("Stadtwerke München", (string?)null, "Brief"), (examples[0].Correspondent, examples[0].DocumentType, examples[0].Title));
@@ -54,11 +55,29 @@ public sealed class RecognitionExamplesTests(PostgresFixture postgres)
         await ConfirmedAsync(db, s_owner, isPrivate: false, Seed.Fields(second));
         var examples = new EfRecognitionExamples(db);
 
-        var two = await examples.FindAsync(s_owner, [first, second], itself.Id, 2, Ct);
-        var none = await examples.FindAsync(s_owner, [], itself.Id, 3, Ct);
+        var two = await examples.FindAsync(s_owner, EntryAudience.Account, [first, second], itself.Id, 2, Ct);
+        var none = await examples.FindAsync(s_owner, EntryAudience.Account, [], itself.Id, 3, Ct);
 
         Assert.Equal(["Hausarztpraxis Weber", "AOK Bayern"], two.Select(example => example.Correspondent).ToArray());
         Assert.Empty(none);
+    }
+
+    [Fact]
+    public async Task Find_ForTheHousehold_LeavesOutTheOwnersPrivateDocuments()
+    {
+        var data = await QueueDatabase.CreateAsync(postgres, "examples_household");
+        await using var db = data.Context();
+        var correspondent = await Seed.EntryAsync(db, ClassificationKind.Correspondent, "Praxis Weber", s_owner);
+        var therapy = await Seed.EntryAsync(db, ClassificationKind.DocumentType, "Psychotherapie", s_owner);
+        await ConfirmedAsync(db, s_owner, isPrivate: true, Seed.Fields(correspondent, therapy));
+        await ConfirmedAsync(db, s_owner, isPrivate: false, Seed.Fields(correspondent));
+        var examples = new EfRecognitionExamples(db);
+
+        var forOwner = await examples.FindAsync(s_owner, EntryAudience.Account, [correspondent], Guid.CreateVersion7(), 3, Ct);
+        var forHousehold = await examples.FindAsync(s_owner, EntryAudience.Household, [correspondent], Guid.CreateVersion7(), 3, Ct);
+
+        Assert.Equal(2, forOwner.Count);
+        Assert.Null(Assert.Single(forHousehold).DocumentType);
     }
 
     private static async Task<Document> ConfirmedAsync(AppDbContext db, Guid owner, bool isPrivate, DocumentFields fields)

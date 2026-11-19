@@ -10,7 +10,9 @@ namespace NoMorePaper.Application.Recognition;
 /// One recognition attempt of a claimed job: builds the request from the owner's lists and examples,
 /// asks the model, checks the answer against the text, matches the names to list entries and takes the
 /// fields. Lists and examples are always the document owner's view, so recognition never brings
-/// another account's private entries or documents into it.
+/// another account's private entries or documents into it; for a shared document only the part the
+/// whole household sees already (<see cref="EntryAudience.Household"/>), so it never brings the owner's
+/// private-only entries into it either.
 /// </summary>
 internal sealed class RecognitionAttempt(
     IClassificationStore lists,
@@ -33,18 +35,21 @@ internal sealed class RecognitionAttempt(
         var skip = SkipReason(document);
         if (skip is not null || document is not { OwnerId: { } owner, ContentText: { } text })
         {
-            var removed = await queue.CompleteRecognitionAsync(claim, fields: null, stoppingToken).ConfigureAwait(false);
+            var removed = await queue.CompleteRecognitionAsync(claim, fields: null, wasPrivate: false, stoppingToken).ConfigureAwait(false);
             return new RecognitionOutcome(removed, skip ?? "no-text");
         }
 
-        var correspondents = await lists.VisibleEntriesAsync(owner, ClassificationKind.Correspondent, stoppingToken).ConfigureAwait(false);
-        var types = await lists.VisibleEntriesAsync(owner, ClassificationKind.DocumentType, stoppingToken).ConfigureAwait(false);
-        var tags = await lists.VisibleEntriesAsync(owner, ClassificationKind.Tag, stoppingToken).ConfigureAwait(false);
+        // A shared document gets only what the household sees already (ADR-0023, addendum 2026-11-19):
+        // the owner's private-only entries and private examples would otherwise reach it, by name.
+        var audience = document.IsPrivate ? EntryAudience.Account : EntryAudience.Household;
+        var correspondents = await lists.VisibleEntriesAsync(owner, ClassificationKind.Correspondent, audience, stoppingToken).ConfigureAwait(false);
+        var types = await lists.VisibleEntriesAsync(owner, ClassificationKind.DocumentType, audience, stoppingToken).ConfigureAwait(false);
+        var tags = await lists.VisibleEntriesAsync(owner, ClassificationKind.Tag, audience, stoppingToken).ConfigureAwait(false);
 
         var mentioned = RecognitionLists.Mentioned(new NormalizedText(text), correspondents);
         IReadOnlyList<RecognitionExample> found = mentioned.Count == 0
             ? []
-            : await examples.FindAsync(owner, [.. mentioned.Select(entry => entry.Id)], document.Id, MaxExamples, stoppingToken)
+            : await examples.FindAsync(owner, audience, [.. mentioned.Select(entry => entry.Id)], document.Id, MaxExamples, stoppingToken)
                 .ConfigureAwait(false);
         var request = new RecognitionRequest(
             RecognitionText.Shorten(text),
@@ -63,8 +68,13 @@ internal sealed class RecognitionAttempt(
             case null:
                 return new RecognitionOutcome(RecognitionCommit.ClaimLost, SkipReason: null);
             case { Recognition: RecognitionState.Confirmed }:
-                var removed = await queue.CompleteRecognitionAsync(claim, fields: null, stoppingToken).ConfigureAwait(false);
+                var removed = await queue.CompleteRecognitionAsync(claim, fields: null, wasPrivate: false, stoppingToken).ConfigureAwait(false);
                 return new RecognitionOutcome(removed, SkipReason: null);
+            case { IsPrivate: false } when audience == EntryAudience.Account:
+                // Shared meanwhile: the request held the owner's private view, so the answer may name a
+                // private-only entry. The job runs again at once, with the household's view.
+                var released = await queue.ReleaseAsync(claim, stoppingToken).ConfigureAwait(false);
+                return new RecognitionOutcome(released ? RecognitionCommit.SharedMeanwhile : RecognitionCommit.ClaimLost, SkipReason: null);
         }
 
         var today = DateOnly.FromDateTime(time.GetUtcNow().UtcDateTime);
@@ -75,8 +85,9 @@ internal sealed class RecognitionAttempt(
             RecognitionLog.RejectedValues.Add(1, new KeyValuePair<string, object?>(RecognitionLog.FieldTag, field));
         }
 
-        var fields = await ToFieldsAsync(owner, result, stoppingToken).ConfigureAwait(false);
-        var commit = await queue.CompleteRecognitionAsync(claim, fields, stoppingToken).ConfigureAwait(false);
+        var fields = await ToFieldsAsync(owner, audience, result, stoppingToken).ConfigureAwait(false);
+        // Checked again under the row lock: sharing during FindOrCreate also hands the job back.
+        var commit = await queue.CompleteRecognitionAsync(claim, fields, wasPrivate: document.IsPrivate, stoppingToken).ConfigureAwait(false);
         return new RecognitionOutcome(commit, SkipReason: null, found.Count, rejected.Count);
     }
 
@@ -88,15 +99,15 @@ internal sealed class RecognitionAttempt(
         _ => null,
     };
 
-    // Names become entries the owner may see: an equal visible one, or a new one of the owner's.
-    private async Task<DocumentFields> ToFieldsAsync(Guid owner, RecognitionResult result, CancellationToken stoppingToken)
+    // Names become entries the audience may see: an equal one it sees already, or a new one of the owner's.
+    private async Task<DocumentFields> ToFieldsAsync(Guid owner, EntryAudience audience, RecognitionResult result, CancellationToken stoppingToken)
     {
-        var correspondent = await EntryAsync(owner, ClassificationKind.Correspondent, result.Correspondent, stoppingToken).ConfigureAwait(false);
-        var documentType = await EntryAsync(owner, ClassificationKind.DocumentType, result.DocumentType, stoppingToken).ConfigureAwait(false);
+        var correspondent = await EntryAsync(owner, ClassificationKind.Correspondent, result.Correspondent, audience, stoppingToken).ConfigureAwait(false);
+        var documentType = await EntryAsync(owner, ClassificationKind.DocumentType, result.DocumentType, audience, stoppingToken).ConfigureAwait(false);
         var tagIds = new List<Guid>();
         foreach (var tag in result.Tags)
         {
-            if (await EntryAsync(owner, ClassificationKind.Tag, tag, stoppingToken).ConfigureAwait(false) is { } id)
+            if (await EntryAsync(owner, ClassificationKind.Tag, tag, audience, stoppingToken).ConfigureAwait(false) is { } id)
             {
                 tagIds.Add(id);
             }
@@ -105,6 +116,6 @@ internal sealed class RecognitionAttempt(
         return new DocumentFields(result.Title, correspondent, documentType, result.DocumentDate, result.Amount, result.Summary, tagIds);
     }
 
-    private async Task<Guid?> EntryAsync(Guid owner, ClassificationKind kind, string? name, CancellationToken stoppingToken) =>
-        name is null ? null : (await lists.FindOrCreateAsync(owner, kind, name, stoppingToken).ConfigureAwait(false)).Id;
+    private async Task<Guid?> EntryAsync(Guid owner, ClassificationKind kind, string? name, EntryAudience audience, CancellationToken stoppingToken) =>
+        name is null ? null : (await lists.FindOrCreateAsync(owner, kind, name, audience, stoppingToken).ConfigureAwait(false)).Id;
 }

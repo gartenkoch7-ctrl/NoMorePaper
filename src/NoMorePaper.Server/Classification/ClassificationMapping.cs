@@ -30,6 +30,15 @@ internal static class ClassificationMapping
         _ => throw new ArgumentOutOfRangeException(nameof(state), state, "Unknown recognition state."),
     };
 
+    /// <summary>The state a client sent; <c>null</c> for a number outside the enum, which the JSON converter lets through.</summary>
+    public static RecognitionState? ToDomain(this DocumentRecognitionState state) => state switch
+    {
+        DocumentRecognitionState.None => RecognitionState.None,
+        DocumentRecognitionState.Automatic => RecognitionState.Automatic,
+        DocumentRecognitionState.Confirmed => RecognitionState.Confirmed,
+        _ => null,
+    };
+
     public static DocumentFieldsDto ToDto(this DocumentFieldsView view) =>
         new(
             view.Correspondent?.ToDto(),
@@ -49,8 +58,8 @@ internal static class ClassificationMapping
     public static DuplicateCandidateDto ToDto(this DuplicateCandidate candidate) =>
         new(candidate.Id, candidate.Title, candidate.ReceivedAt, candidate.DocumentDate, candidate.Correspondent?.ToDto());
 
-    /// <summary>The fields of a request, unchecked; the use case validates them.</summary>
-    public static FieldsEdit ToEdit(this EditFieldsRequestDto request) =>
+    /// <summary>The fields of a request, unchecked (the use case validates them), with the state the client saw.</summary>
+    public static FieldsEdit ToEdit(this EditFieldsRequestDto request, RecognitionState seen) =>
         new(
             request.Title,
             request.CorrespondentId,
@@ -59,7 +68,8 @@ internal static class ClassificationMapping
             request.Amount?.Value,
             request.Amount?.Currency,
             request.Summary,
-            request.TagIds);
+            request.TagIds,
+            seen);
 
     /// <summary>The label part of a list row or search hit: correspondent, type, date, amount, recognition.</summary>
     public static (EntryDto? Correspondent, EntryDto? DocumentType, DateOnly? DocumentDate, MoneyDto? Amount, DocumentRecognitionState Recognition)

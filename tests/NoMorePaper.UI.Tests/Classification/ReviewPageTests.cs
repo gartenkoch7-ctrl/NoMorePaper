@@ -36,6 +36,23 @@ public sealed class ReviewPageTests(ServerFixture server)
         await Assertions.Expect(page.GetByRole(AriaRole.Link, new() { Name = "Zu prüfen (2)" })).ToHaveAttributeAsync("aria-current", "page");
     }
 
+
+    [Fact]
+    public async Task Confirm_OfAnItemChangedMeanwhile_LoadsTheListAgain_AndSaysSo()
+    {
+        var (first, second) = (ClassificationSamples.Review("Stromrechnung November"), ClassificationSamples.Review("Brief Finanzamt"));
+        var fake = new FakeReview(first, second) { ConfirmStatus = 409 };
+        await using var session = await fake.OpenAsync(server);
+        var page = session.Page;
+
+        await page.GetByRole(AriaRole.Button, new() { Name = "Bestätigen: Stromrechnung November" }).ClickAsync();
+
+        await Assertions.Expect(page.Locator("main .form-error"))
+            .ToContainTextAsync("Die Angaben wurden inzwischen geändert und neu geladen. Bitte prüfe sie noch einmal.");
+        await Assertions.Expect(page.GetByRole(AriaRole.Heading, new() { Level = 2 })).ToHaveTextAsync(["Brief Finanzamt"]);
+        await Assertions.Expect(page.Locator("#review-heading")).ToBeFocusedAsync();
+        Assert.Contains("\"Automatic\"", fake.Mocks.BodyOf("POST", $"/api/documents/{first.Id}/confirm"), StringComparison.Ordinal);
+    }
     [Fact]
     public async Task Confirm_RemovesTheItem_AnnouncesWhatIsLeft_AndFocusesTheNextOne()
     {

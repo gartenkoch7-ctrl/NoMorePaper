@@ -40,7 +40,8 @@ public sealed class RemovedMemberTests(ApiFixture api)
         using var password = await Client(cookie).PostAsJsonAsync(
             "/api/account/password", new ChangePasswordDto(ApiFixtureExtensions.MemberPassword, "neues-passwort"), Ct);
         using var acknowledge = await Client(cookie).PostAsync("/api/account/acknowledge-reset", null, Ct);
-        using var confirm = await Client(cookie).PostAsync($"/api/documents/{document}/confirm", null, Ct);
+        using var confirm = await Client(cookie).PostAsJsonAsync(
+            $"/api/documents/{document}/confirm", new ConfirmRequestDto(DocumentRecognitionState.None), Ct);
         using var entry = await Client(cookie).PostAsJsonAsync("/api/classification/tags", new CreateEntryDto("Nach dem Entfernen"), Ct);
 
         Assert.Equal(HttpStatusCode.Unauthorized, upload.StatusCode);

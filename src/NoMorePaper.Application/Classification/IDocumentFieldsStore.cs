@@ -10,7 +10,10 @@ namespace NoMorePaper.Application.Classification;
 /// </summary>
 public interface IDocumentFieldsStore
 {
-    /// <summary>The document with its tags and editors, tracked for <see cref="SaveAsync"/>.</summary>
+    /// <summary>
+    /// The document with its tags and editors, tracked for <see cref="SaveAsync"/>. It stays locked against
+    /// the Worker finishing a recognition until <see cref="SaveAsync"/> or <see cref="DeleteAsync"/>.
+    /// </summary>
     /// <returns><c>null</c> if it does not exist or <paramref name="viewerId"/> may not see it.</returns>
     Task<Document?> FindVisibleAsync(Guid documentId, Guid viewerId, CancellationToken cancellationToken);
 
@@ -34,4 +37,7 @@ public interface IDocumentFieldsStore
     /// possible duplicate of a document the viewer may see, newest first.
     /// </summary>
     Task<IReadOnlyList<ReviewItem>> ListReviewAsync(Guid viewerId, CancellationToken cancellationToken);
+
+    /// <summary>How many documents <see cref="ListReviewAsync"/> returns for <paramref name="viewerId"/>, by the same rule.</summary>
+    Task<int> CountReviewAsync(Guid viewerId, CancellationToken cancellationToken);
 }

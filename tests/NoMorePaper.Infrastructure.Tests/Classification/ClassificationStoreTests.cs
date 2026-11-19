@@ -24,14 +24,37 @@ public sealed class ClassificationStoreTests(PostgresFixture postgres)
         var anna = Guid.CreateVersion7();
         var bob = Guid.CreateVersion7();
 
-        var created = await Store(database).FindOrCreateAsync(anna, ClassificationKind.Correspondent, "Stadtwerke München GmbH", Ct);
-        var again = await Store(database).FindOrCreateAsync(anna, ClassificationKind.Correspondent, "  stadtwerke-munchen ", Ct);
-        var bobs = await Store(database).FindOrCreateAsync(bob, ClassificationKind.Correspondent, "Stadtwerke München", Ct);
+        var created = await Store(database).FindOrCreateAsync(anna, ClassificationKind.Correspondent, "Stadtwerke München GmbH", EntryAudience.Account, Ct);
+        var again = await Store(database).FindOrCreateAsync(anna, ClassificationKind.Correspondent, "  stadtwerke-munchen ", EntryAudience.Account, Ct);
+        var bobs = await Store(database).FindOrCreateAsync(bob, ClassificationKind.Correspondent, "Stadtwerke München", EntryAudience.Account, Ct);
 
         Assert.Equal(created, again);
         Assert.NotEqual(created.Id, bobs.Id);
         Assert.Equal("Stadtwerke München", bobs.Name);
-        Assert.Equal([created], await Store(database).VisibleEntriesAsync(anna, ClassificationKind.Correspondent, Ct));
+        Assert.Equal([created], await Store(database).VisibleEntriesAsync(anna, ClassificationKind.Correspondent, EntryAudience.Account, Ct));
+    }
+
+    [Fact]
+    public async Task FindOrCreate_ForTheHousehold_ReusesOnlyAnEntryASharedDocumentUses()
+    {
+        await using var database = await AccountDatabase.CreateAsync(postgres, "store_find_household");
+        var anna = Guid.CreateVersion7();
+        var db = database.Db();
+        var therapy = await Seed.EntryAsync(db, ClassificationKind.Tag, "Psychotherapie", anna);
+        await Seed.DocumentAsync(db, anna, isPrivate: true, Seed.Fields(tagIds: therapy));
+        var power = await Seed.EntryAsync(db, ClassificationKind.Tag, "Strom", anna);
+        await Seed.DocumentAsync(db, anna, isPrivate: false, Seed.Fields(tagIds: power));
+
+        var forShared = await Store(database).FindOrCreateAsync(anna, ClassificationKind.Tag, "psychotherapie", EntryAudience.Household, Ct);
+        var forPrivate = await Store(database).FindOrCreateAsync(anna, ClassificationKind.Tag, "psychotherapie", EntryAudience.Account, Ct);
+        var shared = await Store(database).FindOrCreateAsync(anna, ClassificationKind.Tag, "Strom", EntryAudience.Household, Ct);
+
+        // A second entry of the same name: the private one stays private, nothing collides.
+        Assert.NotEqual(therapy, forShared.Id);
+        Assert.Equal("psychotherapie", forShared.Name);
+        Assert.Equal(therapy, forPrivate.Id);
+        Assert.Equal(power, shared.Id);
+        Assert.Equal(["Strom"], (await Store(database).VisibleEntriesAsync(anna, ClassificationKind.Tag, EntryAudience.Household, Ct)).Select(entry => entry.Name));
     }
 
     [Fact]
@@ -39,7 +62,7 @@ public sealed class ClassificationStoreTests(PostgresFixture postgres)
     {
         await using var database = await AccountDatabase.CreateAsync(postgres, "store_invalid");
 
-        await Assert.ThrowsAsync<ArgumentException>(() => Store(database).FindOrCreateAsync(Guid.CreateVersion7(), ClassificationKind.Tag, " ", Ct));
+        await Assert.ThrowsAsync<ArgumentException>(() => Store(database).FindOrCreateAsync(Guid.CreateVersion7(), ClassificationKind.Tag, " ", EntryAudience.Account, Ct));
     }
 
     [Fact]
@@ -49,10 +72,10 @@ public sealed class ClassificationStoreTests(PostgresFixture postgres)
         var anna = Guid.CreateVersion7();
         foreach (var name in new[] { "Strom", "Auto", "Miete" })
         {
-            await Store(database).FindOrCreateAsync(anna, ClassificationKind.Tag, name, Ct);
+            await Store(database).FindOrCreateAsync(anna, ClassificationKind.Tag, name, EntryAudience.Account, Ct);
         }
 
-        var names = (await Store(database).VisibleEntriesAsync(anna, ClassificationKind.Tag, Ct)).Select(entry => entry.Name);
+        var names = (await Store(database).VisibleEntriesAsync(anna, ClassificationKind.Tag, EntryAudience.Account, Ct)).Select(entry => entry.Name);
 
         Assert.Equal(["Auto", "Miete", "Strom"], names);
     }
@@ -72,7 +95,7 @@ public sealed class ClassificationStoreTests(PostgresFixture postgres)
 
         Assert.Equal(EntryChange.Changed, await Store(database).RenameAsync(anna, kind, entry, "Stadtwerke AG", Ct));
 
-        var renamed = Assert.Single(await Store(database).VisibleEntriesAsync(anna, kind, Ct));
+        var renamed = Assert.Single(await Store(database).VisibleEntriesAsync(anna, kind, EntryAudience.Account, Ct));
         Assert.Equal("Stadtwerke AG", renamed.Name);
         var read = database.Db();
         IQueryable<ClassificationEntry> entries = kind switch
@@ -96,7 +119,7 @@ public sealed class ClassificationStoreTests(PostgresFixture postgres)
         await Seed.DocumentAsync(db, bob, isPrivate: true, Seed.Fields(tagIds: entry));
 
         Assert.Equal(EntryChange.Forbidden, await Store(database).RenameAsync(anna, ClassificationKind.Tag, entry, "Energie", Ct));
-        Assert.Equal("Strom", Assert.Single(await Store(database).VisibleEntriesAsync(anna, ClassificationKind.Tag, Ct)).Name);
+        Assert.Equal("Strom", Assert.Single(await Store(database).VisibleEntriesAsync(anna, ClassificationKind.Tag, EntryAudience.Account, Ct)).Name);
     }
 
     [Fact]

@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using NoMorePaper.Application.Classification;
 using NoMorePaper.Application.Recognition;
 using NoMorePaper.Domain.Classification;
 using NoMorePaper.Domain.Documents;
@@ -8,14 +9,16 @@ using NoMorePaper.Infrastructure.Persistence;
 namespace NoMorePaper.Infrastructure.Recognition;
 
 /// <summary>
-/// Confirmed documents as recognition examples, from Postgres. Only documents the owner may see (own
-/// ones and all that are not private) are read, filtered in the query; their entries are visible to the
-/// owner through them, so the names reveal nothing either.
+/// Confirmed documents as recognition examples, from Postgres. Only documents the audience may see (own
+/// ones and all that are not private, or for the household only those that are not private) are read,
+/// filtered in the query; their entries are visible to the audience through them, so the names reveal
+/// nothing either.
 /// </summary>
 public sealed class EfRecognitionExamples(AppDbContext db) : IRecognitionExamples
 {
     public async Task<IReadOnlyList<RecognitionExample>> FindAsync(
         Guid ownerId,
+        EntryAudience audience,
         IReadOnlyList<Guid> correspondentIds,
         Guid exceptDocumentId,
         int limit,
@@ -30,6 +33,7 @@ public sealed class EfRecognitionExamples(AppDbContext db) : IRecognitionExample
 
         // One query for the order: the first correspondent's documents first, newest first within one.
         var confirmed = nameof(RecognitionState.Confirmed);
+        var withOwn = audience == EntryAudience.Account;
         var chosen = await db.Database.SqlQuery<Guid>(
                 $"""
                 SELECT ranked.id AS "Value" FROM (
@@ -37,7 +41,7 @@ public sealed class EfRecognitionExamples(AppDbContext db) : IRecognitionExample
                            row_number() OVER (PARTITION BY d.correspondent_id ORDER BY d.received_at DESC, d.id DESC) AS n
                     FROM documents d
                     WHERE d.correspondent_id = ANY({ids}) AND d.recognition = {confirmed} AND d.id <> {exceptDocumentId}
-                      AND (d.owner_id = {ownerId} OR NOT d.is_private)) ranked
+                      AND (({withOwn} AND d.owner_id = {ownerId}) OR NOT d.is_private)) ranked
                 WHERE ranked.n <= {limit}
                 ORDER BY ranked.mention, ranked.received_at DESC, ranked.id DESC
                 LIMIT {limit}

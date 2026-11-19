@@ -129,6 +129,43 @@ public sealed class FieldsPanelTests(ServerFixture server)
     }
 
     [Fact]
+    public async Task Edit_OfFieldsChangedMeanwhile_ClosesTheForm_ShowsTheNewValues_AndSaysSo()
+    {
+        var fake = Fake();
+        fake.SaveStatus = 409;
+        await using var session = await fake.OpenViewerAsync(server);
+        var page = session.Page;
+
+        await page.GetByRole(AriaRole.Button, new() { Name = "Bearbeiten", Exact = true }).ClickAsync();
+        await page.GetByRole(AriaRole.Button, new() { Name = "Speichern", Exact = true }).ClickAsync();
+
+        await Assertions.Expect(page.Locator(".fields-panel .live-region").First)
+            .ToHaveTextAsync("Die Angaben wurden inzwischen geändert und neu geladen. Bitte prüfe sie noch einmal.");
+        await Assertions.Expect(page.Locator(".fields-editor")).ToHaveCountAsync(0);
+        await Assertions.Expect(page.Locator(".fields-summary")).ToContainTextAsync(FakeFields.ChangedSummary);
+        await Assertions.Expect(page.GetByRole(AriaRole.Button, new() { Name = "Bearbeiten", Exact = true })).ToBeFocusedAsync();
+        using var body = JsonDocument.Parse(fake.Mocks.BodyOf("PUT", $"/api/documents/{fake.Id}/fields")!);
+        Assert.Equal("Automatic", body.RootElement.GetProperty("recognition").GetString());
+    }
+
+    [Fact]
+    public async Task Confirm_OfFieldsChangedMeanwhile_ShowsTheNewValues_AndSaysSo()
+    {
+        var fake = Fake();
+        fake.ConfirmStatus = 409;
+        await using var session = await fake.OpenViewerAsync(server);
+        var page = session.Page;
+
+        await page.GetByRole(AriaRole.Button, new() { Name = "Bestätigen", Exact = true }).ClickAsync();
+
+        await Assertions.Expect(page.Locator(".fields-panel .live-region").First)
+            .ToHaveTextAsync("Die Angaben wurden inzwischen geändert und neu geladen. Bitte prüfe sie noch einmal.");
+        await Assertions.Expect(page.Locator(".fields-summary")).ToContainTextAsync(FakeFields.ChangedSummary);
+        using var body = JsonDocument.Parse(fake.Mocks.BodyOf("POST", $"/api/documents/{fake.Id}/confirm")!);
+        Assert.Equal("Automatic", body.RootElement.GetProperty("recognition").GetString());
+    }
+
+    [Fact]
     public async Task Cancel_ClosesTheForm_AndReturnsFocusToEdit()
     {
         var fake = Fake();
