@@ -1,0 +1,21 @@
+From: "Kundenservice Ihre Bank" <sicherheit@meinebank-service.example>
+To: dokumente@haushalt.example
+Subject: Wichtig: Ihr Online-Banking wird in 24 Stunden gesperrt
+Date: Tue, 17 Nov 2026 06:12:44 +0100
+Message-ID: <spam01.8f2a@meinebank-service.example>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8bit
+
+Sehr geehrter Kunde,
+
+bei einer routinemäßigen Prüfung haben wir unregelmäßige Aktivitäten in Ihrem Konto festgestellt.
+Aus Sicherheitsgründen wird Ihr Online-Banking in 24 Stunden gesperrt, wenn Sie Ihre Daten nicht bestätigen.
+
+Bitte melden Sie sich jetzt an und bestätigen Sie Ihre TAN-Liste:
+https://login-verifizierung-konto.example/secure/bank/login.php?ref=88231
+
+Nach der Bestätigung ist Ihr Konto sofort wieder freigeschaltet.
+
+Mit freundlichen Grüßen
+Ihr Sicherheitsteam

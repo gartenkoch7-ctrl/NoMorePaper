@@ -1,6 +1,7 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using NoMorePaper.Application.Inputs.Mail;
 using NoMorePaper.Application.Recognition;
 using NoMorePaper.Infrastructure.Recognition;
 
@@ -36,6 +37,21 @@ public static class RecognitionRegistration
                 provider.GetRequiredService<LlmGate>(),
                 provider.GetRequiredService<TimeProvider>(),
                 provider.GetRequiredService<ILogger<OllamaRecognizer>>());
+        });
+        services.AddSingleton<IMailAssessor>(provider =>
+        {
+            var settings = provider.GetRequiredService<OllamaSettings>();
+            var http = new HttpClient(new SocketsHttpHandler { PooledConnectionLifetime = s_connectionLifetime })
+            {
+                BaseAddress = settings.Endpoint,
+                Timeout = Timeout.InfiniteTimeSpan,
+            };
+            return new OllamaMailAssessor(
+                http,
+                settings,
+                provider.GetRequiredService<LlmGate>(),
+                provider.GetRequiredService<TimeProvider>(),
+                provider.GetRequiredService<ILogger<OllamaMailAssessor>>());
         });
         services.AddScoped<IRecognitionExamples, EfRecognitionExamples>();
         services.AddScoped<IDuplicateFinder, PostgresDuplicateFinder>();

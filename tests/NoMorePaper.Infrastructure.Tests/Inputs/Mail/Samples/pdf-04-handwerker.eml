@@ -1,0 +1,32 @@
+From: "Meisterbetrieb Klempner Muster" <info@klempner-muster.example>
+To: dokumente@haushalt.example
+Subject: Rechnung Nr. 2026-117
+Date: Thu, 12 Nov 2026 18:03:00 +0100
+Message-ID: <pdf04.r117@klempner-muster.example>
+MIME-Version: 1.0
+Content-Type: multipart/mixed; boundary="b-pdf04"
+
+--b-pdf04
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8bit
+
+Hallo,
+
+anbei die Rechnung für die Reparatur am Waschbecken.
+
+Gruß
+Klempner Muster
+
+--b-pdf04
+Content-Type: application/octet-stream; name="Rechnung_2026-117.pdf"
+Content-Disposition: attachment; filename="Rechnung_2026-117.pdf"
+Content-Transfer-Encoding: 7bit
+
+%PDF-1.4
+1 0 obj << /Type /Catalog /Pages 2 0 R >> endobj
+2 0 obj << /Type /Pages /Kids [3 0 R] /Count 1 >> endobj
+3 0 obj << /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] >> endobj
+trailer << /Root 1 0 R >>
+%%EOF
+
+--b-pdf04--

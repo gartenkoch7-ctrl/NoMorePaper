@@ -4,6 +4,7 @@ using NoMorePaper.Application.Accounts;
 using NoMorePaper.Application.Classification;
 using NoMorePaper.Application.Documents;
 using NoMorePaper.Application.Inputs;
+using NoMorePaper.Application.Inputs.Mail;
 using NoMorePaper.Application.Processing;
 using NoMorePaper.Application.Recognition;
 using NoMorePaper.Application.Search;
@@ -28,6 +29,7 @@ public static class ApplicationServiceCollectionExtensions
         services.AddScoped<SearchDocuments>();
         services.AddScoped<SetDocumentPrivacy>();
         services.AddScoped<ListInputStatus>();
+        services.AddScoped<ConfigureMailbox>();
         services.AddAccounts();
         services.AddClassification();
         return services;
@@ -90,6 +92,10 @@ public static class ApplicationServiceCollectionExtensions
 
         // The background inputs (ADR-0024) take files in without a signed-in account.
         services.AddScoped<IntakeDocument>();
+
+        // The mail input asks the local LLM (IMailAssessor), which only the Worker provides.
+        services.AddScoped<MailIntake>();
+        services.AddScoped<ProcessMailbox>();
         return services;
     }
 }

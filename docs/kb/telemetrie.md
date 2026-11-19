@@ -67,6 +67,9 @@ Die Annahme behält 3200/3201 und nennt dort die Quelle.
 | 1304 | Information | `Server/Accounts/AccountsLog` | Konto abgemeldet: Konto-Id |
 | 1305 | Information | `Server/Accounts/AccountsLog` | Sitzung beendet, weil das Konto entfernt oder sein Security-Stamp erneuert wurde: Konto-Id |
 | 1306 | Warning | `Server/Accounts/AccountsLog` | Passwortänderung abgelehnt, weil das Konto gesperrt ist (423): Konto-Id, `Retry-After` in Sekunden |
+| 1400 | Information | `Server/Inputs/MailSettingsLog` | Postfach eingerichtet (`PUT /api/inputs/mail`): Konto-Id, Verschlüsselung (`Ssl`, `StartTls`, `None`), ob ein neues Passwort kam – nie Host, Benutzer, authserv-id oder Passwort |
+| 1401 | Warning | `Server/Inputs/MailSettingsLog` | Postfach-Einrichtung abgelehnt: Konto-Id, Grund (`invalid`, `password-missing`, `not-administrator`) |
+| 1402 | Information | `Server/Inputs/MailSettingsLog` | Verbindung getestet (`POST /api/inputs/mail/test`): Konto-Id, Ergebnis (`Ok`, `SignInFailed`, `Unreachable`) |
 | 1410 | Information | `Server/Inputs/InputsLog` | Einstellungen gespeichert (`PUT /api/account/preferences`): Konto-Id, Anzahl Absender-Adressen – nie die Adressen |
 | 1411 | Warning | `Server/Inputs/InputsLog` | Einstellungen abgelehnt: Konto-Id, Grund (`empty`, `invalid`, `sender-taken`) |
 | 1420 | Information | `Server/Inputs/InputsLog` | Besitzer-Prüfung beantwortet: Vorgang (`confirm`, `hand-over`), Dokument-Id, Ergebnis (`Changed`, `NotFound`, `Forbidden`, `Invalid`, `Conflict`, `AccountGone`) |
@@ -138,6 +141,16 @@ Die Annahme behält 3200/3201 und nennt dort die Quelle.
 | 3607 | Information | `Infrastructure/Inputs/ScannerFolder/ScannerFolderLog` | Datei hat sich während der Annahme geändert; sie bleibt und wird neu gelesen |
 | 3608 | Warning | `Infrastructure/Inputs/ScannerFolder/ScannerFolderLog` | Unterordner eines Kontos nicht anlegbar (Konto-Id, Ausnahmetyp) |
 | 3609 | Warning | `Infrastructure/Inputs/ScannerFolder/ScannerFolderLog` | Datei nicht nach `Fehler/` verschiebbar (Ausnahmetyp oder `NameTaken`); sie bleibt |
+| 3700 | Information | `Infrastructure/Inputs/Mail/ImapLog` | Am Postfach angemeldet: Dauer in ms (Verbinden + Anmelden) |
+| 3701 | Warning | `Infrastructure/Inputs/Mail/ImapLog` | Mailserver hat die Anmeldung abgelehnt (oder das gespeicherte Passwort ist nicht lesbar) |
+| 3702 | Warning | `Infrastructure/Inputs/Mail/ImapLog` | Mailserver nicht erreichbar: Ausnahmetyp – nie der Host |
+| 3703 | Information | `Infrastructure/Inputs/Mail/ImapLog` | Postfach-Ordner angelegt und abonniert: Zweck (`Processed`, `Spam`, `Failed`) |
+| 3704 | Warning | `Infrastructure/Inputs/Mail/ImapLog` | Mail nicht als MIME lesbar: Ausnahmetyp |
+| 3705 | Information | `Infrastructure/Inputs/Mail/ImapLog` | Postfach nicht eingerichtet, nichts abzuholen |
+| 3706 | Warning | `Infrastructure/Inputs/Mail/ImapLog` | Mailserver lehnte einen Befehl ab, der Lauf endet: Ausnahmetyp |
+| 3707 | Information | `Infrastructure/Inputs/Mail/ImapLog` | Server ohne `MOVE`: Mail kopiert und als gelöscht markiert; ob nur diese UID gelöscht wurde (`UIDPLUS`) |
+| 3710 | Information | `Infrastructure/Recognition/MailAssessorLog` | Modell hat eine Mail geprüft: Dauer in ms (Fehler der Anfrage: 3521–3524) |
+| 3711 | Information | `Infrastructure/Recognition/MailAssessorLog` | Hinweis „Aus der Mail“ verworfen, weil er ein Datum oder eine lange Zahl (≥ 6 Ziffern) nennt, die nicht in der Mail steht |
 | 3900 | Information | `Infrastructure/Documents/Pdf/PdfLog` | PDF erzeugt: Art (`images` = Kamera-Seiten, `text` = Mailtext), Seiten, Größe in Bytes, Dauer in ms – nie Text |
 | 3901 | Warning | `Infrastructure/Security/SecretLog` | Gespeichertes Geheimnis nicht entschlüsselbar: Zweck (`MailPassword`, `ICloudSession`); es muss neu eingegeben werden |
 | 3902 | Warning | `Infrastructure/Recognition/OllamaLog` | `LlmGate`: Ollama blieb belegt, eine Anfrage gab nach der Höchstwartezeit auf: Priorität (`Recognition`, `Mail`), Wartezeit in ms |
@@ -204,7 +217,10 @@ Die Annahme behält 3200/3201 und nennt dort die Quelle.
 | 4702 | Warning | `Web.Client/Inputs/InputsLog` | Aktion der Seiten „Eingänge“, Konto, Besitzer prüfen fehlgeschlagen: Code (`load-inputs`, `load-preferences`, `save-preferences`, `load-household`, `owner-check`, `hand-over`) |
 | 4703 | Information | `Web.Client/Inputs/InputsLog` | Dokument unklarer Herkunft weitergegeben (ohne Dokument- und Kontoname) |
 | 4704 | Information | `Web.Client/Inputs/InputsLog` | Dokument unklarer Herkunft behalten („Passt so“) |
-| 4790 | Warning | `Web.Client/Inputs/InputsLog` | Aufruf der Eingangs-/Einstellungs-API fehlgeschlagen: Vorgang (`preferences`, `save-preferences`, `inputs`, `owner-check`, `hand-over`), HTTP-Status |
+| 4790 | Warning | `Web.Client/Inputs/InputsLog` | Aufruf der Eingangs-/Einstellungs-API fehlgeschlagen: Vorgang (`preferences`, `save-preferences`, `inputs`, `owner-check`, `hand-over`, `mail-settings`, `save-mail-settings`, `test-mail-settings`), HTTP-Status |
+| 4720 | Information | `Web.Client/Pages/MailSettingsLog` | Seite „Mail-Eingang“ geladen: ob ein Passwort gespeichert ist |
+| 4721 | Information | `Web.Client/Pages/MailSettingsLog` | Postfach gespeichert: ob ein neues Passwort dabei war |
+| 4722 | Information | `Web.Client/Pages/MailSettingsLog` | Verbindung getestet: ob die Anmeldung klappte |
 | 4791 | Warning | `Web.Client/Inputs/InputsLog` | Eingangs-/Einstellungs-API nicht erreichbar: Vorgang, Ausnahmetyp |
 | 5100 | Information | `Application/Accounts/AccountsLog` | Haushalt eingerichtet: Verwalter-Id, Anzahl übernommener Dokumente ohne Besitzer (M1) |
 | 5101 | Warning | `Application/Accounts/AccountsLog` | Einrichtung abgelehnt, Haushalt schon eingerichtet |
@@ -253,6 +269,15 @@ Die Annahme behält 3200/3201 und nennt dort die Quelle.
 | 5301 | Warning | `Application/Documents/DocumentIntakeLog` | Datei nicht angenommen, Besitzer entfernt: Quelle, Konto-Id |
 | 5302 | Warning | `Application/Documents/DocumentIntakeLog` | Datei unbekannten Besitzers nicht angenommen, weil es keinen Verwalter gibt: Quelle |
 | 5303 | Information | `Application/Documents/DocumentIntakeLog` | Dokument unklarer Herkunft weitergegeben: Konto-Id, Dokument-Id, neuer Besitzer, ob die Erkennung neu eingereiht wurde, Anzahl verworfener Listeneinträge (für die Zielsicht unsichtbar) |
+| 5400 | Information | `Application/Inputs/Mail/MailLog` | Mail verarbeitet: Anzahl neuer Dokumente, Ergebnis (`document`, `no-document`, `spam`, `already-imported`) – nie Absender, Betreff, Text |
+| 5401 | Warning | `Application/Inputs/Mail/MailLog` | LLM-Prüfung einer Mail unbrauchbar (zählt als Fehlschlag der Mail): Ausnahmetyp |
+| 5402 | Information | `Application/Inputs/Mail/MailLog` | Teil einer Mail ist kein Dokument und wurde ausgelassen: angegebener Medientyp ohne Parameter (z. B. `image/png`) – nie der Dateiname |
+| 5403 | Warning | `Application/Inputs/Mail/MailLog` | Verschieben einer Mail fehlgeschlagen: Ziel (`Processed`, `Spam`, `Failed`), Ausnahmetyp; ein späterer Lauf verschiebt sie |
+| 5404 | Warning | `Application/Inputs/Mail/MailLog` | Mail nach 3 Fehlschlägen in `NoMorePaper-Fehler` gelegt: Anzahl Fehlschläge |
+| 5405 | Warning | `Application/Inputs/Mail/MailLog` | Annahme einer Mail fehlgeschlagen: Ausnahmetyp, Fehlschlag n von 3 |
+| 5406 | Warning | `Application/Inputs/Mail/MailLog` | Lokales LLM nicht verfügbar, Lauf endet: Anzahl Mails, die unberührt im Posteingang bleiben |
+| 5407 | Information | `Application/Inputs/Mail/MailLog` | Zeitbudget des Laufs (5 min) erreicht: Anzahl verarbeiteter Mails |
+| 5408 | Information | `Application/Inputs/Mail/MailLog` | Lauf über das Postfach: Mails, neue Dokumente, ohne Dokument, aussortiert, Dauer in ms |
 
 Web.Client: Die Ereignisse erscheinen nur in der Browser-Konsole und enthalten nur Sprachkürzel,
 Größen, Anzahlen, Statuscodes, Dauern und technische Fehlernamen – nie Dateinamen, Titel,
@@ -286,6 +311,7 @@ In WASM gibt es keine `ActivitySource` und kein `Meter` (kein Exporter).
 | `nomorepaper.inputs.skipped` | Counter | `NoMorePaper.Application` | nicht angenommene Dateien, Tags `nomorepaper.inputs.source`, `nomorepaper.inputs.reason` (`duplicate`, `owner-gone`, `no-administrator`) |
 | `nomorepaper.inputs.received` | Counter | `NoMorePaper.Worker` | von Hintergrund-Eingängen angenommene Dokumente, Tag `nomorepaper.inputs.source` (`ScannerFolder`, `Mail`, `ICloud`) |
 | `nomorepaper.inputs.failed` | Counter | `NoMorePaper.Worker` | Läufe mit Problem, Tags `nomorepaper.inputs.source`, `nomorepaper.inputs.problem` (`InputProblemKind`) |
+| `nomorepaper.mail.assessed` | Counter | `NoMorePaper.Application` | vom LLM geprüfte Mails, Tag `nomorepaper.mail.verdict` (`spam`, `document`, `no-document`) |
 | `nomorepaper.search.duration` | Histogramm (ms) | `NoMorePaper.Infrastructure` | Dauer einer Suche |
 | `nomorepaper.storage.stored_bytes` | Counter (By) | `NoMorePaper.Infrastructure` | in die Dokumentablage geschriebene Bytes, Tag `nomorepaper.storage.kind` (`Original`/`Archive`) |
 | `nomorepaper.processing.completed` | Counter | `NoMorePaper.Application` | erfolgreich verarbeitete Dokumente |

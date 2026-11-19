@@ -1,0 +1,23 @@
+@using NoMorePaper.Contracts.Inputs
+@inject IStringLocalizer<Strings> L
+
+@* "Aus der Mail": where a document that came by mail comes from, right after the summary, so a screen
+   reader user hears the deadline or how to pay before the single fields. Nothing for other documents. *@
+@if (Mail is { } mail)
+{
+    <section class="fields-mail" aria-labelledby="fields-mail-heading">
+        <MudText Typo="Typo.h3" id="fields-mail-heading">@L["MailOriginHeading"]</MudText>
+        <dl class="fields-list">
+            <dt>@L["MailOriginNote"]</dt>
+            <dd>@(string.IsNullOrWhiteSpace(mail.Note) ? L["MailOriginNoNote"] : mail.Note)</dd>
+            <dt>@L["MailOriginSender"]</dt>
+            <dd>@mail.Sender</dd>
+            <dt>@L["MailOriginSubject"]</dt>
+            <dd>@(string.IsNullOrWhiteSpace(mail.Subject) ? L["ClsNoValue"] : mail.Subject)</dd>
+        </dl>
+    </section>
+}
+
+@code {
+    [Parameter] public MailOriginDto? Mail { get; set; }
+}

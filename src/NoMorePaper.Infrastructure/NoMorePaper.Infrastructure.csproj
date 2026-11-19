@@ -17,6 +17,8 @@
     <!-- Inputs (M4, ADR-0024): camera pages and mail texts as PDF (MIT). -->
     <PackageReference Include="PDFsharp" />
     <PackageReference Include="System.Security.Cryptography.Pkcs" />
+    <!-- Mail input (M4, ADR-0024): IMAP and MIME parsing (MIT). -->
+    <PackageReference Include="MailKit" />
     <!-- Design-time only (dotnet ef migrations); not passed on to Server, Worker or tests. -->
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design">
       <PrivateAssets>all</PrivateAssets>

@@ -1320,4 +1320,109 @@
   <data name="InpPrefsAlreadyListed" xml:space="preserve">
     <value>This address is already in your list.</value>
   </data>
+  <data name="MailTitle" xml:space="preserve">
+    <value>Mail input – NoMorePaper</value>
+  </data>
+  <data name="MailHeading" xml:space="preserve">
+    <value>Set up the mail input</value>
+  </data>
+  <data name="MailAdminOnly" xml:space="preserve">
+    <value>Only the administrator can set up the household's mailbox.</value>
+  </data>
+  <data name="MailLoading" xml:space="preserve">
+    <value>Loading the mailbox settings …</value>
+  </data>
+  <data name="MailExplain" xml:space="preserve">
+    <value>NoMorePaper fetches the mails of this mailbox every 5 minutes. Attachments become documents, important mails without attachment are kept as PDF, advertising and fraud go to the folder "NoMorePaper-Spam". The password is stored encrypted and never shown again.</value>
+  </data>
+  <data name="MailFieldHost" xml:space="preserve">
+    <value>Mail server (IMAP)</value>
+  </data>
+  <data name="MailHintHost" xml:space="preserve">
+    <value>For example imap.example.com</value>
+  </data>
+  <data name="MailFieldPort" xml:space="preserve">
+    <value>Port</value>
+  </data>
+  <data name="MailHintPort" xml:space="preserve">
+    <value>Usually 993 with SSL/TLS or 143 with STARTTLS.</value>
+  </data>
+  <data name="MailFieldSecurity" xml:space="preserve">
+    <value>Encryption</value>
+  </data>
+  <data name="MailSecuritySsl" xml:space="preserve">
+    <value>SSL/TLS</value>
+  </data>
+  <data name="MailSecurityStartTls" xml:space="preserve">
+    <value>STARTTLS</value>
+  </data>
+  <data name="MailSecurityNone" xml:space="preserve">
+    <value>None (own network only)</value>
+  </data>
+  <data name="MailFieldUser" xml:space="preserve">
+    <value>User name</value>
+  </data>
+  <data name="MailFieldPassword" xml:space="preserve">
+    <value>Password of the mailbox</value>
+  </data>
+  <data name="MailHintPasswordStored" xml:space="preserve">
+    <value>A password is stored. Leave the field empty to keep it.</value>
+  </data>
+  <data name="MailHintPasswordNone" xml:space="preserve">
+    <value>No password stored yet.</value>
+  </data>
+  <data name="MailFieldAuthServId" xml:space="preserve">
+    <value>Id of the own mail server (authserv-id, optional)</value>
+  </data>
+  <data name="MailHintAuthServId" xml:space="preserve">
+    <value>Found at the start of the header "Authentication-Results" of received mails, for example mx.example.com. Only with it does a mail from a stored sender address belong to that account; without it every sender counts as unknown.</value>
+  </data>
+  <data name="MailSave" xml:space="preserve">
+    <value>Save</value>
+  </data>
+  <data name="MailTest" xml:space="preserve">
+    <value>Test connection</value>
+  </data>
+  <data name="MailFoldersHeading" xml:space="preserve">
+    <value>Folders in the mailbox</value>
+  </data>
+  <data name="MailFoldersExplain" xml:space="preserve">
+    <value>NoMorePaper creates three folders: "Verarbeitet" for mails taken in, "NoMorePaper-Spam" for advertising and fraud, "NoMorePaper-Fehler" for mails that failed three times. Move a mail from "NoMorePaper-Spam" back into the inbox and it is taken in without spam check.</value>
+  </data>
+  <data name="MailSaved" xml:space="preserve">
+    <value>Mailbox settings saved.</value>
+  </data>
+  <data name="MailTesting" xml:space="preserve">
+    <value>Testing the connection …</value>
+  </data>
+  <data name="MailTestOk" xml:space="preserve">
+    <value>Connection works: signed in to the mail server.</value>
+  </data>
+  <data name="MailTestSignInFailed" xml:space="preserve">
+    <value>The mail server refused the sign-in. Check user name and password.</value>
+  </data>
+  <data name="MailTestUnreachable" xml:space="preserve">
+    <value>The mail server cannot be reached. Check server, port and encryption.</value>
+  </data>
+  <data name="MailErrorInvalid" xml:space="preserve">
+    <value>Server, port, user name or id are not valid.</value>
+  </data>
+  <data name="MailErrorPort" xml:space="preserve">
+    <value>The port must be a number from 1 to 65535.</value>
+  </data>
+  <data name="MailOriginHeading" xml:space="preserve">
+    <value>From the mail</value>
+  </data>
+  <data name="MailOriginNote" xml:space="preserve">
+    <value>Note</value>
+  </data>
+  <data name="MailOriginNoNote" xml:space="preserve">
+    <value>No note in the mail text</value>
+  </data>
+  <data name="MailOriginSender" xml:space="preserve">
+    <value>Sender</value>
+  </data>
+  <data name="MailOriginSubject" xml:space="preserve">
+    <value>Subject</value>
+  </data>
 </root>

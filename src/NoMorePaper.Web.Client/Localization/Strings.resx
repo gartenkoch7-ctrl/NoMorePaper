@@ -1320,4 +1320,109 @@
   <data name="InpPrefsAlreadyListed" xml:space="preserve">
     <value>Diese Adresse steht schon in deiner Liste.</value>
   </data>
+  <data name="MailTitle" xml:space="preserve">
+    <value>Mail-Eingang – NoMorePaper</value>
+  </data>
+  <data name="MailHeading" xml:space="preserve">
+    <value>Mail-Eingang einrichten</value>
+  </data>
+  <data name="MailAdminOnly" xml:space="preserve">
+    <value>Nur der Verwalter kann das Postfach des Haushalts einrichten.</value>
+  </data>
+  <data name="MailLoading" xml:space="preserve">
+    <value>Einstellungen des Postfachs werden geladen …</value>
+  </data>
+  <data name="MailExplain" xml:space="preserve">
+    <value>NoMorePaper holt alle 5 Minuten die Mails aus diesem Postfach. Anhänge werden Dokumente, wichtige Mails ohne Anhang werden als PDF abgelegt, Werbung und Betrug landen im Ordner „NoMorePaper-Spam“. Das Passwort wird verschlüsselt gespeichert und nie wieder angezeigt.</value>
+  </data>
+  <data name="MailFieldHost" xml:space="preserve">
+    <value>Mailserver (IMAP)</value>
+  </data>
+  <data name="MailHintHost" xml:space="preserve">
+    <value>Zum Beispiel imap.example.de</value>
+  </data>
+  <data name="MailFieldPort" xml:space="preserve">
+    <value>Port</value>
+  </data>
+  <data name="MailHintPort" xml:space="preserve">
+    <value>Meist 993 mit SSL/TLS oder 143 mit STARTTLS.</value>
+  </data>
+  <data name="MailFieldSecurity" xml:space="preserve">
+    <value>Verschlüsselung</value>
+  </data>
+  <data name="MailSecuritySsl" xml:space="preserve">
+    <value>SSL/TLS</value>
+  </data>
+  <data name="MailSecurityStartTls" xml:space="preserve">
+    <value>STARTTLS</value>
+  </data>
+  <data name="MailSecurityNone" xml:space="preserve">
+    <value>Keine (nur im eigenen Netz)</value>
+  </data>
+  <data name="MailFieldUser" xml:space="preserve">
+    <value>Benutzername</value>
+  </data>
+  <data name="MailFieldPassword" xml:space="preserve">
+    <value>Passwort des Postfachs</value>
+  </data>
+  <data name="MailHintPasswordStored" xml:space="preserve">
+    <value>Ein Passwort ist gespeichert. Lass das Feld leer, um es zu behalten.</value>
+  </data>
+  <data name="MailHintPasswordNone" xml:space="preserve">
+    <value>Noch kein Passwort gespeichert.</value>
+  </data>
+  <data name="MailFieldAuthServId" xml:space="preserve">
+    <value>Kennung des eigenen Mailservers (authserv-id, freiwillig)</value>
+  </data>
+  <data name="MailHintAuthServId" xml:space="preserve">
+    <value>Steht am Anfang des Kopfes „Authentication-Results“ eingegangener Mails, zum Beispiel mx.example.de. Nur mit dieser Angabe gehört eine Mail einer hinterlegten Absender-Adresse dem Konto; ohne sie gilt jeder Absender als unbekannt.</value>
+  </data>
+  <data name="MailSave" xml:space="preserve">
+    <value>Speichern</value>
+  </data>
+  <data name="MailTest" xml:space="preserve">
+    <value>Verbindung testen</value>
+  </data>
+  <data name="MailFoldersHeading" xml:space="preserve">
+    <value>Ordner im Postfach</value>
+  </data>
+  <data name="MailFoldersExplain" xml:space="preserve">
+    <value>NoMorePaper legt drei Ordner an: „Verarbeitet“ für eingelesene Mails, „NoMorePaper-Spam“ für Werbung und Betrug, „NoMorePaper-Fehler“ für Mails, die dreimal nicht eingelesen werden konnten. Schiebst du eine Mail aus „NoMorePaper-Spam“ zurück in den Posteingang, wird sie ohne Spam-Prüfung eingelesen.</value>
+  </data>
+  <data name="MailSaved" xml:space="preserve">
+    <value>Einstellungen des Postfachs gespeichert.</value>
+  </data>
+  <data name="MailTesting" xml:space="preserve">
+    <value>Verbindung wird getestet …</value>
+  </data>
+  <data name="MailTestOk" xml:space="preserve">
+    <value>Verbindung klappt: Anmeldung am Mailserver erfolgreich.</value>
+  </data>
+  <data name="MailTestSignInFailed" xml:space="preserve">
+    <value>Der Mailserver hat die Anmeldung abgelehnt. Prüfe Benutzername und Passwort.</value>
+  </data>
+  <data name="MailTestUnreachable" xml:space="preserve">
+    <value>Der Mailserver ist nicht erreichbar. Prüfe Server, Port und Verschlüsselung.</value>
+  </data>
+  <data name="MailErrorInvalid" xml:space="preserve">
+    <value>Server, Port, Benutzername oder Kennung sind ungültig.</value>
+  </data>
+  <data name="MailErrorPort" xml:space="preserve">
+    <value>Der Port muss eine Zahl von 1 bis 65535 sein.</value>
+  </data>
+  <data name="MailOriginHeading" xml:space="preserve">
+    <value>Aus der Mail</value>
+  </data>
+  <data name="MailOriginNote" xml:space="preserve">
+    <value>Hinweis</value>
+  </data>
+  <data name="MailOriginNoNote" xml:space="preserve">
+    <value>Kein Hinweis im Mailtext</value>
+  </data>
+  <data name="MailOriginSender" xml:space="preserve">
+    <value>Absender</value>
+  </data>
+  <data name="MailOriginSubject" xml:space="preserve">
+    <value>Betreff</value>
+  </data>
 </root>

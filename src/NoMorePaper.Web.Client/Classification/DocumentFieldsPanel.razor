@@ -34,6 +34,7 @@
             <span class="fields-term">@L["ClsFieldSummary"]:</span>
             @(string.IsNullOrWhiteSpace(_fields.Summary) ? L["ClsNoSummary"] : _fields.Summary)
         </p>
+        <MailOriginSection Mail="_fields.Mail" />
         <p class="fields-recognition">
             <MudIcon Icon="@RecognitionIcon" />
             <span>@L["ClsRecognition" + _fields.Recognition]</span>

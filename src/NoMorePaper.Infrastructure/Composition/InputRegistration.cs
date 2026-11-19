@@ -4,10 +4,12 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 using NoMorePaper.Application.Accounts;
 using NoMorePaper.Application.Documents;
 using NoMorePaper.Application.Inputs;
+using NoMorePaper.Application.Inputs.Mail;
 using NoMorePaper.Application.Security;
 using NoMorePaper.Infrastructure.Documents.Pdf;
 using NoMorePaper.Infrastructure.Inputs;
 using NoMorePaper.Infrastructure.Inputs.ScannerFolder;
+using NoMorePaper.Infrastructure.Inputs.Mail;
 using NoMorePaper.Infrastructure.Security;
 
 namespace NoMorePaper.Infrastructure.Composition;
@@ -28,6 +30,10 @@ public static class InputRegistration
         services.AddScoped<ISeenItems, EfSeenItems>();
         services.AddSingleton<ISecretProtector, DataProtectionSecretProtector>();
         services.AddSingleton<IPdfComposer, PdfSharpComposer>();
+
+        // Mail (track C): the Worker fetches, the Server tests the connection when it is set up.
+        services.AddSingleton<ImapMailboxFactory>();
+        services.AddScoped<IMailboxProbe, ImapMailboxProbe>();
         return services;
     }
 
@@ -50,6 +56,8 @@ public static class InputRegistration
             services.AddInputSource<ScannerFolderSource>(InputKind.ScannerFolder);
         }
 
+        // Mail (track C): runs every 5 minutes; without a set-up mailbox it only reports "not configured".
+        services.AddInputSource<MailSource>(InputKind.Mail);
         return services;
     }
 

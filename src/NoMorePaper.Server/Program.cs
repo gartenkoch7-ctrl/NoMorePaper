@@ -35,6 +35,7 @@ api.MapClassificationEndpoints();
 api.MapPreferencesEndpoints();
 api.MapOwnerCheckEndpoints();
 api.MapInputStatusEndpoints();
+api.MapMailSettingsEndpoints();
 app.MapFallbackToFile("index.html");
 
 await app.RunAsync();

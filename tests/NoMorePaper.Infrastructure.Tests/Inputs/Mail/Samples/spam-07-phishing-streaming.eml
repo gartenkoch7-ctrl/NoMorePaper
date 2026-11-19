@@ -1,0 +1,16 @@
+From: "Streaming Kundenkonto" <billing@streamflix-konto-service.example>
+To: dokumente@haushalt.example
+Subject: Zahlung fehlgeschlagen - Ihr Abo wird beendet
+Date: Fri, 13 Nov 2026 11:11:11 +0100
+Message-ID: <spam07.d3ad@streamflix-konto-service.example>
+MIME-Version: 1.0
+Content-Type: text/html; charset=utf-8
+Content-Transfer-Encoding: 8bit
+
+<html><body>
+<p>Hallo,</p>
+<p>wir konnten die letzte Zahlung für Ihr Abonnement nicht einziehen. Ihr Konto wurde vorübergehend gesperrt.</p>
+<p>Um eine Unterbrechung zu vermeiden, aktualisieren Sie bitte innerhalb von 24 Stunden Ihre Kreditkartendaten:</p>
+<p><a href="http://konto-aktualisieren-sofort.example/streaming/update">Zahlungsdaten aktualisieren</a></p>
+<p>Ihr Streaming-Team</p>
+</body></html>

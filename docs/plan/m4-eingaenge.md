@@ -117,16 +117,16 @@ Daraus abgeleitet:
 - [x] Gelöscht wird erst nach erfolgreicher Annahme (Commit); Samba im Compose-Profil `scanner`
 
 ### C. Mail (IMAP)
-- [ ] `MailKit` (MIT): Verbindung, Ordner `INBOX`, `Verarbeitet`, `NoMorePaper-Spam` (werden angelegt)
-- [ ] Ablauf je Mail: Absender einem Konto zuordnen (hinterlegte Adressen, nur mit SPF/DMARC „pass“) → bei unbekanntem Absender
+- [x] `MailKit` (MIT): Verbindung, Ordner `INBOX`, `Verarbeitet`, `NoMorePaper-Spam` (werden angelegt)
+- [x] Ablauf je Mail: Absender einem Konto zuordnen (hinterlegte Adressen, nur mit SPF/DMARC „pass“) → bei unbekanntem Absender
       LLM-Prüfung `IMailAssessor` (Spam? wichtig? Hinweis für „Aus der Mail“); Mails von Konten nur
       Hinweis, keine Spam-Prüfung; Message-ID, die schon als Spam galt, wird nie wieder geprüft
-- [ ] Anhänge (PDF, Bild) → je ein Dokument mit `MailOrigin`; wichtige Mail ohne Anhang → Text-PDF
-- [ ] Danach Mail nach `Verarbeitet` bzw. `NoMorePaper-Spam` verschieben; Fehler → Mail bleibt, nächster Lauf
-- [ ] Spam-/Wichtig-Prompt mit JSON-Schema, gemessen an 24 selbst geschriebenen Testmails
-- [ ] Einstellungsseite (nur Verwalter): Server, Port, TLS, Benutzer, Passwort (nur setzen, nie anzeigen),
-      „Verbindung testen“; Konto-Seite: eigene Absender-Adressen
-- [ ] Viewer „Angaben“: „Aus der Mail“ direkt nach der Zusammenfassung
+- [x] Anhänge (PDF, Bild) → je ein Dokument mit `MailOrigin`; wichtige Mail ohne Anhang → Text-PDF
+- [x] Danach Mail nach `Verarbeitet` bzw. `NoMorePaper-Spam` verschieben; Fehler → Mail bleibt, nächster Lauf
+- [x] Spam-/Wichtig-Prompt mit JSON-Schema, gemessen an 24 selbst geschriebenen Testmails
+- [x] Einstellungsseite (nur Verwalter): Server, Port, TLS, Benutzer, Passwort (nur setzen, nie anzeigen),
+      „Verbindung testen“; Konto-Seite: eigene Absender-Adressen (Konto-Seite: Spur E)
+- [x] Viewer „Angaben“: „Aus der Mail“ direkt nach der Zusammenfassung
 
 ### D. iCloud Drive (startet nach bestandenem Test, ADR-0018)
 - [ ] Spike-Code nach Infrastructure übernehmen (`Inputs/ICloud/`), DPAPI → `ISecretProtector`, Sitzung in
