@@ -21,3 +21,4 @@ Je Screen ein Ordner `NN-seitenname/` mit:
 | Nr. | Seite | Route | Ordner |
 |---|---|---|---|
 | 01 | Anmelden | `/anmelden` | [01-anmelden](01-anmelden/notizen.md) |
+| 02 | Dokumente (Übersicht, mit Seitenleiste und Kopf) | `/dokumente` | [02-dokumente](02-dokumente/notizen.md) |
