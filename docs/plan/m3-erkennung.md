@@ -99,11 +99,11 @@ Daraus abgeleitet (Datenschutz, ADR-0002/M2):
 - [x] KB `erkennung.md`, ADR-0022 (Modell), ADR-0023 (Listen, Sichtbarkeit, Bearbeitungsrecht), Katalog
 
 ## Akzeptanzkriterien
-- [ ] Testsatz: Absender und Art in ≥ 85 % richtig, Datum und Betrag in ≥ 90 % (Spike-Werte, ⚠️ werden im Spike bestätigt oder angepasst)
+- [x] Testsatz: Absender und Art in ≥ 85 % richtig, Datum und Betrag in ≥ 90 % – erreicht an 22 Testtexten (95 / 86 / 95 / 100 %, ADR-0022); echte Scans noch offen
 - [ ] Erkennung ≤ 60 s je Dokument auf dem Server (CPU) ⚠️ messen
 - [x] Keine Information aus fremden privaten Dokumenten in Listen, Beispielen oder Duplikat-Meldungen
 - [ ] axe 0 Verstöße; NVDA-Prüfung „Angaben“ und „Zu prüfen“ durch den Nutzer
-- [ ] CI grün
+- [x] CI grün (Run 18, c0dfcf1)
 
 ## Parallelisierung
 
@@ -254,6 +254,13 @@ DTOs in `Contracts/Classification`.
 ### Rückblick (nach Abschluss)
 | Paket | geplante Stufe | passend? | Anmerkung |
 |---|---|---|---|
+| P0 Modell und Schema | Opus | ja | Schema und Sichtbarkeitsregel trugen alle Spuren; keine Nacharbeit am Modell |
+| P1 LLM-Spike | Fable | eher zu hoch | offener Ausgang rechtfertigte die Stufe, die Arbeit selbst (Messläufe, Auswertung) hätte Opus geschafft |
+| P2 Erkennung im Worker | Opus | ja | Nebenläufigkeit (Zeilensperren, Rückgabe bei geteiltem Dokument) brauchte die Stufe; Review fand trotzdem zwei Lücken |
+| P3 API, Filter, Duplikate | Opus | ja | Datenschutzregeln der Listen waren der schwierigste Teil; Review-Befunde zu privaten Einträgen |
+| P4 Oberfläche | Sonnet | passend | nach Muster umgesetzt; 409-Behandlung und Fokus nach dem Laden kamen erst im Review dazu |
+
+Lehre: Datenschutz- und Sperrregeln quer über Spuren gehören in Schritt 0 als gemeinsame Bausteine (eine Stelle für „sichtbar für den Haushalt“), nicht in jede Spur einzeln.
 
 ## Offene Fragen / Risiken
 - Modelllizenzen: nur Modelle, deren Lizenz die private und Open-Source-Nutzung erlaubt (im Spike prüfen)
