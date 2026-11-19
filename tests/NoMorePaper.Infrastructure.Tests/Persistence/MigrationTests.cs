@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.Extensions.Logging.Abstractions;
+using NoMorePaper.Domain.Documents;
 using NoMorePaper.Infrastructure.Persistence;
 using Xunit;
 
@@ -77,6 +78,24 @@ public sealed class MigrationTests(PostgresFixture postgres)
         // The Worker loads such documents to process them before the household is set up.
         var document = await db.Documents.AsNoTracking().SingleAsync(d => d.Id == id, TestContext.Current.CancellationToken);
         Assert.Equal((null, false), (document.OwnerId, document.IsPrivate));
+    }
+
+    [Fact]
+    public async Task Migrate_FromM2_GivesExistingDocumentsEmptyFields_NotRecognizedYet()
+    {
+        await using var db = postgres.CreateContext("migration_from_m2");
+        await db.GetService<IMigrator>().MigrateAsync("20261118224151_AdminPasswordResets", TestContext.Current.CancellationToken);
+        var id = Guid.CreateVersion7();
+        await db.Database.ExecuteSqlAsync(
+            $"INSERT INTO documents (id, title, received_at, state, owner_id, is_private) VALUES ({id}, 'alt', now(), 'Done', {Guid.CreateVersion7()}, false)",
+            TestContext.Current.CancellationToken);
+
+        await Migrator(db).MigrateAsync(TestContext.Current.CancellationToken);
+
+        var document = await db.Documents.AsNoTracking().SingleAsync(d => d.Id == id, TestContext.Current.CancellationToken);
+        Assert.Equal((RecognitionState.None, null, null), (document.Recognition, document.Amount, document.CorrespondentId));
+        Assert.Empty(document.Tags);
+        Assert.Empty(document.Editors);
     }
 
     [Fact]

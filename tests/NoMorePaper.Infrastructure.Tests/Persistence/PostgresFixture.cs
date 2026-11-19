@@ -19,8 +19,12 @@ public sealed class PostgresFixture : IAsyncLifetime
     public async ValueTask DisposeAsync() => await _container.DisposeAsync().ConfigureAwait(false);
 
     /// <summary>Connection string to a database that does not exist yet; migrating creates it.</summary>
+    /// <remarks>
+    /// Without pooling: a pool per database keeps its connections open until the run ends, and with a
+    /// database per test that exceeds the server's 100 connections.
+    /// </remarks>
     public string ConnectionString(string database) =>
-        new NpgsqlConnectionStringBuilder(_container.GetConnectionString()) { Database = database }.ConnectionString;
+        new NpgsqlConnectionStringBuilder(_container.GetConnectionString()) { Database = database, Pooling = false }.ConnectionString;
 
     public AppDbContext CreateContext(string database) =>
         new(new DbContextOptionsBuilder<AppDbContext>().UseNpgsql(ConnectionString(database)).Options);

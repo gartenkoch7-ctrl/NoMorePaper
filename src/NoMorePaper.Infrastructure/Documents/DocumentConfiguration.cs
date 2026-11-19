@@ -69,5 +69,9 @@ internal sealed class DocumentConfiguration : IEntityTypeConfiguration<Document>
         file.Property(f => f.MediaType).HasColumnName("media_type").HasMaxLength(DocumentFile.MaxMediaTypeLength);
         file.Property(f => f.SizeBytes).HasColumnName("size_bytes");
         file.Property(f => f.Sha256).HasColumnName("sha256").HasMaxLength(DocumentFile.Sha256Length).IsFixedLength();
+
+        // Finds an upload whose exact file is archived already (M3 duplicates); only originals count,
+        // so queries must filter on kind = 'Original' to use it.
+        file.HasIndex(f => f.Sha256).HasFilter("kind = 'Original'");
     }
 }

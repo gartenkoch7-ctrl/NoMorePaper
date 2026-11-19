@@ -37,16 +37,16 @@ Daraus abgeleitet (Datenschutz, ADR-0002/M2):
 ## Aufgaben
 
 ### 0. Modell und Schema (Schritt 0)
-- [ ] Domain: `Correspondent`, `DocumentType`, `Tag` (Id, Name, normalisierter Name); `Document` erhält
+- [x] Domain: `Correspondent`, `DocumentType`, `Tag` (Id, Name, normalisierter Name); `Document` erhält
       `CorrespondentId?`, `DocumentTypeId?`, `DocumentDate?`, `Amount?` (Dezimal + ISO-Währung),
       `Summary?`, Tags, `Recognition` (`None`/`Automatic`/`Confirmed`), `PossibleDuplicateOf?`,
       Bearbeiter (`EditorIds`) mit `CanEdit(Guid)` (Besitzer oder Bearbeiter)
-- [ ] Schema: Tabellen `correspondents`, `document_types`, `tags`, `document_tags`, `document_editors`,
+- [x] Schema: Tabellen `correspondents`, `document_types`, `tags`, `document_tags`, `document_editors`,
       Spalten an `documents`, Index auf `document_files.sha256` (Original)
-- [ ] Sichtbarkeit von Listeneinträgen als SQL-Regel: sichtbar, wenn in einem für den Betrachter
+- [x] Sichtbarkeit von Listeneinträgen als SQL-Regel: sichtbar, wenn in einem für den Betrachter
       sichtbaren Dokument verwendet **oder** unbenutzt und vom Betrachter angelegt
-- [ ] Ports: `IRecognizer` (Text + Kontext → Vorschlag), `IClassificationStore` (Listen, Zuordnung)
-- [ ] Contracts: DTOs für Felder, Listen, Filter, „Zu prüfen“
+- [x] Ports: `IRecognizer` (Text + Kontext → Vorschlag), `IClassificationStore` (Listen, Zuordnung)
+- [x] Contracts: DTOs für Felder, Listen, Filter, „Zu prüfen“
 
 ### 1. LLM-Spike (2 Tage, zuerst)
 - [ ] Zwei bis drei 7–8B-Modelle aus der Ollama-Bibliothek mit **offener Lizenz** (Apache-2.0, MIT o. ä.;
