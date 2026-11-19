@@ -74,6 +74,9 @@ Die Annahme behält 3200/3201 und nennt dort die Quelle.
 | 1411 | Warning | `Server/Inputs/InputsLog` | Einstellungen abgelehnt: Konto-Id, Grund (`empty`, `invalid`, `sender-taken`) |
 | 1420 | Information | `Server/Inputs/InputsLog` | Besitzer-Prüfung beantwortet: Vorgang (`confirm`, `hand-over`), Dokument-Id, Ergebnis (`Changed`, `NotFound`, `Forbidden`, `Invalid`, `Conflict`, `AccountGone`) |
 | 1421 | Warning | `Server/Inputs/InputsLog` | Weitergabe ohne Ziel-Konto abgelehnt (400): Dokument-Id |
+| 1500 | Information | `Server/Documents/PageUploadLog` | Kamera-Seiten angenommen (`POST /api/documents/pages`): Dokument-Id, Anzahl Seiten, Größe in Bytes |
+| 1501 | Warning | `Server/Documents/PageUploadLog` | Kamera-Seiten abgelehnt: Grund (`too-large`, `not-multipart`, `malformed`, `empty`, `too-many-pages`, `type-not-allowed`, `duplicate`) |
+| 1502 | Warning | `Server/Documents/PageUploadLog` | Kamera-Seiten ließen sich nicht zu einem PDF machen (Bild nicht lesbar, 400): Anzahl Seiten, Ausnahmetyp |
 | 2000 | Information | `Worker/Heartbeat/HeartbeatLog` | Heartbeat gestartet, Intervall in s |
 | 2001 | Warning | `Worker/Heartbeat/HeartbeatLog` | Heartbeat nicht geschrieben (nur der erste Fehler eines Ausfalls) |
 | 2002 | Information | `Worker/Heartbeat/HeartbeatLog` | Heartbeat nach einem Ausfall wieder geschrieben |
@@ -212,15 +215,21 @@ Die Annahme behält 3200/3201 und nennt dort die Quelle.
 | 4513 | Information | `Web.Client/Classification/ClassificationLog` | Upload abgelehnt, weil die Datei schon vorhanden ist |
 | 4514 | Debug | `Web.Client/Classification/ClassificationLog` | Anzahl der Dokumente „Zu prüfen“ für die Navigation nicht ladbar |
 | 4515 | Information | `Web.Client/Classification/ClassificationLog` | Speichern oder Bestätigen mit 409 abgelehnt, weil die Angaben inzwischen erkannt oder bestätigt wurden; Angaben neu geladen |
+| 4600 | Information | `Web.Client/Camera/CameraLog` | Kamera gestartet: Auflösung des Videos, ms bis die Kantenerkennung (OpenCV.js) bereit war |
+| 4601 | Warning | `Web.Client/Camera/CameraLog` | Kamera-Fehler: Code (`unsupported`, `denied`, `no-camera`, `busy`, `opencv-failed`, `failed`, `ended`, `capture-failed`, `too-many-pages`) |
+| 4602 | Information | `Web.Client/Camera/CameraLog` | Seite aufgenommen: Nummer, Dauer von Aufnahme, Entzerrung und JPEG in ms |
+| 4603 | Information | `Web.Client/Camera/CameraLog` | Kamera-Dokument vom Server angenommen: Anzahl Seiten (Fehler: 4103/4104 mit Vorgang `pages`) |
+| 4604 | Information | `Web.Client/Camera/CameraLog` | Kamera beendet: Anzahl analysierter Bilder, mittlere Dauer einer Analyse in ms (Leistung auf dem Handy) |
+| 4605 | Warning | `Web.Client/Camera/CameraLog` | Browser-Speicher für den Schalter „Töne“ nicht verfügbar |
 | 4700 | Information | `Web.Client/Inputs/InputsLog` | Seite „Eingänge“ geladen: Anzahl der Zeilen (nur der erste Ladevorgang, nicht die Auffrischungen) |
 | 4701 | Information | `Web.Client/Inputs/InputsLog` | Einstellungen gespeichert (Konto-Seite): Anzahl der Absender-Adressen, nie die Adressen |
 | 4702 | Warning | `Web.Client/Inputs/InputsLog` | Aktion der Seiten „Eingänge“, Konto, Besitzer prüfen fehlgeschlagen: Code (`load-inputs`, `load-preferences`, `save-preferences`, `load-household`, `owner-check`, `hand-over`) |
 | 4703 | Information | `Web.Client/Inputs/InputsLog` | Dokument unklarer Herkunft weitergegeben (ohne Dokument- und Kontoname) |
 | 4704 | Information | `Web.Client/Inputs/InputsLog` | Dokument unklarer Herkunft behalten („Passt so“) |
-| 4790 | Warning | `Web.Client/Inputs/InputsLog` | Aufruf der Eingangs-/Einstellungs-API fehlgeschlagen: Vorgang (`preferences`, `save-preferences`, `inputs`, `owner-check`, `hand-over`, `mail-settings`, `save-mail-settings`, `test-mail-settings`), HTTP-Status |
 | 4720 | Information | `Web.Client/Pages/MailSettingsLog` | Seite „Mail-Eingang“ geladen: ob ein Passwort gespeichert ist |
 | 4721 | Information | `Web.Client/Pages/MailSettingsLog` | Postfach gespeichert: ob ein neues Passwort dabei war |
 | 4722 | Information | `Web.Client/Pages/MailSettingsLog` | Verbindung getestet: ob die Anmeldung klappte |
+| 4790 | Warning | `Web.Client/Inputs/InputsLog` | Aufruf der Eingangs-/Einstellungs-API fehlgeschlagen: Vorgang (`preferences`, `save-preferences`, `inputs`, `owner-check`, `hand-over`, `mail-settings`, `save-mail-settings`, `test-mail-settings`), HTTP-Status |
 | 4791 | Warning | `Web.Client/Inputs/InputsLog` | Eingangs-/Einstellungs-API nicht erreichbar: Vorgang, Ausnahmetyp |
 | 5100 | Information | `Application/Accounts/AccountsLog` | Haushalt eingerichtet: Verwalter-Id, Anzahl übernommener Dokumente ohne Besitzer (M1) |
 | 5101 | Warning | `Application/Accounts/AccountsLog` | Einrichtung abgelehnt, Haushalt schon eingerichtet |

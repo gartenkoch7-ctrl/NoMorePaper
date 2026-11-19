@@ -46,7 +46,7 @@ public sealed class KeyboardTests(ServerFixture server)
         var page = session.Page;
         string[] expected =
         [
-            "Zum Inhalt springen", "Startseite", "Hochladen", "Dokumente", "Zu prüfen", "Suche", "Listen", "Eingänge", "Konto", "Mitglieder", "", "Suchen",
+            "Zum Inhalt springen", "Startseite", "Hochladen", "Kamera", "Dokumente", "Zu prüfen", "Suche", "Listen", "Eingänge", "Konto", "Mitglieder", "", "Suchen",
             "Abmelden", "Deutsch", "English",
         ];
 
