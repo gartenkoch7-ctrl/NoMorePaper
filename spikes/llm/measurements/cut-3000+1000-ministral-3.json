@@ -1,0 +1,77 @@
+{
+  "header": {
+    "label": "cut-3000+1000-ministral-3",
+    "model": "ministral-3:8b-instruct-2512-q4_K_M",
+    "ollamaVersion": "0.40.16",
+    "contextTokens": 4096,
+    "threads": 4,
+    "headChars": 3000,
+    "tailChars": 1000,
+    "examples": 0,
+    "coldPrefix": false,
+    "startedUtc": "2026-11-19T01:53:49Z",
+    "loadedBytes": 5962297506
+  },
+  "records": [
+    {
+      "id": "02-telefonrechnung",
+      "textChars": 953,
+      "sentChars": 953,
+      "examplesSent": 0,
+      "wallSeconds": 71.9229203,
+      "loadSeconds": 7.105673881,
+      "promptSeconds": 38.626698,
+      "promptTokens": 1373,
+      "evalSeconds": 26.169403,
+      "evalTokens": 161,
+      "doneReason": "stop",
+      "content": "{\n  \"correspondent\": \"Nordkom\",\n  \"documentType\": \"Rechnung\",\n  \"summary\": \"Rechnung für den Internetanschluss (DSL 100) und Router-Miete für September 2026 in Höhe von 39,95 EUR, fällig ab 12.10.2026. Es wird eine Abbuchung vom Konto bei der Sparbank Lindental vorgenommen.\",\n  \"title\": \"Nordkom Rechnung September 2026\",\n  \"documentDate\": \"2026-10-05\",\n  \"amount\": 39.95,\n  \"currency\": \"EUR\",\n  \"tags\": [\"Internet\", \"Telefon\"]\n}",
+      "error": null
+    },
+    {
+      "id": "03-mietvertrag",
+      "textChars": 7411,
+      "sentChars": 3997,
+      "examplesSent": 0,
+      "wallSeconds": 73.0959466,
+      "loadSeconds": 0.002434802,
+      "promptSeconds": 37.430732,
+      "promptTokens": 2228,
+      "evalSeconds": 35.647938,
+      "evalTokens": 186,
+      "doneReason": "stop",
+      "content": "{\n  \"correspondent\": \"Brückner Hausverwaltung GmbH\",\n  \"documentType\": \"Vertrag\",\n  \"summary\": \"Mietvertrag für eine 86 m²-Wohnung in Lindental ab 01.05.2026 mit monatlicher Gesamtmiete von 1.150,00 EUR (inkl. Nebenkosten und Stellplatz). Kaution von 2.580,00 EUR ist in drei Raten zu zahlen.\",\n  \"title\": \"Wohnraummietvertrag Ahornweg 12, 2026\",\n  \"documentDate\": \"2026-03-15\",\n  \"amount\": 1150.00,\n  \"currency\": \"EUR\",\n  \"tags\": [\"Wohnung\", \"Miete\"]\n}",
+      "error": null
+    },
+    {
+      "id": "04-versicherungspolice",
+      "textChars": 6935,
+      "sentChars": 3925,
+      "examplesSent": 0,
+      "wallSeconds": 71.2339329,
+      "loadSeconds": 0.000872441,
+      "promptSeconds": 35.577794,
+      "promptTokens": 2153,
+      "evalSeconds": 35.531208,
+      "evalTokens": 187,
+      "doneReason": "stop",
+      "content": "{\n  \"correspondent\": \"Hanseatica Versicherung\",\n  \"documentType\": \"Versicherungsschein\",\n  \"summary\": \"Der Versicherungsschein für die Privat-Haftpflichtversicherung 'Komfort' wurde ausgestellt. Der Jahresbeitrag beträgt 78,54 EUR und ist jährlich per Lastschrift zu zahlen. Der Vertrag läuft vom 01.02.2026 bis 01.02.2027 und verlängert sich automatisch um ein Jahr, falls nicht gekündigt wird.\",\n  \"title\": \"Privat-Haftpflichtversicherung Komfort 2026\",\n  \"documentDate\": \"2026-01-12\",\n  \"amount\": 78.54,\n  \"currency\": \"EUR\",\n  \"tags\": [\"Versicherung\", \"Haftpflicht\"]\n}",
+      "error": null
+    },
+    {
+      "id": "06-steuerbescheid",
+      "textChars": 2921,
+      "sentChars": 2921,
+      "examplesSent": 0,
+      "wallSeconds": 57.8968326,
+      "loadSeconds": 0.00076674,
+      "promptSeconds": 29.554113,
+      "promptTokens": 1959,
+      "evalSeconds": 28.226067,
+      "evalTokens": 154,
+      "doneReason": "stop",
+      "content": "{\n  \"correspondent\": \"Finanzamt Lindental\",\n  \"documentType\": \"Bescheid\",\n  \"summary\": \"Der Bescheid über die Einkommensteuer und den Solidaritätszuschlag für 2025 ist vorläufig. Es wird eine Erstattung von 312,45 EUR auf das Konto der Sparbank Lindental ausgezahlt.\",\n  \"title\": \"Einkommensteuerbescheid 2025\",\n  \"documentDate\": \"2026-08-14\",\n  \"amount\": 312.45,\n  \"currency\": \"EUR\",\n  \"tags\": [\"Steuer\", \"Gehalt\"]\n}",
+      "error": null
+    }
+  ]
+}

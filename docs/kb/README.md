@@ -14,6 +14,7 @@ Thematisch aufgeteilt, damit Agents nur laden, was sie brauchen. Jede Datei blei
 | [betrieb.md](betrieb.md) | Installation, Schlüsselring-Zertifikat, Tailscale-HTTPS, vertrauenswürdige Proxys, Prüfliste |
 | [konten.md](konten.md) | Konten und Haushalt: Rollen, Anmeldung, Sitzung, Tokens, Notfall-Code, private Dokumente |
 | [verarbeitung.md](verarbeitung.md) | Pipeline vom Upload bis Done: Warteschlange, Werkzeuge, Zeitlimits, gemessene Zeiten, bekannte Lücken |
+| [erkennung.md](erkennung.md) | Lokales LLM ordnet Dokumente ein: Modell, Prompt, JSON-Schema, Kürzungsregel, Trefferquoten, Zeiten, Speicher, Vorgaben für den Worker |
 
 Architekturentscheidungen: [../adr/](../adr/) · Roadmap & Meilensteine: [../plan/](../plan/README.md)
 

@@ -1,0 +1,77 @@
+{
+  "header": {
+    "label": "cpu8-ministral-3",
+    "model": "ministral-3:8b-instruct-2512-q4_K_M",
+    "ollamaVersion": "0.40.16",
+    "contextTokens": 4096,
+    "threads": 8,
+    "headChars": 4500,
+    "tailChars": 1500,
+    "examples": 0,
+    "coldPrefix": false,
+    "startedUtc": "2026-11-19T02:26:14Z",
+    "loadedBytes": 5962297506
+  },
+  "records": [
+    {
+      "id": "02-telefonrechnung",
+      "textChars": 953,
+      "sentChars": 953,
+      "examplesSent": 0,
+      "wallSeconds": 52.7616704,
+      "loadSeconds": 7.602894016,
+      "promptSeconds": 23.834567,
+      "promptTokens": 1373,
+      "evalSeconds": 21.298987,
+      "evalTokens": 148,
+      "doneReason": "stop",
+      "content": "{\n  \"correspondent\": \"Nordkom\",\n  \"documentType\": \"Rechnung\",\n  \"summary\": \"Rechnung für Telefon- und Internetdienstleistungen (DSL 100 und Router-Miete) im September 2026 mit einem Endbetrag von 39,95 EUR, fällig ab 12.10.2026.\",\n  \"title\": \"Telefon/Internet September 2026\",\n  \"documentDate\": \"2026-10-05\",\n  \"amount\": 39.95,\n  \"currency\": \"EUR\",\n  \"tags\": [\"Telefon\", \"Internet\"]\n}",
+      "error": null
+    },
+    {
+      "id": "03-mietvertrag",
+      "textChars": 7411,
+      "sentChars": 6003,
+      "examplesSent": 0,
+      "wallSeconds": 67.9000248,
+      "loadSeconds": 0.003601447,
+      "promptSeconds": 35.100433,
+      "promptTokens": 2798,
+      "evalSeconds": 32.778519,
+      "evalTokens": 186,
+      "doneReason": "stop",
+      "content": "{\n  \"correspondent\": \"Brückner Hausverwaltung GmbH\",\n  \"documentType\": \"Vertrag\",\n  \"summary\": \"Mietvertrag für eine 86 m²-Wohnung mit Stellplatz ab 01.05.2026. Monatliche Gesamtmiete beträgt 1.150,00 EUR (inkl. Nebenkosten und Heizkosten). Kaution von 2.580,00 EUR ist in drei Raten zu zahlen.\",\n  \"title\": \"Wohnraummietvertrag Ahornweg 12, 2026\",\n  \"documentDate\": \"2026-03-15\",\n  \"amount\": 1150.00,\n  \"currency\": \"EUR\",\n  \"tags\": [\"Wohnung\", \"Miete\"]\n}",
+      "error": null
+    },
+    {
+      "id": "07-arztbrief",
+      "textChars": 1391,
+      "sentChars": 1391,
+      "examplesSent": 0,
+      "wallSeconds": 33.7638668,
+      "loadSeconds": 0.001151374,
+      "promptSeconds": 10.330536,
+      "promptTokens": 1428,
+      "evalSeconds": 23.284241,
+      "evalTokens": 158,
+      "doneReason": "stop",
+      "content": "{\n  \"correspondent\": \"Dr. Petra Sommerfeld\",\n  \"documentType\": \"Arztbrief\",\n  \"summary\": \"Der Patient wurde auf arterielle Hypertonie untersucht und von strukturellen Herzerkrankungen befreit. Es wird eine Therapie mit Ramipril empfohlen und eine Nachkontrolle in 4 Wochen sowie eine kardiologische Wiedervorstellung in 12 Monaten vereinbart.\",\n  \"title\": \"Nachuntersuchung Hypertonie & EKG-Befunde 2026\",\n  \"documentDate\": \"2026-09-03\",\n  \"amount\": null,\n  \"currency\": null,\n  \"tags\": [\"Gesundheit\", \"Herz\"]\n}",
+      "error": null
+    },
+    {
+      "id": "12-mahnung",
+      "textChars": 1178,
+      "sentChars": 1178,
+      "examplesSent": 0,
+      "wallSeconds": 32.2967256,
+      "loadSeconds": 0.000745425,
+      "promptSeconds": 9.02886,
+      "promptTokens": 1374,
+      "evalSeconds": 23.252093,
+      "evalTokens": 160,
+      "doneReason": "stop",
+      "content": "{\n  \"correspondent\": \"Versandhaus Albrecht\",\n  \"documentType\": \"Mahnung\",\n  \"summary\": \"Offener Rechnungsbetrag von 129,49 EUR ist bis zum 24.11.2026 zu überweisen. Andernfalls droht Übertragung an ein Inkassobüro mit weiteren Kosten.\",\n  \"title\": \"Mahnung Rechnung RE-2026-55190 2026\",\n  \"documentDate\": \"2026-11-10\",\n  \"amount\": 129.49,\n  \"currency\": \"EUR\",\n  \"tags\": [\"Einkauf\", \"Rechnung\"]\n}",
+      "error": null
+    }
+  ]
+}
