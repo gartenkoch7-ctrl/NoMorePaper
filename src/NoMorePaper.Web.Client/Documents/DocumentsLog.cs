@@ -56,7 +56,7 @@ internal static partial class DocumentsLog
         Message = "Document list view switched to {View}")]
     public static partial void ListViewChanged(this ILogger logger, string view);
 
-    [LoggerMessage(EventId = 4108,EventName = "ListPollingStarted", Level = LogLevel.Debug,
+    [LoggerMessage(EventId = 4108, EventName = "ListPollingStarted", Level = LogLevel.Debug,
         Message = "Polling the document list while documents are in progress")]
     public static partial void ListPollingStarted(this ILogger logger);
 }

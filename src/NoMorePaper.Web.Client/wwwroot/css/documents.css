@@ -98,8 +98,18 @@
     font-size: 1rem;
 }
 
+/* The card's gap spaces the filter bar and the chips (Stitch space-y-md); the margins from
+   classification.css would add to it. The open filter body keeps a small distance to the button. */
+.doc-filter-card .filter-bar {
+    margin-bottom: 0;
+}
+
 .doc-filter-card .filter-heading {
     margin: 0;
+}
+
+.doc-filter-card .filter-body {
+    margin-top: var(--nmp-space-sm);
 }
 
 /* Wrap instead of scrolling sideways: stays usable at 200-400 % zoom. */
