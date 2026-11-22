@@ -1,6 +1,6 @@
 # 01 – Anmelden (Stitch-Entwurf)
 
-- **Stitch-Screen:** Projekt `17713397687229704853`, Screen `1c74d93908724b15850c0bae1a350c`
+- **Stitch-Screen:** Projekt `17713397687229704853`, Screen `1c74d93908724b15850c0bae1a350c9f`
 - **Dateien:** [code.html](code.html) (unverändert aus Stitch), [screen.png](screen.png)
 - **Ziel im Code:** `src/NoMorePaper.Web.Client/Pages/SignIn.razor` (`/anmelden`)
 
@@ -25,7 +25,6 @@ Was beim Übernehmen **wegfällt oder anders wird**, weil die App es nicht hat o
 
 - `user-scalable=no, maximum-scale=1.0` – verhindert Zoomen.
 - `outline-none` an Feldern ohne Ersatz – kein sichtbarer Fokusrahmen.
-- Schriftgrößen 10–14 px (`label-sm`, `body-sm`, `body-md`) – zu klein.
 - Fehler- und Ladezustände nur im Knopftext – Ansage über `LiveRegion` wie heute.
 - Tailwind-CDN und Google Fonts – Farben, Abstände und Radien werden ins MudBlazor-Theme und
   `app.css` übertragen, nicht das HTML selbst.

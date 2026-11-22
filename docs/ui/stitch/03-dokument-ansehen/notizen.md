@@ -1,6 +1,6 @@
 # 03 – Dokument ansehen (Stitch-Entwurf, Vorschlag)
 
-- **Stitch-Screen:** Projekt `17713397687229704853`, Screen-ID fehlt noch
+- **Stitch-Screen:** Projekt `17713397687229704853`, Screen `a6e38e56a8a543ce9d57fea24bbea7eb`
 - **Dateien:** [code.html](code.html) aus Stitch; nur die leeren `<style class="darkreader …">`-Tags
   der Browser-Erweiterung Dark Reader sind entfernt. `screen.png` fehlt noch.
 - **Ziel im Code:** `src/NoMorePaper.Web.Client/Pages/DocumentViewer.razor` (`/dokumente/{id}`),
@@ -47,5 +47,5 @@
 - Viewer-Knöpfe nur als Symbol mit `title` – brauchen sichtbaren Text oder zugänglichen Namen.
 - Reiter als einfache Knöpfe ohne `role="tab"`, `aria-selected`, Pfeiltasten.
 - Felder als `div` neben `<label>` ohne Verbindung; Tag-Entfernen als `span` ohne Knopf und Namen.
-- Schrift 10–14 px; Status als Punkt ohne Text; `focus:outline-none`.
+- Status als Punkt ohne Text; `focus:outline-none`.
 - Tailwind-CDN und Google Fonts – Werte ins MudBlazor-Theme und `app.css` übertragen.

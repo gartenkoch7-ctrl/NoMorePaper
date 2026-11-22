@@ -44,5 +44,5 @@
 - Reiter als einfache Knöpfe ohne `role="tab"`/`aria-selected`.
 - Klickbare `span`s („Token prüfen“, „Verbindung testen“, Zahnrad) statt Knöpfen mit Namen.
 - Farbtiefen-Umschalter ohne `aria-pressed`; Labels ohne `for`.
-- Schrift 10–14 px; `truncate` schneidet Adressen ab; `focus:outline-none`.
+- `truncate` schneidet Adressen ab; `focus:outline-none`.
 - Tailwind-CDN und Google Fonts – Werte ins MudBlazor-Theme und `app.css` übertragen.

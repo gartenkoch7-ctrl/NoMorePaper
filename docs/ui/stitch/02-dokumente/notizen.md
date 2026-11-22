@@ -44,7 +44,6 @@
 
 ## Beim Übernehmen nicht mitnehmen (§2.5)
 
-- Schrift 10–12 px in Tabelle, Chips und Leisten – zu klein.
 - Status als Punkt (`bg-primary`, `animate-pulse`) ohne Text.
 - Aktionsknöpfe nur als Symbol (Auge, drei Punkte) mit `title` statt zugänglichem Namen; dazu
   `opacity-70`.

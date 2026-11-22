@@ -14,6 +14,10 @@ dann jede Seite einzeln als eigenen Screen erzeugen. So bleiben Farben, Schrift 
 
 Pflicht aus AGENTS.md §2.5 / ADR-0010, ADR-0011. Der Hauptnutzer ist blind bzw. stark sehbehindert.
 
+> **Stand 2026-11-22:** Für die Optik (Farben, Schriftgrößen, Akzent) gilt das Stitch-Design-System
+> „Obsidian Slate“, vom Nutzer so freigegeben. Die Werte 20 px, 7:1, 48 px und Gelb `#FFD600`
+> unten sind überholt. Für neue Screens den Prompt-Zusatz aus [KB ui-prozess.md](../../kb/ui-prozess.md) nehmen.
+
 - Dunkles, kontrastreiches Theme (Text mind. 7:1), große Grundschrift (mind. 20 px), deutlicher,
   dicker Fokusrahmen (mind. 3 px, gut sichtbare Farbe).
 - Nie Information nur über Farbe: Status immer **Symbol + Text**.
