@@ -1,0 +1,704 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="de"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="web_dashboard" name="shell-type"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@100..900&amp;family=JetBrains+Mono:wght@100..900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config = { darkMode: "class", theme: { extend: { "colors": { "on-tertiary-fixed-variant": "#46464e", "tertiary-fixed-dim": "#c6c5cf", "surface-container": "#201f1f", "on-secondary-fixed-variant": "#45464e", "primary-container": "#e2e2e2", "secondary-container": "#45464e", "tertiary-fixed": "#e3e1ec", "surface-container-lowest": "#0e0e0e", "on-secondary-fixed": "#1a1b22", "on-primary-fixed": "#1a1c1c", "on-tertiary-fixed": "#1a1b22", "background": "#131313", "primary-fixed": "#e2e2e2", "on-primary-fixed-variant": "#454747", "on-primary-container": "#636565", "outline-variant": "#444748", "surface-tint": "#c6c6c7", "surface-container-low": "#1c1b1b", "on-secondary": "#2f3037", "on-error": "#690005", "surface": "#131313", "surface-container-high": "#2a2a2a", "on-background": "#e5e2e1", "inverse-surface": "#e5e2e1", "primary": "#ffffff", "surface-variant": "#353534", "secondary-fixed": "#e2e1eb", "on-primary": "#2f3131", "on-secondary-container": "#b4b4bd", "inverse-on-surface": "#313030", "on-tertiary-container": "#63646c", "on-error-container": "#ffdad6", "secondary-fixed-dim": "#c6c6cf", "secondary": "#c6c6cf", "error-container": "#93000a", "on-surface-variant": "#c4c7c8", "inverse-primary": "#5d5f5f", "on-tertiary": "#2f3038", "on-surface": "#e5e2e1", "primary-fixed-dim": "#c6c6c7", "tertiary-container": "#e3e1ec", "surface-dim": "#131313", "surface-container-highest": "#353534", "error": "#ffb4ab", "tertiary": "#ffffff", "outline": "#8e9192", "surface-bright": "#393939" }, "borderRadius": { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" }, "spacing": { "space-xl": "2.5rem", "margin-desktop": "2rem", "gutter": "1rem", "gutter-desktop": "1.5rem", "space-xs": "0.25rem", "space-md": "1rem", "space-lg": "1.5rem", "space-sm": "0.5rem", "margin": "1rem" }, "fontFamily": { "label-sm": ["JetBrains Mono"], "body-sm": ["Geist"], "label-md": ["JetBrains Mono"], "headline-md": ["Geist"], "body-md": ["Geist"], "headline-lg-mobile": ["Geist"], "headline-sm": ["Geist"], "headline-xl-mobile": ["Geist"], "label-lg": ["JetBrains Mono"], "headline-lg": ["Geist"], "headline-xl": ["Geist"], "body-lg": ["Geist"] }, "fontSize": { "label-sm": ["10px", { "lineHeight": "14px", "letterSpacing": "0.05em", "fontWeight": "400" }], "body-sm": ["12px", { "lineHeight": "18px", "letterSpacing": "0em", "fontWeight": "400" }], "label-md": ["11px", { "lineHeight": "16px", "letterSpacing": "0.04em", "fontWeight": "500" }], "headline-md": ["20px", { "lineHeight": "28px", "letterSpacing": "-0.01em", "fontWeight": "500" }], "body-md": ["14px", { "lineHeight": "22px", "letterSpacing": "0em", "fontWeight": "400" }], "headline-lg-mobile": ["22px", { "lineHeight": "28px", "letterSpacing": "-0.015em", "fontWeight": "600" }], "headline-sm": ["16px", { "lineHeight": "24px", "letterSpacing": "-0.005em", "fontWeight": "500" }], "headline-xl-mobile": ["30px", { "lineHeight": "38px", "letterSpacing": "-0.02em", "fontWeight": "600" }], "label-lg": ["13px", { "lineHeight": "18px", "letterSpacing": "0.02em", "fontWeight": "500" }], "headline-lg": ["28px", { "lineHeight": "36px", "letterSpacing": "-0.02em", "fontWeight": "600" }], "headline-xl": ["40px", { "lineHeight": "48px", "letterSpacing": "-0.03em", "fontWeight": "600" }], "body-lg": ["16px", { "lineHeight": "26px", "letterSpacing": "-0.005em", "fontWeight": "400" }] } } } }</script></head><body class="bg-surface font-body-md text-on-surface antialiased selection:bg-surface-variant selection:text-primary"><aside class="fixed left-0 top-0 h-full w-72 bg-surface-container-low border-r border-outline-variant/30 z-50 flex flex-col justify-between"><div class="flex flex-col"><div class="h-16 px-space-lg flex items-center justify-between border-b border-outline-variant/20"><div class="flex items-center gap-space-sm"><span class="material-symbols-outlined text-primary text-[22px]">inventory_2</span><span class="font-headline-sm text-headline-sm text-primary font-semibold tracking-tight">nomorepaper</span></div><span class="font-label-sm text-label-sm px-space-xs py-0.5 rounded bg-surface-container text-on-surface-variant border border-outline-variant/40 uppercase tracking-widest">GoBD</span></div><div class="p-space-md"><div class="p-space-sm bg-surface-container-lowest rounded-lg border border-outline-variant/30 flex items-center justify-between"><div class="flex items-center gap-space-sm"><span class="w-2 h-2 rounded-full bg-primary"></span><span class="font-label-md text-label-md text-primary font-medium">Geschäftlich</span></div><span class="material-symbols-outlined text-on-surface-variant text-[18px]">unfold_more</span></div></div><div class="px-space-md py-space-xs"><span class="px-space-sm font-label-sm text-label-sm uppercase tracking-wider text-outline block mb-space-xs">Navigation</span><nav class="flex flex-col gap-1" data-active-classes="bg-surface-container-high text-primary font-medium border-outline-variant/40"><a class="flex items-center gap-space-sm px-space-md py-2 rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors" data-path="dokumente" href="#"><span class="material-symbols-outlined text-[18px]">description</span><span class="font-body-md text-body-md">Dokumente</span></a><a class="flex items-center gap-space-sm px-space-md py-2 rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors" data-path="posteingang-und-scanner" href="#"><span class="material-symbols-outlined text-[18px]">scanner</span><span class="font-body-md text-body-md">Posteingang &amp; Scanner</span></a><a class="flex items-center gap-space-sm px-space-md py-2 rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors" data-path="ordner-und-tags" href="#"><span class="material-symbols-outlined text-[18px]">folder</span><span class="font-body-md text-body-md">Ordner &amp; Tags</span></a><a class="flex items-center gap-space-sm px-space-md py-2 rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors" data-path="workflows-und-freigaben" href="#"><span class="material-symbols-outlined text-[18px]">rule</span><span class="font-body-md text-body-md">Workflows &amp; Freigaben</span></a><a class="flex items-center gap-space-sm px-space-md py-2 rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors" data-path="gobd-archiv" href="#"><span class="material-symbols-outlined text-[18px]">verified</span><span class="font-body-md text-body-md">GoBD-Archiv</span></a><a class="flex items-center gap-space-sm px-space-md py-2 rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors" data-path="papierkorb" href="#"><span class="material-symbols-outlined text-[18px]">delete</span><span class="font-body-md text-body-md">Papierkorb</span></a></nav></div></div><div class="p-space-md border-t border-outline-variant/20 flex flex-col gap-space-md"><div class="bg-surface-container-lowest p-space-md rounded-lg border border-outline-variant/30"><div class="flex items-center justify-between mb-space-xs"><span class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">Cloud-Speicher</span><span class="font-label-sm text-label-sm text-primary font-medium">16.8%</span></div><div class="w-full h-1.5 bg-surface-container rounded-full overflow-hidden mb-space-xs"><div class="bg-primary h-full rounded-full" style="width: 16.8%"></div></div><div class="flex justify-between items-center"><span class="font-label-sm text-label-sm text-outline">4.2 GB / 25 GB</span><span class="font-label-sm text-label-sm text-on-surface-variant">S3-WORM</span></div></div><div class="flex flex-col gap-1"><a class="flex items-center gap-space-sm px-space-md py-2 rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors" data-path="einstellungen-und-konto" href="#"><span class="material-symbols-outlined text-[18px]">settings</span><span class="font-body-md text-body-md">Einstellungen &amp; Konto</span></a></div></div></aside><div class="pl-72"><header class="fixed top-0 left-72 right-0 h-16 bg-surface/80 backdrop-blur-xl border-b border-outline-variant/20 z-40 flex items-center justify-between px-space-lg"><div class="flex items-center gap-space-md flex-1 max-w-xl"><div class="relative w-full flex items-center"><span class="material-symbols-outlined text-outline absolute left-3 text-[18px]">search</span><input class="w-full h-10 pl-9 pr-space-md bg-surface-container-lowest border border-outline-variant/30 rounded-lg text-primary placeholder-outline font-body-md text-body-md focus:outline-none focus:border-primary transition-colors" placeholder="Dokumente, Volltext, OCR durchsuchen..." type="text"/></div></div><div class="flex items-center gap-space-md"><div class="flex items-center gap-space-xs px-space-sm py-1 rounded bg-surface-container-lowest border border-outline-variant/40"><span class="w-2 h-2 rounded-full bg-primary animate-pulse"></span><span class="font-label-sm text-label-sm text-primary font-medium">GoBD-Konform</span></div><button class="h-10 px-space-md rounded-lg bg-primary text-on-primary font-label-md text-label-md font-medium hover:bg-primary-fixed transition-colors flex items-center gap-space-xs"><span class="material-symbols-outlined text-[18px]">add</span><span>Dokument hochladen / scannen</span></button><button class="w-10 h-10 rounded-lg bg-surface-container-lowest border border-outline-variant/30 flex items-center justify-center text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-colors relative"><span class="material-symbols-outlined text-[20px]">notifications</span><span class="w-1.5 h-1.5 rounded-full bg-primary absolute top-2.5 right-2.5"></span></button><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div></div></header><main class="w-full pt-16 bg-surface"><div class="flex flex-col w-full px-margin-desktop py-space-lg space-y-space-lg">
+<!-- Top Breadcrumb & Action Banner -->
+<div class="flex flex-col md:flex-row md:items-end justify-between gap-space-md">
+<div class="space-y-space-xs">
+<div class="flex items-center gap-space-xs text-on-surface-variant font-label-sm text-label-sm uppercase tracking-wider">
+<span>Workspace</span>
+<span class="material-symbols-outlined text-[12px] text-outline">chevron_right</span>
+<span class="text-primary font-medium">Dokumente</span>
+</div>
+<div class="flex items-center gap-space-sm">
+<h1 class="font-headline-lg text-headline-lg text-primary tracking-tight">Dokumente &amp; Belege</h1>
+<span class="px-2 py-0.5 rounded-full bg-surface-container-high text-on-surface font-label-sm text-label-sm border border-outline-variant/30">142 Dokumente</span>
+</div>
+</div>
+<!-- Toolbar Actions -->
+<div class="flex items-center flex-wrap gap-space-xs">
+<!-- View Toggle (MudToggleGroup) -->
+<div class="flex items-center bg-surface-container-lowest rounded-lg p-0.5 border border-outline-variant/30">
+<button class="flex items-center gap-1.5 px-space-sm py-1.5 rounded bg-surface-container-high text-primary font-label-md text-label-md transition-colors" title="Tabellenansicht">
+<span class="material-symbols-outlined text-[16px]">view_list</span>
+<span>Tabelle</span>
+</button>
+<button class="flex items-center gap-1.5 px-space-sm py-1.5 rounded text-on-surface-variant hover:text-primary font-label-md text-label-md transition-colors" title="Kachelansicht">
+<span class="material-symbols-outlined text-[16px]">grid_view</span>
+<span>Kacheln</span>
+</button>
+</div>
+<button class="h-9 px-space-md rounded-lg bg-surface-container-lowest border border-outline-variant/30 text-on-surface hover:text-primary hover:bg-surface-container-high transition-colors font-label-md text-label-md flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[16px]">download</span>
+<span>Export (DATEV / CSV)</span>
+</button>
+<button class="h-9 px-space-md rounded-lg bg-surface-container-lowest border border-outline-variant/30 text-on-surface hover:text-primary hover:bg-surface-container-high transition-colors font-label-md text-label-md flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[16px]">layers</span>
+<span>Stapelverarbeitung</span>
+</button>
+<button class="h-9 px-space-md rounded-lg bg-primary text-on-primary hover:bg-primary-fixed font-label-md text-label-md font-semibold transition-colors flex items-center gap-1.5 shadow-sm">
+<span class="material-symbols-outlined text-[18px]">add</span>
+<span>Dokument hochladen</span>
+</button>
+</div>
+</div>
+<!-- Section: Zuletzt geöffnete Belege & Verträge (Quick Access Bento Grid) -->
+<div class="space-y-space-xs">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-space-xs">
+<span class="font-label-sm text-label-sm uppercase tracking-wider text-outline">Schnellzugriff</span>
+<span class="text-outline-variant text-[10px]">•</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">Zuletzt bearbeitete Artefakte</span>
+</div>
+<button class="font-label-sm text-label-sm text-on-surface-variant hover:text-primary flex items-center gap-0.5">
+        Verlauf ansehen <span class="material-symbols-outlined text-[14px]">arrow_right_alt</span>
+</button>
+</div>
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-space-sm">
+<!-- Card 1: Telekom -->
+<div class="group relative bg-surface-container-lowest hover:bg-surface-container p-space-md rounded-lg border border-outline-variant/30 hover:border-outline/50 transition-all cursor-pointer flex flex-col justify-between h-40">
+<div>
+<div class="flex items-start justify-between mb-space-sm">
+<div class="w-8 h-8 rounded bg-surface-container flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-on-primary transition-colors">
+<span class="material-symbols-outlined text-[18px]">receipt_long</span>
+</div>
+<span class="px-1.5 py-0.5 rounded text-[10px] font-label-sm bg-surface-container-high text-on-surface-variant border border-outline-variant/40 flex items-center gap-1">
+<span class="w-1.5 h-1.5 rounded-full bg-primary"></span> GoBD
+            </span>
+</div>
+<div class="font-headline-sm text-headline-sm text-primary tracking-tight truncate">Telekom Rechnung</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant truncate">Finanzen • Nov 2024</p>
+</div>
+<div class="flex items-end justify-between pt-space-xs border-t border-outline-variant/20">
+<div>
+<div class="font-label-sm text-label-sm text-outline">Betrag</div>
+<div class="font-label-lg text-label-lg font-medium text-primary">184,50 €</div>
+</div>
+<span class="material-symbols-outlined text-[16px] text-outline group-hover:text-primary group-hover:translate-x-0.5 transition-all">north_east</span>
+</div>
+</div>
+<!-- Card 2: Arbeitsvertrag -->
+<div class="group relative bg-surface-container-lowest hover:bg-surface-container p-space-md rounded-lg border border-outline-variant/30 hover:border-outline/50 transition-all cursor-pointer flex flex-col justify-between h-40">
+<div>
+<div class="flex items-start justify-between mb-space-sm">
+<div class="w-8 h-8 rounded bg-surface-container flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-on-primary transition-colors">
+<span class="material-symbols-outlined text-[18px]">badge</span>
+</div>
+<span class="px-1.5 py-0.5 rounded text-[10px] font-label-sm bg-surface-container-high text-on-surface-variant border border-outline-variant/40 flex items-center gap-1">
+<span class="material-symbols-outlined text-[11px] text-primary">check_circle</span> QES
+            </span>
+</div>
+<div class="font-headline-sm text-headline-sm text-primary tracking-tight truncate">Arbeitsvertrag Entwickler</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant truncate">Personal / HR • 2.4 MB</p>
+</div>
+<div class="flex items-end justify-between pt-space-xs border-t border-outline-variant/20">
+<div>
+<div class="font-label-sm text-label-sm text-outline">Signatur</div>
+<div class="font-label-md text-label-md font-medium text-primary">Gültig bis 2034</div>
+</div>
+<span class="material-symbols-outlined text-[16px] text-outline group-hover:text-primary group-hover:translate-x-0.5 transition-all">north_east</span>
+</div>
+</div>
+<!-- Card 3: Tankbeleg Shell -->
+<div class="group relative bg-surface-container-lowest hover:bg-surface-container p-space-md rounded-lg border border-outline-variant/30 hover:border-outline/50 transition-all cursor-pointer flex flex-col justify-between h-40">
+<div>
+<div class="flex items-start justify-between mb-space-sm">
+<div class="w-8 h-8 rounded bg-surface-container flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-on-primary transition-colors">
+<span class="material-symbols-outlined text-[18px]">local_gas_station</span>
+</div>
+<span class="px-1.5 py-0.5 rounded text-[10px] font-label-sm bg-surface-container-high text-on-surface-variant border border-outline-variant/40">
+              OCR Erfasst
+            </span>
+</div>
+<div class="font-headline-sm text-headline-sm text-primary tracking-tight truncate">Tankbeleg Shell Express</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant truncate">Ausgaben / Reise • Mobile</p>
+</div>
+<div class="flex items-end justify-between pt-space-xs border-t border-outline-variant/20">
+<div>
+<div class="font-label-sm text-label-sm text-outline">Betrag</div>
+<div class="font-label-lg text-label-lg font-medium text-primary">68,20 €</div>
+</div>
+<span class="material-symbols-outlined text-[16px] text-outline group-hover:text-primary group-hover:translate-x-0.5 transition-all">north_east</span>
+</div>
+</div>
+<!-- Card 4: Mietvertrag -->
+<div class="group relative bg-surface-container-lowest hover:bg-surface-container p-space-md rounded-lg border border-outline-variant/30 hover:border-outline/50 transition-all cursor-pointer flex flex-col justify-between h-40">
+<div>
+<div class="flex items-start justify-between mb-space-sm">
+<div class="w-8 h-8 rounded bg-surface-container flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-on-primary transition-colors">
+<span class="material-symbols-outlined text-[18px]">shield</span>
+</div>
+<span class="px-1.5 py-0.5 rounded text-[10px] font-label-sm bg-surface-container-high text-on-surface-variant border border-outline-variant/40 flex items-center gap-1">
+<span class="material-symbols-outlined text-[11px]">lock</span> WORM
+            </span>
+</div>
+<div class="font-headline-sm text-headline-sm text-primary tracking-tight truncate">Mietvertrag Gewerbe</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant truncate">Verträge • Unveränderlich</p>
+</div>
+<div class="flex items-end justify-between pt-space-xs border-t border-outline-variant/20">
+<div>
+<div class="font-label-sm text-label-sm text-outline">Schutzstatus</div>
+<div class="font-label-md text-label-md font-medium text-primary">Revisionssicher</div>
+</div>
+<span class="material-symbols-outlined text-[16px] text-outline group-hover:text-primary group-hover:translate-x-0.5 transition-all">north_east</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Filter- und Suchleiste (MudBlazor Toolbar) -->
+<div class="bg-surface-container-low rounded-lg p-space-md border border-outline-variant/30 space-y-space-md">
+<!-- Row 1: Search and Secondary Selectors -->
+<div class="flex flex-col lg:flex-row items-center justify-between gap-space-sm">
+<!-- Search Input with Keyboard shortcut -->
+<div class="relative w-full lg:w-96 flex items-center">
+<span class="material-symbols-outlined text-outline absolute left-3 text-[18px]">search</span>
+<input class="w-full h-10 pl-9 pr-12 bg-surface-container-lowest border border-outline-variant/30 rounded-lg text-primary placeholder-outline font-body-md text-body-md focus:outline-none focus:border-primary transition-colors" placeholder="Volltext- &amp; OCR-Suche..." type="text"/>
+<span class="absolute right-2.5 px-1.5 py-0.5 rounded bg-surface-container text-on-surface-variant font-label-sm text-[10px] border border-outline-variant/40">⌘K</span>
+</div>
+<!-- Secondary Filters & Column Options -->
+<div class="flex items-center flex-wrap gap-space-xs w-full lg:w-auto justify-end">
+<div class="flex items-center gap-1 px-3 py-1.5 rounded-lg bg-surface-container-lowest border border-outline-variant/30 text-on-surface font-label-md text-label-md cursor-pointer hover:border-outline transition-colors">
+<span class="material-symbols-outlined text-[16px] text-outline">calendar_today</span>
+<span>Dieses Jahr (2024)</span>
+<span class="material-symbols-outlined text-[16px] text-outline">expand_more</span>
+</div>
+<div class="flex items-center gap-1 px-3 py-1.5 rounded-lg bg-surface-container-lowest border border-outline-variant/30 text-on-surface font-label-md text-label-md cursor-pointer hover:border-outline transition-colors">
+<span class="material-symbols-outlined text-[16px] text-primary">verified</span>
+<span>GoBD verifiziert</span>
+<span class="material-symbols-outlined text-[16px] text-outline">expand_more</span>
+</div>
+<div class="flex items-center gap-1 px-3 py-1.5 rounded-lg bg-surface-container-lowest border border-outline-variant/30 text-on-surface font-label-md text-label-md cursor-pointer hover:border-outline transition-colors">
+<span>Signatur: Alle</span>
+<span class="material-symbols-outlined text-[16px] text-outline">expand_more</span>
+</div>
+<div class="h-6 w-px bg-outline-variant/30 mx-1"></div>
+<button class="h-9 px-3 rounded-lg bg-surface-container-lowest border border-outline-variant/30 text-on-surface-variant hover:text-primary transition-colors font-label-md text-label-md flex items-center gap-1.5" title="Spalten anpassen">
+<span class="material-symbols-outlined text-[16px]">view_column</span>
+<span class="hidden sm:inline">Spalten</span>
+</button>
+<button class="h-9 px-3 rounded-lg bg-surface-container-lowest border border-outline-variant/30 text-on-surface-variant hover:text-primary transition-colors font-label-md text-label-md flex items-center gap-1.5" title="Sortierung">
+<span class="material-symbols-outlined text-[16px]">sort</span>
+<span class="hidden sm:inline">Neueste</span>
+</button>
+</div>
+</div>
+<!-- Row 2: MudChipSet Filter Chips -->
+<div class="flex items-center gap-space-xs overflow-x-auto pb-0.5">
+<button class="px-3 py-1 rounded bg-primary text-on-primary font-label-sm text-label-sm font-medium transition-colors flex items-center gap-1.5">
+<span>Alle</span>
+<span class="px-1 py-0.2 rounded-full bg-black/20 text-[10px]">142</span>
+</button>
+<button class="px-3 py-1 rounded bg-surface-container-lowest text-on-surface-variant hover:text-primary hover:bg-surface-container border border-outline-variant/30 font-label-sm text-label-sm transition-colors flex items-center gap-1.5">
+<span>Rechnungen</span>
+<span class="text-outline text-[10px]">38</span>
+</button>
+<button class="px-3 py-1 rounded bg-surface-container-lowest text-on-surface-variant hover:text-primary hover:bg-surface-container border border-outline-variant/30 font-label-sm text-label-sm transition-colors flex items-center gap-1.5">
+<span>Verträge</span>
+<span class="text-outline text-[10px]">14</span>
+</button>
+<button class="px-3 py-1 rounded bg-surface-container-lowest text-on-surface-variant hover:text-primary hover:bg-surface-container border border-outline-variant/30 font-label-sm text-label-sm transition-colors flex items-center gap-1.5">
+<span>Belege</span>
+<span class="text-outline text-[10px]">56</span>
+</button>
+<button class="px-3 py-1 rounded bg-surface-container-lowest text-on-surface-variant hover:text-primary hover:bg-surface-container border border-outline-variant/30 font-label-sm text-label-sm transition-colors flex items-center gap-1.5">
+<span>Personal</span>
+<span class="text-outline text-[10px]">18</span>
+</button>
+<button class="px-3 py-1 rounded bg-surface-container-lowest text-on-surface-variant hover:text-primary hover:bg-surface-container border border-outline-variant/30 font-label-sm text-label-sm transition-colors flex items-center gap-1.5">
+<span>Steuer</span>
+<span class="text-outline text-[10px]">16</span>
+</button>
+<button class="px-2 py-1 rounded text-outline hover:text-primary transition-colors font-label-sm text-label-sm flex items-center gap-1 ml-auto">
+<span class="material-symbols-outlined text-[14px]">tune</span>
+<span>Filter zurücksetzen</span>
+</button>
+</div>
+</div>
+<!-- MudDataGrid: High-Density Document Table -->
+<div class="bg-surface-container-lowest rounded-lg border border-outline-variant/30 overflow-hidden flex flex-col">
+<!-- Active Selection Action Header (Conditional state placeholder) -->
+<div class="h-10 px-space-md bg-surface-container-low border-b border-outline-variant/30 flex items-center justify-between text-on-surface-variant font-label-sm text-label-sm">
+<div class="flex items-center gap-space-sm">
+<span class="text-outline">Auswahl:</span>
+<span class="text-primary font-medium">0 ausgewählt</span>
+</div>
+<div class="flex items-center gap-space-md text-outline">
+<span class="flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-primary"></span> WORM-Speicher geschützt</span>
+<span class="flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-primary"></span> SHA-256 Hashvalidierung</span>
+</div>
+</div>
+<!-- Table Container -->
+<div class="overflow-x-auto w-full">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="border-b border-outline-variant/30 bg-surface-container font-label-sm text-label-sm uppercase tracking-wider text-outline select-none">
+<th class="py-3 px-4 w-10 text-center">
+<input class="w-4 h-4 rounded bg-surface-container-lowest border-outline-variant/50 accent-primary cursor-pointer" type="checkbox"/>
+</th>
+<th class="py-3 px-4 min-w-[280px]">Dokument &amp; OCR-Volltext</th>
+<th class="py-3 px-4 min-w-[160px]">Ordner &amp; Tags</th>
+<th class="py-3 px-4 min-w-[190px]">Datum &amp; Erfassung</th>
+<th class="py-3 px-4 min-w-[120px] text-right">Betrag</th>
+<th class="py-3 px-4 min-w-[200px]">GoBD / Signaturprüfpfad</th>
+<th class="py-3 px-4 w-16 text-center">Aktionen</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-outline-variant/20 font-body-md text-body-md text-on-surface">
+<!-- Row 1: Telekom -->
+<tr class="hover:bg-surface-container transition-colors group cursor-pointer">
+<td class="py-3 px-4 text-center">
+<input class="w-4 h-4 rounded bg-surface-container-lowest border-outline-variant/50 accent-primary cursor-pointer" type="checkbox"/>
+</td>
+<td class="py-3 px-4">
+<div class="flex items-start gap-3">
+<div class="w-8 h-8 rounded bg-surface-container-high flex items-center justify-center text-primary mt-0.5 flex-shrink-0 group-hover:bg-primary group-hover:text-on-primary transition-colors">
+<span class="material-symbols-outlined text-[18px]">receipt_long</span>
+</div>
+<div class="min-w-0">
+<div class="font-headline-sm text-[14px] text-primary font-medium tracking-tight truncate flex items-center gap-1.5">
+<span>Telekom Rechnung Nov 2024</span>
+<span class="material-symbols-outlined text-[14px] text-outline">attachment</span>
+</div>
+<div class="font-body-sm text-[12px] text-on-surface-variant truncate font-label-sm text-outline">
+                    OCR: „Rechnungsnummer 2024-TK-99218 • Glasfaser Business 1000 ...“
+                  </div>
+</div>
+</div>
+</td>
+<td class="py-3 px-4">
+<div class="flex flex-col gap-1 items-start">
+<span class="px-2 py-0.5 rounded bg-surface-container-high text-primary font-label-sm text-[11px] border border-outline-variant/30">Finanzen / 2024</span>
+<span class="text-outline font-label-sm text-[10px]">#telekommunikation</span>
+</div>
+</td>
+<td class="py-3 px-4">
+<div class="font-label-md text-label-md text-primary">Heute, 14:22</div>
+<div class="font-body-sm text-[11px] text-outline flex items-center gap-1">
+<span class="material-symbols-outlined text-[13px]">mail</span> via Email-Bot
+              </div>
+</td>
+<td class="py-3 px-4 text-right">
+<div class="font-label-md text-label-md font-semibold text-primary">184,50 €</div>
+<span class="font-label-sm text-[10px] text-outline">Netto: 155,04 €</span>
+</td>
+<td class="py-3 px-4">
+<div class="flex items-center gap-1.5 text-primary font-label-sm text-[11px]">
+<span class="material-symbols-outlined text-[15px] text-primary">verified</span>
+<span>GoBD-konform</span>
+</div>
+<div class="font-label-sm text-[10px] text-outline font-mono truncate max-w-[160px]" title="SHA-256: 8f4e2...a19c">
+                SHA: 8f4e2...a19c
+              </div>
+</td>
+<td class="py-3 px-4 text-center">
+<div class="flex items-center justify-center gap-1 opacity-70 group-hover:opacity-100 transition-opacity">
+<button class="w-7 h-7 rounded hover:bg-surface-container-high text-on-surface-variant hover:text-primary flex items-center justify-center" title="Details / Vorschau">
+<span class="material-symbols-outlined text-[17px]">visibility</span>
+</button>
+<button class="w-7 h-7 rounded hover:bg-surface-container-high text-on-surface-variant hover:text-primary flex items-center justify-center" title="Mehr Optionen">
+<span class="material-symbols-outlined text-[17px]">more_vert</span>
+</button>
+</div>
+</td>
+</tr>
+<!-- Row 2: Arbeitsvertrag -->
+<tr class="hover:bg-surface-container transition-colors group cursor-pointer">
+<td class="py-3 px-4 text-center">
+<input class="w-4 h-4 rounded bg-surface-container-lowest border-outline-variant/50 accent-primary cursor-pointer" type="checkbox"/>
+</td>
+<td class="py-3 px-4">
+<div class="flex items-start gap-3">
+<div class="w-8 h-8 rounded bg-surface-container-high flex items-center justify-center text-primary mt-0.5 flex-shrink-0 group-hover:bg-primary group-hover:text-on-primary transition-colors">
+<span class="material-symbols-outlined text-[18px]">badge</span>
+</div>
+<div class="min-w-0">
+<div class="font-headline-sm text-[14px] text-primary font-medium tracking-tight truncate flex items-center gap-1.5">
+<span>Arbeitsvertrag Entwickler 2024</span>
+<span class="px-1 rounded bg-surface-container text-outline text-[10px] font-mono">PDF/A-3</span>
+</div>
+<div class="font-body-sm text-[12px] text-on-surface-variant truncate font-label-sm text-outline">
+                    OCR: „§ 1 Vertragsgegenstand • Senior Software Architect ...“
+                  </div>
+</div>
+</div>
+</td>
+<td class="py-3 px-4">
+<div class="flex flex-col gap-1 items-start">
+<span class="px-2 py-0.5 rounded bg-surface-container-high text-primary font-label-sm text-[11px] border border-outline-variant/30">Personal / HR</span>
+<span class="text-outline font-label-sm text-[10px]">#vertraege #team</span>
+</div>
+</td>
+<td class="py-3 px-4">
+<div class="font-label-md text-label-md text-primary">Gestern, 18:04</div>
+<div class="font-body-sm text-[11px] text-outline flex items-center gap-1">
+<span class="material-symbols-outlined text-[13px]">cloud_upload</span> Manuell Upload
+              </div>
+</td>
+<td class="py-3 px-4 text-right">
+<div class="font-label-sm text-outline">—</div>
+</td>
+<td class="py-3 px-4">
+<div class="flex items-center gap-1.5 text-primary font-label-sm text-[11px]">
+<span class="material-symbols-outlined text-[15px] text-primary">draw</span>
+<span>QES Signiert</span>
+</div>
+<div class="font-label-sm text-[10px] text-outline">
+                Gültig bis Nov 2034
+              </div>
+</td>
+<td class="py-3 px-4 text-center">
+<div class="flex items-center justify-center gap-1 opacity-70 group-hover:opacity-100 transition-opacity">
+<button class="w-7 h-7 rounded hover:bg-surface-container-high text-on-surface-variant hover:text-primary flex items-center justify-center">
+<span class="material-symbols-outlined text-[17px]">visibility</span>
+</button>
+<button class="w-7 h-7 rounded hover:bg-surface-container-high text-on-surface-variant hover:text-primary flex items-center justify-center">
+<span class="material-symbols-outlined text-[17px]">more_vert</span>
+</button>
+</div>
+</td>
+</tr>
+<!-- Row 3: Tankbeleg -->
+<tr class="hover:bg-surface-container transition-colors group cursor-pointer">
+<td class="py-3 px-4 text-center">
+<input class="w-4 h-4 rounded bg-surface-container-lowest border-outline-variant/50 accent-primary cursor-pointer" type="checkbox"/>
+</td>
+<td class="py-3 px-4">
+<div class="flex items-start gap-3">
+<div class="w-8 h-8 rounded bg-surface-container-high flex items-center justify-center text-primary mt-0.5 flex-shrink-0 group-hover:bg-primary group-hover:text-on-primary transition-colors">
+<span class="material-symbols-outlined text-[18px]">local_gas_station</span>
+</div>
+<div class="min-w-0">
+<div class="font-headline-sm text-[14px] text-primary font-medium tracking-tight truncate flex items-center gap-1.5">
+<span>Tankbeleg Shell Express</span>
+</div>
+<div class="font-body-sm text-[12px] text-on-surface-variant truncate font-label-sm text-outline">
+                    OCR: „Shell Station 1204 • Diesel V-Power 38.41 Liter ...“
+                  </div>
+</div>
+</div>
+</td>
+<td class="py-3 px-4">
+<div class="flex flex-col gap-1 items-start">
+<span class="px-2 py-0.5 rounded bg-surface-container-high text-primary font-label-sm text-[11px] border border-outline-variant/30">Ausgaben / Reise</span>
+<span class="text-outline font-label-sm text-[10px]">#fuhrpark</span>
+</div>
+</td>
+<td class="py-3 px-4">
+<div class="font-label-md text-label-md text-primary">14. Nov 2024</div>
+<div class="font-body-sm text-[11px] text-outline flex items-center gap-1">
+<span class="material-symbols-outlined text-[13px]">smartphone</span> Mobile Scanner App
+              </div>
+</td>
+<td class="py-3 px-4 text-right">
+<div class="font-label-md text-label-md font-semibold text-primary">68,20 €</div>
+<span class="font-label-sm text-[10px] text-outline">MwSt: 10,89 €</span>
+</td>
+<td class="py-3 px-4">
+<div class="flex items-center gap-1.5 text-primary font-label-sm text-[11px]">
+<span class="material-symbols-outlined text-[15px] text-primary">document_scanner</span>
+<span>OCR Erfasst (99.4%)</span>
+</div>
+<div class="font-label-sm text-[10px] text-outline font-mono">
+                Revisionspfad OK
+              </div>
+</td>
+<td class="py-3 px-4 text-center">
+<div class="flex items-center justify-center gap-1 opacity-70 group-hover:opacity-100 transition-opacity">
+<button class="w-7 h-7 rounded hover:bg-surface-container-high text-on-surface-variant hover:text-primary flex items-center justify-center">
+<span class="material-symbols-outlined text-[17px]">visibility</span>
+</button>
+<button class="w-7 h-7 rounded hover:bg-surface-container-high text-on-surface-variant hover:text-primary flex items-center justify-center">
+<span class="material-symbols-outlined text-[17px]">more_vert</span>
+</button>
+</div>
+</td>
+</tr>
+<!-- Row 4: Krankenkassenbescheinigung -->
+<tr class="hover:bg-surface-container transition-colors group cursor-pointer">
+<td class="py-3 px-4 text-center">
+<input class="w-4 h-4 rounded bg-surface-container-lowest border-outline-variant/50 accent-primary cursor-pointer" type="checkbox"/>
+</td>
+<td class="py-3 px-4">
+<div class="flex items-start gap-3">
+<div class="w-8 h-8 rounded bg-surface-container-high flex items-center justify-center text-primary mt-0.5 flex-shrink-0 group-hover:bg-primary group-hover:text-on-primary transition-colors">
+<span class="material-symbols-outlined text-[18px]">medical_services</span>
+</div>
+<div class="min-w-0">
+<div class="font-headline-sm text-[14px] text-primary font-medium tracking-tight truncate flex items-center gap-1.5">
+<span>Krankenkassenbescheinigung TK</span>
+</div>
+<div class="font-body-sm text-[12px] text-on-surface-variant truncate font-label-sm text-outline">
+                    OCR: „Mitgliedsbescheinigung zur Vorlage beim Arbeitgeber ...“
+                  </div>
+</div>
+</div>
+</td>
+<td class="py-3 px-4">
+<div class="flex flex-col gap-1 items-start">
+<span class="px-2 py-0.5 rounded bg-surface-container-high text-primary font-label-sm text-[11px] border border-outline-variant/30">Personal / SV</span>
+<span class="text-outline font-label-sm text-[10px]">#sozialversicherung</span>
+</div>
+</td>
+<td class="py-3 px-4">
+<div class="font-label-md text-label-md text-primary">12. Nov 2024</div>
+<div class="font-body-sm text-[11px] text-outline flex items-center gap-1">
+<span class="material-symbols-outlined text-[13px]">picture_as_pdf</span> PDF Import
+              </div>
+</td>
+<td class="py-3 px-4 text-right">
+<div class="font-label-sm text-outline">—</div>
+</td>
+<td class="py-3 px-4">
+<div class="flex items-center gap-1.5 text-primary font-label-sm text-[11px]">
+<span class="material-symbols-outlined text-[15px] text-primary">archive</span>
+<span>GoBD Archiviert</span>
+</div>
+<div class="font-label-sm text-[10px] text-outline">
+                Unveränderlich fixiert
+              </div>
+</td>
+<td class="py-3 px-4 text-center">
+<div class="flex items-center justify-center gap-1 opacity-70 group-hover:opacity-100 transition-opacity">
+<button class="w-7 h-7 rounded hover:bg-surface-container-high text-on-surface-variant hover:text-primary flex items-center justify-center">
+<span class="material-symbols-outlined text-[17px]">visibility</span>
+</button>
+<button class="w-7 h-7 rounded hover:bg-surface-container-high text-on-surface-variant hover:text-primary flex items-center justify-center">
+<span class="material-symbols-outlined text-[17px]">more_vert</span>
+</button>
+</div>
+</td>
+</tr>
+<!-- Row 5: Mietvertrag Gewerbeobjekt -->
+<tr class="hover:bg-surface-container transition-colors group cursor-pointer">
+<td class="py-3 px-4 text-center">
+<input class="w-4 h-4 rounded bg-surface-container-lowest border-outline-variant/50 accent-primary cursor-pointer" type="checkbox"/>
+</td>
+<td class="py-3 px-4">
+<div class="flex items-start gap-3">
+<div class="w-8 h-8 rounded bg-surface-container-high flex items-center justify-center text-primary mt-0.5 flex-shrink-0 group-hover:bg-primary group-hover:text-on-primary transition-colors">
+<span class="material-symbols-outlined text-[18px]">domain</span>
+</div>
+<div class="min-w-0">
+<div class="font-headline-sm text-[14px] text-primary font-medium tracking-tight truncate flex items-center gap-1.5">
+<span>Mietvertrag Gewerbeobjekt Hauptstr.</span>
+</div>
+<div class="font-body-sm text-[12px] text-on-surface-variant truncate font-label-sm text-outline">
+                    OCR: „Gewerberaummietvertrag • Bürofläche 3. OG 420 qm ...“
+                  </div>
+</div>
+</div>
+</td>
+<td class="py-3 px-4">
+<div class="flex flex-col gap-1 items-start">
+<span class="px-2 py-0.5 rounded bg-surface-container-high text-primary font-label-sm text-[11px] border border-outline-variant/30">Verträge / RealEstate</span>
+<span class="text-outline font-label-sm text-[10px]">#office #immobilie</span>
+</div>
+</td>
+<td class="py-3 px-4">
+<div class="font-label-md text-label-md text-primary">08. Nov 2024</div>
+<div class="font-body-sm text-[11px] text-outline flex items-center gap-1">
+<span class="material-symbols-outlined text-[13px]">scanner</span> Flachbettscan
+              </div>
+</td>
+<td class="py-3 px-4 text-right">
+<div class="font-label-sm text-outline">—</div>
+</td>
+<td class="py-3 px-4">
+<div class="flex items-center gap-1.5 text-primary font-label-sm text-[11px]">
+<span class="material-symbols-outlined text-[15px] text-primary">lock</span>
+<span>WORM Lock bis 2034</span>
+</div>
+<div class="font-label-sm text-[10px] text-outline font-mono">
+                10 Jahre Pflichtaufbewahrung
+              </div>
+</td>
+<td class="py-3 px-4 text-center">
+<div class="flex items-center justify-center gap-1 opacity-70 group-hover:opacity-100 transition-opacity">
+<button class="w-7 h-7 rounded hover:bg-surface-container-high text-on-surface-variant hover:text-primary flex items-center justify-center">
+<span class="material-symbols-outlined text-[17px]">visibility</span>
+</button>
+<button class="w-7 h-7 rounded hover:bg-surface-container-high text-on-surface-variant hover:text-primary flex items-center justify-center">
+<span class="material-symbols-outlined text-[17px]">more_vert</span>
+</button>
+</div>
+</td>
+</tr>
+<!-- Row 6: Steuerbescheid -->
+<tr class="hover:bg-surface-container transition-colors group cursor-pointer">
+<td class="py-3 px-4 text-center">
+<input class="w-4 h-4 rounded bg-surface-container-lowest border-outline-variant/50 accent-primary cursor-pointer" type="checkbox"/>
+</td>
+<td class="py-3 px-4">
+<div class="flex items-start gap-3">
+<div class="w-8 h-8 rounded bg-surface-container-high flex items-center justify-center text-primary mt-0.5 flex-shrink-0 group-hover:bg-primary group-hover:text-on-primary transition-colors">
+<span class="material-symbols-outlined text-[18px]">account_balance</span>
+</div>
+<div class="min-w-0">
+<div class="font-headline-sm text-[14px] text-primary font-medium tracking-tight truncate flex items-center gap-1.5">
+<span>Steuerbescheid 2023 Finanzamt</span>
+</div>
+<div class="font-body-sm text-[12px] text-on-surface-variant truncate font-label-sm text-outline">
+                    OCR: „Bescheid für 2023 über Körperschaftsteuer und Solidaritätszuschlag ...“
+                  </div>
+</div>
+</div>
+</td>
+<td class="py-3 px-4">
+<div class="flex flex-col gap-1 items-start">
+<span class="px-2 py-0.5 rounded bg-surface-container-high text-primary font-label-sm text-[11px] border border-outline-variant/30">Steuern / Bescheide</span>
+<span class="text-outline font-label-sm text-[10px]">#finanzamt #elster</span>
+</div>
+</td>
+<td class="py-3 px-4">
+<div class="font-label-md text-label-md text-primary">02. Nov 2024</div>
+<div class="font-body-sm text-[11px] text-outline flex items-center gap-1">
+<span class="material-symbols-outlined text-[13px]">sync_alt</span> ELSTER Schnittstelle
+              </div>
+</td>
+<td class="py-3 px-4 text-right">
+<div class="font-label-sm text-outline">—</div>
+</td>
+<td class="py-3 px-4">
+<div class="flex items-center gap-1.5 text-primary font-label-sm text-[11px]">
+<span class="material-symbols-outlined text-[15px] text-primary">gavel</span>
+<span>Rechtskraft attestiert</span>
+</div>
+<div class="font-label-sm text-[10px] text-outline">
+                Fristprüfung abgeschlossen
+              </div>
+</td>
+<td class="py-3 px-4 text-center">
+<div class="flex items-center justify-center gap-1 opacity-70 group-hover:opacity-100 transition-opacity">
+<button class="w-7 h-7 rounded hover:bg-surface-container-high text-on-surface-variant hover:text-primary flex items-center justify-center">
+<span class="material-symbols-outlined text-[17px]">visibility</span>
+</button>
+<button class="w-7 h-7 rounded hover:bg-surface-container-high text-on-surface-variant hover:text-primary flex items-center justify-center">
+<span class="material-symbols-outlined text-[17px]">more_vert</span>
+</button>
+</div>
+</td>
+</tr>
+<!-- Row 7: Hetzner Online -->
+<tr class="hover:bg-surface-container transition-colors group cursor-pointer">
+<td class="py-3 px-4 text-center">
+<input class="w-4 h-4 rounded bg-surface-container-lowest border-outline-variant/50 accent-primary cursor-pointer" type="checkbox"/>
+</td>
+<td class="py-3 px-4">
+<div class="flex items-start gap-3">
+<div class="w-8 h-8 rounded bg-surface-container-high flex items-center justify-center text-primary mt-0.5 flex-shrink-0 group-hover:bg-primary group-hover:text-on-primary transition-colors">
+<span class="material-symbols-outlined text-[18px]">dns</span>
+</div>
+<div class="min-w-0">
+<div class="font-headline-sm text-[14px] text-primary font-medium tracking-tight truncate flex items-center gap-1.5">
+<span>Hosting Rechnung Hetzner Online</span>
+</div>
+<div class="font-body-sm text-[12px] text-on-surface-variant truncate font-label-sm text-outline">
+                    OCR: „Rechnung R082390234 • Cloud Server CPX31 ...“
+                  </div>
+</div>
+</div>
+</td>
+<td class="py-3 px-4">
+<div class="flex flex-col gap-1 items-start">
+<span class="px-2 py-0.5 rounded bg-surface-container-high text-primary font-label-sm text-[11px] border border-outline-variant/30">Finanzen / IT-Kosten</span>
+<span class="text-outline font-label-sm text-[10px]">#infrastructure</span>
+</div>
+</td>
+<td class="py-3 px-4">
+<div class="font-label-md text-label-md text-primary">31. Okt 2024</div>
+<div class="font-body-sm text-[11px] text-outline flex items-center gap-1">
+<span class="material-symbols-outlined text-[13px]">webhook</span> API Webhook
+              </div>
+</td>
+<td class="py-3 px-4 text-right">
+<div class="font-label-md text-label-md font-semibold text-primary">49,90 €</div>
+<span class="font-label-sm text-[10px] text-outline">Automatisch bezahlt</span>
+</td>
+<td class="py-3 px-4">
+<div class="flex items-center gap-1.5 text-primary font-label-sm text-[11px]">
+<span class="material-symbols-outlined text-[15px] text-primary">check_circle</span>
+<span>GoBD-konform</span>
+</div>
+<div class="font-label-sm text-[10px] text-outline font-mono">
+                SHA: 4d281...c882
+              </div>
+</td>
+<td class="py-3 px-4 text-center">
+<div class="flex items-center justify-center gap-1 opacity-70 group-hover:opacity-100 transition-opacity">
+<button class="w-7 h-7 rounded hover:bg-surface-container-high text-on-surface-variant hover:text-primary flex items-center justify-center">
+<span class="material-symbols-outlined text-[17px]">visibility</span>
+</button>
+<button class="w-7 h-7 rounded hover:bg-surface-container-high text-on-surface-variant hover:text-primary flex items-center justify-center">
+<span class="material-symbols-outlined text-[17px]">more_vert</span>
+</button>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- DataGrid Footer / Pagination -->
+<div class="px-space-md py-space-sm border-t border-outline-variant/30 flex flex-col sm:flex-row items-center justify-between gap-space-sm font-label-sm text-label-sm text-on-surface-variant">
+<!-- Rows per page -->
+<div class="flex items-center gap-space-sm">
+<span class="text-outline">Zeilen pro Seite:</span>
+<div class="relative inline-flex items-center">
+<select class="bg-surface-container-low border border-outline-variant/40 rounded px-2 py-1 text-primary focus:outline-none appearance-none pr-6 cursor-pointer">
+<option>10</option>
+<option>25</option>
+<option>50</option>
+<option>100</option>
+</select>
+<span class="material-symbols-outlined text-[14px] text-outline absolute right-1 pointer-events-none">unfold_more</span>
+</div>
+<span class="text-outline">|</span>
+<span>Zeige <strong class="text-primary font-medium">1–7</strong> von <strong class="text-primary font-medium">142</strong> Dokumenten</span>
+</div>
+<!-- Pagination Buttons -->
+<div class="flex items-center gap-1">
+<button class="w-7 h-7 rounded border border-outline-variant/30 flex items-center justify-center text-outline hover:text-primary hover:bg-surface-container-high transition-colors" disabled="" title="Vorherige Seite">
+<span class="material-symbols-outlined text-[16px]">chevron_left</span>
+</button>
+<button class="w-7 h-7 rounded bg-primary text-on-primary font-medium flex items-center justify-center">1</button>
+<button class="w-7 h-7 rounded border border-outline-variant/30 text-on-surface hover:text-primary hover:bg-surface-container-high transition-colors flex items-center justify-center">2</button>
+<button class="w-7 h-7 rounded border border-outline-variant/30 text-on-surface hover:text-primary hover:bg-surface-container-high transition-colors flex items-center justify-center">3</button>
+<button class="w-7 h-7 rounded border border-outline-variant/30 text-on-surface hover:text-primary hover:bg-surface-container-high transition-colors flex items-center justify-center">4</button>
+<span class="px-1 text-outline">...</span>
+<button class="w-7 h-7 rounded border border-outline-variant/30 text-on-surface hover:text-primary hover:bg-surface-container-high transition-colors flex items-center justify-center">21</button>
+<button class="w-7 h-7 rounded border border-outline-variant/30 flex items-center justify-center text-on-surface hover:text-primary hover:bg-surface-container-high transition-colors" title="Nächste Seite">
+<span class="material-symbols-outlined text-[16px]">chevron_right</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Revisionssicherheits- & Compliance-Footer-Leiste -->
+<div class="p-space-md rounded-lg bg-surface-container-lowest border border-outline-variant/30 flex flex-col md:flex-row items-center justify-between gap-space-sm text-outline font-label-sm text-label-sm">
+<div class="flex items-center gap-space-sm flex-wrap text-center md:text-left">
+<div class="flex items-center gap-1.5 text-primary">
+<span class="w-2 h-2 rounded-full bg-primary"></span>
+<span class="font-medium">Letzter GoBD-Audit:</span>
+</div>
+<span>Heute, 04:00 Uhr UTC</span>
+<span class="text-outline-variant">•</span>
+<span class="text-on-surface-variant">100% revisionssicher archiviert</span>
+<span class="text-outline-variant">•</span>
+<span>Kryptografischer Hash-Prüfpfad aktiv</span>
+</div>
+<div class="flex items-center gap-space-md flex-shrink-0">
+<a class="text-on-surface-variant hover:text-primary transition-colors flex items-center gap-1" href="#">
+<span class="material-symbols-outlined text-[14px]">description</span>
+<span>Verfahrensdokumentation (PDF)</span>
+</a>
+<a class="text-on-surface-variant hover:text-primary transition-colors flex items-center gap-1" href="#">
+<span class="material-symbols-outlined text-[14px]">history</span>
+<span>Audit-Log</span>
+</a>
+<div class="flex items-center gap-1 text-primary">
+<span class="w-1.5 h-1.5 rounded-full bg-primary"></span>
+<span>Systemstatus: Optimal</span>
+</div>
+</div>
+</div>
+</div></main></div></body></html>

@@ -22,6 +22,7 @@ Lade nur die Dateien, die deine Aufgabe betreffen. Index: [docs/kb/README.md](do
 | Build & Tooling | [docs/kb/build-und-tooling.md](docs/kb/build-und-tooling.md) | Build oder Tests nicht laufen |
 | Testumgebung | [docs/kb/testumgebung.md](docs/kb/testumgebung.md) | du testest oder misst |
 | Telemetrie (Katalog) | [docs/kb/telemetrie.md](docs/kb/telemetrie.md) | du ein Feature baust – jedes bringt Logs/Abläufe mit |
+| **UI-Prozess (Stitch → Blazor)** | [docs/kb/ui-prozess.md](docs/kb/ui-prozess.md) | du eine Seite entwirfst, überarbeitest oder umsetzt |
 | Architekturentscheidungen | [docs/adr/](docs/adr/) | du eine Entscheidung infrage stellst |
 | **Roadmap & Meilensteinpläne** | [docs/plan/README.md](docs/plan/README.md) | du eine Aufgabe beginnst – arbeite im aktuellen Meilenstein, hake erledigte Punkte ab |
 | Detailplan-Vorlage | [docs/plan/detailplan-vorlage.md](docs/plan/detailplan-vorlage.md) | du einen Plan in Pakete zerlegst und Modelle zuweist (§13) |
@@ -81,6 +82,9 @@ Der Hauptnutzer ist blind bzw. stark sehbehindert. Barrierefreiheit ist Pflicht,
   Schrift, Farbton erhalten, Fotos original. Download und Export liefern immer das Original.
 - Der Viewer zoomt stufenlos und scharf (neu rendern, nicht Pixel strecken).
 - Nie Information nur über Farbe vermitteln; jedes Bedienelement hat einen zugänglichen Namen.
+- **Neue oder überarbeitete Seiten** folgen dem [UI-Prozess](docs/kb/ui-prozess.md): Entwurf im
+  Stitch-Projekt „NoMorePaper“ → abholen → prüfen → Freigabe durch den Nutzer → umsetzen → abnehmen.
+  Stitch-HTML ist nur Vorlage, nie Produktcode; Funktionen aus Entwürfen nur, wenn sie im Plan stehen.
 
 ### 2.6 Statische Klassen
 - `static` nur für Code **ohne Nebenwirkungen** (reine Logik, Konstanten).
@@ -149,7 +153,8 @@ git config core.hooksPath .githooks           # Pre-Commit-Hook aktivieren (einm
 - [ ] Zeilenprüfung grün (keine Datei > 300 Zeilen)
 - [ ] Schichtregeln eingehalten (Architekturtests grün)
 - [ ] Telemetrie mitgeliefert und im Katalog
-- [ ] UI geändert? → dunkel/kontrastreich, per Tastatur und Screenreader bedienbar (§2.5)
+- [ ] UI geändert? → dunkel/kontrastreich, per Tastatur und Screenreader bedienbar (§2.5);
+      Entwurf „freigegeben“ und Abnahme nach [UI-Prozess](docs/kb/ui-prozess.md) Schritt 8
 - [ ] Neues Wissen in `docs/kb/`, neue Grundsatzentscheidung als ADR
 - [ ] Code-Review-Schleife nach Abschnitt 8 ohne offene Befunde durchlaufen
 

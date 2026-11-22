@@ -1,0 +1,621 @@
+<!DOCTYPE html><html class="dark" lang="de"><head><meta charset="utf-8"><meta content="width=device-width, initial-scale=1.0" name="viewport"><meta content="web_dashboard" name="shell-type"><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@100..900&amp;family=JetBrains+Mono:wght@100..900&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"><style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config = { darkMode: "class", theme: { extend: { "colors": { "on-tertiary-fixed-variant": "#46464e", "tertiary-fixed-dim": "#c6c5cf", "surface-container": "#201f1f", "on-secondary-fixed-variant": "#45464e", "primary-container": "#e2e2e2", "secondary-container": "#45464e", "tertiary-fixed": "#e3e1ec", "surface-container-lowest": "#0e0e0e", "on-secondary-fixed": "#1a1b22", "on-primary-fixed": "#1a1c1c", "on-tertiary-fixed": "#1a1b22", "background": "#131313", "primary-fixed": "#e2e2e2", "on-primary-fixed-variant": "#454747", "on-primary-container": "#636565", "outline-variant": "#444748", "surface-tint": "#c6c6c7", "surface-container-low": "#1c1b1b", "on-secondary": "#2f3037", "on-error": "#690005", "surface": "#131313", "surface-container-high": "#2a2a2a", "on-background": "#e5e2e1", "inverse-surface": "#e5e2e1", "primary": "#ffffff", "surface-variant": "#353534", "secondary-fixed": "#e2e1eb", "on-primary": "#2f3131", "on-secondary-container": "#b4b4bd", "inverse-on-surface": "#313030", "on-tertiary-container": "#63646c", "on-error-container": "#ffdad6", "secondary-fixed-dim": "#c6c6cf", "secondary": "#c6c6cf", "error-container": "#93000a", "on-surface-variant": "#c4c7c8", "inverse-primary": "#5d5f5f", "on-tertiary": "#2f3038", "on-surface": "#e5e2e1", "primary-fixed-dim": "#c6c6c7", "tertiary-container": "#e3e1ec", "surface-dim": "#131313", "surface-container-highest": "#353534", "error": "#ffb4ab", "tertiary": "#ffffff", "outline": "#8e9192", "surface-bright": "#393939" }, "borderRadius": { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" }, "spacing": { "space-xl": "2.5rem", "margin-desktop": "2rem", "gutter": "1rem", "gutter-desktop": "1.5rem", "space-xs": "0.25rem", "space-md": "1rem", "space-lg": "1.5rem", "space-sm": "0.5rem", "margin": "1rem" }, "fontFamily": { "label-sm": ["JetBrains Mono"], "body-sm": ["Geist"], "label-md": ["JetBrains Mono"], "headline-md": ["Geist"], "body-md": ["Geist"], "headline-lg-mobile": ["Geist"], "headline-sm": ["Geist"], "headline-xl-mobile": ["Geist"], "label-lg": ["JetBrains Mono"], "headline-lg": ["Geist"], "headline-xl": ["Geist"], "body-lg": ["Geist"] }, "fontSize": { "label-sm": ["10px", { "lineHeight": "14px", "letterSpacing": "0.05em", "fontWeight": "400" }], "body-sm": ["12px", { "lineHeight": "18px", "letterSpacing": "0em", "fontWeight": "400" }], "label-md": ["11px", { "lineHeight": "16px", "letterSpacing": "0.04em", "fontWeight": "500" }], "headline-md": ["20px", { "lineHeight": "28px", "letterSpacing": "-0.01em", "fontWeight": "500" }], "body-md": ["14px", { "lineHeight": "22px", "letterSpacing": "0em", "fontWeight": "400" }], "headline-lg-mobile": ["22px", { "lineHeight": "28px", "letterSpacing": "-0.015em", "fontWeight": "600" }], "headline-sm": ["16px", { "lineHeight": "24px", "letterSpacing": "-0.005em", "fontWeight": "500" }], "headline-xl-mobile": ["30px", { "lineHeight": "38px", "letterSpacing": "-0.02em", "fontWeight": "600" }], "label-lg": ["13px", { "lineHeight": "18px", "letterSpacing": "0.02em", "fontWeight": "500" }], "headline-lg": ["28px", { "lineHeight": "36px", "letterSpacing": "-0.02em", "fontWeight": "600" }], "headline-xl": ["40px", { "lineHeight": "48px", "letterSpacing": "-0.03em", "fontWeight": "600" }], "body-lg": ["16px", { "lineHeight": "26px", "letterSpacing": "-0.005em", "fontWeight": "400" }] } } } }</script></head><body class="bg-surface font-body-md text-on-surface antialiased selection:bg-surface-variant selection:text-primary"><aside class="fixed left-0 top-0 h-full w-72 bg-surface-container-low border-r border-outline-variant/30 z-50 flex flex-col justify-between"><div class="flex flex-col"><div class="h-16 px-space-lg flex items-center justify-between border-b border-outline-variant/20"><div class="flex items-center gap-space-sm"><span class="material-symbols-outlined text-primary text-[22px]">inventory_2</span><span class="font-headline-sm text-headline-sm text-primary font-semibold tracking-tight">nomorepaper</span></div><span class="font-label-sm text-label-sm px-space-xs py-0.5 rounded bg-surface-container text-on-surface-variant border border-outline-variant/40 uppercase tracking-widest">GoBD</span></div><div class="p-space-md"><div class="p-space-sm bg-surface-container-lowest rounded-lg border border-outline-variant/30 flex items-center justify-between"><div class="flex items-center gap-space-sm"><span class="w-2 h-2 rounded-full bg-primary"></span><span class="font-label-md text-label-md text-primary font-medium">Geschäftlich</span></div><span class="material-symbols-outlined text-on-surface-variant text-[18px]">unfold_more</span></div></div><div class="px-space-md py-space-xs"><span class="px-space-sm font-label-sm text-label-sm uppercase tracking-wider text-outline block mb-space-xs">Navigation</span><nav class="flex flex-col gap-1" data-active-classes="bg-surface-container-high text-primary font-medium border-outline-variant/40"><a class="flex items-center gap-space-sm px-space-md py-2 rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors" data-path="dokumente" href="#"><span class="material-symbols-outlined text-[18px]">description</span><span class="font-body-md text-body-md">Dokumente</span></a><a class="flex items-center gap-space-sm px-space-md py-2 rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors" data-path="posteingang-und-scanner" href="#"><span class="material-symbols-outlined text-[18px]">scanner</span><span class="font-body-md text-body-md">Posteingang &amp; Scanner</span></a><a class="flex items-center gap-space-sm px-space-md py-2 rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors" data-path="ordner-und-tags" href="#"><span class="material-symbols-outlined text-[18px]">folder</span><span class="font-body-md text-body-md">Ordner &amp; Tags</span></a><a class="flex items-center gap-space-sm px-space-md py-2 rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors" data-path="workflows-und-freigaben" href="#"><span class="material-symbols-outlined text-[18px]">rule</span><span class="font-body-md text-body-md">Workflows &amp; Freigaben</span></a><a class="flex items-center gap-space-sm px-space-md py-2 rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors" data-path="gobd-archiv" href="#"><span class="material-symbols-outlined text-[18px]">verified</span><span class="font-body-md text-body-md">GoBD-Archiv</span></a><a class="flex items-center gap-space-sm px-space-md py-2 rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors" data-path="papierkorb" href="#"><span class="material-symbols-outlined text-[18px]">delete</span><span class="font-body-md text-body-md">Papierkorb</span></a></nav></div></div><div class="p-space-md border-t border-outline-variant/20 flex flex-col gap-space-md"><div class="bg-surface-container-lowest p-space-md rounded-lg border border-outline-variant/30"><div class="flex items-center justify-between mb-space-xs"><span class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">Cloud-Speicher</span><span class="font-label-sm text-label-sm text-primary font-medium">16.8%</span></div><div class="w-full h-1.5 bg-surface-container rounded-full overflow-hidden mb-space-xs"><div class="bg-primary h-full rounded-full" style="width: 16.8%"></div></div><div class="flex justify-between items-center"><span class="font-label-sm text-label-sm text-outline">4.2 GB / 25 GB</span><span class="font-label-sm text-label-sm text-on-surface-variant">S3-WORM</span></div></div><div class="flex flex-col gap-1"><a class="flex items-center gap-space-sm px-space-md py-2 rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors" data-path="einstellungen-und-konto" href="#"><span class="material-symbols-outlined text-[18px]">settings</span><span class="font-body-md text-body-md">Einstellungen &amp; Konto</span></a></div></div></aside><div class="pl-72"><header class="fixed top-0 left-72 right-0 h-16 bg-surface/80 backdrop-blur-xl border-b border-outline-variant/20 z-40 flex items-center justify-between px-space-lg"><div class="flex items-center gap-space-md flex-1 max-w-xl"><div class="relative w-full flex items-center"><span class="material-symbols-outlined text-outline absolute left-3 text-[18px]">search</span><input class="w-full h-10 pl-9 pr-space-md bg-surface-container-lowest border border-outline-variant/30 rounded-lg text-primary placeholder-outline font-body-md text-body-md focus:outline-none focus:border-primary transition-colors" placeholder="Dokumente, Volltext, OCR durchsuchen..." type="text"></div></div><div class="flex items-center gap-space-md"><div class="flex items-center gap-space-xs px-space-sm py-1 rounded bg-surface-container-lowest border border-outline-variant/40"><span class="w-2 h-2 rounded-full bg-primary animate-pulse"></span><span class="font-label-sm text-label-sm text-primary font-medium">GoBD-Konform</span></div><button class="h-10 px-space-md rounded-lg bg-primary text-on-primary font-label-md text-label-md font-medium hover:bg-primary-fixed transition-colors flex items-center gap-space-xs"><span class="material-symbols-outlined text-[18px]">add</span><span>Dokument hochladen / scannen</span></button><button class="w-10 h-10 rounded-lg bg-surface-container-lowest border border-outline-variant/30 flex items-center justify-center text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-colors relative"><span class="material-symbols-outlined text-[20px]">notifications</span><span class="w-1.5 h-1.5 rounded-full bg-primary absolute top-2.5 right-2.5"></span></button><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div></div></header><main class="w-full pt-16 bg-surface"><div class="flex flex-col w-full">
+<!-- Top Command & Breadcrumb Context Bar -->
+<div class="w-full bg-surface-container-lowest px-space-lg py-space-sm flex flex-col md:flex-row md:items-center justify-between gap-space-sm">
+<div class="flex items-center gap-space-sm min-w-0">
+<a class="h-8 px-space-sm rounded bg-surface-container hover:bg-surface-container-high text-on-surface hover:text-primary flex items-center gap-space-xs transition-colors group" href="#">
+<span class="material-symbols-outlined text-[16px] group-hover:-translate-x-0.5 transition-transform">arrow_back</span>
+<span class="font-label-md text-label-md">Zurück zur Liste</span>
+</a>
+<span class="text-outline text-label-sm">/</span>
+<!-- MudBreadcrumbs style -->
+<nav class="flex items-center gap-space-xs min-w-0 font-label-md text-label-md">
+<a class="text-outline hover:text-on-surface transition-colors" href="#">Dokumente</a>
+<span class="text-outline">/</span>
+<a class="text-outline hover:text-on-surface transition-colors" href="#">Rechnungen</a>
+<span class="text-outline">/</span>
+<span class="text-primary font-medium truncate">Telekom Rechnung Nov 2024 (RE-2024-88493)</span>
+</nav>
+</div>
+<!-- Quick Meta Indicators -->
+<div class="flex items-center gap-space-xs shrink-0">
+<span class="font-label-sm text-label-sm px-space-xs py-0.5 rounded bg-surface-container text-on-surface-variant uppercase">Eingang: 14.11.2024 09:41</span>
+<span class="font-label-sm text-label-sm px-space-xs py-0.5 rounded bg-surface-container-high text-primary font-medium">Beleg-ID: #88493</span>
+</div>
+</div>
+<!-- Main Inspector Header (MudPaper Hero Title & Actions) -->
+<div class="w-full bg-surface-container-low px-space-lg py-space-md">
+<div class="flex flex-col xl:flex-row xl:items-center justify-between gap-space-md">
+<!-- Title & Badges -->
+<div class="flex flex-col gap-space-xs">
+<div class="flex items-center gap-space-sm flex-wrap">
+<div class="w-7 h-7 rounded bg-surface-container-highest flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-[18px]">picture_as_pdf</span>
+</div>
+<h1 class="font-headline-sm text-headline-sm text-primary tracking-tight font-semibold">
+            Telekom_Rechnung_Nov_2024.pdf
+          </h1>
+<span class="font-label-sm text-label-sm text-outline font-mono">1.84 MB</span>
+</div>
+<!-- MudChip Status Badges -->
+<div class="flex items-center gap-space-xs flex-wrap pt-0.5">
+<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-surface-container-highest text-primary font-label-sm text-label-sm uppercase tracking-wider">
+<span class="material-symbols-outlined text-[14px]">verified</span>
+            GoBD-konform archiviert
+          </span>
+<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-surface-container text-on-surface-variant font-label-sm text-label-sm uppercase tracking-wider">
+<span class="material-symbols-outlined text-[14px]">lock</span>
+            WORM-gesperrt (S3)
+          </span>
+<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-surface-container text-on-surface-variant font-label-sm text-label-sm uppercase tracking-wider">
+<span class="material-symbols-outlined text-[14px]">document_scanner</span>
+            OCR 100% indiziert
+          </span>
+<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-surface-container text-on-surface-variant font-label-sm text-label-sm uppercase tracking-wider">
+<span class="material-symbols-outlined text-[14px]">data_object</span>
+            ZUGFeRD 2.2 / XRechnung
+          </span>
+</div>
+</div>
+<!-- Action Toolbar (MudButton Grouping) -->
+<div class="flex items-center gap-space-xs flex-wrap shrink-0">
+<button class="h-9 px-space-sm rounded bg-surface-container text-on-surface hover:bg-surface-container-high hover:text-primary font-label-md text-label-md flex items-center gap-space-xs transition-colors" type="button">
+<span class="material-symbols-outlined text-[16px]">download</span>
+<span>Herunterladen</span>
+</button>
+<button class="h-9 px-space-sm rounded bg-surface-container text-on-surface hover:bg-surface-container-high hover:text-primary font-label-md text-label-md flex items-center gap-space-xs transition-colors" type="button">
+<span class="material-symbols-outlined text-[16px]">draw</span>
+<span>QES Signieren</span>
+</button>
+<button class="h-9 px-space-sm rounded bg-surface-container text-on-surface hover:bg-surface-container-high hover:text-primary font-label-md text-label-md flex items-center gap-space-xs transition-colors" type="button">
+<span class="material-symbols-outlined text-[16px]">share</span>
+<span>Freigeben</span>
+</button>
+<button class="h-9 px-space-sm rounded bg-surface-container text-on-surface-variant hover:text-primary hover:bg-surface-container-high font-label-md text-label-md flex items-center gap-space-xs transition-colors" title="In Papierkorb verschieben" type="button">
+<span class="material-symbols-outlined text-[16px]">delete</span>
+</button>
+<button class="h-9 px-space-md rounded bg-primary text-on-primary hover:bg-primary-fixed font-label-md text-label-md font-medium flex items-center gap-space-xs shadow-md transition-colors ml-space-xs" type="button">
+<span class="material-symbols-outlined text-[18px]">account_balance_wallet</span>
+<span>DATEV Belegbild exportieren</span>
+</button>
+</div>
+</div>
+</div>
+<!-- 2-Column Split Workspace (Desktop Grid: 7 Cols Viewer / 5 Cols Inspector) -->
+<div class="w-full p-space-md lg:p-space-lg grid grid-cols-1 lg:grid-cols-12 gap-space-lg">
+<!-- LEFT COLUMN: PDF Canvas Viewer & Document Inspector (7 cols) -->
+<div class="lg:col-span-7 flex flex-col gap-space-sm">
+<!-- Viewer Controls Toolbar (MudPaper Toolbar) -->
+<div class="w-full bg-surface-container-low rounded-lg p-space-xs px-space-sm flex items-center justify-between flex-wrap gap-space-xs">
+<div class="flex items-center gap-space-xs">
+<button class="w-8 h-8 rounded bg-surface-container hover:bg-surface-container-high flex items-center justify-center text-on-surface hover:text-primary transition-colors" title="Vorherige Seite" type="button">
+<span class="material-symbols-outlined text-[18px]">chevron_left</span>
+</button>
+<div class="flex items-center gap-1 font-label-sm text-label-sm px-space-xs text-on-surface">
+<span class="text-primary font-medium">Seite 1</span>
+<span class="text-outline">von 3</span>
+</div>
+<button class="w-8 h-8 rounded bg-surface-container hover:bg-surface-container-high flex items-center justify-center text-on-surface hover:text-primary transition-colors" title="Nächste Seite" type="button">
+<span class="material-symbols-outlined text-[18px]">chevron_right</span>
+</button>
+<span class="w-px h-4 bg-surface-container-highest mx-space-xs"></span>
+<button class="w-8 h-8 rounded bg-surface-container hover:bg-surface-container-high flex items-center justify-center text-on-surface hover:text-primary transition-colors" title="Verkleinern" type="button">
+<span class="material-symbols-outlined text-[18px]">zoom_out</span>
+</button>
+<span class="font-label-sm text-label-sm text-primary px-space-xs">100%</span>
+<button class="w-8 h-8 rounded bg-surface-container hover:bg-surface-container-high flex items-center justify-center text-on-surface hover:text-primary transition-colors" title="Vergrößern" type="button">
+<span class="material-symbols-outlined text-[18px]">zoom_in</span>
+</button>
+<button class="w-8 h-8 rounded bg-surface-container hover:bg-surface-container-high flex items-center justify-center text-on-surface hover:text-primary transition-colors" title="Breite anpassen" type="button">
+<span class="material-symbols-outlined text-[18px]">fit_screen</span>
+</button>
+</div>
+<div class="flex items-center gap-space-xs">
+<!-- OCR Overlay Toggle Switch -->
+<label class="flex items-center gap-space-xs cursor-pointer select-none px-space-xs py-1 rounded hover:bg-surface-container transition-colors">
+<div class="relative w-8 h-4 bg-surface-container-highest rounded-full transition-colors">
+<input checked="" class="sr-only peer" id="ocr-toggle" onchange="document.getElementById('ocr-overlay-layer').classList.toggle('opacity-0')" type="checkbox">
+<div class="w-3 h-3 bg-primary rounded-full absolute top-0.5 left-0.5 peer-checked:translate-x-4 transition-transform"></div>
+</div>
+<span class="font-label-sm text-label-sm text-on-surface">OCR Layer</span>
+</label>
+<button class="w-8 h-8 rounded bg-surface-container hover:bg-surface-container-high flex items-center justify-center text-on-surface hover:text-primary transition-colors" title="Text auswählen" type="button">
+<span class="material-symbols-outlined text-[18px]">select_all</span>
+</button>
+<button class="w-8 h-8 rounded bg-surface-container hover:bg-surface-container-high flex items-center justify-center text-on-surface hover:text-primary transition-colors" title="Drehen 90°" type="button">
+<span class="material-symbols-outlined text-[18px]">rotate_right</span>
+</button>
+<button class="h-8 px-space-sm rounded bg-surface-container hover:bg-surface-container-high flex items-center justify-center gap-1 text-on-surface hover:text-primary transition-colors" title="Vollbildmodus / PDF in Vollbild anzeigen" type="button"><span class="material-symbols-outlined text-[18px]">fullscreen</span><span class="font-label-sm text-label-sm font-medium">Vollbild</span></button>
+</div>
+</div>
+<!-- High-Fidelity Rendered PDF Document Canvas (Dark Modernist Document Specimen) -->
+<div class="w-full bg-surface-container-lowest rounded-lg p-space-md flex justify-center items-start overflow-x-auto min-h-[780px] relative"><div class="absolute top-2 right-2 z-20"><button class="h-8 px-space-sm rounded bg-surface-container-high/90 hover:bg-surface-container-highest backdrop-blur-xl border border-outline-variant/30 text-primary font-label-sm text-label-sm font-medium flex items-center gap-1 shadow-md hover:text-primary transition-colors" title="PDF in Vollbild anzeigen" type="button"><span class="material-symbols-outlined text-[18px]">open_in_full</span><span>Vollbild anzeigen</span></button></div>
+<div class="relative w-full max-w-[620px] bg-surface-container-low rounded-lg p-8 shadow-xl text-on-surface flex flex-col justify-between min-h-[820px]">
+<!-- Interactive OCR Overlay Highlights Layer (Bounding Boxes) -->
+<div class="absolute inset-0 pointer-events-none transition-opacity duration-200" id="ocr-overlay-layer">
+<!-- Box 1: Rechnungssteller -->
+<div class="absolute top-[48px] left-[32px] w-[180px] h-[58px] bg-surface-container-highest/60 rounded"></div>
+<!-- Box 2: Rechnungsnummer -->
+<div class="absolute top-[148px] right-[32px] w-[190px] h-[48px] bg-surface-container-highest/60 rounded"></div>
+<!-- Box 3: Posten Glasfaser -->
+<div class="absolute top-[372px] left-[32px] right-[32px] h-[34px] bg-surface-container-highest/40 rounded"></div>
+<!-- Box 4: Gesamtbetrag Brutto -->
+<div class="absolute top-[498px] right-[32px] w-[210px] h-[34px] bg-surface-container-highest/70 rounded"></div>
+</div>
+<!-- Document Content: Header -->
+<div class="flex flex-col gap-space-lg relative z-10">
+<div class="flex justify-between items-start">
+<div>
+<div class="font-headline-sm text-headline-sm text-primary font-bold tracking-tight">Telekom Deutschland GmbH</div>
+<div class="font-body-sm text-body-sm text-outline mt-1 leading-snug">
+                  Landgrabenweg 151<br>
+                  53227 Bonn<br>
+                  USt-IdNr.: DE 122265127
+                </div>
+</div>
+<div class="text-right">
+<div class="font-headline-md text-headline-md text-primary font-bold tracking-tight">RECHNUNG</div>
+<div class="font-label-sm text-label-sm text-outline font-mono mt-1">Nr. RE-2024-88493</div>
+<div class="font-label-sm text-label-sm text-on-surface-variant font-mono">Datum: 14.11.2024</div>
+</div>
+</div>
+<!-- Recipient & Meta Grid -->
+<div class="grid grid-cols-2 gap-space-md pt-space-sm">
+<div class="bg-surface-container p-space-sm rounded">
+<div class="font-label-sm text-label-sm text-outline uppercase tracking-wider mb-1">Rechnungsempfänger</div>
+<div class="font-body-sm text-body-sm text-primary font-medium">nomorepaper Solutions GmbH</div>
+<div class="font-body-sm text-body-sm text-on-surface-variant">Technologiepark 4</div>
+<div class="font-body-sm text-body-sm text-on-surface-variant">10115 Berlin</div>
+<div class="font-label-sm text-label-sm text-outline font-mono mt-1">Kunden-Nr.: 0029481023</div>
+</div>
+<div class="bg-surface-container p-space-sm rounded flex flex-col justify-between">
+<div>
+<div class="font-label-sm text-label-sm text-outline uppercase tracking-wider mb-1">Abrechnungszeitraum</div>
+<div class="font-body-sm text-body-sm text-primary">01.11.2024 – 30.11.2024</div>
+</div>
+<div>
+<div class="font-label-sm text-label-sm text-outline uppercase tracking-wider">Zahlungsziel</div>
+<div class="font-label-md text-label-md text-primary font-mono">28.11.2024 (SEPA-Lastschrift)</div>
+</div>
+</div>
+</div>
+<!-- Positions Table -->
+<div class="flex flex-col mt-space-sm">
+<div class="grid grid-cols-12 pb-space-xs font-label-sm text-label-sm text-outline uppercase tracking-wider bg-surface-container-high px-space-xs py-1 rounded-t">
+<span class="col-span-1">Pos</span>
+<span class="col-span-7">Bezeichnung / Tarif</span>
+<span class="col-span-2 text-right">USt</span>
+<span class="col-span-2 text-right">Netto EUR</span>
+</div>
+<div class="grid grid-cols-12 py-space-sm px-space-xs text-body-sm font-body-sm items-center hover:bg-surface-container transition-colors">
+<span class="col-span-1 font-mono text-outline">01</span>
+<div class="col-span-7">
+<div class="text-primary font-medium">Business Glasfaser 1000/500</div>
+<div class="font-label-sm text-label-sm text-outline">Standort: Berlin HQ (Anschluss-ID: FIB-4902)</div>
+</div>
+<span class="col-span-2 text-right font-mono text-on-surface-variant">19 %</span>
+<span class="col-span-2 text-right font-mono text-primary font-medium">139,00</span>
+</div>
+<div class="grid grid-cols-12 py-space-sm px-space-xs text-body-sm font-body-sm items-center hover:bg-surface-container transition-colors">
+<span class="col-span-1 font-mono text-outline">02</span>
+<div class="col-span-7">
+<div class="text-primary">Feste IPv4-Subnetz /29 Option</div>
+<div class="font-label-sm text-label-sm text-outline">8 IP-Adressen statisch routed</div>
+</div>
+<span class="col-span-2 text-right font-mono text-on-surface-variant">19 %</span>
+<span class="col-span-2 text-right font-mono text-primary font-medium">16,04</span>
+</div>
+<!-- Summary Totals -->
+<div class="flex flex-col gap-1 pt-space-md ml-auto w-64">
+<div class="flex justify-between font-body-sm text-body-sm">
+<span class="text-outline">Summe Netto:</span>
+<span class="font-mono text-primary">155,04 €</span>
+</div>
+<div class="flex justify-between font-body-sm text-body-sm">
+<span class="text-outline">Umsatzsteuer (19%):</span>
+<span class="font-mono text-primary">29,46 €</span>
+</div>
+<div class="flex justify-between items-center pt-space-xs bg-surface-container p-space-xs rounded mt-1">
+<span class="font-headline-sm text-headline-sm text-primary font-semibold">Gesamtbetrag:</span>
+<span class="font-headline-sm text-headline-sm text-primary font-bold font-mono">184,50 €</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Document Footer -->
+<div class="pt-space-lg mt-space-lg flex flex-col gap-2 relative z-10">
+<div class="flex justify-between items-center text-label-sm font-label-sm text-outline font-mono">
+<span>IBAN: DE89 3704 0044 0532 0130 00</span>
+<span>BIC: DRESDEFF370</span>
+<span>Deutsche Bank AG</span>
+</div>
+<div class="flex justify-between items-center text-label-sm font-label-sm text-on-surface-variant">
+<span>Der Rechnungsbetrag wird zum 28.11.2024 von Ihrem Konto abgebucht.</span>
+<span class="uppercase text-outline font-mono">ZUGFeRD 2.2 Profile EXTENDED</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Quick Hash & Integrity Bottom Strip -->
+<div class="bg-surface-container-low p-space-sm rounded-lg flex items-center justify-between font-label-sm text-label-sm text-on-surface-variant">
+<div class="flex items-center gap-space-xs truncate">
+<span class="material-symbols-outlined text-[15px] text-primary">fingerprint</span>
+<span class="text-outline">SHA256:</span>
+<span class="font-mono text-primary truncate">e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855</span>
+</div>
+<button class="shrink-0 px-2 py-0.5 rounded bg-surface-container hover:bg-surface-container-high text-primary font-label-sm text-label-sm transition-colors" title="Hash in Zwischenablage kopieren" type="button">
+          Kopieren
+        </button>
+</div>
+</div>
+<!-- RIGHT COLUMN: MudTabs Inspector, OCR Extracted Metadata, GoBD Compliance, Audit & Workflow (5 cols) -->
+<div class="lg:col-span-5 flex flex-col gap-space-md">
+<!-- MudCard Parent Container -->
+<div class="bg-surface-container-low rounded-lg p-space-md flex flex-col gap-space-md">
+<!-- MudTabs Navigation Header -->
+<div class="flex items-center gap-1 bg-surface-container-lowest p-1 rounded-lg">
+<button class="inspector-tab flex-1 py-1.5 px-space-xs rounded font-label-md text-label-md text-center text-primary bg-surface-container-high font-medium transition-colors" onclick="switchInspectorTab('tab-meta', this)" type="button">
+            Belegdaten
+          </button>
+<button class="inspector-tab flex-1 py-1.5 px-space-xs rounded font-label-md text-label-md text-center text-on-surface-variant hover:text-primary hover:bg-surface-container transition-colors" onclick="switchInspectorTab('tab-ocr', this)" type="button">
+            OCR-Volltext
+          </button>
+<button class="inspector-tab flex-1 py-1.5 px-space-xs rounded font-label-md text-label-md text-center text-on-surface-variant hover:text-primary hover:bg-surface-container transition-colors" onclick="switchInspectorTab('tab-gobd', this)" type="button">
+            GoBD &amp; Audit
+          </button>
+<button class="inspector-tab flex-1 py-1.5 px-space-xs rounded font-label-md text-label-md text-center text-on-surface-variant hover:text-primary hover:bg-surface-container transition-colors" onclick="switchInspectorTab('tab-workflow', this)" type="button">
+            Workflow
+          </button>
+</div>
+<!-- TAB PANE 1: Metadaten & Buchungsinformationen -->
+<div class="tab-content flex flex-col gap-space-md" id="tab-meta">
+<!-- Extraction Status Notice -->
+<div class="bg-surface-container p-space-sm rounded flex items-center justify-between">
+<div class="flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-[18px] text-primary">auto_awesome</span>
+<span class="font-body-sm text-body-sm text-primary font-medium">KI-Belegextraktion abgeschlossen</span>
+</div>
+<span class="font-label-sm text-label-sm text-outline font-mono">Konfidenz: 99.8%</span>
+</div>
+<!-- Section: Basisdaten (MudTextFields) -->
+<div class="flex flex-col gap-space-sm">
+<span class="font-label-sm text-label-sm uppercase tracking-wider text-outline">Kopf- &amp; Belegdaten</span>
+<div class="grid grid-cols-2 gap-space-sm">
+<div class="flex flex-col gap-1">
+<label class="font-label-sm text-label-sm text-outline">Rechnungssteller</label>
+<div class="h-9 px-space-sm bg-surface-container-lowest rounded flex items-center justify-between text-body-sm text-primary font-medium">
+<span class="truncate">Telekom Deutschland GmbH</span>
+<span class="material-symbols-outlined text-[15px] text-outline">check_circle</span>
+</div>
+</div>
+<div class="flex flex-col gap-1">
+<label class="font-label-sm text-label-sm text-outline">Rechnungsnummer</label>
+<div class="h-9 px-space-sm bg-surface-container-lowest rounded flex items-center justify-between text-body-sm font-mono text-primary">
+<span>RE-2024-88493</span>
+<span class="material-symbols-outlined text-[15px] text-outline">check_circle</span>
+</div>
+</div>
+</div>
+<div class="grid grid-cols-2 gap-space-sm">
+<div class="flex flex-col gap-1">
+<label class="font-label-sm text-label-sm text-outline">Belegdatum</label>
+<div class="h-9 px-space-sm bg-surface-container-lowest rounded flex items-center justify-between text-body-sm font-mono text-primary">
+<span>14.11.2024</span>
+<span class="material-symbols-outlined text-[15px] text-outline">calendar_today</span>
+</div>
+</div>
+<div class="flex flex-col gap-1">
+<label class="font-label-sm text-label-sm text-outline">Fälligkeit</label>
+<div class="h-9 px-space-sm bg-surface-container-lowest rounded flex items-center justify-between text-body-sm font-mono text-primary">
+<span>28.11.2024</span>
+<span class="material-symbols-outlined text-[15px] text-outline">event</span>
+</div>
+</div>
+</div>
+<!-- Financial Figures Summary Grid -->
+<div class="grid grid-cols-3 gap-space-xs bg-surface-container-lowest p-space-sm rounded">
+<div class="flex flex-col">
+<span class="font-label-sm text-label-sm text-outline uppercase">Netto</span>
+<span class="font-headline-sm text-headline-sm text-primary font-mono font-medium">155,04 €</span>
+</div>
+<div class="flex flex-col">
+<span class="font-label-sm text-label-sm text-outline uppercase">USt 19%</span>
+<span class="font-headline-sm text-headline-sm text-on-surface-variant font-mono">29,46 €</span>
+</div>
+<div class="flex flex-col text-right">
+<span class="font-label-sm text-label-sm text-outline uppercase">Gesamtbetrag</span>
+<span class="font-headline-sm text-headline-sm text-primary font-mono font-bold">184,50 €</span>
+</div>
+</div>
+<div class="grid grid-cols-2 gap-space-sm">
+<div class="flex flex-col gap-1">
+<label class="font-label-sm text-label-sm text-outline">USt-IdNr.</label>
+<div class="h-9 px-space-sm bg-surface-container-lowest rounded flex items-center text-body-sm font-mono text-on-surface">
+                  DE 122265127
+                </div>
+</div>
+<div class="flex flex-col gap-1">
+<label class="font-label-sm text-label-sm text-outline">Währung &amp; Zahlungsart</label>
+<div class="h-9 px-space-sm bg-surface-container-lowest rounded flex items-center text-body-sm text-on-surface">
+                  EUR (SEPA-Lastschrift)
+                </div>
+</div>
+</div>
+<div class="flex flex-col gap-1">
+<label class="font-label-sm text-label-sm text-outline">IBAN des Gläubigers</label>
+<div class="h-9 px-space-sm bg-surface-container-lowest rounded flex items-center justify-between text-body-sm font-mono text-primary">
+<span>DE89 3704 0044 0532 0130 00</span>
+<span class="font-label-sm text-label-sm text-outline uppercase">DRESDEFF370</span>
+</div>
+</div>
+</div>
+<!-- Section: Buchungszuordnung & Kontierung -->
+<div class="flex flex-col gap-space-sm pt-space-xs">
+<span class="font-label-sm text-label-sm uppercase tracking-wider text-outline">DATEV-Kontierung &amp; Zuordnung</span>
+<div class="grid grid-cols-2 gap-space-sm">
+<div class="flex flex-col gap-1">
+<label class="font-label-sm text-label-sm text-outline">Aufwandskonto (SKR03 / SKR04)</label>
+<div class="h-9 px-space-sm bg-surface-container-lowest rounded flex items-center justify-between text-body-sm text-primary">
+<div class="flex items-center gap-1 font-mono">
+<span class="font-semibold text-primary">4920</span>
+<span class="text-outline text-label-sm">/ 6805</span>
+</div>
+<span class="font-label-sm text-label-sm text-on-surface-variant truncate">Telefon / Internet</span>
+</div>
+</div>
+<div class="flex flex-col gap-1">
+<label class="font-label-sm text-label-sm text-outline">Kostenstelle (KST)</label>
+<div class="h-9 px-space-sm bg-surface-container-lowest rounded flex items-center text-body-sm font-mono text-primary">
+                  100 - IT &amp; Infrastruktur
+                </div>
+</div>
+</div>
+<div class="flex flex-col gap-1">
+<label class="font-label-sm text-label-sm text-outline">Ordnerpfad &amp; Archivkategorie</label>
+<div class="h-9 px-space-sm bg-surface-container-lowest rounded flex items-center justify-between text-body-sm text-on-surface">
+<div class="flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-[16px] text-outline">folder</span>
+<span>Finanzen / Rechnungen / 2024 / Q4</span>
+</div>
+<button class="text-outline hover:text-primary" type="button">
+<span class="material-symbols-outlined text-[16px]">edit</span>
+</button>
+</div>
+</div>
+<!-- Tags (MudChip Set) -->
+<div class="flex flex-col gap-1">
+<label class="font-label-sm text-label-sm text-outline">Schlagwörter / Tags</label>
+<div class="flex items-center gap-space-xs flex-wrap">
+<span class="inline-flex items-center gap-1 px-space-xs py-0.5 rounded bg-surface-container text-primary font-label-sm text-label-sm">
+                  #telekommunikation
+                  <span class="material-symbols-outlined text-[13px] text-outline hover:text-primary cursor-pointer">close</span>
+</span>
+<span class="inline-flex items-center gap-1 px-space-xs py-0.5 rounded bg-surface-container text-primary font-label-sm text-label-sm">
+                  #monatlich
+                  <span class="material-symbols-outlined text-[13px] text-outline hover:text-primary cursor-pointer">close</span>
+</span>
+<span class="inline-flex items-center gap-1 px-space-xs py-0.5 rounded bg-surface-container text-primary font-label-sm text-label-sm">
+                  #fixkosten
+                  <span class="material-symbols-outlined text-[13px] text-outline hover:text-primary cursor-pointer">close</span>
+</span>
+<button class="h-6 px-2 rounded bg-surface-container hover:bg-surface-container-high text-outline hover:text-primary font-label-sm text-label-sm flex items-center gap-1 transition-colors" type="button">
+<span class="material-symbols-outlined text-[13px]">add</span> Tag
+                </button>
+</div>
+</div>
+</div>
+<!-- Save / Sync Actions -->
+<div class="flex items-center justify-between pt-space-xs">
+<span class="font-label-sm text-label-sm text-outline">Automatisch gespeichert vor 2 Min.</span>
+<button class="h-8 px-space-md rounded bg-surface-container-high hover:bg-primary hover:text-on-primary text-primary font-label-md text-label-md font-medium transition-colors" type="button">
+              Änderungen übernehmen
+            </button>
+</div>
+</div>
+<!-- TAB PANE 2: OCR-Volltextansicht (Hidden by default, controlled via JS) -->
+<div class="tab-content hidden flex-col gap-space-sm" id="tab-ocr">
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-label-sm text-outline uppercase tracking-wider">Erkannter Volltext (Tesseract / Cloud OCR)</span>
+<button class="font-label-sm text-label-sm text-primary hover:underline flex items-center gap-1" type="button">
+<span class="material-symbols-outlined text-[14px]">content_copy</span> Kopieren
+            </button>
+</div>
+<div class="w-full h-96 bg-surface-container-lowest p-space-sm rounded font-mono text-label-sm text-on-surface overflow-y-auto leading-relaxed select-text">
+            Telekom Deutschland GmbH<br>
+            Landgrabenweg 151, 53227 Bonn<br>
+            USt-IdNr.: DE 122265127<br>
+<br>
+            Rechnung Nr. RE-2024-88493<br>
+            Datum: 14.11.2024<br>
+            Kunden-Nr.: 0029481023<br>
+<br>
+            Empfänger:<br>
+            nomorepaper Solutions GmbH<br>
+            Technologiepark 4, 10115 Berlin<br>
+<br>
+            Abrechnungszeitraum: 01.11.2024 - 30.11.2024<br>
+            Pos 01: Business Glasfaser 1000/500 - 139,00 EUR (19% USt)<br>
+            Pos 02: Feste IPv4-Subnetz /29 Option - 16,04 EUR (19% USt)<br>
+            --------------------------------------------------------<br>
+            Nettobetrag: 155,04 EUR<br>
+            USt 19%: 29,46 EUR<br>
+            Gesamtbetrag: 184,50 EUR<br>
+            --------------------------------------------------------<br>
+            Zahlungsziel: 28.11.2024 per SEPA-Basislastschrift<br>
+            Gläubiger-ID: DE98ZZZ09999999999<br>
+            IBAN: DE89 3704 0044 0532 0130 00<br>
+            BIC: DRESDEFF370
+          </div>
+</div>
+<!-- TAB PANE 3: GoBD-Audit & Revisionssicherheit -->
+<div class="tab-content hidden flex-col gap-space-md" id="tab-gobd">
+<div class="bg-surface-container-lowest p-space-sm rounded flex flex-col gap-space-xs">
+<div class="flex items-center gap-space-xs text-primary font-body-sm font-medium">
+<span class="material-symbols-outlined text-[18px]">gavel</span>
+<span>Revisionssichere GoBD-Archivierung (WORM)</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant">
+              Dieses Dokument ist gemäß den Anforderungen der GoBD unveränderbar im kryptografisch gesicherten S3-Object Lock abgelegt. Ein Löschen oder Überschreiben ist bis Ablauf der Aufbewahrungsfrist unmöglich.
+            </p>
+</div>
+<div class="flex flex-col gap-space-sm">
+<div class="flex flex-col gap-1">
+<label class="font-label-sm text-label-sm text-outline">Kryptografische Prüfsumme (SHA-256)</label>
+<div class="p-space-xs bg-surface-container-lowest rounded font-mono text-label-sm text-primary break-all">
+                e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+              </div>
+</div>
+<div class="grid grid-cols-2 gap-space-sm">
+<div class="flex flex-col gap-1">
+<label class="font-label-sm text-label-sm text-outline">RFC 3161 Zeitstempel</label>
+<div class="h-9 px-space-sm bg-surface-container-lowest rounded flex items-center font-mono text-body-sm text-primary">
+                  14.11.2024 09:41:22 UTC
+                </div>
+</div>
+<div class="flex flex-col gap-1">
+<label class="font-label-sm text-label-sm text-outline">TSA Zertifizierungsstelle</label>
+<div class="h-9 px-space-sm bg-surface-container-lowest rounded flex items-center font-mono text-body-sm text-primary truncate">
+                  D-TRUST Timestamp CA 2
+                </div>
+</div>
+</div>
+<div class="grid grid-cols-2 gap-space-sm">
+<div class="flex flex-col gap-1">
+<label class="font-label-sm text-label-sm text-outline">Aufbewahrungsfrist (§ 147 AO)</label>
+<div class="h-9 px-space-sm bg-surface-container-lowest rounded flex items-center font-mono text-body-sm text-primary">
+                  10 Jahre (31.12.2034)
+                </div>
+</div>
+<div class="flex flex-col gap-1">
+<label class="font-label-sm text-label-sm text-outline">WORM Lock Status</label>
+<div class="h-9 px-space-sm bg-surface-container-lowest rounded flex items-center gap-1.5 font-label-md text-label-md text-primary">
+<span class="w-2 h-2 rounded-full bg-primary"></span>
+<span>COMPLIANCE_MODE_ACTIVE</span>
+</div>
+</div>
+</div>
+<div class="flex flex-col gap-1">
+<label class="font-label-sm text-label-sm text-outline">Verfahrensdokumentation &amp; Belegkette</label>
+<div class="p-space-sm bg-surface-container-lowest rounded flex items-center justify-between text-body-sm">
+<div class="flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-[18px] text-outline">history_edu</span>
+<span class="text-on-surface">nomorepaper_proc_doc_v3.4.pdf</span>
+</div>
+<span class="font-label-sm text-label-sm text-outline font-mono">Signiert &amp; Verifiziert</span>
+</div>
+</div>
+</div>
+</div>
+<!-- TAB PANE 4: Workflow & Audit-Historie (MudTimeline Style) -->
+<div class="tab-content hidden flex-col gap-space-md" id="tab-workflow">
+<!-- Current Workflow Status Box -->
+<div class="bg-surface-container p-space-sm rounded flex items-center justify-between">
+<div class="flex flex-col">
+<span class="font-label-sm text-label-sm text-outline uppercase">Workflow-Status</span>
+<span class="font-body-md text-body-md text-primary font-semibold">Freigegeben zur Zahlung</span>
+</div>
+<span class="font-label-sm text-label-sm px-2 py-0.5 rounded bg-surface-container-highest text-primary">
+              Stufe 2 von 2 abgeschlossen
+            </span>
+</div>
+<!-- MudTimeline Log -->
+<div class="flex flex-col gap-space-sm pl-2">
+<div class="relative pl-6 pb-space-sm">
+<div class="w-2.5 h-2.5 rounded-full bg-primary absolute -left-[5px] top-1"></div>
+<div class="w-px bg-surface-container-highest absolute -left-0 top-3 bottom-0"></div>
+<div class="flex items-center justify-between">
+<span class="font-label-md text-label-md text-primary font-medium">Rechnung freigegeben</span>
+<span class="font-label-sm text-label-sm text-outline font-mono">Heute, 11:20</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Freigabe durch Sarah Buchhaltung (sarah@nomorepaper.de) erteilt.</p>
+</div>
+<div class="relative pl-6 pb-space-sm">
+<div class="w-2.5 h-2.5 rounded-full bg-outline absolute -left-[5px] top-1"></div>
+<div class="w-px bg-surface-container-highest absolute -left-0 top-3 bottom-0"></div>
+<div class="flex items-center justify-between">
+<span class="font-label-md text-label-md text-on-surface font-medium">Sachliche Prüfung i.O.</span>
+<span class="font-label-sm text-label-sm text-outline font-mono">Gestern, 16:45</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Freigabe durch IT-Leitung Marcus Wolf (marcus@nomorepaper.de).</p>
+</div>
+<div class="relative pl-6 pb-space-sm">
+<div class="w-2.5 h-2.5 rounded-full bg-outline absolute -left-[5px] top-1"></div>
+<div class="w-px bg-surface-container-highest absolute -left-0 top-3 bottom-0"></div>
+<div class="flex items-center justify-between">
+<span class="font-label-md text-label-md text-on-surface font-medium">KI Extraktion &amp; GoBD-Lock</span>
+<span class="font-label-sm text-label-sm text-outline font-mono">14.11.2024 09:41</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Automatischer Posteingang via E-Mail Gateway (rechnung@nomorepaper.de).</p>
+</div>
+</div>
+<!-- Internal Note Input (MudTextField Note Area) -->
+<div class="flex flex-col gap-1 pt-space-xs">
+<label class="font-label-sm text-label-sm text-outline">Interne Notiz / Audit-Kommentar hinzufügen</label>
+<div class="flex flex-col gap-space-xs bg-surface-container-lowest p-space-xs rounded">
+<textarea class="w-full bg-transparent text-primary placeholder-outline font-body-sm text-body-sm resize-none focus:outline-none p-1" placeholder="Kommentar oder Buchungsvermerk hinterlegen..." rows="2"></textarea>
+<div class="flex justify-end">
+<button class="h-7 px-space-sm rounded bg-surface-container-high hover:bg-primary hover:text-on-primary text-primary font-label-sm text-label-sm transition-colors" type="button">
+                  Notiz anheften
+                </button>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Secondary Info Card: ZUGFeRD / XRechnung Inspection Info -->
+<div class="bg-surface-container-low rounded-lg p-space-md flex flex-col gap-space-sm">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-[18px] text-primary">code</span>
+<span class="font-headline-sm text-headline-sm text-primary font-medium">E-Rechnung XML Profil</span>
+</div>
+<span class="font-label-sm text-label-sm px-space-xs py-0.5 rounded bg-surface-container text-primary font-mono">ZUGFeRD 2.2</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant">
+          Im PDF eingebetteter XML-Datensatz (<code class="font-mono text-outline">factur-x.xml</code>) ist syntaktisch valide gemäß EN 16931-Norm.
+        </p>
+<div class="flex items-center gap-space-xs pt-space-xs">
+<button class="h-8 px-space-sm rounded bg-surface-container hover:bg-surface-container-high text-on-surface hover:text-primary font-label-sm text-label-sm flex items-center gap-1 transition-colors" type="button">
+<span class="material-symbols-outlined text-[15px]">file_open</span>
+<span>XML anzeigen</span>
+</button>
+<button class="h-8 px-space-sm rounded bg-surface-container hover:bg-surface-container-high text-on-surface hover:text-primary font-label-sm text-label-sm flex items-center gap-1 transition-colors" type="button">
+<span class="material-symbols-outlined text-[15px]">download</span>
+<span>factur-x.xml laden</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+<script>
+  function switchInspectorTab(tabId, triggerBtn) {
+    // Hide all tabs
+    document.querySelectorAll('.tab-content').forEach(function(pane) {
+      pane.classList.add('hidden');
+      pane.classList.remove('flex');
+    });
+
+    // Reset button states
+    document.querySelectorAll('.inspector-tab').forEach(function(btn) {
+      btn.classList.remove('bg-surface-container-high', 'text-primary');
+      btn.classList.add('text-on-surface-variant');
+    });
+
+    // Show selected pane
+    const target = document.getElementById(tabId);
+    if (target) {
+      target.classList.remove('hidden');
+      target.classList.add('flex');
+    }
+
+    // Set active button
+    triggerBtn.classList.remove('text-on-surface-variant');
+    triggerBtn.classList.add('bg-surface-container-high', 'text-primary');
+  }
+</script></main></div>
+
+</body></html>

@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="de"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="web_dashboard" name="shell-type"/><link href="https://fonts.googleapis.com/css2?family=Geist:wght@100..900&amp;family=JetBrains+Mono:wght@100..900&amp;display=swap" rel="stylesheet"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config = { darkMode: "class", theme: { extend: { "colors": { "on-tertiary-fixed-variant": "#46464e", "tertiary-fixed-dim": "#c6c5cf", "surface-container": "#201f1f", "on-secondary-fixed-variant": "#45464e", "primary-container": "#e2e2e2", "secondary-container": "#45464e", "tertiary-fixed": "#e3e1ec", "surface-container-lowest": "#0e0e0e", "on-secondary-fixed": "#1a1b22", "on-primary-fixed": "#1a1c1c", "on-tertiary-fixed": "#1a1b22", "background": "#131313", "primary-fixed": "#e2e2e2", "on-primary-fixed-variant": "#454747", "on-primary-container": "#636565", "outline-variant": "#444748", "surface-tint": "#c6c6c7", "surface-container-low": "#1c1b1b", "on-secondary": "#2f3037", "on-error": "#690005", "surface": "#131313", "surface-container-high": "#2a2a2a", "on-background": "#e5e2e1", "inverse-surface": "#e5e2e1", "primary": "#ffffff", "surface-variant": "#353534", "secondary-fixed": "#e2e1eb", "on-primary": "#2f3131", "on-secondary-container": "#b4b4bd", "inverse-on-surface": "#313030", "on-tertiary-container": "#63646c", "on-error-container": "#ffdad6", "secondary-fixed-dim": "#c6c6cf", "secondary": "#c6c6cf", "error-container": "#93000a", "on-surface-variant": "#c4c7c8", "inverse-primary": "#5d5f5f", "on-tertiary": "#2f3038", "on-surface": "#e5e2e1", "primary-fixed-dim": "#c6c6c7", "tertiary-container": "#e3e1ec", "surface-dim": "#131313", "surface-container-highest": "#353534", "error": "#ffb4ab", "tertiary": "#ffffff", "outline": "#8e9192", "surface-bright": "#393939" }, "borderRadius": { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" }, "spacing": { "space-xl": "2.5rem", "margin-desktop": "2rem", "gutter": "1rem", "gutter-desktop": "1.5rem", "space-xs": "0.25rem", "space-md": "1rem", "space-lg": "1.5rem", "space-sm": "0.5rem", "margin": "1rem" }, "fontFamily": { "label-sm": ["JetBrains Mono"], "body-sm": ["Geist"], "label-md": ["JetBrains Mono"], "headline-md": ["Geist"], "body-md": ["Geist"], "headline-lg-mobile": ["Geist"], "headline-sm": ["Geist"], "headline-xl-mobile": ["Geist"], "label-lg": ["JetBrains Mono"], "headline-lg": ["Geist"], "headline-xl": ["Geist"], "body-lg": ["Geist"] }, "fontSize": { "label-sm": ["10px", { "lineHeight": "14px", "letterSpacing": "0.05em", "fontWeight": "400" }], "body-sm": ["12px", { "lineHeight": "18px", "letterSpacing": "0em", "fontWeight": "400" }], "label-md": ["11px", { "lineHeight": "16px", "letterSpacing": "0.04em", "fontWeight": "500" }], "headline-md": ["20px", { "lineHeight": "28px", "letterSpacing": "-0.01em", "fontWeight": "500" }], "body-md": ["14px", { "lineHeight": "22px", "letterSpacing": "0em", "fontWeight": "400" }], "headline-lg-mobile": ["22px", { "lineHeight": "28px", "letterSpacing": "-0.015em", "fontWeight": "600" }], "headline-sm": ["16px", { "lineHeight": "24px", "letterSpacing": "-0.005em", "fontWeight": "500" }], "headline-xl-mobile": ["30px", { "lineHeight": "38px", "letterSpacing": "-0.02em", "fontWeight": "600" }], "label-lg": ["13px", { "lineHeight": "18px", "letterSpacing": "0.02em", "fontWeight": "500" }], "headline-lg": ["28px", { "lineHeight": "36px", "letterSpacing": "-0.02em", "fontWeight": "600" }], "headline-xl": ["40px", { "lineHeight": "48px", "letterSpacing": "-0.03em", "fontWeight": "600" }], "body-lg": ["16px", { "lineHeight": "26px", "letterSpacing": "-0.005em", "fontWeight": "400" }] } } } }</script></head><body class="bg-surface font-body-md text-on-surface antialiased selection:bg-surface-variant selection:text-primary"><aside class="fixed left-0 top-0 h-full w-72 bg-surface-container-low border-r border-outline-variant/30 z-50 flex flex-col justify-between overflow-y-auto"><div class="flex flex-col"><div class="h-16 px-space-lg flex items-center justify-between border-b border-outline-variant/20 shrink-0"><div class="flex items-center gap-space-sm"><span class="material-symbols-outlined text-primary text-[22px]">inventory_2</span><span class="font-headline-sm text-headline-sm text-primary font-semibold tracking-tight">nomorepaper</span></div><span class="font-label-sm text-label-sm px-space-xs py-0.5 rounded bg-surface-container text-on-surface-variant border border-outline-variant/40 uppercase tracking-widest">GoBD</span></div><div class="p-space-md"><div class="p-space-sm bg-surface-container-lowest rounded-lg border border-outline-variant/30 flex items-center justify-between"><div class="flex items-center gap-space-sm"><span class="w-2 h-2 rounded-full bg-primary"></span><span class="font-label-md text-label-md text-primary font-medium">Geschäftlich</span></div><span class="material-symbols-outlined text-on-surface-variant text-[18px]">unfold_more</span></div></div><div class="px-space-md py-space-xs"><span class="px-space-sm font-label-sm text-label-sm uppercase tracking-wider text-outline block mb-space-xs">Navigation</span><nav class="flex flex-col gap-1" data-active-classes="bg-surface-container-high text-primary font-medium border-outline-variant/40"><a class="flex items-center px-space-md py-2 rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors font-body-md text-body-md" data-path="dokumente" href="#">Dokumente</a><a class="flex items-center px-space-md py-2 rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors font-body-md text-body-md" data-path="posteingang-und-scanner" href="#">Posteingang &amp; Scanner</a><a class="flex items-center px-space-md py-2 rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors font-body-md text-body-md" data-path="ordner-und-tags" href="#">Ordner &amp; Tags</a><a class="flex items-center px-space-md py-2 rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors font-body-md text-body-md" data-path="workflows-und-freigaben" href="#">Workflows &amp; Freigaben</a><a class="flex items-center px-space-md py-2 rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors font-body-md text-body-md" data-path="gobd-archiv" href="#">GoBD-Archiv</a><a class="flex items-center px-space-md py-2 rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors font-body-md text-body-md" data-path="papierkorb" href="#">Papierkorb</a></nav></div><div class="px-space-md pt-space-md pb-space-xs"><span class="px-space-sm font-label-sm text-label-sm uppercase tracking-wider text-outline block mb-space-xs">Konfiguration</span><nav class="flex flex-col gap-1" data-active-classes="bg-surface-container-high text-primary font-medium border-outline-variant/40"><a class="flex items-center px-space-md py-2 rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors font-body-md text-body-md" data-path="einstellungen-und-scanner-konfiguration" href="#">Einstellungen &amp; Scanner</a><div class="pl-space-md flex flex-col gap-1 border-l border-outline-variant/30 ml-space-md mt-1"><a class="flex items-center px-space-sm py-1.5 rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors font-body-sm text-body-sm" data-path="scanner-anbindung" href="#">Scanner-Anbindung (TWAIN/SANE)</a><a class="flex items-center px-space-sm py-1.5 rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors font-body-sm text-body-sm" data-path="email-eingangskonfiguration" href="#">E-Mail-Eingangskonfiguration</a></div></nav></div></div><div class="p-space-md border-t border-outline-variant/20 flex flex-col gap-space-md shrink-0"><div class="bg-surface-container-lowest p-space-md rounded-lg border border-outline-variant/30"><div class="flex items-center justify-between mb-space-xs"><span class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">Cloud-Speicher</span><span class="font-label-sm text-label-sm text-primary font-medium">16.8%</span></div><div class="w-full h-1.5 bg-surface-container rounded-full overflow-hidden mb-space-xs"><div class="bg-primary h-full rounded-full" style="width: 16.8%"></div></div><div class="flex justify-between items-center"><span class="font-label-sm text-label-sm text-outline">4.2 GB / 25 GB</span><span class="font-label-sm text-label-sm text-on-surface-variant">S3-WORM</span></div></div><div class="flex flex-col gap-1"><nav data-active-classes="bg-surface-container-high text-primary font-medium border-outline-variant/40"><a class="flex items-center px-space-md py-2 rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors font-body-md text-body-md" data-path="einstellungen-und-konto" href="#">Einstellungen &amp; Konto</a></nav></div></div></aside><div class="pl-72"><header class="fixed top-0 left-72 right-0 h-16 bg-surface/80 backdrop-blur-xl border-b border-outline-variant/20 z-40 flex items-center justify-between px-space-lg"><div class="flex items-center gap-space-md flex-1 max-w-xl"><div class="relative w-full flex items-center"><span class="material-symbols-outlined text-outline absolute left-3 text-[18px]">search</span><input class="w-full h-10 pl-9 pr-space-md bg-surface-container-lowest border border-outline-variant/30 rounded-lg text-primary placeholder-outline font-body-md text-body-md focus:outline-none focus:border-primary transition-colors" placeholder="Dokumente, Volltext, OCR durchsuchen..." type="text"/></div></div><div class="flex items-center gap-space-md"><div class="flex items-center gap-space-xs px-space-sm py-1 rounded bg-surface-container-lowest border border-outline-variant/40"><span class="w-2 h-2 rounded-full bg-primary animate-pulse"></span><span class="font-label-sm text-label-sm text-primary font-medium">GoBD-Konform</span></div><button class="h-10 px-space-md rounded-lg bg-primary text-on-primary font-label-md text-label-md font-medium hover:bg-primary-fixed transition-colors flex items-center gap-space-xs"><span class="material-symbols-outlined text-[18px]">add</span><span>Dokument hochladen / scannen</span></button><button class="w-10 h-10 rounded-lg bg-surface-container-lowest border border-outline-variant/30 flex items-center justify-center text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-colors relative"><span class="material-symbols-outlined text-[20px]">notifications</span><span class="w-1.5 h-1.5 rounded-full bg-primary absolute top-2.5 right-2.5"></span></button><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div></div></header><main class="w-full pt-16 bg-surface"><div class="flex flex-col w-full">
+<div class="p-space-lg max-w-[1720px] mx-auto w-full flex flex-col gap-space-lg">
+<!-- BREADCRUMBS & TOP HEADER -->
+<header class="flex flex-col gap-space-md">
+<nav aria-label="Breadcrumb" class="flex items-center gap-space-xs font-label-md text-label-md text-outline">
+<span class="hover:text-on-surface cursor-pointer transition-colors">Einstellungen</span>
+<span class="material-symbols-outlined text-[14px]">chevron_right</span>
+<span class="hover:text-on-surface cursor-pointer transition-colors">Schnittstellen &amp; Belegeingang</span>
+<span class="material-symbols-outlined text-[14px]">chevron_right</span>
+<span class="text-primary font-medium">Scanner &amp; E-Mail-Konfiguration</span>
+</nav>
+<div class="flex flex-col lg:flex-row lg:items-end justify-between gap-space-md">
+<div class="flex flex-col gap-1 max-w-3xl">
+<div class="flex items-center gap-space-sm flex-wrap">
+<h1 class="font-headline-lg text-headline-lg text-primary tracking-tight font-semibold">
+              Eingangsquellen &amp; Scanner-Konfiguration
+            </h1>
+<div class="flex items-center gap-1.5 px-space-xs py-0.5 rounded bg-surface-container-highest text-primary font-label-sm text-label-sm border border-outline-variant/30">
+<span class="material-symbols-outlined text-primary text-[14px]">verified</span>
+<span>GoBD-Audit aktiv (Signiert)</span>
+</div>
+</div>
+<p class="font-body-md text-body-md text-on-surface-variant">
+            Verwaltung lokaler TWAIN/SANE-Netzwerkscanner, automatisierter IMAP/Exchange E-Mail-Postfächer und KI-Vorverarbeitungsregeln.
+          </p>
+</div>
+<div class="flex items-center gap-space-sm shrink-0">
+<button class="h-[38px] px-space-md rounded-lg bg-surface-container-low hover:bg-surface-container-high border border-outline-variant/40 text-on-surface hover:text-primary font-label-md text-label-md transition-colors flex items-center gap-space-xs" type="button">
+<span class="material-symbols-outlined text-[18px]">network_check</span>
+<span>Schnittstellen-Diagnose testen</span>
+</button>
+<button class="h-[38px] px-space-md rounded-lg bg-primary hover:bg-primary-fixed text-on-primary font-label-md text-label-md font-medium transition-colors flex items-center gap-space-xs" type="button">
+<span class="material-symbols-outlined text-[18px]">add_circle</span>
+<span>+ Neue Quelle anbinden</span>
+</button>
+</div>
+</div>
+</header>
+<!-- TAB NAVIGATION (MudTabs Styling) -->
+<div class="border-b border-outline-variant/20 flex items-center gap-space-lg overflow-x-auto scrollbar-none">
+<button class="pb-3 border-b-2 border-primary text-primary font-label-md text-label-md font-medium flex items-center gap-space-xs shrink-0" type="button">
+<span class="material-symbols-outlined text-[18px]">scanner</span>
+<span>Hardware-Scanner (TWAIN / SANE / WIA)</span>
+<span class="px-1.5 py-0.5 rounded bg-surface-container-highest text-primary font-label-sm text-label-sm">2 Aktiv</span>
+</button>
+<button class="pb-3 border-b-2 border-transparent text-on-surface-variant hover:text-primary font-label-md text-label-md transition-colors flex items-center gap-space-xs shrink-0" type="button">
+<span class="material-symbols-outlined text-[18px]">mail</span>
+<span>E-Mail-Postfächer &amp; IMAP-Sync</span>
+<span class="px-1.5 py-0.5 rounded bg-surface-container-low text-outline font-label-sm text-label-sm">2 Konten</span>
+</button>
+<button class="pb-3 border-b-2 border-transparent text-on-surface-variant hover:text-primary font-label-md text-label-md transition-colors flex items-center gap-space-xs shrink-0" type="button">
+<span class="material-symbols-outlined text-[18px]">psychology</span>
+<span>KI- &amp; OCR-Pipeline-Filter</span>
+</button>
+<button class="pb-3 border-b-2 border-transparent text-on-surface-variant hover:text-primary font-label-md text-label-md transition-colors flex items-center gap-space-xs shrink-0" type="button">
+<span class="material-symbols-outlined text-[18px]">receipt_long</span>
+<span>Verarbeitungsprotokolle &amp; Logs</span>
+</button>
+</div>
+<!-- MAIN TWO-COLUMN WORKSPACE -->
+<div class="grid grid-cols-1 xl:grid-cols-12 gap-space-lg">
+<!-- LEFT COLUMN: SCANNER LIST + EMAIL INGESTION RULES (8 cols) -->
+<div class="xl:col-span-8 flex flex-col gap-space-lg min-w-0">
+<!-- SECTION: HARDWARE-SCANNER (TWAIN / SANE) -->
+<section class="flex flex-col gap-space-md">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-space-sm">
+<span class="material-symbols-outlined text-primary text-[20px]">print_connect</span>
+<h2 class="font-headline-sm text-headline-sm text-primary font-medium tracking-tight">
+                Verbundene Geräte &amp; Netzwerk-Scanner
+              </h2>
+</div>
+<div class="flex items-center gap-space-xs font-label-sm text-label-sm text-outline">
+<span>Lokaler Bridge-Daemon:</span>
+<span class="font-label-sm text-label-sm text-primary font-medium">nomorepaper v2.4.1</span>
+</div>
+</div>
+<!-- SCANNER CARD 1: PRIMARY / ACTIVE -->
+<div class="bg-surface-container-low rounded-xl p-space-md border border-outline-variant/30 relative flex flex-col gap-space-md hover:border-outline/50 transition-all">
+<div class="flex flex-col md:flex-row md:items-start justify-between gap-space-sm">
+<div class="flex items-start gap-space-md min-w-0">
+<div class="w-12 h-12 rounded-lg bg-surface-container-highest border border-outline-variant/40 flex items-center justify-center shrink-0 text-primary">
+<span class="material-symbols-outlined text-[26px]">scanner</span>
+</div>
+<div class="flex flex-col min-w-0">
+<div class="flex items-center gap-space-xs flex-wrap">
+<span class="font-headline-sm text-headline-sm text-primary font-semibold truncate">Fujitsu fi-8170</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">(Netzwerk-Duplex-Scanner)</span>
+<span class="px-2 py-0.5 rounded bg-primary text-on-primary font-label-sm text-label-sm uppercase font-semibold">Standard</span>
+</div>
+<div class="flex items-center gap-space-md mt-1 font-label-sm text-label-sm text-on-surface-variant flex-wrap">
+<div class="flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px] text-outline">router</span>
+<span class="font-label-sm text-label-sm text-primary">192.168.1.140:9100</span>
+</div>
+<span class="text-outline/40">•</span>
+<span>Treiber: <span class="text-primary font-medium">SANE / TWAIN 2.4</span></span>
+<span class="text-outline/40">•</span>
+<span>Local Agent: <span class="text-on-surface">v2.4.1</span></span>
+</div>
+</div>
+</div>
+<!-- STATUS BADGE -->
+<div class="flex items-center gap-2 px-space-sm py-1 rounded bg-surface-container-highest border border-outline-variant/30 shrink-0 self-start">
+<span class="relative flex h-2 w-2">
+<span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
+<span class="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
+</span>
+<span class="font-label-sm text-label-sm text-primary font-medium tracking-wide">Verbunden &amp; Bereit</span>
+</div>
+</div>
+<!-- HARDWARE PARAMETERS GRID -->
+<div class="grid grid-cols-2 sm:grid-cols-4 gap-space-sm bg-surface-container-lowest p-space-sm rounded-lg border border-outline-variant/20 font-label-sm text-label-sm">
+<div class="flex flex-col">
+<span class="text-outline uppercase text-[10px]">Auflösung / Modus</span>
+<span class="text-primary font-medium">300 DPI • Duplex</span>
+</div>
+<div class="flex flex-col">
+<span class="text-outline uppercase text-[10px]">Leerseiten / Deskew</span>
+<span class="text-primary font-medium">Auto-Aktiviert</span>
+</div>
+<div class="flex flex-col">
+<span class="text-outline uppercase text-[10px]">Farbverarbeitung</span>
+<span class="text-primary font-medium">Auto-Graustufe</span>
+</div>
+<div class="flex flex-col">
+<span class="text-outline uppercase text-[10px]">Ultraschall-Einzug</span>
+<span class="text-primary font-medium">Streng (GoBD Safe)</span>
+</div>
+</div>
+<!-- ACTION BUTTONS -->
+<div class="flex items-center justify-between pt-space-xs border-t border-outline-variant/20 flex-wrap gap-space-sm">
+<div class="flex items-center gap-space-xs text-outline font-label-sm text-label-sm">
+<span class="material-symbols-outlined text-[15px]">history</span>
+<span>Letzter Stapel: Vor 3 Minuten (14 Seiten archiviert)</span>
+</div>
+<div class="flex items-center gap-space-xs">
+<button class="h-8 px-space-sm rounded bg-surface-container-high hover:bg-surface-container-highest border border-outline-variant/40 text-on-surface font-label-md text-label-md transition-colors flex items-center gap-1" type="button">
+<span class="material-symbols-outlined text-[16px]">tune</span>
+<span>Konfigurieren</span>
+</button>
+<button class="h-8 px-space-sm rounded bg-primary hover:bg-primary-fixed text-on-primary font-label-md text-label-md font-medium transition-colors flex items-center gap-1" type="button">
+<span class="material-symbols-outlined text-[16px]">play_circle</span>
+<span>Testscan durchführen</span>
+</button>
+</div>
+</div>
+</div>
+<!-- SCANNER CARD 2: STANDBY SCANNER -->
+<div class="bg-surface-container-low rounded-xl p-space-md border border-outline-variant/30 flex flex-col gap-space-md hover:border-outline/40 transition-all">
+<div class="flex flex-col md:flex-row md:items-start justify-between gap-space-sm">
+<div class="flex items-start gap-space-md min-w-0">
+<div class="w-12 h-12 rounded-lg bg-surface-container-lowest border border-outline-variant/30 flex items-center justify-center shrink-0 text-on-surface-variant">
+<span class="material-symbols-outlined text-[26px]">document_scanner</span>
+</div>
+<div class="flex flex-col min-w-0">
+<div class="flex items-center gap-space-xs flex-wrap">
+<span class="font-headline-sm text-headline-sm text-primary font-semibold truncate">Brother ADS-4900W</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">(Buchhaltung Empfang)</span>
+</div>
+<div class="flex items-center gap-space-md mt-1 font-label-sm text-label-sm text-on-surface-variant flex-wrap">
+<div class="flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px] text-outline">wifi</span>
+<span class="font-label-sm text-label-sm text-primary">192.168.1.145</span>
+</div>
+<span class="text-outline/40">•</span>
+<span>Protokoll: <span class="text-primary font-medium">TWAIN Direct / WIA 2.0</span></span>
+<span class="text-outline/40">•</span>
+<span>ADF: <span class="text-on-surface">100 Blatt</span></span>
+</div>
+</div>
+</div>
+<!-- STATUS BADGE -->
+<div class="flex items-center gap-2 px-space-sm py-1 rounded bg-surface-container-lowest border border-outline-variant/30 shrink-0 self-start">
+<span class="inline-flex rounded-full h-2 w-2 bg-on-surface-variant"></span>
+<span class="font-label-sm text-label-sm text-on-surface-variant font-medium">Standby (Vor 14 Min.)</span>
+</div>
+</div>
+<div class="flex items-center justify-between pt-space-xs border-t border-outline-variant/20 flex-wrap gap-space-sm">
+<span class="font-label-sm text-label-sm text-outline">Trennblatt-Modus: Patch-Code T &amp; QR-Code aktiv</span>
+<div class="flex items-center gap-space-xs">
+<button class="h-8 px-space-sm rounded bg-surface-container-lowest hover:bg-surface-container-high border border-outline-variant/30 text-on-surface font-label-md text-label-md transition-colors flex items-center gap-1" type="button">
+<span class="material-symbols-outlined text-[16px]">troubleshoot</span>
+<span>Diagnose</span>
+</button>
+<button class="h-8 px-space-sm rounded bg-surface-container-lowest hover:bg-surface-container-high border border-outline-variant/30 text-on-surface font-label-md text-label-md transition-colors flex items-center gap-1" type="button">
+<span class="material-symbols-outlined text-[16px]">edit</span>
+<span>Bearbeiten</span>
+</button>
+</div>
+</div>
+</div>
+<!-- LOCAL SANE BRIDGE DAEMON STRIP -->
+<div class="bg-surface-container-lowest p-space-sm rounded-lg border border-outline-variant/30 flex flex-col md:flex-row md:items-center justify-between gap-space-sm font-label-sm text-label-sm">
+<div class="flex items-center gap-space-sm">
+<span class="material-symbols-outlined text-primary text-[18px]">dns</span>
+<div class="flex items-center gap-space-xs flex-wrap">
+<span class="text-primary font-medium">nomorepaper Scanner Bridge Daemon</span>
+<span class="text-outline">v2.4.1-linux64</span>
+<span class="px-1.5 py-0.5 rounded bg-surface-container-high text-primary font-label-sm text-label-sm">Port 8088 (mTLS)</span>
+</div>
+</div>
+<div class="flex items-center gap-space-md text-outline">
+<span>Latenz: <span class="text-primary font-medium">3ms</span></span>
+<span>TLS: <span class="text-primary font-medium">TLS 1.3 ECDHE</span></span>
+<button class="text-primary hover:underline font-medium" type="button">Daemon neu starten</button>
+</div>
+</div>
+</section>
+<!-- SECTION: E-MAIL-POSTFACH & INGESTION-REGELN -->
+<section class="flex flex-col gap-space-md">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-space-sm">
+<span class="material-symbols-outlined text-primary text-[20px]">mark_email_read</span>
+<h2 class="font-headline-sm text-headline-sm text-primary font-medium tracking-tight">
+                Automatisierte E-Mail-Postfächer &amp; Extraktions-Pipeline
+              </h2>
+</div>
+<button class="h-8 px-space-sm rounded bg-surface-container-low hover:bg-surface-container-high border border-outline-variant/30 text-primary font-label-md text-label-md transition-colors flex items-center gap-1" type="button">
+<span class="material-symbols-outlined text-[16px]">add</span>
+<span>Postfach hinzufügen</span>
+</button>
+</div>
+<!-- MAILBOXES ACCORDION / LIST -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-space-md">
+<!-- INBOX 1 -->
+<div class="bg-surface-container-low p-space-md rounded-xl border border-outline-variant/30 flex flex-col justify-between gap-space-md">
+<div class="flex flex-col gap-1">
+<div class="flex items-center justify-between">
+<span class="px-2 py-0.5 rounded bg-surface-container-highest font-label-sm text-label-sm text-primary border border-outline-variant/40">Office 365 OAuth2</span>
+<div class="flex items-center gap-1 font-label-sm text-label-sm text-primary">
+<span class="w-1.5 h-1.5 rounded-full bg-primary animate-pulse"></span>
+<span>Webhook Push</span>
+</div>
+</div>
+<h3 class="font-body-lg text-body-lg text-primary font-semibold mt-2 truncate">rechnung@nomorepaper-firma.de</h3>
+<span class="font-label-sm text-label-sm text-outline">Microsoft Graph API • Tenant: 8f2b3e41-09ab...</span>
+</div>
+<div class="pt-space-xs border-t border-outline-variant/20 flex items-center justify-between font-label-sm text-label-sm">
+<span class="text-on-surface-variant">Archivierte Belege (24h): <strong class="text-primary">47</strong></span>
+<span class="text-primary cursor-pointer hover:underline">Token prüfen</span>
+</div>
+</div>
+<!-- INBOX 2 -->
+<div class="bg-surface-container-low p-space-md rounded-xl border border-outline-variant/30 flex flex-col justify-between gap-space-md">
+<div class="flex flex-col gap-1">
+<div class="flex items-center justify-between">
+<span class="px-2 py-0.5 rounded bg-surface-container-highest font-label-sm text-label-sm text-primary border border-outline-variant/40">IMAP TLS (Port 993)</span>
+<div class="flex items-center gap-1 font-label-sm text-label-sm text-on-surface-variant">
+<span class="w-1.5 h-1.5 rounded-full bg-on-surface-variant"></span>
+<span>Sync alle 60s</span>
+</div>
+</div>
+<h3 class="font-body-lg text-body-lg text-primary font-semibold mt-2 truncate">belege-eingang@meineholding.de</h3>
+<span class="font-label-sm text-label-sm text-outline">mail.meineholding.de • SSL Encrypted</span>
+</div>
+<div class="pt-space-xs border-t border-outline-variant/20 flex items-center justify-between font-label-sm text-label-sm">
+<span class="text-on-surface-variant">Archivierte Belege (24h): <strong class="text-primary">12</strong></span>
+<span class="text-primary cursor-pointer hover:underline">Verbindung testen</span>
+</div>
+</div>
+</div>
+<!-- ROUTING RULES TABLE / CARD -->
+<div class="bg-surface-container-low rounded-xl border border-outline-variant/30 flex flex-col overflow-hidden">
+<div class="px-space-md py-space-sm bg-surface-container-lowest border-b border-outline-variant/30 flex items-center justify-between">
+<span class="font-label-sm text-label-sm text-outline uppercase tracking-wider">Aktive GoBD Extraktions- &amp; Filter-Regeln</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">3 Regeln aktiv</span>
+</div>
+<!-- RULE 1 -->
+<div class="p-space-md border-b border-outline-variant/20 flex flex-col md:flex-row md:items-center justify-between gap-space-sm hover:bg-surface-container transition-colors">
+<div class="flex items-start gap-space-sm min-w-0">
+<div class="w-6 h-6 rounded bg-surface-container-highest flex items-center justify-center shrink-0 font-label-sm text-label-sm text-primary mt-0.5">1</div>
+<div class="flex flex-col min-w-0">
+<div class="flex items-center gap-space-xs flex-wrap">
+<span class="font-body-md text-body-md text-primary font-medium">Anhang-Filterung &amp; Signaturen-Bereinigung</span>
+<span class="px-1.5 py-0.2 rounded bg-surface-container text-outline font-label-sm text-label-sm">Strikt</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-0.5">
+                    Nur PDF &amp; ZUGFeRD / XRechnung (XML) extrahieren. Bilddateien &lt; 100 KB (z. B. PNG-Logos in E-Mail-Signaturen) und Spam-Mailbodies automatisch verwerfen.
+                  </p>
+</div>
+</div>
+<div class="flex items-center gap-space-md shrink-0 self-end md:self-center font-label-sm text-label-sm">
+<span class="text-primary font-medium">Aktiv</span>
+<span class="material-symbols-outlined text-[18px] text-outline cursor-pointer hover:text-primary">settings</span>
+</div>
+</div>
+<!-- RULE 2 -->
+<div class="p-space-md border-b border-outline-variant/20 flex flex-col md:flex-row md:items-center justify-between gap-space-sm hover:bg-surface-container transition-colors">
+<div class="flex items-start gap-space-sm min-w-0">
+<div class="w-6 h-6 rounded bg-surface-container-highest flex items-center justify-center shrink-0 font-label-sm text-label-sm text-primary mt-0.5">2</div>
+<div class="flex flex-col min-w-0">
+<div class="flex items-center gap-space-xs flex-wrap">
+<span class="font-body-md text-body-md text-primary font-medium">KI-Klassifikation &amp; SKR03/SKR04 Vorkontierung</span>
+<span class="px-1.5 py-0.2 rounded bg-surface-container text-primary font-label-sm text-label-sm">KI-Engine</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-0.5">
+                    Automatische SKR03/04-Vorkontierung via Deep-OCR wenn KI-Konfidenz &gt; 95%. Andernfalls Zuweisung in Prüfungsworkflow "Manuelle Freigabe".
+                  </p>
+</div>
+</div>
+<div class="flex items-center gap-space-md shrink-0 self-end md:self-center font-label-sm text-label-sm">
+<span class="text-primary font-medium">Aktiv</span>
+<span class="material-symbols-outlined text-[18px] text-outline cursor-pointer hover:text-primary">settings</span>
+</div>
+</div>
+<!-- RULE 3 -->
+<div class="p-space-md flex flex-col md:flex-row md:items-center justify-between gap-space-sm hover:bg-surface-container transition-colors">
+<div class="flex items-start gap-space-sm min-w-0">
+<div class="w-6 h-6 rounded bg-surface-container-highest flex items-center justify-center shrink-0 font-label-sm text-label-sm text-primary mt-0.5">3</div>
+<div class="flex flex-col min-w-0">
+<div class="flex items-center gap-space-xs flex-wrap">
+<span class="font-body-md text-body-md text-primary font-medium">E-Mail-Kennzeichnung &amp; Postfach-Hygiene</span>
+<span class="px-1.5 py-0.2 rounded bg-surface-container text-outline font-label-sm text-label-sm">IMAP Flag</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-0.5">
+                    Eingangs-E-Mail nach erfolgreicher Archivierung im Quellpostfach als <em>'In nomorepaper archiviert'</em> taggen und in Unterordner <em>Archiv/GoBD</em> verschieben.
+                  </p>
+</div>
+</div>
+<div class="flex items-center gap-space-md shrink-0 self-end md:self-center font-label-sm text-label-sm">
+<span class="text-primary font-medium">Aktiv</span>
+<span class="material-symbols-outlined text-[18px] text-outline cursor-pointer hover:text-primary">settings</span>
+</div>
+</div>
+</div>
+</section>
+</div>
+<!-- RIGHT COLUMN: SCHNELLDIAGNOSE, TEST-SCAN & GERÄTE-PARAMETER-INSPEKTOR (4 cols) -->
+<div class="xl:col-span-4 flex flex-col gap-space-lg">
+<!-- PARAMETER INSPECTOR CARD -->
+<div class="bg-surface-container-low rounded-xl border border-outline-variant/30 flex flex-col overflow-hidden">
+<div class="p-space-md border-b border-outline-variant/30 flex items-center justify-between bg-surface-container-lowest">
+<div class="flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-primary text-[20px]">tune</span>
+<span class="font-headline-sm text-headline-sm text-primary font-semibold">Geräte-Inspektor</span>
+</div>
+<span class="font-label-sm text-label-sm text-outline">Fujitsu fi-8170</span>
+</div>
+<form class="p-space-md flex flex-col gap-space-md" onsubmit="event.preventDefault();">
+<!-- PROFIL-AUSWAHL -->
+<div class="flex flex-col gap-1.5">
+<label class="font-label-sm text-label-sm text-outline uppercase tracking-wider">Aktives Scan-Profil</label>
+<div class="relative">
+<select class="w-full h-10 px-space-sm bg-surface-container-lowest border border-outline-variant/40 rounded-lg text-primary font-body-md text-body-md focus:border-primary focus:outline-none appearance-none cursor-pointer">
+<option selected="">Kreditorenrechnungen Express (300 DPI Duplex)</option>
+<option>Vertrags-Archivierung Farbig (600 DPI)</option>
+<option>Thermoleere Belege / Quittungen (Filter Plus)</option>
+<option>Großstapel-Verarbeitung mit Patch-T-Trennung</option>
+</select>
+<span class="material-symbols-outlined absolute right-3 top-2.5 text-outline pointer-events-none text-[18px]">expand_more</span>
+</div>
+</div>
+<!-- FARBTIEFE / COLOR MODE -->
+<div class="flex flex-col gap-1.5">
+<label class="font-label-sm text-label-sm text-outline uppercase tracking-wider">Farbtiefe &amp; Tonalität</label>
+<div class="grid grid-cols-3 gap-1 p-1 bg-surface-container-lowest rounded-lg border border-outline-variant/30">
+<button class="py-1.5 text-center rounded font-label-sm text-label-sm text-on-surface-variant hover:text-primary transition-colors" type="button">S/W</button>
+<button class="py-1.5 text-center rounded bg-surface-container-highest text-primary font-label-sm text-label-sm font-semibold border border-outline-variant/40" type="button">Graustufe</button>
+<button class="py-1.5 text-center rounded font-label-sm text-label-sm text-on-surface-variant hover:text-primary transition-colors" type="button">24-Bit Farbe</button>
+</div>
+</div>
+<!-- FORMATERKENNUNG -->
+<div class="flex flex-col gap-1.5">
+<label class="font-label-sm text-label-sm text-outline uppercase tracking-wider">Formaterkennung &amp; Deskew</label>
+<div class="flex items-center justify-between p-space-sm bg-surface-container-lowest rounded-lg border border-outline-variant/30">
+<div class="flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-[18px] text-primary">crop_free</span>
+<span class="font-body-md text-body-md text-primary">Auto-Crop (A4 / Kassenbeleg)</span>
+</div>
+<input checked="" class="w-4 h-4 rounded bg-surface-container border-outline-variant/40 text-primary accent-primary cursor-pointer" type="checkbox"/>
+</div>
+</div>
+<!-- OCR-VORVERARBEITUNG -->
+<div class="flex flex-col gap-1.5">
+<label class="font-label-sm text-label-sm text-outline uppercase tracking-wider">Integrierte OCR-Engine</label>
+<div class="p-space-sm bg-surface-container-lowest rounded-lg border border-outline-variant/30 flex items-center justify-between">
+<div class="flex flex-col">
+<span class="font-label-md text-label-md text-primary font-medium">Tesseract / LLM Hybrid</span>
+<span class="font-label-sm text-label-sm text-outline">Volltext + XRechnung XML Parsing</span>
+</div>
+<span class="px-1.5 py-0.5 rounded bg-surface-container-high text-primary font-label-sm text-label-sm">Lokal (GPU)</span>
+</div>
+</div>
+<!-- GOBD HARDWARE SIGNATUR -->
+<div class="flex flex-col gap-1.5">
+<label class="font-label-sm text-label-sm text-outline uppercase tracking-wider">GoBD-Hardware-Signatur</label>
+<div class="p-space-sm bg-surface-container-lowest rounded-lg border border-outline-variant/30 flex items-start gap-space-xs">
+<span class="material-symbols-outlined text-primary text-[18px] shrink-0 mt-0.5">lock</span>
+<div class="flex flex-col min-w-0">
+<span class="font-label-md text-label-md text-primary font-medium">SHA-256 am Einzugspunkt</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Unveränderbarkeitsnachweis direkt bei Erfassung im Treiber gebildet.</span>
+<span class="font-label-sm text-label-sm text-outline mt-1 font-mono truncate">Token: a8f49b...23c91</span>
+</div>
+</div>
+</div>
+<!-- TEST-SCAN LIVE-TRIGGER & STATUS -->
+<div class="mt-space-xs flex flex-col gap-space-sm">
+<button class="w-full h-10 rounded-lg bg-primary hover:bg-primary-fixed text-on-primary font-label-md text-label-md font-semibold transition-all flex items-center justify-center gap-space-xs active:scale-[0.99]" id="trigger-test-scan" type="button">
+<span class="material-symbols-outlined text-[18px]">play_arrow</span>
+<span>Test-Scan starten</span>
+</button>
+<button class="w-full h-9 rounded-lg bg-surface-container-lowest hover:bg-surface-container-high border border-outline-variant/40 text-on-surface font-label-md text-label-md transition-colors flex items-center justify-center gap-space-xs" type="button">
+<span class="material-symbols-outlined text-[18px]">save</span>
+<span>Profil als Standard speichern</span>
+</button>
+</div>
+</form>
+<!-- TEST SCAN LIVE STATUS PANEL -->
+<div class="p-space-md border-t border-outline-variant/30 bg-surface-container-lowest flex flex-col gap-space-sm" id="scan-feedback-panel">
+<div class="flex items-center justify-between font-label-sm text-label-sm">
+<span class="text-outline uppercase">Letztes Scan-Ergebnis</span>
+<span class="text-primary font-medium flex items-center gap-1">
+<span class="w-1.5 h-1.5 rounded-full bg-primary"></span>
+                Erfolgreich
+              </span>
+</div>
+<div class="bg-surface-container-low p-space-sm rounded border border-outline-variant/20 flex flex-col gap-1 font-label-sm text-label-sm">
+<div class="flex justify-between">
+<span class="text-on-surface-variant">Dateiname:</span>
+<span class="text-primary font-mono truncate">scan_20250514_0042.pdf</span>
+</div>
+<div class="flex justify-between">
+<span class="text-on-surface-variant">Dateigröße:</span>
+<span class="text-primary">184.2 KB (1 Seite)</span>
+</div>
+<div class="flex justify-between">
+<span class="text-on-surface-variant">Dauer &amp; OCR:</span>
+<span class="text-primary">0.84s (100% Erkennung)</span>
+</div>
+<div class="flex justify-between">
+<span class="text-on-surface-variant">GoBD Hash:</span>
+<span class="text-outline font-mono truncate">e3b0c44298fc1c14...</span>
+</div>
+</div>
+</div>
+</div>
+<!-- QUICK TROUBLESHOOTING / DIAGNOSE INFO -->
+<div class="bg-surface-container-low p-space-md rounded-xl border border-outline-variant/30 flex flex-col gap-space-sm">
+<div class="flex items-center gap-space-xs font-label-md text-label-md text-primary font-semibold">
+<span class="material-symbols-outlined text-[18px]">verified_user</span>
+<span>Konformitäts-Hinweis</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant">
+            Alle Scans über diesen nomorepaper Local Agent werden gemäß BSI RESISCAN und GoBD unverzüglich mit einem Zeitstempel versehen und manipulationssicher in das S3-WORM Archiv übertragen.
+          </p>
+<div class="pt-space-xs border-t border-outline-variant/20 flex items-center justify-between font-label-sm text-label-sm text-outline">
+<span>Audit-ID: GOBD-SCAN-9041</span>
+<span class="text-primary cursor-pointer hover:underline">Zertifikat ansehen</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<script>
+  // Simple interactive feedback for Test-Scan execution
+  const testScanBtn = document.getElementById('trigger-test-scan');
+  const feedbackPanel = document.getElementById('scan-feedback-panel');
+
+  if (testScanBtn && feedbackPanel) {
+    testScanBtn.addEventListener('click', () => {
+      const originalText = testScanBtn.innerHTML;
+      testScanBtn.innerHTML = `
+        <span class="material-symbols-outlined text-[18px] animate-spin">refresh</span>
+        <span>Scanne Einzug...</span>
+      `;
+      testScanBtn.classList.add('opacity-80');
+
+      setTimeout(() => {
+        testScanBtn.innerHTML = `
+          <span class="material-symbols-outlined text-[18px]">check_circle</span>
+          <span>Scan erfolgreich archiviert</span>
+        `;
+        testScanBtn.classList.remove('opacity-80');
+
+        setTimeout(() => {
+          testScanBtn.innerHTML = originalText;
+        }, 2200);
+      }, 1200);
+    });
+  }
+</script></main></div></body></html>
