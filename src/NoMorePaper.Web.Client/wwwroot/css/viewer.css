@@ -1,9 +1,9 @@
 /*
- * Document viewer and thumbnails (M1, ADR-0011). Same contrast theme as app.css; the page itself
+ * Document viewer and thumbnails (M1, ADR-0011). Tokens from base.css; the page itself
  * is drawn by the shader on black, so the stage only needs a visible frame.
  */
 
-/* The viewer uses the full window width; the 60rem reading width is for text pages. */
+/* The viewer uses the full window width; the 80rem reading width (layout.css) is for text pages. */
 .app-main:has(.viewer) {
     max-width: none;
 }

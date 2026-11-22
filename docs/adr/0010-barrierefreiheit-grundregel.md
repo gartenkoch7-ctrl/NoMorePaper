@@ -1,6 +1,6 @@
 # ADR-0010: Barrierefreiheit als Grundregel, ab M1
 
-- **Status:** Angenommen
+- **Status:** Angenommen; Optik-Werte (große Schrift, Fokusrahmen) teilweise ersetzt durch [0026](0026-optik-nach-stitch-design-system.md)
 - **Datum:** 2026-11-18
 
 ## Kontext

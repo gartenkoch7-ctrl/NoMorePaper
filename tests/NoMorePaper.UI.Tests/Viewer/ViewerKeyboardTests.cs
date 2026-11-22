@@ -110,7 +110,7 @@ public sealed class ViewerKeyboardTests(ServerFixture server)
     }
 
     [Fact]
-    public async Task Scroller_IsReachableByTab_WithVisibleFocus_AndDescribedByKeyHelp()
+    public async Task Scroller_IsReachableByTab_AndDescribedByKeyHelp()
     {
         await using var viewer = await ViewerPages.OpenAsync(server, SupportedCultures.German, ViewerPdfs.TwoPages());
         var page = viewer.Page;
@@ -124,7 +124,6 @@ public sealed class ViewerKeyboardTests(ServerFixture server)
         }
 
         Assert.Contains("viewer-scroller", focus.ClassName, StringComparison.Ordinal);
-        Assert.True(focus.IndicatorWidth >= 3, $"Focus indicator {focus.IndicatorWidth}px");
         await Assertions.Expect(page.Locator(ViewerPages.Scroller)).ToHaveAttributeAsync("aria-describedby", "viewer-keys");
         await Assertions.Expect(page.Locator("#viewer-keys")).ToContainTextAsync("Strg + Plus");
     }

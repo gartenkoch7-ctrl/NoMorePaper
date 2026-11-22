@@ -1,0 +1,25 @@
+@page "/hinzufuegen"
+@inject IStringLocalizer<Strings> L
+
+@* Main item "Add": the two ways to bring a document in from this device (prompts.md §2). *@
+<PageTitle>@L["AddTitle"]</PageTitle>
+
+<MudText Typo="Typo.h1">@L["AddTitle"]</MudText>
+<MudText Typo="Typo.body1">@L["AddIntro"]</MudText>
+
+<ul class="link-tiles">
+    <li class="link-tile">
+        <a class="link-tile-title" href="hochladen" aria-describedby="add-upload-text">
+            <MudIcon Icon="@Icons.Material.Outlined.UploadFile" aria-hidden="true" />
+            <span>@L["NavUpload"]</span>
+        </a>
+        <p id="add-upload-text">@L["AddUploadText"]</p>
+    </li>
+    <li class="link-tile">
+        <a class="link-tile-title" href="kamera" aria-describedby="add-camera-text">
+            <MudIcon Icon="@Icons.Material.Outlined.PhotoCamera" aria-hidden="true" />
+            <span>@L["NavCamera"]</span>
+        </a>
+        <p id="add-camera-text">@L["AddCameraText"]</p>
+    </li>
+</ul>

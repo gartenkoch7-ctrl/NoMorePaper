@@ -40,7 +40,7 @@ public sealed class MembersTests(ServerFixture server)
 
         await Assertions.Expect(page.Locator("main [data-ready]")).ToHaveTextAsync("Diese Seite ist nur für den Verwalter.");
         await Assertions.Expect(page.GetByRole(AriaRole.Link, new() { Name = "Mitglieder", Exact = true })).ToHaveCountAsync(0);
-        await Assertions.Expect(page.GetByRole(AriaRole.Link, new() { Name = "Konto", Exact = true })).ToBeVisibleAsync();
+        await Assertions.Expect(page.GetByRole(AriaRole.Link, new() { Name = "Einstellungen", Exact = true })).ToHaveAttributeAsync("aria-current", "page");
     }
 
     [Fact]

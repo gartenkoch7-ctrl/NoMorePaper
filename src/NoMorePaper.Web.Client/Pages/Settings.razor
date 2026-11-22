@@ -1,0 +1,30 @@
+@page "/einstellungen"
+@inject IStringLocalizer<Strings> L
+@inject AuthState Auth
+
+@* Main item "Settings": pages used seldom, bundled here; their addresses stay the same (prompts.md §2). *@
+<PageTitle>@L["SettingsTitle"]</PageTitle>
+
+<MudText Typo="Typo.h1">@L["SettingsTitle"]</MudText>
+<MudText Typo="Typo.body1">@L["SettingsIntro"]</MudText>
+
+<ul class="link-tiles">
+    @Tile("konto", Icons.Material.Outlined.Person, L["NavAccount"], L["SettingsAccountText"])
+    @Tile("eingaenge", Icons.Material.Outlined.Inbox, L["NavInputs"], L["SettingsInputsText"])
+    @Tile("listen", Icons.Material.Outlined.Sell, L["NavLists"], L["SettingsListsText"])
+    @if (Auth.IsAdmin)
+    {
+        @Tile("mitglieder", Icons.Material.Outlined.Group, L["NavMembers"], L["SettingsMembersText"])
+    }
+</ul>
+
+@code {
+    private static RenderFragment Tile(string href, string icon, string title, string text) =>
+        @<li class="link-tile">
+            <a class="link-tile-title" href="@href" aria-describedby="settings-@(href)-text">
+                <MudIcon Icon="@icon" aria-hidden="true" />
+                <span>@title</span>
+            </a>
+            <p id="settings-@(href)-text">@text</p>
+        </li>;
+}

@@ -1,0 +1,49 @@
+@inject IStringLocalizer<Strings> L
+
+@* Confirmation inside the page (no modal dialog). Focus moves to the heading when it opens so the
+   screen reader reads the question; "Cancel" comes first so the safe choice is reached first.
+   The heading level fits the page outline (axe heading-order): 2 below the H1, 3 inside a section. *@
+<div class="nmp-confirm">
+    @switch (HeadingLevel)
+    {
+        case 3:
+            <h3 @ref="_heading" tabindex="-1">@Title</h3>
+            break;
+        case 4:
+            <h4 @ref="_heading" tabindex="-1">@Title</h4>
+            break;
+        default:
+            <h2 @ref="_heading" tabindex="-1">@Title</h2>
+            break;
+    }
+    <p>@Text</p>
+    <div class="nmp-confirm-actions">
+        <button type="button" class="nmp-button nmp-button-outlined" @onclick="OnCancel">@L["Cancel"]</button>
+        <button type="button" class="nmp-button nmp-button-primary" @onclick="OnConfirm">@ConfirmLabel</button>
+    </div>
+</div>
+
+@code {
+    private ElementReference _heading;
+
+    [Parameter, EditorRequired] public string Title { get; set; } = string.Empty;
+
+    /// <summary>Heading level of the question: 2 (default), 3 or 4.</summary>
+    [Parameter] public int HeadingLevel { get; set; } = 2;
+
+    [Parameter, EditorRequired] public string Text { get; set; } = string.Empty;
+
+    [Parameter, EditorRequired] public string ConfirmLabel { get; set; } = string.Empty;
+
+    [Parameter] public EventCallback OnConfirm { get; set; }
+
+    [Parameter] public EventCallback OnCancel { get; set; }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await _heading.FocusAsync();
+        }
+    }
+}

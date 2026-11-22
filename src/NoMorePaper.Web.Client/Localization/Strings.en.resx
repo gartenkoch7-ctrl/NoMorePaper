@@ -1575,4 +1575,58 @@
   <data name="InpProblemStuckItems" xml:space="preserve">
     <value>Some mails or files are stuck – see the mailbox folder “NoMorePaper-Fehler” or the inbox</value>
   </data>
+  <data name="StatusWaiting" xml:space="preserve">
+    <value>Waiting</value>
+  </data>
+  <data name="StatusProcessing" xml:space="preserve">
+    <value>Processing</value>
+  </data>
+  <data name="StatusDone" xml:space="preserve">
+    <value>Done</value>
+  </data>
+  <data name="StatusFailed" xml:space="preserve">
+    <value>Failed</value>
+  </data>
+  <data name="StatusRecognized" xml:space="preserve">
+    <value>Recognized</value>
+  </data>
+  <data name="NavAdd" xml:space="preserve">
+    <value>Add</value>
+  </data>
+  <data name="NavSettings" xml:space="preserve">
+    <value>Settings</value>
+  </data>
+  <data name="Menu" xml:space="preserve">
+    <value>Menu</value>
+  </data>
+  <data name="AddTitle" xml:space="preserve">
+    <value>Add</value>
+  </data>
+  <data name="AddIntro" xml:space="preserve">
+    <value>How should the document come in? Scanner folder and mail run on their own.</value>
+  </data>
+  <data name="AddUploadText" xml:space="preserve">
+    <value>Choose files from this device or drag them in.</value>
+  </data>
+  <data name="AddCameraText" xml:space="preserve">
+    <value>Take a sheet with the camera, with spoken hints on its position.</value>
+  </data>
+  <data name="SettingsTitle" xml:space="preserve">
+    <value>Settings</value>
+  </data>
+  <data name="SettingsIntro" xml:space="preserve">
+    <value>Account, inputs and lists of the household.</value>
+  </data>
+  <data name="SettingsAccountText" xml:space="preserve">
+    <value>Name, password, language and defaults.</value>
+  </data>
+  <data name="SettingsInputsText" xml:space="preserve">
+    <value>Scanner folder, mailbox and iCloud.</value>
+  </data>
+  <data name="SettingsListsText" xml:space="preserve">
+    <value>Manage senders, types and tags.</value>
+  </data>
+  <data name="SettingsMembersText" xml:space="preserve">
+    <value>Invite and manage the household accounts.</value>
+  </data>
 </root>

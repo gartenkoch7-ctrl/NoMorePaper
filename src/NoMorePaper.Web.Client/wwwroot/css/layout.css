@@ -1,0 +1,209 @@
+/*
+ * Page frame after Stitch screen 02: side navigation (18 rem) on the left, header (4 rem) on top,
+ * content below. Below 1024 px the side navigation is hidden behind the "Menu" button.
+ */
+
+.app-shell {
+    min-height: 100vh;
+}
+
+/* ---- Side navigation ------------------------------------------------------------------------ */
+
+.side-nav {
+    position: fixed;
+    inset: 0 auto 0 0;
+    z-index: 50;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    width: 18rem;
+    box-sizing: border-box;
+    background-color: var(--nmp-paper-low);
+    border-inline-end: 1px solid var(--nmp-border);
+    overflow-y: auto;
+}
+
+.side-nav-brand {
+    display: flex;
+    align-items: center;
+    gap: var(--nmp-space-sm);
+    height: 4rem;
+    padding: 0 var(--nmp-space-lg);
+    border-bottom: 1px solid var(--nmp-border);
+    color: var(--nmp-primary);
+    font-size: 1rem;
+    font-weight: 600;
+    letter-spacing: -0.005em;
+}
+
+.side-nav ul {
+    display: flex;
+    flex-direction: column;
+    gap: var(--nmp-space-xs);
+    margin: 0;
+    padding: var(--nmp-space-md);
+    list-style: none;
+}
+
+.side-nav-bottom {
+    border-top: 1px solid var(--nmp-border);
+}
+
+.side-nav a {
+    display: flex;
+    align-items: center;
+    gap: var(--nmp-space-sm);
+    padding: var(--nmp-space-sm) var(--nmp-space-md);
+    border: 1px solid transparent;
+    border-radius: var(--nmp-radius);
+    color: var(--nmp-text-variant);
+    text-decoration: none;
+    transition: background-color 150ms ease, color 150ms ease;
+}
+
+.side-nav a:hover {
+    background-color: var(--nmp-elevated-high);
+    color: var(--nmp-text);
+}
+
+/* Current page: lighter surface, white text, border – and aria-current for screen readers. */
+.side-nav a[aria-current="page"] {
+    background-color: var(--nmp-elevated-high);
+    border-color: var(--nmp-border-strong);
+    color: var(--nmp-primary);
+    font-weight: 500;
+}
+
+.side-nav .mud-icon-root {
+    font-size: 1.125rem;
+}
+
+/* ---- Header ----------------------------------------------------------------------------------- */
+
+.app-header {
+    position: sticky;
+    top: 0;
+    z-index: 40;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--nmp-space-sm) var(--nmp-space-md);
+    min-height: 4rem;
+    margin-inline-start: 18rem;
+    padding: var(--nmp-space-sm) var(--nmp-space-lg);
+    box-sizing: border-box;
+    background-color: rgba(19, 19, 19, 0.8);
+    backdrop-filter: blur(24px);
+    border-bottom: 1px solid var(--nmp-border);
+}
+
+.app-name {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--nmp-primary);
+}
+
+.header-end {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--nmp-space-sm) var(--nmp-space-md);
+    margin-inline-start: auto;
+}
+
+.menu-toggle {
+    display: none;
+}
+
+/* ---- Content ---------------------------------------------------------------------------------- */
+
+.app-main {
+    margin-inline-start: 18rem;
+    padding: var(--nmp-space-lg) 2rem;
+    max-width: 80rem;
+}
+
+.app-loading {
+    padding: var(--nmp-space-lg);
+}
+
+/* Signed out: no side navigation, content starts at the left edge. */
+.app-shell-signed-out .app-header,
+.app-shell-signed-out .app-main {
+    margin-inline-start: 0;
+}
+
+/* ---- Narrow screens --------------------------------------------------------------------------- */
+
+@media (max-width: 1023.98px) {
+    .app-header,
+    .app-main {
+        margin-inline-start: 0;
+    }
+
+    /* Not sticky: the header wraps to several lines on a phone or at 200 % zoom and would cover
+       the focused element (WCAG 2.4.11). */
+    .app-header {
+        position: static;
+        padding: var(--nmp-space-sm) var(--nmp-space-md);
+    }
+
+    .app-main {
+        padding: var(--nmp-space-md);
+    }
+
+    .menu-toggle {
+        display: inline-flex;
+    }
+
+    /* In the flow below the header: the header may wrap to two lines on a phone. */
+    .side-nav {
+        position: static;
+        width: auto;
+        border-inline-end: 0;
+        border-bottom: 1px solid var(--nmp-border);
+    }
+
+    .side-nav-brand {
+        display: none;
+    }
+
+    /* Closed until "Menu" opens it. display: none also takes it out of the accessibility tree. */
+    .side-nav-closed {
+        display: none;
+    }
+}
+
+/* ---- Header pieces ---------------------------------------------------------------------------- */
+
+.language-switch {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--nmp-space-sm);
+}
+
+/* Buttons that are links (upload in the header) look like the design's buttons. */
+a.nmp-button {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--nmp-space-xs);
+    text-decoration: none;
+}
+
+.nmp-button .mud-icon-root {
+    font-size: 1.125rem;
+}
+
+.menu-toggle {
+    align-items: center;
+    gap: var(--nmp-space-xs);
+}
+
+/* Wide screens keep the header fixed; it can wrap to two lines up to about 1250 px. Scrolling to a
+   focused element leaves room for it, so focus is never hidden under the header (WCAG 2.4.11). */
+@media (min-width: 1024px) {
+    html {
+        scroll-padding-top: 8rem;
+    }
+}

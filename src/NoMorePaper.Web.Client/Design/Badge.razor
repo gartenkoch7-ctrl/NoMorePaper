@@ -1,0 +1,14 @@
+@* Chip with a mandatory text and an optional decorative symbol. *@
+<span class="nmp-badge">
+    @if (Icon is not null)
+    {
+        <MudIcon Icon="@Icon" aria-hidden="true" />
+    }
+    <span>@Text</span>
+</span>
+
+@code {
+    [Parameter, EditorRequired] public string Text { get; set; } = string.Empty;
+
+    [Parameter] public string? Icon { get; set; }
+}

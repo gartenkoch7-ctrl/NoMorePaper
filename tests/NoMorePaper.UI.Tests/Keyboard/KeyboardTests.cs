@@ -5,11 +5,12 @@ using Xunit;
 
 namespace NoMorePaper.UI.Tests.Keyboard;
 
-/// <summary>The app is fully usable with the keyboard, and focus is always clearly visible.</summary>
+/// <summary>
+/// The app is fully usable with the keyboard. How focus looks is left to the design and the browser:
+/// the main user's screen magnifier draws its own focus indicator (decision 2026-11-22).
+/// </summary>
 public sealed class KeyboardTests(ServerFixture server)
 {
-    private const double MinIndicatorWidthPx = 3;
-
     [Theory]
     [InlineData(SupportedCultures.German, "Zum Inhalt springen")]
     [InlineData(SupportedCultures.English, "Skip to content")]
@@ -23,7 +24,6 @@ public sealed class KeyboardTests(ServerFixture server)
         var focus = await FocusState.ReadAsync(page);
         Assert.Contains("skip-link", focus.ClassName, StringComparison.Ordinal);
         Assert.Equal(skipLinkText, focus.Text);
-        Assert.True(focus.IndicatorWidth >= MinIndicatorWidthPx, $"Focus indicator {focus.IndicatorWidth}px");
         await Assertions.Expect(page.Locator(".skip-link")).ToBeInViewportAsync();
     }
 
@@ -40,14 +40,14 @@ public sealed class KeyboardTests(ServerFixture server)
     }
 
     [Fact]
-    public async Task TabOrder_ReachesLanguageSwitch_WithVisibleFocusOnEveryStop()
+    public async Task TabOrder_GoesThroughHeaderThenSideNavigation()
     {
         await using var session = await server.OpenAsync("/", SupportedCultures.German);
         var page = session.Page;
         string[] expected =
         [
-            "Zum Inhalt springen", "Startseite", "Hochladen", "Kamera", "Dokumente", "Zu prüfen", "Suche", "Listen", "Eingänge", "Konto", "Mitglieder", "", "Suchen",
-            "Abmelden", "Deutsch", "English",
+            "Zum Inhalt springen", "", "Suchen", "Hochladen", "Abmelden", "Deutsch", "English",
+            "Startseite", "Hinzufügen", "Dokumente", "Zu prüfen", "Einstellungen",
         ];
 
         var stops = new List<FocusState>();
@@ -58,9 +58,6 @@ public sealed class KeyboardTests(ServerFixture server)
         }
 
         Assert.Equal(expected, stops.Select(stop => stop.Text));
-        Assert.All(stops, stop => Assert.True(
-            stop.IndicatorWidth >= MinIndicatorWidthPx,
-            $"'{stop.Text}' has a {stop.IndicatorWidth}px focus indicator"));
     }
 
     [Fact]

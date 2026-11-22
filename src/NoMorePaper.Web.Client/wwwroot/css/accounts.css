@@ -1,5 +1,5 @@
 /*
- * Accounts, forms and privacy (M2). Same rules as app.css: high contrast, large targets,
+ * Accounts, forms and privacy (M2). Tokens from base.css; high contrast, large targets,
  * nothing conveyed by colour alone (errors carry the word "Fehler"/"Error" and a thick border).
  */
 
@@ -57,7 +57,6 @@
     letter-spacing: 0.15em;
 }
 
-.nmp-button,
 .form-toggle {
     min-height: 2.75rem;
     padding: 0.5rem 1rem;

@@ -1,0 +1,218 @@
+/*
+ * Shared pieces used on several pages: search, native inputs, drop zone, live region, notices,
+ * document table, search hits. Values after the Stitch design system (docs/kb/oberflaeche.md).
+ */
+
+.header-search {
+    display: flex;
+    flex: 1 1 20rem;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--nmp-space-sm);
+    max-width: 36rem;
+}
+
+/* Native inputs as MudTextField in the design: dark field, subtle border, white border on focus. */
+.search-input,
+.drop-zone input[type="file"] {
+    box-sizing: border-box;
+    min-height: 2.5rem;
+    padding: var(--nmp-space-sm) 0.75rem;
+    background-color: var(--nmp-canvas-lowest);
+    color: var(--nmp-primary);
+    border: 1px solid var(--nmp-border);
+    border-radius: var(--nmp-radius);
+    font: inherit;
+    transition: border-color 150ms ease;
+}
+
+.search-input::placeholder {
+    color: var(--nmp-outline);
+}
+
+.search-input:focus,
+.drop-zone input[type="file"]:focus {
+    border-color: var(--nmp-primary);
+    box-shadow: 0 0 0 1px var(--nmp-primary);
+}
+
+.search-input {
+    flex: 1 1 12rem;
+    min-width: 12rem;
+}
+
+.drop-zone input[type="file"]::file-selector-button {
+    margin-inline-end: var(--nmp-space-md);
+    padding: var(--nmp-space-sm) var(--nmp-space-md);
+    background-color: var(--nmp-primary);
+    color: var(--nmp-on-primary);
+    border: 0;
+    border-radius: var(--nmp-radius);
+    font: inherit;
+    font-weight: 500;
+}
+
+.drop-zone {
+    display: flex;
+    flex-direction: column;
+    gap: var(--nmp-space-sm);
+    margin-bottom: var(--nmp-space-lg);
+    padding: var(--nmp-space-lg);
+    background-color: var(--nmp-paper);
+    border: 1px dashed var(--nmp-border-strong);
+    border-radius: var(--nmp-radius-lg);
+}
+
+.drop-zone-label {
+    font-weight: 500;
+    color: var(--nmp-primary);
+}
+
+.drop-zone-hint {
+    margin: 0;
+    color: var(--nmp-text-secondary);
+}
+
+.live-region {
+    min-height: 1.5em;
+    margin: var(--nmp-space-md) 0;
+    font-weight: 500;
+}
+
+.upload-results {
+    padding: 0;
+    list-style: none;
+}
+
+.upload-results li {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--nmp-space-xs) 0.75rem;
+    margin-bottom: 0.75rem;
+}
+
+.error-box {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin: var(--nmp-space-md) 0;
+    padding: var(--nmp-space-md);
+    background-color: var(--nmp-paper);
+    border: 1px solid var(--nmp-border-strong);
+    border-radius: var(--nmp-radius-lg);
+    font-weight: 500;
+}
+
+/* A notice with a list of names: the symbol stays next to its first line. */
+.upload-skipped {
+    align-items: flex-start;
+}
+
+/* Lists & data grids of the design: thin dividers, small mono header, row hover. */
+.doc-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.doc-table caption {
+    margin-bottom: var(--nmp-space-sm);
+    text-align: start;
+    font-weight: 500;
+    color: var(--nmp-primary);
+}
+
+.doc-table th,
+.doc-table td {
+    padding: 0.75rem;
+    border-bottom: 1px solid var(--nmp-border);
+    text-align: start;
+}
+
+/* Column headers as in Stitch screen 02: own surface, small mono capitals in the outline grey. */
+.doc-table thead th {
+    background-color: var(--nmp-surface-container);
+    font-family: var(--nmp-font-mono);
+    font-size: 0.625rem;
+    font-weight: 400;
+    line-height: 0.875rem;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: var(--nmp-outline);
+}
+
+.doc-table tbody tr {
+    transition: background-color 150ms ease;
+}
+
+.doc-table tbody tr:hover {
+    background-color: var(--nmp-elevated);
+}
+
+.doc-table td .mud-icon-root {
+    margin-inline-end: var(--nmp-space-sm);
+    vertical-align: middle;
+}
+
+.search-hit {
+    margin-bottom: var(--nmp-space-lg);
+    padding-bottom: var(--nmp-space-md);
+    border-bottom: 1px solid var(--nmp-border);
+}
+
+.search-hit p {
+    margin: var(--nmp-space-sm) 0;
+}
+
+/* Large link tiles on the overview pages "Add" and "Settings". */
+.link-tiles {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(16rem, 1fr));
+    gap: var(--nmp-space-md);
+    margin: var(--nmp-space-lg) 0 0;
+    padding: 0;
+    list-style: none;
+}
+
+/* The whole tile is clickable (stretched link), but the link's name is only the title; the
+   explanation is its description (aria-describedby), so screen readers hear a short link. */
+.link-tile {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: var(--nmp-space-xs);
+    height: 100%;
+    box-sizing: border-box;
+    padding: var(--nmp-space-lg);
+    background-color: var(--nmp-paper);
+    border: 1px solid var(--nmp-border);
+    border-radius: var(--nmp-radius-lg);
+    color: var(--nmp-text-variant);
+    transition: background-color 150ms ease, border-color 150ms ease;
+}
+
+.link-tile:hover {
+    background-color: var(--nmp-elevated);
+    border-color: var(--nmp-border-strong);
+}
+
+.link-tile-title {
+    display: flex;
+    align-items: center;
+    gap: var(--nmp-space-sm);
+    color: var(--nmp-primary);
+    font-size: 1rem;
+    font-weight: 500;
+    text-decoration: none;
+}
+
+.link-tile-title::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: var(--nmp-radius-lg);
+}
+
+.link-tile p {
+    margin: 0;
+}

@@ -1,0 +1,146 @@
+/*
+ * Base of every page: fonts, design tokens, document defaults. Values are the Stitch design system
+ * "Obsidian Slate", approved by the main user as it is (docs/kb/oberflaeche.md). They mirror
+ * Theme/ContrastTheme.cs and are repeated here so the page is dark before the WASM runtime and
+ * MudBlazor have loaded (no white flash).
+ *
+ * No focus ring of our own (ADR-0026): fields show focus as the design does (border turns white),
+ * everything else keeps the browser's default indicator; the user's screen magnifier adds its own.
+ */
+
+/* Fonts are served locally (ADR-0002), SIL Open Font License 1.1, see fonts/<name>/LICENSE.txt. */
+@font-face {
+    font-family: "Geist";
+    src: url("../fonts/geist/Geist-Variable.woff2") format("woff2");
+    font-weight: 100 900;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: "JetBrains Mono";
+    src: url("../fonts/jetbrains-mono/JetBrainsMono-latin-wght.woff2") format("woff2");
+    font-weight: 100 800;
+    font-style: normal;
+    font-display: swap;
+}
+
+:root {
+    color-scheme: dark;
+
+    --nmp-font-sans: "Geist", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    --nmp-font-mono: "JetBrains Mono", ui-monospace, "Cascadia Mono", Consolas, monospace;
+
+    /* Surfaces, darkest to lightest. */
+    --nmp-canvas-lowest: #0a0a0a;
+    --nmp-background: #131313;
+    --nmp-paper: #121212;
+    --nmp-paper-low: #1c1b1b;
+    --nmp-elevated: #18181b;
+    --nmp-elevated-high: #2a2a2a;
+    --nmp-surface-container: #201f1f;
+
+    /* Text and lines. */
+    --nmp-text: #e5e2e1;
+    --nmp-text-variant: #c4c7c8;
+    --nmp-text-secondary: #a1a1aa;
+    --nmp-text-muted: #71717a;
+    --nmp-outline: #8e9192;
+    --nmp-primary: #ffffff;
+    --nmp-on-primary: #0a0a0a;
+    --nmp-border: #27272a;
+    --nmp-border-strong: #3f3f46;
+    --nmp-error: #ffb4ab;
+
+    /* Feature style sheets from before M4u use the accent for links and markers: white now. */
+    --nmp-accent: var(--nmp-primary);
+
+    /* Spacing and radius. */
+    --nmp-space-xs: 0.25rem;
+    --nmp-space-sm: 0.5rem;
+    --nmp-space-md: 1rem;
+    --nmp-space-lg: 1.5rem;
+    --nmp-space-xl: 2.5rem;
+    --nmp-radius-sm: 0.25rem;
+    --nmp-radius: 0.5rem;
+    --nmp-radius-lg: 1rem;
+}
+
+html,
+body {
+    margin: 0;
+    background-color: var(--nmp-background);
+    color: var(--nmp-text);
+    font-family: var(--nmp-font-sans);
+    -webkit-font-smoothing: antialiased;
+}
+
+/* body-md of the design system. Only on body: on html it would scale every rem. */
+body {
+    font-size: 0.875rem;
+    line-height: 1.5715;
+}
+
+/*
+ * MudBlazor removes the browser's focus outline from links and buttons; this brings the browser's
+ * own back (revert = user-agent style), so keyboard focus stays visible without a magnifier
+ * (WCAG 2.4.7). It is not a ring of the app's own.
+ */
+a:focus-visible,
+button:focus-visible {
+    outline: revert;
+}
+
+/* Main area and headings receive focus by script after navigation; a ring there would frame the page. */
+[tabindex="-1"]:focus:not(:focus-visible) {
+    outline: none;
+}
+
+a {
+    color: var(--nmp-primary);
+    text-decoration: underline;
+    text-underline-offset: 0.25em;
+}
+
+a:hover {
+    color: var(--nmp-text-secondary);
+}
+
+.skip-link {
+    position: absolute;
+    left: var(--nmp-space-sm);
+    top: -10rem;
+    z-index: 10000;
+    padding: var(--nmp-space-sm) var(--nmp-space-md);
+    background-color: var(--nmp-primary);
+    color: var(--nmp-on-primary);
+    font-weight: 500;
+    border-radius: var(--nmp-radius);
+    text-decoration: none;
+}
+
+.skip-link:focus {
+    top: var(--nmp-space-sm);
+}
+
+/* MudBlazor removes all margins from typography; headings need room to be told apart. */
+.app-main .mud-typography-h1 {
+    margin-bottom: var(--nmp-space-md);
+}
+
+.app-main .mud-typography-body1 + .mud-typography-body1 {
+    margin-top: var(--nmp-space-md);
+}
+
+#blazor-error-ui {
+    display: none;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 10001;
+    padding: var(--nmp-space-md) var(--nmp-space-lg);
+    background-color: var(--nmp-elevated);
+    color: var(--nmp-text);
+    border-top: 1px solid var(--nmp-border-strong);
+}

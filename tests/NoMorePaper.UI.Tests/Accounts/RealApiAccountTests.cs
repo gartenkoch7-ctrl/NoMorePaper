@@ -63,6 +63,7 @@ public sealed class RealApiAccountTests(ServerFixture server)
         await UploadAsync(upload, $"privat-{suffix}.pdf", isPrivate: true);
         await UploadAsync(upload, $"offen-{suffix}.pdf", isPrivate: false);
 
+        await upload.GetByRole(AriaRole.Link, new() { Name = "Einstellungen", Exact = true }).ClickAsync();
         await upload.GetByRole(AriaRole.Link, new() { Name = "Mitglieder", Exact = true }).ClickAsync();
         await upload.GetByRole(AriaRole.Button, new() { Name = "Neues Mitglied einladen" }).ClickAsync();
         var link = await upload.Locator("#invite-link").InputValueAsync();
@@ -79,6 +80,8 @@ public sealed class RealApiAccountTests(ServerFixture server)
         await page.GetByRole(AriaRole.Link, new() { Name = "Dokumente", Exact = true }).ClickAsync();
         await Assertions.Expect(page.Locator("tbody tr").Filter(new() { HasText = $"offen-{suffix}" })).ToHaveCountAsync(1);
         await Assertions.Expect(page.Locator("tbody tr").Filter(new() { HasText = $"privat-{suffix}" })).ToHaveCountAsync(0);
+        await page.GetByRole(AriaRole.Link, new() { Name = "Einstellungen", Exact = true }).ClickAsync();
+        await Assertions.Expect(page.GetByRole(AriaRole.Heading, new() { Name = "Einstellungen", Level = 1 })).ToBeVisibleAsync();
         await Assertions.Expect(page.GetByRole(AriaRole.Link, new() { Name = "Mitglieder", Exact = true })).ToHaveCountAsync(0);
     }
 

@@ -74,10 +74,12 @@ NoMorePaper.Worker ─┴─► Infrastructure ─► Application ─► Domain
   Klartext in Logs, Settings-Dateien oder dem Repo.
 - Der Server ist nicht öffentlich erreichbar; Zugriff von außen nur über Tailscale.
 
-### 2.5 Barrierefreiheit (ADR-0010, ADR-0011)
+### 2.5 Barrierefreiheit (ADR-0010, ADR-0011, ADR-0026)
 Der Hauptnutzer ist blind bzw. stark sehbehindert. Barrierefreiheit ist Pflicht, kein Extra.
-- **Jede Oberfläche** ist dunkel und kontrastreich, hat große Schrift und einen deutlichen
-  Fokusrahmen und ist vollständig per Screenreader (VoiceOver, NVDA) bedienbar.
+- **Jede Oberfläche** ist dunkel und vollständig per Tastatur und Screenreader (VoiceOver, NVDA)
+  bedienbar. Die Optik (Farben, Schrift, Fokus) folgt dem vom Nutzer freigegebenen
+  Stitch-Design-System ([KB oberflaeche.md](docs/kb/oberflaeche.md)); kein eigener Fokusrahmen
+  (die Bildschirmlupe des Nutzers zeichnet ihn), Browser-Zoom nie sperren.
 - Dokumente werden **überall** intelligent invertiert dargestellt: schwarzer Hintergrund, weiße
   Schrift, Farbton erhalten, Fotos original. Download und Export liefern immer das Original.
 - Der Viewer zoomt stufenlos und scharf (neu rendern, nicht Pixel strecken).
@@ -153,7 +155,7 @@ git config core.hooksPath .githooks           # Pre-Commit-Hook aktivieren (einm
 - [ ] Zeilenprüfung grün (keine Datei > 300 Zeilen)
 - [ ] Schichtregeln eingehalten (Architekturtests grün)
 - [ ] Telemetrie mitgeliefert und im Katalog
-- [ ] UI geändert? → dunkel/kontrastreich, per Tastatur und Screenreader bedienbar (§2.5);
+- [ ] UI geändert? → Design-System eingehalten, per Tastatur und Screenreader bedienbar (§2.5);
       Entwurf „freigegeben“ und Abnahme nach [UI-Prozess](docs/kb/ui-prozess.md) Schritt 8
 - [ ] Neues Wissen in `docs/kb/`, neue Grundsatzentscheidung als ADR
 - [ ] Code-Review-Schleife nach Abschnitt 8 ohne offene Befunde durchlaufen

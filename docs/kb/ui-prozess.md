@@ -36,7 +36,7 @@ An jeden Seiten-Prompt anhängen; das Design-System des Projekts mitgeben (`desi
 Keep the project's design system exactly (colors, fonts, sizes, spacing, radius).
 Household app, runs only on a home server. No business, compliance, cloud or AI-score terms
 (no GoBD, WORM, DATEV, ZUGFeRD, S3, Office 365, SSO, sign-up, workflows, confidence %).
-Never remove focus outlines; never disable zoom. Every status = icon + word, no animation.
+Never disable zoom. Every status = icon + word, no animation.
 Native elements only: a, button, input with label, select, table. Icons aria-hidden.
 ```
 
@@ -74,7 +74,7 @@ nur, was „freigegeben“ ist.
 
 Automatisch per Textsuche im `code.html` (Treffer = Eintrag in „Nicht mitnehmen“):
 - `user-scalable=no`, `maximum-scale` – Zoom gesperrt
-- `outline-none` – Fokusrahmen entfernt
+- `outline-none` ohne sichtbaren Ersatz im Entwurf (z. B. weißer Rand) – Fokus unsichtbar; eigener Rahmen kommt nicht dazu (ADR-0026)
 - `animate-ping`, `animate-pulse` – Bewegung als Status
 - `onclick=` an `div`/`span`, `cursor-pointer` an `tr`/`div`
 - `title=` ohne `aria-label` an Knöpfen mit nur Symbol; `material-symbols` ohne `aria-hidden`

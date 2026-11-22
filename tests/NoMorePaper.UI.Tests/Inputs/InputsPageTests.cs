@@ -46,7 +46,7 @@ public sealed class InputsPageTests(ServerFixture server)
         var icloud = page.GetByRole(AriaRole.Region, new() { Name = "iCloud Drive" });
         await Assertions.Expect(icloud.GetByRole(AriaRole.Heading, new() { Level = 3 })).ToHaveTextAsync(["Anna Beispiel", "Ben Beispiel"]);
         await Assertions.Expect(icloud).ToContainTextAsync("Problem: Apple verlangt einen neuen Code. Das braucht deine Aufmerksamkeit.");
-        await Assertions.Expect(page.GetByRole(AriaRole.Link, new() { Name = "Eingänge" })).ToHaveAttributeAsync("aria-current", "page");
+        await Assertions.Expect(page.GetByRole(AriaRole.Link, new() { Name = "Einstellungen", Exact = true })).ToHaveAttributeAsync("aria-current", "page");
     }
 
     [Fact]

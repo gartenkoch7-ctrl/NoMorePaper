@@ -1575,4 +1575,58 @@
   <data name="InpProblemStuckItems" xml:space="preserve">
     <value>Einige Mails oder Dateien hängen fest – siehe den Postfach-Ordner „NoMorePaper-Fehler“ bzw. den Posteingang</value>
   </data>
+  <data name="StatusWaiting" xml:space="preserve">
+    <value>Wartet</value>
+  </data>
+  <data name="StatusProcessing" xml:space="preserve">
+    <value>Wird verarbeitet</value>
+  </data>
+  <data name="StatusDone" xml:space="preserve">
+    <value>Fertig</value>
+  </data>
+  <data name="StatusFailed" xml:space="preserve">
+    <value>Fehlgeschlagen</value>
+  </data>
+  <data name="StatusRecognized" xml:space="preserve">
+    <value>Erkannt</value>
+  </data>
+  <data name="NavAdd" xml:space="preserve">
+    <value>Hinzufügen</value>
+  </data>
+  <data name="NavSettings" xml:space="preserve">
+    <value>Einstellungen</value>
+  </data>
+  <data name="Menu" xml:space="preserve">
+    <value>Menü</value>
+  </data>
+  <data name="AddTitle" xml:space="preserve">
+    <value>Hinzufügen</value>
+  </data>
+  <data name="AddIntro" xml:space="preserve">
+    <value>Wie soll das Dokument hineinkommen? Scanner-Ordner und Mail laufen von selbst.</value>
+  </data>
+  <data name="AddUploadText" xml:space="preserve">
+    <value>Dateien von diesem Gerät auswählen oder hineinziehen.</value>
+  </data>
+  <data name="AddCameraText" xml:space="preserve">
+    <value>Ein Blatt mit der Kamera aufnehmen, mit Ansagen zur Lage.</value>
+  </data>
+  <data name="SettingsTitle" xml:space="preserve">
+    <value>Einstellungen</value>
+  </data>
+  <data name="SettingsIntro" xml:space="preserve">
+    <value>Konto, Eingänge und Listen des Haushalts.</value>
+  </data>
+  <data name="SettingsAccountText" xml:space="preserve">
+    <value>Name, Passwort, Sprache und Vorgaben.</value>
+  </data>
+  <data name="SettingsInputsText" xml:space="preserve">
+    <value>Scanner-Ordner, Mail-Postfach und iCloud.</value>
+  </data>
+  <data name="SettingsListsText" xml:space="preserve">
+    <value>Absender, Arten und Tags verwalten.</value>
+  </data>
+  <data name="SettingsMembersText" xml:space="preserve">
+    <value>Konten des Haushalts einladen und verwalten.</value>
+  </data>
 </root>

@@ -27,7 +27,7 @@ public sealed class SearchTests(ServerFixture server)
     }
 
     [Fact]
-    public async Task Slash_FocusesSearchField_WithVisibleFocus()
+    public async Task Slash_FocusesSearchField()
     {
         await using var session = await server.OpenAsync("/", SupportedCultures.German);
         var page = session.Page;
@@ -35,7 +35,6 @@ public sealed class SearchTests(ServerFixture server)
         await page.Keyboard.PressAsync("/");
 
         await Assertions.Expect(page.Locator(SearchInput)).ToBeFocusedAsync();
-        Assert.True((await FocusState.ReadAsync(page)).IndicatorWidth >= 3);
         // The key itself must not end up in the field.
         await Assertions.Expect(page.Locator(SearchInput)).ToHaveValueAsync("");
     }

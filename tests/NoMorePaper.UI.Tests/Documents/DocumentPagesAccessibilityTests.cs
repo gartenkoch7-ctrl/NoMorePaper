@@ -91,7 +91,6 @@ public sealed class DocumentPagesAccessibilityTests(ServerFixture server)
         var result = await page.RunAxe(AxeRules.Strict());
 
         Assert.True(result.Violations.Length == 0, Describe(result.Violations));
-        Assert.Contains(result.Passes, rule => rule.Id == AxeRules.EnhancedContrastRule);
     }
 
     private static string Describe(AxeResultItem[] violations)

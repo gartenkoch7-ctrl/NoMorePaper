@@ -1,7 +1,7 @@
 /*
- * Fields, combobox, review, filters and lists (M3). Same rules as app.css: high contrast, large
+ * Fields, combobox, review, filters and lists (M3). Tokens from base.css; high contrast, large
  * targets, nothing conveyed by colour alone (state is always text; the active option is inverted AND
- * marked with a thick outline).
+ * marked with a thick bar).
  */
 
 /* ---- Combobox ----------------------------------------------------------------------------- */
@@ -44,7 +44,7 @@
     background-color: var(--nmp-text);
     color: var(--nmp-background);
     font-weight: 700;
-    border-inline-start: 0.75rem solid var(--nmp-accent);
+    border-inline-start: 0.75rem solid var(--nmp-on-primary);
 }
 
 .combobox .live-region {
