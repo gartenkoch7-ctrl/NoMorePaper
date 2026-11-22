@@ -130,9 +130,7 @@ Stand: Schritt 0 (gemeinsame Bausteine). Die Spuren A–E ergänzen ihre Abschni
 ## Seite „Eingänge“, Einstellungen, Besitzer prüfen (Spur E)
 - `GET /api/inputs` liefert `InputStatusDto[]` aus `ListInputStatus` (Sichtbarkeit siehe oben); Mitglieder
   sehen nie fremde Kontonamen oder iCloud-Zeilen.
-- Seite `/eingaenge` (Navigation „Eingänge“): je Eingang ein Abschnitt (h2) mit Zustand als Satz und Symbol
-  (`Läuft ohne Probleme`, `Noch nicht gelaufen`, `Problem: …` mit „Das braucht deine Aufmerksamkeit“), letzter
-  Abruf und letzter Erfolg relativ und absolut. Die Seite fragt jede Minute neu (`PeriodicTimer`); eine
+- Seite `/eingaenge` (Navigation „Eingänge“): Reiter je Eingang, Aufbau siehe unten. Die Seite fragt jede Minute neu (`PeriodicTimer`); eine
   Änderung von Zustand oder Problem sagt die Live-Region an, „Jetzt aktualisieren“ antwortet immer. Der
   Knopf bleibt aktiv (ein deaktivierter Knopf verliert den Tastaturfokus). Ein Ladefehler ersetzt die Zeilen
   durch eine Fehlermeldung mit „Erneut versuchen“. Scheitert ein Laden von Hand mit demselben Fehler noch einmal,

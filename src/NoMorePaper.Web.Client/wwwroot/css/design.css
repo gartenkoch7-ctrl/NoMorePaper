@@ -176,7 +176,6 @@
     letter-spacing: 0.05em;
 }
 
-
 .nmp-tab-selected .nmp-tab-count {
     background: var(--nmp-elevated-high);
     color: var(--nmp-primary);

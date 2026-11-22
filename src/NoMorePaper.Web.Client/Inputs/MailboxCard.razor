@@ -19,7 +19,11 @@
         {
             <InputStateFacts Row="Row" Now="Now" />
         }
-        else if (StateFailed)
+        else if (!StateFailed)
+        {
+            <Badge Icon="@Icons.Material.Filled.Schedule" Text="@L["InpBadgeNever"]" />
+        }
+        else
         {
             <p>@L["MailCardStateUnavailable"]</p>
         }

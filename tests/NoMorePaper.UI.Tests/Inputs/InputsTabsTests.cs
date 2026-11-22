@@ -90,7 +90,7 @@ public sealed class InputsTabsTests(ServerFixture server)
 
         await Assertions.Expect(page.Locator("#inputs-scanner-folder-panel")).ToContainTextAsync("128 Dokumente");
         await page.GetByRole(AriaRole.Tab, new() { Name = "Mail" }).ClickAsync();
-        await Assertions.Expect(page.Locator("#inputs-mail-panel")).ToContainTextAsync("1 Dokument");
+        await Assertions.Expect(page.Locator("#inputs-mail-panel dd").Last).ToHaveTextAsync("1 Dokument");
     }
 
     [Fact]

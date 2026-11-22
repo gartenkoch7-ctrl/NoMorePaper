@@ -75,6 +75,31 @@ public sealed class MailboxCardTests(ServerFixture server)
     }
 
     [Fact]
+    public async Task FirstSetUp_ReplacesTheNotSetUpState_WithoutAStaleRow()
+    {
+        var rows = new[] { new InputStatusDto("mail", null, "problem", s_now, null, "not-configured", false) };
+        await using var session = await server.OpenAsync("/eingaenge/mail", SupportedCultures.German, prepare: async page =>
+        {
+            var mocks = new AccountMocks();
+            await mocks.RespondAsync(page, "GET", Path, 200, s_stored with { Host = string.Empty, HasPassword = false });
+            await mocks.RespondAsync(page, "PUT", Path, 204);
+            await mocks.RespondAsync(page, "GET", "/api/inputs", 200, rows);
+        });
+        var page = session.Page;
+        var card = page.Locator("section.mail-card");
+        await Assertions.Expect(card).ToContainTextAsync("Nicht eingerichtet");
+
+        await page.Locator("#mail-host").FillAsync("imap.neu.example");
+        await page.Locator("#mail-user").FillAsync("dokumente");
+        await page.Locator("#mail-password").FillAsync("geheim");
+        await page.GetByRole(AriaRole.Button, new() { Name = "Speichern" }).ClickAsync();
+
+        await Assertions.Expect(card).ToContainTextAsync("imap.neu.example:993");
+        await Assertions.Expect(card).ToContainTextAsync("Noch nicht gelaufen");
+        await Assertions.Expect(card).Not.ToContainTextAsync("Nicht eingerichtet");
+    }
+
+    [Fact]
     public async Task TheRuleList_HasFiveRules_UnderItsOwnHeading()
     {
         await using var session = await OpenAsync(new AccountMocks());

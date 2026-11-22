@@ -1,0 +1,90 @@
+/* Mail rule list, mailbox card details and the layout of /eingaenge/mail. */
+
+.mail-rules-list {
+    list-style: none;
+    margin: var(--nmp-space-md) 0 0;
+    padding: 0;
+    border: 1px solid var(--nmp-border);
+    border-radius: var(--nmp-radius-lg);
+}
+
+.mail-rules-list li {
+    display: flex;
+    gap: var(--nmp-space-md);
+    padding: var(--nmp-space-md);
+}
+
+.mail-rules-list li + li {
+    border-top: 1px solid var(--nmp-border);
+}
+
+.mail-rule-number {
+    flex: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.5rem;
+    height: 1.5rem;
+    background: var(--nmp-elevated-high);
+    border-radius: var(--nmp-radius-sm);
+    font-family: var(--nmp-font-mono);
+    font-size: 0.6875rem;
+}
+
+.mail-rule-title {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--nmp-space-sm);
+    margin: 0 0 var(--nmp-space-xs);
+    font-weight: 600;
+}
+
+.mail-rule-text {
+    margin: 0;
+    color: var(--nmp-text-variant);
+    overflow-wrap: anywhere;
+}
+
+.mail-layout {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--nmp-space-lg);
+}
+
+@media (min-width: 80rem) {
+    /* DOM order stays card, form, rules; the picture puts card and rules left, the form right. */
+    .mail-layout {
+        grid-template-columns: 2fr 1fr;
+        grid-template-areas: "card form" "rules form";
+        align-items: start;
+    }
+
+    .mail-layout-card {
+        grid-area: card;
+    }
+
+    .mail-layout-form {
+        grid-area: form;
+    }
+
+    .mail-layout-rules {
+        grid-area: rules;
+    }
+}
+
+.mail-card-address {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--nmp-primary);
+    overflow-wrap: anywhere;
+}
+
+.mail-card-meta {
+    margin: 0;
+    font-family: var(--nmp-font-mono);
+    font-size: 0.6875rem;
+    color: var(--nmp-text-variant);
+    overflow-wrap: anywhere;
+}

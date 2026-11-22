@@ -1146,9 +1146,6 @@
   <data name="InpStateProblem" xml:space="preserve">
     <value>Problem: {0}.</value>
   </data>
-  <data name="InpStateProblemAttention" xml:space="preserve">
-    <value>Problem: {0}. Das braucht deine Aufmerksamkeit.</value>
-  </data>
   <data name="InpLastRun" xml:space="preserve">
     <value>Zuletzt gelaufen</value>
   </data>

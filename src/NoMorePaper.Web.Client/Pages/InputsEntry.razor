@@ -10,19 +10,12 @@
         <MudText Typo="Typo.h4" HtmlTag="h3">@Title</MudText>
     </div>
     <InputStateFacts Row="Row" Now="Now" />
-    @if (ChildContent is not null)
-    {
-        <div class="input-card-actions">@ChildContent</div>
-    }
 </div>
 
 @code {
     [Parameter, EditorRequired] public InputStatusDto Row { get; set; } = default!;
 
     [Parameter] public DateTimeOffset Now { get; set; }
-
-    /// <summary>Actions below the facts, for example the link to the settings.</summary>
-    [Parameter] public RenderFragment? ChildContent { get; set; }
 
     private string Title => Row.AccountName
         ?? (Row.Kind == "mail" ? L["InpCardMail"].Value : L["InpCardScanner"].Value);

@@ -125,6 +125,12 @@ public sealed partial class MailSettings
         _logger.MailSettingsSaved(renewed);
         (_hasPassword, _password) = (_hasPassword || renewed, string.Empty);
         _storedSignIn = (_host.Trim(), _port.Trim(), _security, _user.Trim());
+        // A row from before the first set-up says "not set up"; the next run writes a fresh one.
+        if (_mailRow?.Problem == "not-configured")
+        {
+            _mailRow = null;
+        }
+
         _error?.Clear();
         await (_status?.Announce(L["MailSaved"]) ?? Task.CompletedTask);
     }
