@@ -411,6 +411,12 @@
   <data name="SignInForgot" xml:space="preserve">
     <value>Forgot your password? Ask the administrator for a reset link. The administrator uses the emergency code.</value>
   </data>
+  <data name="SignInForgotShort" xml:space="preserve">
+    <value>Forgot your password? Ask the administrator.</value>
+  </data>
+  <data name="SignInIntro" xml:space="preserve">
+    <value>Sign in to go paperless.</value>
+  </data>
   <data name="SignInEmergencyLink" xml:space="preserve">
     <value>Set a new password with the emergency code</value>
   </data>
