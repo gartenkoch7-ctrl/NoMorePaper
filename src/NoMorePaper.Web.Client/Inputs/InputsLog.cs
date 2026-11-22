@@ -16,7 +16,7 @@ internal static partial class InputsLog
         Message = "Preferences saved ({Count} mail senders)")]
     public static partial void PreferencesSaved(this ILogger logger, int count);
 
-    /// <param name="code">A fixed word for what failed: <c>load-inputs</c>, <c>load-preferences</c>, <c>save-preferences</c>, <c>owner-check</c>, <c>hand-over</c>.</param>
+    /// <param name="code">A fixed word for what failed: <c>load-inputs</c>, <c>load-mail-status</c>, <c>load-household</c>, <c>load-preferences</c>, <c>save-preferences</c>, <c>owner-check</c>, <c>hand-over</c>.</param>
     [LoggerMessage(EventId = 4702, EventName = "InputsPageFailed", Level = LogLevel.Warning,
         Message = "Inputs page action failed: {Code}")]
     public static partial void InputsPageFailed(this ILogger logger, string code);

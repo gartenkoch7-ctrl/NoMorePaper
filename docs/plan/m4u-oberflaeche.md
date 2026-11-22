@@ -56,9 +56,9 @@ Grundsätze (aus den Notizen je Screen):
       Chips mit Knopf „entfernen“, Bestätigen, Privat, Bearbeiter, Downloads Original/Archiv getrennt
 
 ### D. Eingänge (Screen 04)
-- [ ] `Inputs.razor`/`InputsEntry.razor`: Reiter je Eingang mit Anzahl, Karte je Quelle (Status als
+- [x] `Inputs.razor`/`InputsEntry.razor`: Reiter je Eingang mit Anzahl, Karte je Quelle (Status als
       Abzeichen mit Text, „Zuletzt gelaufen“ / „Zuletzt erfolgreich“, Knöpfe)
-- [ ] `MailSettings.razor`: Postfach-Karte, Regelliste (Spam-Prüfung, Spam-Ordner, Absender je Konto);
+- [x] `MailSettings.razor`: Postfach-Karte, Regelliste (Spam-Prüfung, Spam-Ordner, Absender je Konto);
       Platz für iCloud-Abschnitt (kommt mit M4 Spur D)
 
 ### E. Restliche Seiten angleichen

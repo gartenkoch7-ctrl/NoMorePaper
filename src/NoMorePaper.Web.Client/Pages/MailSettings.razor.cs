@@ -3,6 +3,7 @@ using NoMorePaper.Contracts.Inputs;
 using NoMorePaper.Web.Client.Accessibility;
 using NoMorePaper.Web.Client.Accounts;
 using NoMorePaper.Web.Client.Documents;
+using NoMorePaper.Web.Client.Design;
 using NoMorePaper.Web.Client.Inputs;
 
 namespace NoMorePaper.Web.Client.Pages;
@@ -31,6 +32,10 @@ public sealed partial class MailSettings
     private string _user = string.Empty;
     private string _password = string.Empty;
     private string _authServId = string.Empty;
+    private InputStatusDto? _mailRow;
+    private bool _stateFailed;
+    private DateTimeOffset _now;
+    private IReadOnlyList<BreadcrumbItem> _path = [];
 
     // Host, port, security and user name as loaded: the stored password belongs to exactly these.
     private (string Host, string Port, string Security, string User) _storedSignIn;
@@ -49,6 +54,12 @@ public sealed partial class MailSettings
         _api = new MailSettingsApi(Http, L, Loggers.CreateLogger<MailSettingsApi>());
         _form = new FormValidation(L, Js);
         _logger = Loggers.CreateLogger<MailSettings>();
+        _path =
+        [
+            new BreadcrumbItem(L["NavSettings"], "einstellungen"),
+            new BreadcrumbItem(L["InpHeading"], "eingaenge?quelle=mail"),
+            new BreadcrumbItem(L["MailHeading"], null),
+        ];
         await Auth.EnsureLoadedAsync();
         if (Auth.IsAdmin)
         {
@@ -72,6 +83,24 @@ public sealed partial class MailSettings
         (_authServId, _hasPassword, _password) = (settings.TrustedAuthServId ?? string.Empty, settings.HasPassword, string.Empty);
         _storedSignIn = (_host, _port, _security, _user);
         _logger.MailSettingsLoaded(_hasPassword);
+        await LoadStateAsync();
+    }
+
+    // The mailbox card shows the state of the whole input (the row without an account). Failing here must not
+    // take the form away: the card says so in words and the settings stay usable.
+    private async Task LoadStateAsync()
+    {
+        var result = await StatusApi.ListAsync();
+        if (!result.IsSuccess || result.Value is null)
+        {
+            (_stateFailed, _mailRow) = (true, null);
+            _logger.InputsPageFailed("load-mail-status");
+            return;
+        }
+
+        _stateFailed = false;
+        _mailRow = result.Value.FirstOrDefault(row => row.Kind == "mail" && row.AccountName is null);
+        _now = Clock.GetUtcNow();
     }
 
     // The buttons stay enabled while a call runs (a disabled button drops the keyboard focus to the page
@@ -96,6 +125,12 @@ public sealed partial class MailSettings
         _logger.MailSettingsSaved(renewed);
         (_hasPassword, _password) = (_hasPassword || renewed, string.Empty);
         _storedSignIn = (_host.Trim(), _port.Trim(), _security, _user.Trim());
+        // A row from before the first set-up says "not set up"; the next run writes a fresh one.
+        if (_mailRow?.Problem == "not-configured")
+        {
+            _mailRow = null;
+        }
+
         _error?.Clear();
         await (_status?.Announce(L["MailSaved"]) ?? Task.CompletedTask);
     }

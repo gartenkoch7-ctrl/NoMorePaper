@@ -1,0 +1,48 @@
+@using NoMorePaper.Contracts.Inputs
+@inject IStringLocalizer<Strings> L
+
+@* The panel of one tab on /eingaenge (WAI-ARIA tabs: role=tabpanel, labelled by its tab). Unselected panels
+   stay in the DOM with hidden, so the live region and the state of every input keep working.
+   Cards on the left, "About this input" on the right (below on narrow screens). *@
+<section role="tabpanel" id="@(InputTabs.TabId(Kind))-panel" aria-labelledby="@(InputTabs.TabId(Kind))-tab"
+         tabindex="0" hidden="@(!Selected)" class="input-panel">
+    <div class="input-panel-head">
+        <MudIcon Icon="@InputTabs.KindIcon(Kind)" aria-hidden="true" />
+        <MudText Typo="Typo.h4" HtmlTag="h2" id="@($"inputs-{Kind}-heading")">@InputTexts.Kind(L, Kind)</MudText>
+    </div>
+    <div class="input-panel-grid">
+        <div class="input-panel-main">
+            @foreach (var row in Rows)
+            {
+                <InputsEntry Row="row" Now="Now" />
+            }
+            @if (!Rows.Any())
+            {
+                <p>@EmptyText</p>
+            }
+            @Below
+        </div>
+        <div class="input-about">
+            <MudText Typo="Typo.h4" HtmlTag="h3">@L["InpAboutHeading"]</MudText>
+            @About
+        </div>
+    </div>
+</section>
+
+@code {
+    [Parameter, EditorRequired] public string Kind { get; set; } = string.Empty;
+
+    [Parameter] public bool Selected { get; set; }
+
+    [Parameter] public IEnumerable<InputStatusDto> Rows { get; set; } = [];
+
+    [Parameter] public DateTimeOffset Now { get; set; }
+
+    /// <summary>Shown instead of the cards when the input has no rows.</summary>
+    [Parameter] public string EmptyText { get; set; } = string.Empty;
+
+    /// <summary>Content below the cards, for example the mail rules.</summary>
+    [Parameter] public RenderFragment? Below { get; set; }
+
+    [Parameter, EditorRequired] public RenderFragment About { get; set; } = default!;
+}

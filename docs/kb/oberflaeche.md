@@ -74,7 +74,8 @@ innen 0,25 rem. Knöpfe 38 px hoch.
 | Abzeichen | `Badge.razor` | Chip `#18181b`, Rand `#27272a`, `label-sm`; Text Pflicht |
 | Hinweisbox | `NoticeBox.razor` | Fehler/Erfolg mit Symbol + Satz; `role` nur mit `Announce` |
 | Rückfrage | `ConfirmBox.razor` | in der Seite, Überschrift (Ebene per `HeadingLevel`, Standard H2) bekommt Fokus, „Abbrechen“ zuerst |
-| Reiter | `TabList.razor` | WAI-ARIA-Muster, Pfeile/Pos1/Ende über `TabNavigation` |
+| Reiter | `TabList.razor`, `TabItem` | WAI-ARIA-Muster, Pfeile/Pos1/Ende über `TabNavigation`; JetBrains Mono 11 px wie Entwurf 04 (gewählt: weiß mit weißer Linie, `aria-selected`); optional `Icon` (`aria-hidden`) und `Count` (kurze Angabe, Teil des Namens: „Mail 1 Problem“, Name kommt aus dem sichtbaren Text wegen axe `label-content-name-mismatch`) |
+| Pfad | `Breadcrumb.razor`, `BreadcrumbItem` | `nav` mit `aria-label` „Pfad“, Liste, aktuelle Seite (`Href` `null`) mit `aria-current="page"`, Trenner-Symbol `aria-hidden`; auch für die Zurück-Leiste anderer Seiten (Viewer) gedacht |
 | Knöpfe | `.nmp-button`, `.nmp-button-primary` | Standard umrandet, Hauptaktion weiß |
 | Kacheln | `.link-tiles`, `.link-tile` | große Links mit Titel und Erklärung |
 | Anmelderahmen | `Accounts/AccountFrame.razor` | Rahmen der Seiten für Abgemeldete: Logo-Kachel (`aria-hidden`), Überzeile, einzige H1, Unterzeile, Karte |

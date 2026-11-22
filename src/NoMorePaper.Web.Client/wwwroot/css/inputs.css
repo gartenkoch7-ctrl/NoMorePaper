@@ -1,0 +1,149 @@
+/* Pages "Eingänge" and "Mail-Eingang", following design 04 with the tokens of base.css. */
+
+.inputs-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    flex-wrap: wrap;
+    gap: var(--nmp-space-md);
+    margin: var(--nmp-space-md) 0 var(--nmp-space-lg);
+}
+
+.inputs-intro {
+    color: var(--nmp-text-variant);
+}
+
+.inputs-refresh {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: var(--nmp-space-xs);
+}
+
+.inputs-refresh p {
+    margin: 0;
+    font-family: var(--nmp-font-mono);
+    font-size: 0.6875rem;
+    color: var(--nmp-outline);
+}
+
+.inputs-refresh .nmp-button {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--nmp-space-xs);
+}
+
+.input-panel {
+    margin-top: var(--nmp-space-lg);
+}
+
+.input-panel-head {
+    display: flex;
+    align-items: center;
+    gap: var(--nmp-space-sm);
+    margin-bottom: var(--nmp-space-md);
+}
+
+.input-panel-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--nmp-space-lg);
+}
+
+@media (min-width: 80rem) {
+    .input-panel-grid {
+        grid-template-columns: 2fr 1fr;
+        align-items: start;
+    }
+}
+
+.input-panel-main {
+    display: flex;
+    flex-direction: column;
+    gap: var(--nmp-space-lg);
+}
+
+.input-card,
+.input-about,
+.mail-card,
+.mail-layout-form {
+    display: flex;
+    flex-direction: column;
+    gap: var(--nmp-space-md);
+    padding: var(--nmp-space-md);
+    background: var(--nmp-paper-low);
+    border: 1px solid var(--nmp-border);
+    border-radius: var(--nmp-radius-lg);
+}
+
+.input-card:hover,
+.mail-card:hover {
+    border-color: var(--nmp-border-strong);
+}
+
+.input-card-head {
+    display: flex;
+    align-items: center;
+    gap: var(--nmp-space-md);
+}
+
+.input-card-head h3,
+.mail-card h2 {
+    margin: 0;
+}
+
+.input-card-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 3rem;
+    height: 3rem;
+    background: var(--nmp-elevated-high);
+    border: 1px solid var(--nmp-border);
+    border-radius: var(--nmp-radius);
+    color: var(--nmp-primary);
+}
+
+.input-card-icon .mud-icon-root {
+    font-size: 1.625rem;
+}
+
+.input-facts {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--nmp-space-sm);
+}
+
+.input-card .nmp-badge,
+.mail-card .nmp-badge {
+    color: var(--nmp-primary);
+}
+
+.input-problem {
+    margin: 0;
+}
+
+.input-facts-list {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: var(--nmp-space-xs) var(--nmp-space-md);
+    margin: 0;
+    font-family: var(--nmp-font-mono);
+    font-size: 0.6875rem;
+}
+
+.input-facts-list dt {
+    color: var(--nmp-outline);
+}
+
+.input-facts-list dd {
+    margin: 0;
+    color: var(--nmp-text);
+    overflow-wrap: anywhere;
+}
+
+.input-about p {
+    margin: 0;
+    color: var(--nmp-text-variant);
+}
