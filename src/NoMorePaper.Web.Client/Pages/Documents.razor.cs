@@ -31,6 +31,8 @@ public sealed partial class Documents : IDisposable
     private LiveRegion? _count;
     private string? _error;
     private bool _loading = true;
+    private int _listVersion;
+    private int _countVersion;
 
     [Inject] private IStringLocalizer<Strings> L { get; set; } = default!;
 
@@ -127,7 +129,14 @@ public sealed partial class Documents : IDisposable
 
     private async Task LoadAsync(bool announceChanges)
     {
+        // An answer that arrives after a newer request was sent (poll, quick chip clicks) is dropped.
+        var version = ++_listVersion;
         var result = await Api.ListAsync(_page, _pageSize, Combined, _cts.Token);
+        if (version != _listVersion)
+        {
+            return;
+        }
+
         if (!result.IsSuccess)
         {
             _error = result.Error;
@@ -156,7 +165,13 @@ public sealed partial class Documents : IDisposable
     // No error message when this fails: the page works without the total ("page 2", previous/next).
     private async Task LoadCountsAsync()
     {
+        var version = ++_countVersion;
         var result = await Api.CountAsync(Combined, _cts.Token);
+        if (version != _countVersion)
+        {
+            return;
+        }
+
         _counts = result.IsSuccess ? result.Value : null;
         if (_counts is not null)
         {

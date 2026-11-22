@@ -41,6 +41,23 @@ public sealed class DocumentCountsTests(PostgresFixture postgres)
     }
 
     [Fact]
+    public async Task ATypeOnlyOnAnotherAccountsPrivateDocument_IsNotInTheChips()
+    {
+        await using var database = await AccountDatabase.CreateAsync(postgres, "counts_secret_type");
+        var db = database.Db();
+        var secret = await Seed.EntryAsync(db, ClassificationKind.DocumentType, "Geheim", s_anna);
+        await Seed.DocumentAsync(db, s_anna, isPrivate: true, Seed.Fields(null, secret));
+        var counts = new EfDocumentCounts(db);
+
+        var forBob = await counts.CountAsync(s_bob, new DocumentFilter(DocumentTypeId: secret), Ct);
+        var forAnna = await counts.CountAsync(s_anna, DocumentFilter.None, Ct);
+
+        Assert.Equal((0, 0), (forBob.Total, forBob.AllTypes));
+        Assert.Empty(forBob.ByType);
+        Assert.Equal("Geheim", Assert.Single(forAnna.ByType).Type.Name);
+    }
+
+    [Fact]
     public async Task CorrespondentFilter_NarrowsTheTotal()
     {
         await using var database = await AccountDatabase.CreateAsync(postgres, "counts_filter");

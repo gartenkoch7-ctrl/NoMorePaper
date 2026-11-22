@@ -11,6 +11,7 @@ namespace NoMorePaper.Infrastructure.Documents;
 public sealed class EfDocumentCounts(AppDbContext db) : IDocumentCounts
 {
     // Same rule as EfDocumentRepository.ListAsync: private documents of other accounts are never counted.
+    // M4b puts the trash filter into both queries (here and in the list).
     private const string Visible = " WHERE (d.owner_id = @viewer OR NOT d.is_private)";
 
     public async Task<DocumentCounts> CountAsync(Guid viewerId, DocumentFilter filter, CancellationToken cancellationToken)

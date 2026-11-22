@@ -11,7 +11,7 @@ namespace NoMorePaper.Contracts.Documents;
 /// <param name="Amount">Amount with currency; <c>null</c> when not set.</param>
 /// <param name="Recognition">Where the fields come from.</param>
 /// <param name="Source">How it came in: <c>upload</c>, <c>camera</c>, <c>scanner-folder</c>, <c>mail</c> or <c>icloud</c> (as <c>DocumentFieldsDto.Source</c>).</param>
-/// <param name="Excerpt">Summary or start of the recognized text, at most 160 characters; show as text only.</param>
+/// <param name="Excerpt">Summary or start of the recognized text, at most 160 characters plus an ellipsis; show as text only.</param>
 /// <param name="Tags">Tags of the document, sorted by name; <c>null</c> when not loaded.</param>
 public sealed record DocumentSummaryDto(
     Guid Id,

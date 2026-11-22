@@ -1,0 +1,81 @@
+/* Pager of the document list (Stitch screen 02). No outline rules on purpose (ADR-0026). */
+
+.doc-pager {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--nmp-space-sm);
+    padding: var(--nmp-space-sm) var(--nmp-space-md);
+    border-top: 1px solid var(--nmp-border);
+    font: 400 0.625rem/0.875rem var(--nmp-font-mono);
+    letter-spacing: 0.05em;
+    color: var(--nmp-text-variant);
+}
+
+.doc-pager label {
+    color: var(--nmp-outline);
+}
+
+.doc-pager select {
+    background: var(--nmp-paper-low);
+    border: 1px solid var(--nmp-border);
+    border-radius: 0.25rem;
+    padding: 0.25rem 0.5rem;
+    color: var(--nmp-primary);
+    font: inherit;
+}
+
+.doc-pager .doc-range {
+    margin: 0;
+}
+
+.doc-pager-size {
+    display: flex;
+    align-items: center;
+    gap: var(--nmp-space-sm);
+}
+
+.doc-pager-pages {
+    display: flex;
+    gap: 0.25rem;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.doc-pager-pages button {
+    min-width: 1.75rem;
+    height: 1.75rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 0.25rem;
+    border: 1px solid var(--nmp-border);
+    background: transparent;
+    color: var(--nmp-text);
+    font: inherit;
+    cursor: pointer;
+}
+
+.doc-pager-pages button:hover:not(:disabled) {
+    background: var(--nmp-elevated-high);
+    color: var(--nmp-primary);
+}
+
+.doc-pager-pages button[aria-current="page"] {
+    background: var(--nmp-primary);
+    color: var(--nmp-on-primary);
+    border-color: var(--nmp-primary);
+    font-weight: 500;
+}
+
+.doc-pager-pages button:disabled {
+    color: var(--nmp-text-muted);
+    cursor: not-allowed;
+}
+
+.doc-pager-gap {
+    color: var(--nmp-outline);
+    padding: 0 0.25rem;
+}

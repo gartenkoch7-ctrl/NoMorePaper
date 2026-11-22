@@ -55,7 +55,7 @@ public sealed class DocumentPagerTests(ServerFixture server)
         var page = session.Page;
 
         await Button(page, "Nächste Seite").ClickAsync();
-        await Assertions.Expect(page.Locator(".doc-range")).ToHaveTextAsync("Zeige 51–100 von 120 Dokumenten");
+        await Assertions.Expect(page.Locator(".documents-count")).ToHaveTextAsync("Zeige 51–100 von 120 Dokumenten");
         await Button(page, "Nächste Seite").ClickAsync();
 
         await Assertions.Expect(Button(page, "Nächste Seite")).ToBeDisabledAsync();
@@ -71,10 +71,27 @@ public sealed class DocumentPagerTests(ServerFixture server)
 
         await page.GetByLabel("Zeilen pro Seite").SelectOptionAsync("10");
 
-        await Assertions.Expect(page.Locator(".doc-range")).ToHaveTextAsync("Zeige 1–10 von 120 Dokumenten");
+        await Assertions.Expect(page.Locator(".documents-count")).ToHaveTextAsync("Zeige 1–10 von 120 Dokumenten");
         var last = urls.Last();
         Assert.Contains("pageSize=10", last, StringComparison.Ordinal);
         Assert.Contains("page=1", last, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public async Task ClickingAPageNumber_PutsTheFocusOnTheCurrentPage_EvenWhenTheWindowMoves()
+    {
+        await using var session = await OpenAsync(server, new ConcurrentQueue<string>(), total: 120);
+        var page = session.Page;
+        await page.GetByLabel("Zeilen pro Seite").SelectOptionAsync("10");
+        await Assertions.Expect(page.Locator(".documents-count")).ToHaveTextAsync("Zeige 1–10 von 120 Dokumenten");
+
+        // 12 pages: from page 1 the window shows 1 2 3 4 … 12; page 4 moves it to 1 … 3 4 5 … 12.
+        await Button(page, "Seite 4").ClickAsync();
+
+        await Assertions.Expect(page.Locator(".documents-count")).ToHaveTextAsync("Zeige 31–40 von 120 Dokumenten");
+        await Assertions.Expect(Button(page, "Seite 4")).ToHaveAttributeAsync("aria-current", "page");
+        await Assertions.Expect(Button(page, "Seite 4")).ToBeFocusedAsync();
+        await Assertions.Expect(page.Locator(".doc-pager-pages [aria-current=page]")).ToHaveCountAsync(1);
     }
 
     [Fact]
@@ -86,11 +103,11 @@ public sealed class DocumentPagerTests(ServerFixture server)
         await Assertions.Expect(page.Locator(".doc-range")).ToHaveTextAsync("Seite 1");
         await Assertions.Expect(Button(page, "Nächste Seite")).ToBeEnabledAsync();
         await Button(page, "Nächste Seite").ClickAsync();
-        await Assertions.Expect(page.Locator(".doc-range")).ToHaveTextAsync("Seite 2");
+        await Assertions.Expect(page.Locator(".documents-count")).ToHaveTextAsync("Seite 2");
         await Button(page, "Nächste Seite").ClickAsync();
 
         // The third page has the last 20 rows: fewer than a full page, so there is no next page.
-        await Assertions.Expect(page.Locator(".doc-range")).ToHaveTextAsync("Seite 3");
+        await Assertions.Expect(page.Locator(".documents-count")).ToHaveTextAsync("Seite 3");
         await Assertions.Expect(Button(page, "Nächste Seite")).ToBeDisabledAsync();
         await Assertions.Expect(Button(page, "Vorherige Seite")).ToBeFocusedAsync();
     }

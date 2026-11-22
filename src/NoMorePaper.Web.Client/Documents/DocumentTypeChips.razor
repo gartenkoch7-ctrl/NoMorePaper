@@ -3,18 +3,26 @@
 @* Document type as a row of toggle buttons (aria-pressed), each with the number of matching documents.
    Only types that have documents are offered; a chosen type that no longer has any stays visible with 0,
    so an active filter is never hidden. Choosing the pressed chip again changes nothing. *@
-@if (Counts.ByType.Count > 0 || SelectedTypeId is not null)
+@* Without counts (the call failed) only "all" and the chosen type are offered, without numbers, so the
+   filter can still be switched off. *@
+@if (Counts?.ByType.Count > 0 || SelectedTypeId is not null)
 {
     <div class="type-chips" role="group" aria-label="@L["DocListTypeGroup"]">
         <button type="button" class="type-chip" aria-pressed="@(SelectedTypeId is null ? "true" : "false")"
                 @onclick="() => SelectAsync(null)">
-            <span>@L["FilterAll"]</span><span class="type-chip-count">@Counts.AllTypes</span>
+            <span>@L["FilterAll"]</span>@if (Counts is not null)
+            {
+                <span class="type-chip-count">@Counts.AllTypes</span>
+            }
         </button>
         @foreach (var entry in Entries)
         {
             <button type="button" class="type-chip" aria-pressed="@(SelectedTypeId == entry.Type.Id ? "true" : "false")"
                     @onclick="() => SelectAsync(entry.Type.Id)" @key="entry.Type.Id">
-                <span>@entry.Type.Name</span><span class="type-chip-count">@entry.Count</span>
+                <span>@entry.Type.Name</span>@if (Counts is not null)
+                {
+                    <span class="type-chip-count">@entry.Count</span>
+                }
             </button>
         }
     </div>
@@ -24,7 +32,7 @@
     // Names seen in earlier counts, so a chosen type can still be named when the counts no longer list it.
     private readonly Dictionary<Guid, string> _names = [];
 
-    [Parameter, EditorRequired] public DocumentCountsDto Counts { get; set; } = new(0, 0, []);
+    [Parameter] public DocumentCountsDto? Counts { get; set; }
 
     [Parameter] public Guid? SelectedTypeId { get; set; }
 
@@ -34,7 +42,7 @@
     {
         get
         {
-            var entries = Counts.ByType.ToList();
+            var entries = Counts?.ByType.ToList() ?? [];
             if (SelectedTypeId is { } selected && entries.All(entry => entry.Type.Id != selected))
             {
                 entries.Add(new DocumentTypeCountDto(new EntryDto(selected, _names.GetValueOrDefault(selected) ?? string.Empty), 0));
@@ -46,7 +54,7 @@
 
     protected override void OnParametersSet()
     {
-        foreach (var entry in Counts.ByType)
+        foreach (var entry in Counts?.ByType ?? [])
         {
             _names[entry.Type.Id] = entry.Type.Name;
         }

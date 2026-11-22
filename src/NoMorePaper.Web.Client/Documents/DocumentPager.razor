@@ -1,4 +1,5 @@
 @inject IStringLocalizer<Strings> L
+@inject IJSRuntime Js
 
 @* Footer of the list: rows per page, the range shown and the page buttons. With the total it offers page
    numbers; without it (counts failed) only "previous" and "next", and "next" stays on while a full page came
@@ -34,14 +35,11 @@
                             {
                                 <span aria-hidden="true" class="doc-pager-gap">…</span>
                             }
-                            else if (shown == Page)
-                            {
-                                <button type="button" aria-label="@L["DocListPage", shown]" aria-current="page" @ref="_current"
-                                        @onclick="() => GoAsync(shown, Arrow.None)">@shown</button>
-                            }
                             else
                             {
-                                <button type="button" aria-label="@L["DocListPage", shown]" @onclick="() => GoAsync(shown, Arrow.None)">@shown</button>
+                                <button type="button" aria-label="@L["DocListPage", shown]" @key="shown"
+                                        id="@(shown == Page ? CurrentId : null)" aria-current="@(shown == Page ? "page" : null)"
+                                        @onclick="() => GoAsync(shown, Arrow.None)">@shown</button>
                             }
                         </li>
                     }
@@ -65,7 +63,8 @@
         Next,
     }
 
-    private ElementReference _current;
+    private const string CurrentId = "doc-page-current";
+
     private ElementReference _previous;
     private ElementReference _next;
     private Arrow _used;
@@ -112,13 +111,26 @@
 
         var used = _used;
         (_check, _used) = (false, Arrow.None);
-        var previousOff = Page <= 1;
-        var nextOff = !HasNext;
-        if (used == Arrow.Previous && previousOff || used == Arrow.Next && nextOff)
+        if (Total is not null)
         {
-            // With page numbers the current page is the natural place; without, the other arrow.
-            var target = Total is not null ? _current : used == Arrow.Previous ? _next : _previous;
-            await target.FocusAsync();
+            // A number was clicked (the window may have moved under the focus), or an arrow turned off:
+            // the current page is the natural place.
+            if (used == Arrow.None || used == Arrow.Previous && Page <= 1 || used == Arrow.Next && !HasNext)
+            {
+                await Js.InvokeVoidAsync("nmpForms.focusById", CurrentId);
+            }
+
+            return;
+        }
+
+        // Without page numbers: the other arrow.
+        if (used == Arrow.Previous && Page <= 1)
+        {
+            await _next.FocusAsync();
+        }
+        else if (used == Arrow.Next && !HasNext)
+        {
+            await _previous.FocusAsync();
         }
     }
 
@@ -127,7 +139,7 @@
     private async Task GoAsync(int page, Arrow arrow)
     {
         await PageChanged.InvokeAsync(page);
-        (_used, _check) = (arrow, arrow != Arrow.None);
+        (_used, _check) = (arrow, true);
     }
 
     private Task SizeChangedAsync(ChangeEventArgs args) =>

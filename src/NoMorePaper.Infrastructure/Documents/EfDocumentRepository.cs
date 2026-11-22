@@ -44,8 +44,9 @@ public sealed class EfDocumentRepository(AppDbContext db) : IDocumentRepository
         var sql = """
             SELECT d.id AS "Id", d.title AS "Title", d.received_at AS "ReceivedAt", d.state AS "State",
                    d.is_private AS "IsPrivate", d.owner_id IS NOT DISTINCT FROM @viewer AS "IsMine",
-                   d.source AS "Source", left(coalesce(nullif(btrim(d.summary), ''), d.content_text), 400) AS "Excerpt",
-            """ +DocumentFilterSql.LabelColumns + " FROM documents d " + DocumentFilterSql.LabelJoins
+                   d.source AS "Source",
+                   left(regexp_replace(left(coalesce(nullif(btrim(d.summary, E' \t\r\n'), ''), d.content_text), 2000), '\s+', ' ', 'g'), 400) AS "Excerpt",
+            """ + DocumentFilterSql.LabelColumns + " FROM documents d " + DocumentFilterSql.LabelJoins
             + " WHERE (d.owner_id = @viewer OR NOT d.is_private)" + DocumentFilterSql.Conditions(filter, parameters)
             + " ORDER BY d.received_at DESC, d.id DESC OFFSET @skip LIMIT @take";
 

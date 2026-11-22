@@ -89,7 +89,7 @@ hebt Fokus selbst hervor.
 
 ## Dokumentliste (`/dokumente`, Screen 02)
 
-- **Spalten:** Titel (mit Privat-Abzeichen und Textausschnitt, ≤ 160 Zeichen, nur als Text), Art und Tags
+- **Spalten:** Titel (mit Privat-Abzeichen und Textausschnitt, 160 Zeichen plus Auslassungszeichen, nur als Text), Art und Tags
   (`#` ist `aria-hidden`), Absender, Datum (Dokumentdatum; darunter Eingang mit Weg), Betrag, Status, Erkennung.
   Der Titel ist der Link, die Zeile ist nicht klickbar.
 - **Art-Chips:** Gruppe „Nach Dokumentart filtern“, jeder Chip ein Knopf mit `aria-pressed` und Anzahl, nur Arten mit

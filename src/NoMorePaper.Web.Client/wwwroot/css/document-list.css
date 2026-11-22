@@ -123,7 +123,7 @@
     font-size: 0.8125rem;
 }
 
-.doc-amount {
+.doc-list-table td.doc-amount {
     text-align: end;
     white-space: nowrap;
     font: 600 0.6875rem/1rem var(--nmp-font-mono);
@@ -143,156 +143,12 @@
     font-size: 0.9375rem;
 }
 
-.doc-pager {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    justify-content: space-between;
-    gap: var(--nmp-space-sm);
-    padding: var(--nmp-space-sm) var(--nmp-space-md);
-    border-top: 1px solid var(--nmp-border);
-    font: 400 0.625rem/0.875rem var(--nmp-font-mono);
-    letter-spacing: 0.05em;
-    color: var(--nmp-text-variant);
+/* components.css gives table icons a margin for icon + text cells; the badges and status here use a gap. */
+.doc-list-table td .mud-icon-root {
+    margin-inline-end: 0;
 }
 
-.doc-pager label {
-    color: var(--nmp-outline);
-}
-
-.doc-pager select {
-    background: var(--nmp-paper-low);
-    border: 1px solid var(--nmp-border);
-    border-radius: 0.25rem;
-    padding: 0.25rem 0.5rem;
-    color: var(--nmp-primary);
-    font: inherit;
-}
-
-.doc-pager .doc-range {
-    margin: 0;
-}
-
-.doc-pager-size {
-    display: flex;
-    align-items: center;
-    gap: var(--nmp-space-sm);
-}
-
-.doc-pager-pages {
-    display: flex;
-    gap: 0.25rem;
-    list-style: none;
-    margin: 0;
-    padding: 0;
-}
-
-.doc-pager-pages button {
-    min-width: 1.75rem;
-    height: 1.75rem;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 0.25rem;
-    border: 1px solid var(--nmp-border);
-    background: transparent;
-    color: var(--nmp-text);
-    font: inherit;
-    cursor: pointer;
-}
-
-.doc-pager-pages button:hover:not(:disabled) {
-    background: var(--nmp-elevated-high);
-    color: var(--nmp-primary);
-}
-
-.doc-pager-pages button[aria-current="page"] {
-    background: var(--nmp-primary);
-    color: var(--nmp-on-primary);
-    border-color: var(--nmp-primary);
-    font-weight: 500;
-}
-
-.doc-pager-pages button:disabled {
-    color: var(--nmp-text-muted);
-    cursor: not-allowed;
-}
-
-.doc-pager-gap {
-    color: var(--nmp-outline);
-    padding: 0 0.25rem;
-}
-
-/* auto-fill instead of fixed columns, so the tiles wrap at 200-400 % zoom. */
-.doc-tiles {
-    list-style: none;
-    margin: 0;
-    padding: var(--nmp-space-md);
-    display: grid;
-    gap: var(--nmp-space-sm);
-    grid-template-columns: repeat(auto-fill, minmax(15rem, 1fr));
-}
-
-.doc-tile {
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    gap: var(--nmp-space-sm);
-    min-height: 10rem;
-    padding: var(--nmp-space-md);
-    background: var(--nmp-canvas-lowest);
-    border: 1px solid var(--nmp-border);
-    border-radius: var(--nmp-radius);
-}
-
-.doc-tile:hover {
-    background: var(--nmp-surface-container);
-    border-color: var(--nmp-border-strong);
-}
-
-.doc-tile-top {
-    display: flex;
-    align-items: flex-start;
-    justify-content: space-between;
-    gap: var(--nmp-space-sm);
-}
-
-.doc-tile-title {
-    margin: 0;
-    font-size: 1rem;
-    line-height: 1.5rem;
-    font-weight: 500;
-    letter-spacing: -0.005em;
-}
-
-.doc-tile-title .doc-title-link {
-    font-size: 1rem;
-    line-height: 1.5rem;
-}
-
-.doc-tile-meta {
-    margin: 0;
-    font-size: 0.75rem;
-    line-height: 1.125rem;
-    color: var(--nmp-text-variant);
-}
-
-.doc-tile-foot {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: flex-end;
-    justify-content: space-between;
-    gap: 0.5rem;
-    padding-top: var(--nmp-space-xs);
-    border-top: 1px solid var(--nmp-border);
-}
-
-.doc-tile-amount-label {
-    font: 400 0.625rem/0.875rem var(--nmp-font-mono);
-    color: var(--nmp-outline);
-}
-
-.doc-tile-amount {
-    font: 500 0.8125rem/1.125rem var(--nmp-font-mono);
-    color: var(--nmp-primary);
+/* The frame clips its corners; the browser's own focus ring is drawn inside so it is not cut off. */
+.doc-list-scroll:focus-visible {
+    outline-offset: -3px;
 }

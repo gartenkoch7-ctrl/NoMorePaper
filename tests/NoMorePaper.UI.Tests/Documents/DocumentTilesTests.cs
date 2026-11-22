@@ -62,7 +62,7 @@ public sealed class DocumentTilesTests(ServerFixture server)
 
         await page.GetByRole(AriaRole.Button, new() { Name = "Nächste Seite", Exact = true }).ClickAsync();
 
-        await Assertions.Expect(page.Locator(".doc-range")).ToHaveTextAsync("Zeige 51–100 von 120 Dokumenten");
+        await Assertions.Expect(page.Locator(".documents-count")).ToHaveTextAsync("Zeige 51–100 von 120 Dokumenten");
         Assert.Contains("page=2", urls.Last(), StringComparison.Ordinal);
     }
 }

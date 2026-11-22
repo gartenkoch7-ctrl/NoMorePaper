@@ -68,6 +68,7 @@ public sealed class DocumentTypeChipsTests(ServerFixture server)
         await page.GetByRole(AriaRole.Button, new() { Name = "Alle 3" }).ClickAsync();
 
         await Assertions.Expect(page.GetByRole(AriaRole.Button, new() { Name = "Alle 3" })).ToHaveAttributeAsync("aria-pressed", "true");
+        await Assertions.Expect(page.Locator(".documents-count")).ToHaveTextAsync("3 Dokumente gefunden.");
         Assert.DoesNotContain("documentTypeId=", urls.Last(), StringComparison.Ordinal);
     }
 
@@ -84,6 +85,60 @@ public sealed class DocumentTypeChipsTests(ServerFixture server)
         await Assertions.Expect(page.GetByRole(AriaRole.Table)).ToBeVisibleAsync();
         await Assertions.Expect(page.Locator(".type-chips")).ToHaveCountAsync(0);
         await Assertions.Expect(page.Locator(".doc-count")).ToHaveCountAsync(0);
+    }
+
+    [Fact]
+    public async Task WhenCountsFailWithATypeChosen_AllAndTheChosenTypeStayWithoutNumbers()
+    {
+        await using var session = await ApiMocks.OpenViaNavigationAsync(server, SupportedCultures.German, "Dokumente", async page =>
+        {
+            await MockAsync(page, new ConcurrentQueue<string>());
+            await page.RouteAsync(new System.Text.RegularExpressions.Regex(@"/api/documents/counts\?.*documentTypeId="),
+                route => route.FulfillAsync(new RouteFulfillOptions { Status = 500, ContentType = "application/problem+json", Body = "{}" }));
+        });
+        var page = session.Page;
+
+        await page.GetByRole(AriaRole.Button, new() { Name = "Rechnung 2" }).ClickAsync();
+
+        var chosen = page.GetByRole(AriaRole.Button, new() { Name = "Rechnung", Exact = true });
+        await Assertions.Expect(chosen).ToHaveAttributeAsync("aria-pressed", "true");
+        await Assertions.Expect(page.Locator(".type-chip-count")).ToHaveCountAsync(0);
+        await page.GetByRole(AriaRole.Button, new() { Name = "Alle", Exact = true }).ClickAsync();
+        await Assertions.Expect(page.GetByRole(AriaRole.Button, new() { Name = "Alle 3" })).ToHaveAttributeAsync("aria-pressed", "true");
+    }
+
+    [Fact]
+    public async Task AnOlderAnswer_ArrivingLate_DoesNotReplaceTheNewerList()
+    {
+        await using var session = await ApiMocks.OpenViaNavigationAsync(server, SupportedCultures.German, "Dokumente", async page =>
+        {
+            await MockAsync(page, new ConcurrentQueue<string>());
+            await page.RouteAsync(new System.Text.RegularExpressions.Regex(@"/api/documents\?"), async route =>
+            {
+                var invoice = route.Request.Url.Contains(ClassificationSamples.Rechnung.Id.ToString(), StringComparison.Ordinal);
+                if (invoice)
+                {
+                    await Task.Delay(1500);
+                }
+
+                var title = invoice ? "Rechnungsdokument" : route.Request.Url.Contains("documentTypeId=", StringComparison.Ordinal) ? "Vertragsdokument" : "Alle";
+                await route.FulfillAsync(new RouteFulfillOptions
+                {
+                    Status = 200,
+                    ContentType = "application/json",
+                    Body = JsonSerializer.Serialize(new[] { new DocumentSummaryDto(Guid.NewGuid(), title, DateTimeOffset.UtcNow, DocumentProcessingState.Done) }, _json),
+                });
+            });
+        });
+        var page = session.Page;
+
+        await page.GetByRole(AriaRole.Button, new() { Name = "Rechnung 2" }).ClickAsync();
+        await page.GetByRole(AriaRole.Button, new() { Name = "Vertrag 1" }).ClickAsync();
+
+        await Assertions.Expect(page.GetByRole(AriaRole.Link, new() { Name = "Vertragsdokument" })).ToBeVisibleAsync();
+        await page.WaitForTimeoutAsync(2000);
+        await Assertions.Expect(page.GetByRole(AriaRole.Link, new() { Name = "Rechnungsdokument" })).ToHaveCountAsync(0);
+        await Assertions.Expect(page.GetByRole(AriaRole.Link, new() { Name = "Vertragsdokument" })).ToBeVisibleAsync();
     }
 
     [Fact]
