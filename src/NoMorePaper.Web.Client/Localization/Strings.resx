@@ -1736,6 +1736,7 @@
   </data>
   <data name="MailFormHeading" xml:space="preserve">
     <value>Zugangsdaten</value>
+  </data>
   <data name="DocListCount" xml:space="preserve">
     <value>{0} Dokumente</value>
   </data>
