@@ -225,7 +225,7 @@ Die Annahme behält 3200/3201 und nennt dort die Quelle.
 | 4605 | Warning | `Web.Client/Camera/CameraLog` | Browser-Speicher für den Schalter „Töne“ nicht verfügbar |
 | 4700 | Information | `Web.Client/Inputs/InputsLog` | Seite „Eingänge“ geladen: Anzahl der Zeilen (nur der erste Ladevorgang, nicht die Auffrischungen) |
 | 4701 | Information | `Web.Client/Inputs/InputsLog` | Einstellungen gespeichert (Konto-Seite): Anzahl der Absender-Adressen, nie die Adressen |
-| 4702 | Warning | `Web.Client/Inputs/InputsLog` | Aktion der Seiten „Eingänge“, Konto, Besitzer prüfen fehlgeschlagen: Code (`load-inputs`, `load-mail-status`, `load-preferences`, `save-preferences`, `load-household`, `owner-check`, `hand-over`) |
+| 4702 | Warning | `Web.Client/Inputs/InputsLog` | Aktion der Seiten „Eingänge“, „Mail-Eingang“ (`load-mail-status`), Konto, Besitzer prüfen fehlgeschlagen: Code (`load-inputs`, `load-mail-status`, `load-preferences`, `save-preferences`, `load-household`, `owner-check`, `hand-over`) |
 | 4703 | Information | `Web.Client/Inputs/InputsLog` | Dokument unklarer Herkunft weitergegeben (ohne Dokument- und Kontoname) |
 | 4704 | Information | `Web.Client/Inputs/InputsLog` | Dokument unklarer Herkunft behalten („Passt so“) |
 | 4720 | Information | `Web.Client/Pages/MailSettingsLog` | Seite „Mail-Eingang“ geladen: ob ein Passwort gespeichert ist |
