@@ -1,0 +1,31 @@
+@inject IStringLocalizer<Strings> L
+
+@* Path to the current page as a navigation landmark with an ordered list. The last item (Href = null)
+   is the current page and carries aria-current="page". The separators are decoration.
+   Reuse it for the "back" bar of other pages (viewer) instead of building a second one. *@
+<nav class="nmp-breadcrumb" aria-label="@L["PathLabel"]">
+    <ol>
+        @for (var i = 0; i < Items.Count; i++)
+        {
+            var item = Items[i];
+            <li>
+                @if (i > 0)
+                {
+                    <MudIcon Icon="@Icons.Material.Filled.ChevronRight" aria-hidden="true" />
+                }
+                @if (item.Href is not null)
+                {
+                    <a href="@item.Href">@item.Label</a>
+                }
+                else
+                {
+                    <span aria-current="page">@item.Label</span>
+                }
+            </li>
+        }
+    </ol>
+</nav>
+
+@code {
+    [Parameter, EditorRequired] public IReadOnlyList<BreadcrumbItem> Items { get; set; } = [];
+}

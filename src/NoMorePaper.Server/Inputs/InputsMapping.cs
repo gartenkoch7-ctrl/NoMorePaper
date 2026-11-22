@@ -56,7 +56,8 @@ internal static class InputsMapping
             status.LastRunAt,
             status.LastSuccessAt,
             status.Problem?.ToWord(),
-            status.NeedsAttention);
+            status.NeedsAttention,
+            status.ReceivedTotal);
     }
 
     public static MailOriginDto ToDto(this MailOrigin origin) => new(origin.SenderAddress, origin.Subject, origin.Note);

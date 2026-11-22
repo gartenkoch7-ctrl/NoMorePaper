@@ -1113,9 +1113,6 @@
   <data name="InpMailText" xml:space="preserve">
     <value>Dokumente, die als Mail an die Adresse des Haushalts kommen.</value>
   </data>
-  <data name="InpMailSpamFolder" xml:space="preserve">
-    <value>Mails, die als Spam erkannt werden, liegen im Postfach-Ordner „NoMorePaper-Spam“. Schiebst du eine Mail von dort zurück in den Posteingang, wird sie ohne Spam-Prüfung eingelesen.</value>
-  </data>
   <data name="InpMailSetUp" xml:space="preserve">
     <value>Mail einrichten</value>
   </data>
@@ -1153,10 +1150,10 @@
     <value>Problem: {0}. Das braucht deine Aufmerksamkeit.</value>
   </data>
   <data name="InpLastRun" xml:space="preserve">
-    <value>Letzter Abruf</value>
+    <value>Zuletzt gelaufen</value>
   </data>
   <data name="InpLastSuccess" xml:space="preserve">
-    <value>Letzter Erfolg</value>
+    <value>Zuletzt erfolgreich</value>
   </data>
   <data name="InpNever" xml:space="preserve">
     <value>noch nie</value>
@@ -1324,7 +1321,7 @@
     <value>Einstellungen des Postfachs werden geladen …</value>
   </data>
   <data name="MailExplain" xml:space="preserve">
-    <value>NoMorePaper holt alle 5 Minuten die Mails aus diesem Postfach. Anhänge werden Dokumente, wichtige Mails ohne Anhang werden als PDF abgelegt, Werbung und Betrug landen im Ordner „NoMorePaper-Spam“. Das Passwort wird verschlüsselt gespeichert und nie wieder angezeigt.</value>
+    <value>Hier richtest du das Postfach des Haushalts ein. Das Passwort wird verschlüsselt gespeichert und nie wieder angezeigt.</value>
   </data>
   <data name="MailFieldHost" xml:space="preserve">
     <value>Mailserver (IMAP)</value>
@@ -1370,12 +1367,6 @@
   </data>
   <data name="MailTest" xml:space="preserve">
     <value>Verbindung testen</value>
-  </data>
-  <data name="MailFoldersHeading" xml:space="preserve">
-    <value>Ordner im Postfach</value>
-  </data>
-  <data name="MailFoldersExplain" xml:space="preserve">
-    <value>NoMorePaper legt drei Ordner an: „Verarbeitet“ für eingelesene Mails, „NoMorePaper-Spam“ für Werbung und Betrug, „NoMorePaper-Fehler“ für Mails, die dreimal nicht eingelesen werden konnten. Schiebst du eine Mail aus „NoMorePaper-Spam“ zurück in den Posteingang, wird sie ohne Spam-Prüfung eingelesen.</value>
   </data>
   <data name="MailSaved" xml:space="preserve">
     <value>Einstellungen des Postfachs gespeichert.</value>
@@ -1628,5 +1619,119 @@
   </data>
   <data name="SettingsMembersText" xml:space="preserve">
     <value>Konten des Haushalts einladen und verwalten.</value>
+  </data>
+  <data name="PathLabel" xml:space="preserve">
+    <value>Pfad</value>
+  </data>
+  <data name="InpTabOk" xml:space="preserve">
+    <value>läuft</value>
+  </data>
+  <data name="InpTabNever" xml:space="preserve">
+    <value>noch nicht gelaufen</value>
+  </data>
+  <data name="InpTabNotSetUp" xml:space="preserve">
+    <value>nicht eingerichtet</value>
+  </data>
+  <data name="InpTabProblem" xml:space="preserve">
+    <value>1 Problem</value>
+  </data>
+  <data name="InpTabProblems" xml:space="preserve">
+    <value>{0} Probleme</value>
+  </data>
+  <data name="InpBadgeOk" xml:space="preserve">
+    <value>Läuft</value>
+  </data>
+  <data name="InpBadgeNever" xml:space="preserve">
+    <value>Noch nicht gelaufen</value>
+  </data>
+  <data name="InpBadgeNotSetUp" xml:space="preserve">
+    <value>Nicht eingerichtet</value>
+  </data>
+  <data name="InpBadgeProblem" xml:space="preserve">
+    <value>Problem</value>
+  </data>
+  <data name="InpBadgeAttention" xml:space="preserve">
+    <value>Braucht Aufmerksamkeit</value>
+  </data>
+  <data name="InpProblemDetail" xml:space="preserve">
+    <value>{0}.</value>
+  </data>
+  <data name="InpReceivedTotal" xml:space="preserve">
+    <value>Angenommen insgesamt</value>
+  </data>
+  <data name="InpDocumentsOne" xml:space="preserve">
+    <value>1 Dokument</value>
+  </data>
+  <data name="InpDocumentsMany" xml:space="preserve">
+    <value>{0} Dokumente</value>
+  </data>
+  <data name="InpCardScanner" xml:space="preserve">
+    <value>Ordner im Heimnetz</value>
+  </data>
+  <data name="InpCardMail" xml:space="preserve">
+    <value>Postfach des Haushalts</value>
+  </data>
+  <data name="InpAboutHeading" xml:space="preserve">
+    <value>Über diesen Eingang</value>
+  </data>
+  <data name="InpIntervalScanner" xml:space="preserve">
+    <value>Prüft den Ordner alle 30 Sekunden.</value>
+  </data>
+  <data name="InpIntervalMail" xml:space="preserve">
+    <value>Ruft das Postfach alle 5 Minuten ab.</value>
+  </data>
+  <data name="InpIntervalICloud" xml:space="preserve">
+    <value>Ruft jeden iCloud-Ordner alle 15 Minuten ab.</value>
+  </data>
+  <data name="MailRulesHeading" xml:space="preserve">
+    <value>So behandelt NoMorePaper Mails</value>
+  </data>
+  <data name="MailRulesAlways" xml:space="preserve">
+    <value>Immer an</value>
+  </data>
+  <data name="MailRuleSendersTitle" xml:space="preserve">
+    <value>Absender je Konto</value>
+  </data>
+  <data name="MailRuleSendersText" xml:space="preserve">
+    <value>Kommt eine Mail von einer Adresse, die ein Konto auf seiner Konto-Seite eingetragen hat, gehört das Dokument diesem Konto. Das gilt nur, wenn der eigene Mailserver den Absender bestätigt hat (SPF oder DMARC). Alle anderen Mails gehören dem Verwalter, sind privat und stehen bei ihm unter „Zu prüfen“.</value>
+  </data>
+  <data name="MailRuleSpamTitle" xml:space="preserve">
+    <value>Spam-Prüfung</value>
+  </data>
+  <data name="MailRuleSpamText" xml:space="preserve">
+    <value>Mails unbekannter Absender prüft das Sprachmodell auf dem eigenen Server auf Werbung und Betrug. Spam wird nicht abgelegt, sondern in den Ordner „NoMorePaper-Spam“ verschoben. Schiebst du eine Mail von dort zurück in den Posteingang, wird sie ohne Prüfung eingelesen.</value>
+  </data>
+  <data name="MailRuleNoAttachmentTitle" xml:space="preserve">
+    <value>Mails ohne Anhang</value>
+  </data>
+  <data name="MailRuleNoAttachmentText" xml:space="preserve">
+    <value>Das Sprachmodell entscheidet, ob die Mail selbst ein Dokument ist, zum Beispiel eine Rechnung im Mailtext. Dann wird sie als PDF abgelegt.</value>
+  </data>
+  <data name="MailRuleAttachmentsTitle" xml:space="preserve">
+    <value>Anhänge</value>
+  </data>
+  <data name="MailRuleAttachmentsText" xml:space="preserve">
+    <value>PDF, JPEG, PNG und HEIC werden Dokumente. Bilder unter 30 KB oder mit einer Seite unter 500 Pixeln, etwa Logos in der Signatur, werden übergangen.</value>
+  </data>
+  <data name="MailRuleFoldersTitle" xml:space="preserve">
+    <value>Ordner im Postfach</value>
+  </data>
+  <data name="MailRuleFoldersText" xml:space="preserve">
+    <value>Eingelesene Mails wandern in den Ordner „Verarbeitet“. Eine Mail, die dreimal nicht eingelesen werden konnte, landet in „NoMorePaper-Fehler“.</value>
+  </data>
+  <data name="MailCardHeading" xml:space="preserve">
+    <value>Postfach</value>
+  </data>
+  <data name="MailCardNotSetUp" xml:space="preserve">
+    <value>Noch kein Postfach eingerichtet. Trage die Zugangsdaten ein.</value>
+  </data>
+  <data name="MailCardKind" xml:space="preserve">
+    <value>IMAP · {0} · {1}:{2}</value>
+  </data>
+  <data name="MailCardStateUnavailable" xml:space="preserve">
+    <value>Der Zustand des Postfachs konnte nicht geladen werden.</value>
+  </data>
+  <data name="MailFormHeading" xml:space="preserve">
+    <value>Zugangsdaten</value>
   </data>
 </root>

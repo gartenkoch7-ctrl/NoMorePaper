@@ -24,7 +24,7 @@ public sealed class InputStatusApiTests(ApiFixture api)
         var all = await admin.GetFromJsonAsync<InputStatusDto[]>("/api/inputs", Ct);
         var own = await anna.GetFromJsonAsync<InputStatusDto[]>("/api/inputs", Ct);
 
-        Assert.Contains(all!, row => row.Kind == "icloud" && row.AccountName == "inputs-ben Name");
+        Assert.Contains(all!, row => row.Kind == "icloud" && row.AccountName == "inputs-ben Name" && row.ReceivedTotal == 2);
         Assert.Contains(all!, row => row.Kind == "icloud" && row.AccountName == "inputs-anna Name");
         Assert.Contains(own!, row => row.Kind == "mail" && row.AccountName is null && row.Problem == "unreachable");
         Assert.Contains(own!, row => row.Kind == "icloud" && row.AccountName == "inputs-anna Name" && row.NeedsAttention && row.Problem == "code-needed");

@@ -219,6 +219,13 @@ successful run“.
 - **Übersicht mit Reitern:** Nur ein Eingang ist sichtbar. Ausgleich: Zustand im Reiternamen (F1-A) und die
   Live-Region, die Änderungen aller Eingänge ansagt.
 
+### Umsetzung (Spur D, 2026-11-23)
+P0–P4 umgesetzt auf `feat/m04u-d-eingaenge`; P5 (Review, Sichtvergleich) steht aus. Abweichungen: Reitername
+ohne Komma („Mail 1 Problem“) und ohne `aria-label` (axe `label-content-name-mismatch`, Namen kommen aus dem
+sichtbaren Text); Mail-Aktion („Mail-Einstellungen“/„nur Verwalter“) steht einmal unter den Karten statt je Karte
+(sonst fehlt sie bei einem Postfach ohne Zeile); `InputTabs`/`InputRowState` sind `public` (Web.Client hat kein
+`InternalsVisibleTo`).
+
 ### Rückblick (nach Abschluss)
 | Paket | geplante Stufe | passend? | Anmerkung |
 |---|---|---|---|
