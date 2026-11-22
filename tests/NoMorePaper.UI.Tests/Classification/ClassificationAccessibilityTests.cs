@@ -99,6 +99,7 @@ public sealed class ClassificationAccessibilityTests(ServerFixture server)
         await using var session = await ApiMocks.OpenViaNavigationAsync(
             server, culture, culture == SupportedCultures.German ? "Dokumente" : "Documents", async page =>
             {
+                await ApiMocks.NoCountsAsync(page);
                 await page.RouteAsync(new Regex(@"/api/documents\?"), route => route.FulfillAsync(new RouteFulfillOptions
                 {
                     Status = 200,

@@ -44,7 +44,19 @@ internal static partial class DocumentsLog
         Message = "A document was made private: {IsPrivate}")]
     public static partial void PrivacyChanged(this ILogger logger, bool isPrivate);
 
-    [LoggerMessage(EventId = 4108, EventName = "ListPollingStarted", Level = LogLevel.Debug,
+    [LoggerMessage(EventId = 4110, EventName = "DocumentCountsLoaded", Level = LogLevel.Debug,
+        Message = "Document counts loaded: {Total} matching, {TypeCount} types")]
+    public static partial void DocumentCountsLoaded(this ILogger logger, int total, int typeCount);
+
+    [LoggerMessage(EventId = 4111, EventName = "ListPageChanged", Level = LogLevel.Debug,
+        Message = "Document list page {Page} with {PageSize} rows")]
+    public static partial void ListPageChanged(this ILogger logger, int page, int pageSize);
+
+    [LoggerMessage(EventId = 4112, EventName = "ListViewChanged", Level = LogLevel.Information,
+        Message = "Document list view switched to {View}")]
+    public static partial void ListViewChanged(this ILogger logger, string view);
+
+    [LoggerMessage(EventId = 4108,EventName = "ListPollingStarted", Level = LogLevel.Debug,
         Message = "Polling the document list while documents are in progress")]
     public static partial void ListPollingStarted(this ILogger logger);
 }

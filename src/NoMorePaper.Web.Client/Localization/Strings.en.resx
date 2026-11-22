@@ -1629,4 +1629,58 @@
   <data name="SettingsMembersText" xml:space="preserve">
     <value>Invite and manage the household accounts.</value>
   </data>
+  <data name="DocListCount" xml:space="preserve">
+    <value>{0} documents</value>
+  </data>
+  <data name="DocListCountOne" xml:space="preserve">
+    <value>1 document</value>
+  </data>
+  <data name="DocListTypeGroup" xml:space="preserve">
+    <value>Filter by document type</value>
+  </data>
+  <data name="ColTypeTags" xml:space="preserve">
+    <value>Type and tags</value>
+  </data>
+  <data name="ColDate" xml:space="preserve">
+    <value>Date</value>
+  </data>
+  <data name="ColRecognition" xml:space="preserve">
+    <value>Recognition</value>
+  </data>
+  <data name="DocListReceived" xml:space="preserve">
+    <value>Received {0}</value>
+  </data>
+  <data name="DocListReceivedVia" xml:space="preserve">
+    <value>Received {0} via {1}</value>
+  </data>
+  <data name="DocListConfirmed" xml:space="preserve">
+    <value>Confirmed</value>
+  </data>
+  <data name="DocListPager" xml:space="preserve">
+    <value>Pages of the document list</value>
+  </data>
+  <data name="DocListPageSize" xml:space="preserve">
+    <value>Rows per page</value>
+  </data>
+  <data name="DocListPrevious" xml:space="preserve">
+    <value>Previous page</value>
+  </data>
+  <data name="DocListNext" xml:space="preserve">
+    <value>Next page</value>
+  </data>
+  <data name="DocListPage" xml:space="preserve">
+    <value>Page {0}</value>
+  </data>
+  <data name="DocListRange" xml:space="preserve">
+    <value>Showing {0}–{1} of {2} documents</value>
+  </data>
+  <data name="DocListViewGroup" xml:space="preserve">
+    <value>View</value>
+  </data>
+  <data name="DocListViewTable" xml:space="preserve">
+    <value>Table</value>
+  </data>
+  <data name="DocListViewTiles" xml:space="preserve">
+    <value>Tiles</value>
+  </data>
 </root>

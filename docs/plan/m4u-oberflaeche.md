@@ -41,11 +41,11 @@ Grundsätze (aus den Notizen je Screen):
       anmelden“; dieselbe Gestaltung für Ersteinrichtung, Einladung, Passwort zurücksetzen, Notfall
 
 ### B. Dokumente (Screen 02)
-- [ ] `Documents.razor`: Überschrift mit Anzahl, „Zuletzt bearbeitet“ als Karten, Art-Chips mit Anzahl,
+- [x] `Documents.razor`: Überschrift mit Anzahl, „Zuletzt bearbeitet“ als Karten (entfallen, F6-A), Art-Chips mit Anzahl,
       Tabelle (Titel + Textausschnitt, Art/Tags, Absender, Datum + Eingangsweg, Betrag, Status, Erkennung),
       Abzeichen „Privat“, Blättern mit „Zeilen pro Seite“
-- [ ] `DocumentFilterBar.razor`: nur eine Suche (im Kopf); Filter Datum, Betrag, Sichtbarkeit, Absender
-- [ ] Umschalter Tabelle / Kacheln (Kacheln mit invertierter Miniatur) – ⚠️ nur, wenn API Miniaturen liefert,
+- [x] `DocumentFilterBar.razor`: nur eine Suche (im Kopf); Filter Datum, Betrag, Sichtbarkeit, Absender
+- [x] Umschalter Tabelle / Kacheln (Kacheln mit invertierter Miniatur) – ⚠️ nur, wenn API Miniaturen liefert,
       sonst nach M4b verschieben
 
 ### C. Dokument ansehen (Screen 03)

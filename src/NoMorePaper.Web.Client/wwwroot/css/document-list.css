@@ -1,0 +1,298 @@
+/* Document list table, pager and tiles (Stitch screen 02). No outline rules on purpose:
+   focus is drawn by the browser default (ADR-0026, base.css). Values come from the --nmp-* variables. */
+
+.doc-list-frame {
+    background: var(--nmp-canvas-lowest);
+    border: 1px solid var(--nmp-border);
+    border-radius: var(--nmp-radius);
+    overflow: hidden;
+}
+
+.doc-list-scroll {
+    overflow-x: auto;
+}
+
+.doc-list-table caption {
+    caption-side: top;
+    padding: 0.75rem 1rem;
+    margin: 0;
+    background: var(--nmp-paper-low);
+    border-bottom: 1px solid var(--nmp-border);
+    color: var(--nmp-text-variant);
+    font: 400 0.625rem/0.875rem var(--nmp-font-mono);
+    letter-spacing: 0.05em;
+    text-align: start;
+}
+
+.doc-list-table :is(th, td) {
+    padding: 0.75rem 1rem;
+    vertical-align: top;
+}
+
+.doc-list-table tbody th {
+    font-weight: 400;
+}
+
+.doc-list-table tbody tr:hover {
+    background: var(--nmp-surface-container);
+}
+
+.doc-icon {
+    flex: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2rem;
+    height: 2rem;
+    margin-top: 0.125rem;
+    border-radius: 0.25rem;
+    background: var(--nmp-elevated-high);
+    color: var(--nmp-primary);
+}
+
+.doc-icon .mud-icon-root {
+    font-size: 1.125rem;
+}
+
+.doc-list-table tbody tr:hover .doc-icon {
+    background: var(--nmp-primary);
+    color: var(--nmp-on-primary);
+}
+
+.doc-title-cell {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+}
+
+.doc-title-link {
+    font-size: 0.875rem;
+    line-height: 1.375rem;
+    font-weight: 500;
+    letter-spacing: -0.005em;
+    color: var(--nmp-primary);
+    text-decoration: none;
+}
+
+.doc-title-link:hover {
+    text-decoration: underline;
+}
+
+/* The server shortens the excerpt; it is not cut off here. */
+.doc-excerpt {
+    display: block;
+    margin-top: 0.125rem;
+    font: 400 0.75rem/1.125rem var(--nmp-font-mono);
+    color: var(--nmp-outline);
+}
+
+.doc-type {
+    display: inline-block;
+    padding: 0.125rem 0.5rem;
+    border-radius: 0.25rem;
+    background: var(--nmp-elevated-high);
+    color: var(--nmp-primary);
+    border: 1px solid var(--nmp-border);
+    font: 400 0.6875rem/1rem var(--nmp-font-mono);
+}
+
+.doc-tags {
+    display: block;
+    margin-top: 0.25rem;
+    font: 400 0.625rem/0.875rem var(--nmp-font-mono);
+    color: var(--nmp-outline);
+}
+
+.doc-date {
+    font: 500 0.6875rem/1rem var(--nmp-font-mono);
+    letter-spacing: 0.04em;
+    color: var(--nmp-primary);
+}
+
+.doc-sub {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    margin-top: 0.125rem;
+    font-size: 0.6875rem;
+    line-height: 1rem;
+    color: var(--nmp-outline);
+}
+
+.doc-sub .mud-icon-root {
+    font-size: 0.8125rem;
+}
+
+.doc-amount {
+    text-align: end;
+    white-space: nowrap;
+    font: 600 0.6875rem/1rem var(--nmp-font-mono);
+    color: var(--nmp-primary);
+}
+
+.doc-table th.doc-col-amount {
+    text-align: end;
+}
+
+.doc-list-table .nmp-status {
+    font-size: 0.6875rem;
+    line-height: 1rem;
+}
+
+.doc-list-table .nmp-status .mud-icon-root {
+    font-size: 0.9375rem;
+}
+
+.doc-pager {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--nmp-space-sm);
+    padding: var(--nmp-space-sm) var(--nmp-space-md);
+    border-top: 1px solid var(--nmp-border);
+    font: 400 0.625rem/0.875rem var(--nmp-font-mono);
+    letter-spacing: 0.05em;
+    color: var(--nmp-text-variant);
+}
+
+.doc-pager label {
+    color: var(--nmp-outline);
+}
+
+.doc-pager select {
+    background: var(--nmp-paper-low);
+    border: 1px solid var(--nmp-border);
+    border-radius: 0.25rem;
+    padding: 0.25rem 0.5rem;
+    color: var(--nmp-primary);
+    font: inherit;
+}
+
+.doc-pager .doc-range {
+    margin: 0;
+}
+
+.doc-pager-size {
+    display: flex;
+    align-items: center;
+    gap: var(--nmp-space-sm);
+}
+
+.doc-pager-pages {
+    display: flex;
+    gap: 0.25rem;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.doc-pager-pages button {
+    min-width: 1.75rem;
+    height: 1.75rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 0.25rem;
+    border: 1px solid var(--nmp-border);
+    background: transparent;
+    color: var(--nmp-text);
+    font: inherit;
+    cursor: pointer;
+}
+
+.doc-pager-pages button:hover:not(:disabled) {
+    background: var(--nmp-elevated-high);
+    color: var(--nmp-primary);
+}
+
+.doc-pager-pages button[aria-current="page"] {
+    background: var(--nmp-primary);
+    color: var(--nmp-on-primary);
+    border-color: var(--nmp-primary);
+    font-weight: 500;
+}
+
+.doc-pager-pages button:disabled {
+    color: var(--nmp-text-muted);
+    cursor: not-allowed;
+}
+
+.doc-pager-gap {
+    color: var(--nmp-outline);
+    padding: 0 0.25rem;
+}
+
+/* auto-fill instead of fixed columns, so the tiles wrap at 200-400 % zoom. */
+.doc-tiles {
+    list-style: none;
+    margin: 0;
+    padding: var(--nmp-space-md);
+    display: grid;
+    gap: var(--nmp-space-sm);
+    grid-template-columns: repeat(auto-fill, minmax(15rem, 1fr));
+}
+
+.doc-tile {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: var(--nmp-space-sm);
+    min-height: 10rem;
+    padding: var(--nmp-space-md);
+    background: var(--nmp-canvas-lowest);
+    border: 1px solid var(--nmp-border);
+    border-radius: var(--nmp-radius);
+}
+
+.doc-tile:hover {
+    background: var(--nmp-surface-container);
+    border-color: var(--nmp-border-strong);
+}
+
+.doc-tile-top {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: var(--nmp-space-sm);
+}
+
+.doc-tile-title {
+    margin: 0;
+    font-size: 1rem;
+    line-height: 1.5rem;
+    font-weight: 500;
+    letter-spacing: -0.005em;
+}
+
+.doc-tile-title .doc-title-link {
+    font-size: 1rem;
+    line-height: 1.5rem;
+}
+
+.doc-tile-meta {
+    margin: 0;
+    font-size: 0.75rem;
+    line-height: 1.125rem;
+    color: var(--nmp-text-variant);
+}
+
+.doc-tile-foot {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 0.5rem;
+    padding-top: var(--nmp-space-xs);
+    border-top: 1px solid var(--nmp-border);
+}
+
+.doc-tile-amount-label {
+    font: 400 0.625rem/0.875rem var(--nmp-font-mono);
+    color: var(--nmp-outline);
+}
+
+.doc-tile-amount {
+    font: 500 0.8125rem/1.125rem var(--nmp-font-mono);
+    color: var(--nmp-primary);
+}

@@ -87,6 +87,24 @@ Browser-Rahmen an Links und Knöpfen (`a:focus-visible`, `button:focus`); `base.
 verdecken); „Menü“ setzt den Fokus auf den ersten Link, Escape schließt und kehrt zum Knopf zurück. Die Bildschirmlupe des Nutzers
 hebt Fokus selbst hervor.
 
+## Dokumentliste (`/dokumente`, Screen 02)
+
+- **Spalten:** Titel (mit Privat-Abzeichen und Textausschnitt, ≤ 160 Zeichen, nur als Text), Art und Tags
+  (`#` ist `aria-hidden`), Absender, Datum (Dokumentdatum; darunter Eingang mit Weg), Betrag, Status, Erkennung.
+  Der Titel ist der Link, die Zeile ist nicht klickbar.
+- **Art-Chips:** Gruppe „Nach Dokumentart filtern“, jeder Chip ein Knopf mit `aria-pressed` und Anzahl, nur Arten mit
+  Dokumenten; die Zahlen beachten die übrigen Filter. Die gewählte Art bleibt auch mit Anzahl 0 sichtbar.
+  Das Auswahlfeld „Dokumentart“ im Filterbereich entfällt; der Tag-Filter bleibt dort.
+- **Blättern:** `nav` „Seiten der Dokumentliste“, aktuelle Seite mit `aria-current="page"`, „Zeilen pro Seite“
+  (10/25/50/100, Standard 50). Wird „Vorherige/Nächste Seite“ durch das Blättern abgeschaltet, springt der Fokus auf die
+  aktuelle Seite (ohne Gesamtzahl auf den anderen Pfeil), sonst fiele er auf `body`. Ohne Gesamtzahl (Zähler-Aufruf
+  schlägt fehl) gibt es nur „Seite n“, „Vorherige“ und „Nächste“ (aktiv, solange eine volle Seite kam).
+- **Tabelle** liegt in einem scrollbaren, benannten Bereich (`role="region"`, `tabindex="0"`), damit die Seite
+  auf dem Handy nicht seitlich scrollt. **Kacheln:** `auto-fill`/`minmax(15rem, 1fr)`, `min-height` statt fester Höhe
+  (Zoom); sie zeigen die Miniatur der ersten Seite, die Tabelle nur einen Symbolkasten.
+- **Nicht übernommen:** „Zuletzt bearbeitet“ (kein Änderungszeitpunkt in der DB), Export, Stapelverarbeitung,
+  Auswahl-Kästchen, Aktionsspalte, Spalten-/Sortierwahl, zweites Suchfeld, Brotkrumen, WORM-/SHA-Hinweise.
+
 ## Nicht aus Stitch übernommen
 
 Tailwind, CDN, Google Fonts, Material-Symbols-Schrift (MudBlazor-Symbole statt dessen), externe Bilder,
