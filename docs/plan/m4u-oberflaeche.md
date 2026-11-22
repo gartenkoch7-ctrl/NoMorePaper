@@ -106,7 +106,7 @@ nach `develop` mergen – nur Doku).
 
 - **Exklusiv-Dateien:** A `SignIn/Setup/AcceptInvitation/ResetPassword/EmergencyReset.razor`; B
   `Documents.razor`, `DocumentFilterBar.razor`; C `DocumentViewer.razor(.cs)`, `DocumentFields*.razor`,
-  `Viewer/`; D `Inputs*`, `MailSettings*`; E übrige Seiten
+  `Viewer/`, `TagPicker.razor` und `.tag-list*` in `classification.css`; D `Inputs*`, `MailSettings*`; E übrige Seiten
 - **Hotspots** (nur ergänzen): `Strings*.resx`, CSS-Bausteindatei, UI-Tests-Hilfen
 - **Nach Schritt 0 gesperrt:** `ContrastTheme.cs`, `MainLayout.razor` – Änderungen nur noch in Spur 0
 - **Merge-Reihenfolge:** A → D → B → C → E
