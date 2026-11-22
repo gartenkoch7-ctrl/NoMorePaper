@@ -1,0 +1,61 @@
+@inject IStringLocalizer<Strings> L
+@inject DocumentApi Api
+
+@* The switch "Privat" of the document, for its owner only (everyone else sees a shared document anyway).
+   It changes the server's state right away; the result is announced here, and a failure puts the box back
+   (a new element, because the model value did not change) and keeps focus on it. *@
+<div class="doc-privacy">
+    <div class="form-check">
+        <input @key="_version" @ref="_box" id="viewer-private" type="checkbox" checked="@IsPrivate"
+               @onchange="ChangedAsync" aria-describedby="viewer-private-hint" />
+        <label for="viewer-private">@L["PrivateLabel"]</label>
+    </div>
+    <p id="viewer-private-hint" class="form-hint">@L["ViewerPrivateHint"]</p>
+    <LiveRegion @ref="_status" />
+</div>
+
+@code {
+    private ElementReference _box;
+    private LiveRegion? _status;
+    private int _version;
+    private bool _focus;
+
+    [Parameter, EditorRequired] public Guid DocumentId { get; set; }
+
+    [Parameter] public bool IsPrivate { get; set; }
+
+    /// <summary>The server accepted the new value.</summary>
+    [Parameter] public EventCallback<bool> OnChanged { get; set; }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (_focus)
+        {
+            _focus = false;
+            await _box.FocusAsync();
+        }
+    }
+
+    private async Task ChangedAsync(ChangeEventArgs args)
+    {
+        var wanted = args.Value is true;
+        var result = await Api.SetPrivacyAsync(DocumentId, wanted);
+        string message;
+        if (result.IsSuccess)
+        {
+            await OnChanged.InvokeAsync(wanted);
+            message = L[wanted ? "ViewerNowPrivate" : "ViewerNowShared"];
+        }
+        else
+        {
+            _version++;
+            _focus = true;
+            message = L["ErrorPrefix", result.Error ?? string.Empty];
+        }
+
+        if (_status is not null)
+        {
+            await _status.Announce(message);
+        }
+    }
+}

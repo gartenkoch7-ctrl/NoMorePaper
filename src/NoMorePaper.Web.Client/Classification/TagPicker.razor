@@ -15,8 +15,10 @@
             {
                 <li @key="tag.Id">
                     <span>@tag.Name</span>
-                    <button type="button" class="nmp-button" aria-label="@L["ClsRemoveTagFor", tag.Name]"
-                            @onclick="() => RemoveAsync(tag)">@L["ClsRemoveTag"]</button>
+                    <button type="button" class="tag-remove" aria-label="@L["ClsRemoveTagFor", tag.Name]"
+                            @onclick="() => RemoveAsync(tag)">
+                        <MudIcon Icon="@Icons.Material.Filled.Close" aria-hidden="true" />
+                    </button>
                 </li>
             }
         </ul>

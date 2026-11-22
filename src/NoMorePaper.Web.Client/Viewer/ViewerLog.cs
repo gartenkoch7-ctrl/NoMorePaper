@@ -57,4 +57,28 @@ internal static partial class ViewerLog
     [LoggerMessage(EventId = 4211, EventName = "WebGlContextRestored", Level = LogLevel.Information,
         Message = "The viewer's WebGL context is back and the page was drawn again")]
     public static partial void WebGlContextRestored(this ILogger logger);
+
+    [LoggerMessage(EventId = 4212, EventName = "ViewerTabSelected", Level = LogLevel.Debug,
+        Message = "Document page: tab {Tab} selected")]
+    public static partial void ViewerTabSelected(this ILogger logger, string tab);
+
+    [LoggerMessage(EventId = 4213, EventName = "RecognizedTextLoaded", Level = LogLevel.Information,
+        Message = "Recognized text loaded ({Length} characters)")]
+    public static partial void RecognizedTextLoaded(this ILogger logger, int length);
+
+    [LoggerMessage(EventId = 4214, EventName = "RecognizedTextCopied", Level = LogLevel.Information,
+        Message = "Recognized text copied to the clipboard")]
+    public static partial void RecognizedTextCopied(this ILogger logger);
+
+    [LoggerMessage(EventId = 4215, EventName = "RecognizedTextCopyFailed", Level = LogLevel.Warning,
+        Message = "Recognized text could not be copied: {ExceptionType}")]
+    public static partial void RecognizedTextCopyFailed(this ILogger logger, string exceptionType);
+
+    [LoggerMessage(EventId = 4216, EventName = "FullscreenChanged", Level = LogLevel.Information,
+        Message = "Fullscreen of the viewer switched {State}")]
+    public static partial void FullscreenChanged(this ILogger logger, string state);
+
+    [LoggerMessage(EventId = 4217, EventName = "FullscreenFailed", Level = LogLevel.Warning,
+        Message = "Fullscreen of the viewer failed: {ErrorType}")]
+    public static partial void FullscreenFailed(this ILogger logger, string errorType);
 }

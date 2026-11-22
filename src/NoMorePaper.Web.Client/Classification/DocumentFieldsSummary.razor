@@ -1,0 +1,67 @@
+@using System.Globalization
+@inject IStringLocalizer<Strings> L
+
+@* The read-only "Angaben": the summary comes first, because a screen reader user who arrives here wants
+   to know what the document is before anything else. Where the values come from ("automatisch erkannt")
+   is said in words, never by colour or icon alone; the icons are decoration. *@
+<p class="fields-summary">
+    <span class="fields-term">@L["ClsFieldSummary"]:</span>
+    @(string.IsNullOrWhiteSpace(Fields.Summary) ? L["ClsNoSummary"] : Fields.Summary)
+</p>
+<MailOriginSection Mail="Fields.Mail" />
+<p class="fields-recognition">
+    <MudIcon Icon="@RecognitionIcon" aria-hidden="true" />
+    <span>@L["ClsRecognition" + Fields.Recognition]</span>
+</p>
+@if (Fields.PossibleDuplicateOf is { } other)
+{
+    <p class="fields-duplicate">
+        <MudIcon Icon="@Icons.Material.Filled.Warning" aria-hidden="true" />
+        <span>@L["ClsPossibleDuplicate"] <a href="@DocumentLinks.Viewer(other)">@L["ClsShowOther"]</a></span>
+    </p>
+}
+
+<dl class="fields-grid">
+    <div class="fields-pair">
+        <dt>@L["ClsFieldCorrespondent"]</dt>
+        <dd>@(Fields.Correspondent?.Name ?? L["ClsNoValue"])</dd>
+    </div>
+    <div class="fields-pair">
+        <dt>@L["ClsFieldType"]</dt>
+        <dd>@(Fields.DocumentType?.Name ?? L["ClsNoValue"])</dd>
+    </div>
+    <div class="fields-pair">
+        <dt>@L["ClsFieldDate"]</dt>
+        <dd class="fields-mono">@(Fields.DocumentDate is { } date ? FieldFormat.Date(date, CultureInfo.CurrentCulture) : L["ClsNoValue"])</dd>
+    </div>
+    <div class="fields-pair">
+        <dt>@L["ClsFieldAmount"]</dt>
+        <dd class="fields-mono">@(Fields.Amount is { } amount ? FieldFormat.Amount(amount, CultureInfo.CurrentCulture) : L["ClsNoValue"])</dd>
+    </div>
+    <div class="fields-pair fields-pair-wide">
+        <dt>@L["ClsFieldTags"]</dt>
+        <dd>
+            @if (Fields.Tags.Count == 0)
+            {
+                @L["ClsNoValue"]
+            }
+            else
+            {
+                <ul class="fields-tags">
+                    @foreach (var tag in Fields.Tags)
+                    {
+                        <li @key="tag.Id">@tag.Name</li>
+                    }
+                </ul>
+            }
+        </dd>
+    </div>
+</dl>
+
+@code {
+    [Parameter, EditorRequired] public DocumentFieldsDto Fields { get; set; } = default!;
+
+    private string RecognitionIcon => Fields.Recognition == DocumentRecognitionState.Confirmed
+        ? Icons.Material.Filled.CheckCircle
+        : Icons.Material.Filled.AutoAwesome;
+}

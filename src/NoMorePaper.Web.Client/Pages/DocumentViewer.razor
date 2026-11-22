@@ -23,17 +23,6 @@ else
     <div class="viewer">
         <MudText Typo="Typo.h1">@_detail.Title</MudText>
         <p class="viewer-state">@L["ViewerStatus", L["State" + _detail.State]]</p>
-        @* Only the owner can change it; everyone else sees a shared document anyway. *@
-        @if (_detail.IsMine)
-        {
-            <div class="form-check">
-                <input @key="_privacyVersion" @ref="_privateBox" id="viewer-private" type="checkbox"
-                       checked="@_detail.IsPrivate" @onchange="OnPrivateChangedAsync"
-                       aria-describedby="viewer-private-hint" />
-                <label for="viewer-private">@L["PrivateLabel"]</label>
-            </div>
-            <p id="viewer-private-hint" class="form-hint">@L["ViewerPrivateHint"]</p>
-        }
 
         <ul class="viewer-downloads" aria-label="@L["ViewerDownloads"]">
             <li><a href="@DocumentLinks.Original(Id)" download>@L["DownloadOriginal"]</a></li>
@@ -43,7 +32,8 @@ else
             }
         </ul>
 
-        <DocumentFieldsPanel DocumentId="Id" Title="@_detail.Title" IsMine="_detail.IsMine" OnTitleChanged="OnTitleChanged" />
+        <DocumentFieldsPanel DocumentId="Id" Title="@_detail.Title" IsMine="_detail.IsMine" OnTitleChanged="OnTitleChanged"
+                             IsPrivate="_detail.IsPrivate" OnPrivacyChanged="OnPrivacyChanged" OnFieldsLoaded="OnFieldsLoaded" />
 
         <LiveRegion @ref="_announcer" Class="viewer-announcer" />
 

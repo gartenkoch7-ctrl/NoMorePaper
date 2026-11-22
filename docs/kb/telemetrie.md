@@ -59,6 +59,7 @@ Die Annahme behält 3200/3201 und nennt dort die Quelle.
 | 1001 | Critical | `Server/Startup/StartupLog` | Start-Aufgaben fehlgeschlagen, der Host beendet sich |
 | 1100 | Information | `Server/Documents/DocumentsLog` | Upload angenommen: Dokument-Id, Größe, Medientyp (ohne Dateinamen) |
 | 1101 | Warning | `Server/Documents/DocumentsLog` | Upload abgelehnt: Grund (`too-large`, `empty`, `type-not-allowed`, `not-multipart`, `malformed`, `duplicate`) und Größe |
+| 1102 | Debug | `Server/Documents/DocumentsLog` | Erkannter Text eines Dokuments ausgeliefert: Dokument-Id und Zeichenzahl (nie der Text) |
 | 1200 | Warning | `Server/Security/SecurityLog` | Ändernde API-Anfrage abgelehnt, mögliche fremde Seite: `Sec-Fetch-Site` als festes Wort (`cross-site`, `same-site`, `none`, `absent`, `other`) |
 | 1300 | Information | `Server/Accounts/AccountsLog` | Konto angemeldet (Anmeldung, Einrichtung, Einladung angenommen, Passwort geändert): nur Konto-Id |
 | 1301 | Warning | `Server/Accounts/AccountsLog` | Anmeldung fehlgeschlagen, falsches Passwort: Konto-Id |
@@ -186,6 +187,12 @@ Die Annahme behält 3200/3201 und nennt dort die Quelle.
 | 4209 | Warning | `Web.Client/Viewer/ViewerLog` | Vorschaubild konnte nicht gerendert werden (technischer Fehlername oder `interop`) |
 | 4210 | Warning | `Web.Client/Viewer/ViewerLog` | WebGL-Kontext verloren (z. B. GPU-Reset); Viewer versucht den Neuaufbau |
 | 4211 | Information | `Web.Client/Viewer/ViewerLog` | WebGL-Kontext wieder da, Seite neu gezeichnet |
+| 4212 | Debug | `Web.Client/Viewer/ViewerLog` | Reiter der Dokumentseite gewählt: feste Wörter `fields`, `text`, `history` |
+| 4213 | Information | `Web.Client/Viewer/ViewerLog` | Erkannter Text geladen: Zeichenzahl (nie der Text) |
+| 4214 | Information | `Web.Client/Viewer/ViewerLog` | Erkannter Text in die Zwischenablage kopiert |
+| 4215 | Warning | `Web.Client/Viewer/ViewerLog` | Kopieren des erkannten Textes ging nicht: Ausnahmetyp |
+| 4216 | Information | `Web.Client/Viewer/ViewerLog` | Vollbild des Viewers umgeschaltet: `on` oder `off` |
+| 4217 | Warning | `Web.Client/Viewer/ViewerLog` | Vollbild des Viewers fehlgeschlagen: Fehlertyp |
 | 4400 | Information | `Web.Client/Accounts/AccountsLog` | Sitzungszustand geladen (`SignedIn`, `SignedOut`, `SetupNeeded`, `Unavailable`) |
 | 4401 | Information | `Web.Client/Accounts/AccountsLog` | Server antwortete 401, Sitzung vorbei |
 | 4402 | Information | `Web.Client/Accounts/AccountsLog` | angemeldet |

@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Components;
 using Microsoft.Extensions.Localization;
 using Microsoft.Extensions.Logging;
+using NoMorePaper.Contracts.Classification;
 using NoMorePaper.Contracts.Documents;
 using NoMorePaper.Web.Client.Accessibility;
 using NoMorePaper.Web.Client.Documents;
@@ -29,9 +30,7 @@ public sealed partial class DocumentViewer : IAsyncDisposable
     private ViewerState? _state;
     private LiveRegion? _announcer;
     private ElementReference _stage;
-    private ElementReference _privateBox;
-    private int _privacyVersion;
-    private bool _focusPrivateBox;
+    private DocumentFieldsDto? _fields;
 
     [Parameter] public Guid Id { get; set; }
 
@@ -55,7 +54,7 @@ public sealed partial class DocumentViewer : IAsyncDisposable
         // The same component is reused when the route switches to another document.
         _loadedId = Id;
         await Viewer.CloseAsync();
-        (_detail, _error, _source, _state, _opened, _showFailed) = (null, null, null, null, false, false);
+        (_detail, _fields, _error, _source, _state, _opened, _showFailed) = (null, null, null, null, null, false, false);
         _originalColors = await Preferences.LoadOriginalColorsAsync();
 
         var result = await Api.GetAsync(Id);
@@ -75,12 +74,6 @@ public sealed partial class DocumentViewer : IAsyncDisposable
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        if (_focusPrivateBox)
-        {
-            _focusPrivateBox = false;
-            await _privateBox.FocusAsync();
-        }
-
         if (_source is null || _opened || _showFailed)
         {
             return;
@@ -144,36 +137,6 @@ public sealed partial class DocumentViewer : IAsyncDisposable
         }
     }
 
-    // The checkbox changes the server's state right away; the result is announced, and a failure
-    // puts the box back (a new element, because the model value did not change) and keeps focus on it.
-    private async Task OnPrivateChangedAsync(ChangeEventArgs args)
-    {
-        if (_detail is null)
-        {
-            return;
-        }
-
-        var wanted = args.Value is true;
-        var result = await Api.SetPrivacyAsync(Id, wanted);
-        string message;
-        if (result.IsSuccess)
-        {
-            _detail = _detail with { IsPrivate = wanted };
-            message = L[wanted ? "ViewerNowPrivate" : "ViewerNowShared"];
-        }
-        else
-        {
-            _privacyVersion++;
-            _focusPrivateBox = true;
-            message = L["ErrorPrefix", result.Error ?? string.Empty];
-        }
-
-        if (_announcer is not null)
-        {
-            await _announcer.Announce(message);
-        }
-    }
-
     // Editing the fields can change the title: the heading and the tab title follow.
     private void OnTitleChanged(string title)
     {
@@ -182,6 +145,12 @@ public sealed partial class DocumentViewer : IAsyncDisposable
             _detail = _detail with { Title = title };
         }
     }
+
+    // The switch "Privat" lives in the fields panel; the server accepted the value.
+    private void OnPrivacyChanged(bool isPrivate) =>
+        _detail = _detail is null ? null : _detail with { IsPrivate = isPrivate };
+
+    private void OnFieldsLoaded(DocumentFieldsDto fields) => _fields = fields;
 
     private Task ZoomOutAsync() => Viewer.ZoomOutAsync().AsTask();
 

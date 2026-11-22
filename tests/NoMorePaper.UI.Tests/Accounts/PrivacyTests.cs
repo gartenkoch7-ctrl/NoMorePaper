@@ -98,10 +98,10 @@ public sealed class PrivacyTests(ServerFixture server)
 
         await box.CheckAsync();
 
-        await Assertions.Expect(page.Locator("main .viewer-announcer")).ToHaveTextAsync("Das Dokument ist jetzt privat.");
+        await Assertions.Expect(page.Locator("main .doc-privacy .live-region")).ToHaveTextAsync("Das Dokument ist jetzt privat.");
         Assert.Equal("""{"isPrivate":true}""", mocks.BodyOf("PATCH", $"/api/documents/{_id}"));
         await box.UncheckAsync();
-        await Assertions.Expect(page.Locator("main .viewer-announcer")).ToHaveTextAsync("Das Dokument ist nicht mehr privat.");
+        await Assertions.Expect(page.Locator("main .doc-privacy .live-region")).ToHaveTextAsync("Das Dokument ist nicht mehr privat.");
     }
 
     [Fact]
@@ -114,7 +114,7 @@ public sealed class PrivacyTests(ServerFixture server)
 
         await box.ClickAsync();
 
-        await Assertions.Expect(page.Locator("main .viewer-announcer")).ToContainTextAsync("Fehler:");
+        await Assertions.Expect(page.Locator("main .doc-privacy .live-region")).ToContainTextAsync("Fehler:");
         await Assertions.Expect(page.GetByLabel("Privat", new() { Exact = true })).Not.ToBeCheckedAsync();
         await Assertions.Expect(page.GetByLabel("Privat", new() { Exact = true })).ToBeFocusedAsync();
     }
