@@ -174,6 +174,9 @@ Die Annahme behält 3200/3201 und nennt dort die Quelle.
 | 4107 | Information | `Web.Client/Documents/DocumentsLog` | Suche beendet (Trefferzahl, ohne Suchbegriff) |
 | 4108 | Debug | `Web.Client/Documents/DocumentsLog` | Liste fragt alle 3 s nach, solange Dokumente in Arbeit sind |
 | 4109 | Information | `Web.Client/Documents/DocumentsLog` | Dokument privat gemacht oder wieder freigegeben (`true`/`false`) |
+| 4110 | Debug | `Web.Client/Documents/DocumentsLog` | Zähler der Dokumentliste geladen (Treffer, Anzahl Arten; Fehler: 4103/4104 mit Vorgang `counts`) |
+| 4111 | Debug | `Web.Client/Documents/DocumentsLog` | Dokumentliste blättert (Seite, Zeilen pro Seite) |
+| 4112 | Information | `Web.Client/Documents/DocumentsLog` | Dokumentliste auf Tabelle oder Kacheln umgeschaltet (`table`/`tiles`) |
 | 4200 | Information | `Web.Client/Viewer/ViewerLog` | Viewer hat ein Dokument geöffnet (Seitenzahl, Renderer `webgl2`/`fallback`) |
 | 4201 | Warning | `Web.Client/Viewer/ViewerLog` | WebGL2 nicht nutzbar, Rückfall auf den CSS-Filter (Grund: `no-webgl2`, `shader-error`, `context-lost`, `restore-failed`) |
 | 4202 | Debug | `Web.Client/Viewer/ViewerLog` | sichtbarer Ausschnitt einer Seite gerendert (Dauer in ms, gerundet) |

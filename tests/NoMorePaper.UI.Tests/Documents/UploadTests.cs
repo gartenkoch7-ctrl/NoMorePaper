@@ -141,6 +141,6 @@ public sealed class UploadTests(ServerFixture server)
 
         await page.GetByRole(AriaRole.Link, new PageGetByRoleOptions { Name = "Dokumente", Exact = true }).ClickAsync();
         var row = page.Locator("tbody tr").Filter(new LocatorFilterOptions { HasText = Path.GetFileNameWithoutExtension(name) });
-        await Assertions.Expect(row).ToContainTextAsync("In Warteschlange");
+        await Assertions.Expect(row).ToContainTextAsync("Wartet");
     }
 }

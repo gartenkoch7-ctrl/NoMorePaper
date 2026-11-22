@@ -142,9 +142,10 @@ public sealed class PrivacyTests(ServerFixture server)
         var page = session.Page;
 
         var rows = page.Locator("tbody tr");
-        await Assertions.Expect(rows.Nth(0).Locator(".private-badge")).ToHaveTextAsync("Privat");
-        await Assertions.Expect(rows.Nth(0).Locator(".private-badge svg")).ToHaveCountAsync(1);
-        await Assertions.Expect(rows.Nth(1).Locator(".private-badge")).ToHaveCountAsync(0);
+        var badge = rows.Nth(0).Locator(".nmp-badge").Filter(new() { HasText = "Privat" });
+        await Assertions.Expect(badge).ToHaveCountAsync(1);
+        await Assertions.Expect(badge.Locator("svg")).ToHaveCountAsync(1);
+        await Assertions.Expect(rows.Nth(1).Locator(".nmp-badge").Filter(new() { HasText = "Privat" })).ToHaveCountAsync(0);
     }
 
     [Fact]

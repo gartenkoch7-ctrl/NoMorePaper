@@ -1,0 +1,147 @@
+@inject IStringLocalizer<Strings> L
+@inject IJSRuntime Js
+
+@* Footer of the list: rows per page, the range shown and the page buttons. With the total it offers page
+   numbers; without it (counts failed) only "previous" and "next", and "next" stays on while a full page came
+   back. A button that turns off under the focus would drop it on the page body, so the focus is moved to the
+   current page (or to the other arrow) once the new page is shown. *@
+@if (Shown > 0 || Page > 1)
+{
+    <div class="doc-pager">
+        <div class="doc-pager-size">
+            <label for="doc-page-size">@L["DocListPageSize"]</label>
+            <select id="doc-page-size" value="@PageSize" @onchange="SizeChangedAsync">
+                @foreach (var size in PageSizes)
+                {
+                    <option value="@size">@size</option>
+                }
+            </select>
+        </div>
+        <p class="doc-range">@RangeText</p>
+        <nav aria-label="@L["DocListPager"]">
+            <ul class="doc-pager-pages">
+                <li>
+                    <button type="button" aria-label="@L["DocListPrevious"]" disabled="@(Page <= 1)" @ref="_previous"
+                            @onclick="() => GoAsync(Page - 1, Arrow.Previous)">
+                        <MudIcon Icon="@Icons.Material.Filled.ChevronLeft" aria-hidden="true" />
+                    </button>
+                </li>
+                @if (Total is { } total)
+                {
+                    @foreach (var number in PageWindow.Pages(Page, PageWindow.TotalPages(total, PageSize)))
+                    {
+                        <li>
+                            @if (number is not { } shown)
+                            {
+                                <span aria-hidden="true" class="doc-pager-gap">…</span>
+                            }
+                            else
+                            {
+                                <button type="button" aria-label="@L["DocListPage", shown]" @key="shown"
+                                        id="@(shown == Page ? CurrentId : null)" aria-current="@(shown == Page ? "page" : null)"
+                                        @onclick="() => GoAsync(shown, Arrow.None)">@shown</button>
+                            }
+                        </li>
+                    }
+                }
+                <li>
+                    <button type="button" aria-label="@L["DocListNext"]" disabled="@(!HasNext)" @ref="_next"
+                            @onclick="() => GoAsync(Page + 1, Arrow.Next)">
+                        <MudIcon Icon="@Icons.Material.Filled.ChevronRight" aria-hidden="true" />
+                    </button>
+                </li>
+            </ul>
+        </nav>
+    </div>
+}
+
+@code {
+    private enum Arrow
+    {
+        None,
+        Previous,
+        Next,
+    }
+
+    private const string CurrentId = "doc-page-current";
+
+    private ElementReference _previous;
+    private ElementReference _next;
+    private Arrow _used;
+    private bool _check;
+
+    [Parameter] public int Page { get; set; } = 1;
+
+    [Parameter] public int PageSize { get; set; } = 50;
+
+    /// <summary>Number of matching documents; <c>null</c> when it could not be counted.</summary>
+    [Parameter] public int? Total { get; set; }
+
+    /// <summary>Rows on the current page.</summary>
+    [Parameter] public int Shown { get; set; }
+
+    [Parameter, EditorRequired] public IReadOnlyList<int> PageSizes { get; set; } = [];
+
+    [Parameter] public EventCallback<int> PageChanged { get; set; }
+
+    [Parameter] public EventCallback<int> PageSizeChanged { get; set; }
+
+    private bool HasNext => Total is { } total ? Page < PageWindow.TotalPages(total, PageSize) : Shown >= PageSize;
+
+    private string RangeText
+    {
+        get
+        {
+            if (Total is not { } total)
+            {
+                return L["DocListPage", Page];
+            }
+
+            var (from, to) = PageWindow.Range(Page, PageSize, total);
+            return L["DocListRange", from, to, total];
+        }
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!_check)
+        {
+            return;
+        }
+
+        var used = _used;
+        (_check, _used) = (false, Arrow.None);
+        if (Total is not null)
+        {
+            // A number was clicked (the window may have moved under the focus), or an arrow turned off:
+            // the current page is the natural place.
+            if (used == Arrow.None || used == Arrow.Previous && Page <= 1 || used == Arrow.Next && !HasNext)
+            {
+                await Js.InvokeVoidAsync("nmpForms.focusById", CurrentId);
+            }
+
+            return;
+        }
+
+        // Without page numbers: the other arrow.
+        if (used == Arrow.Previous && Page <= 1)
+        {
+            await _next.FocusAsync();
+        }
+        else if (used == Arrow.Next && !HasNext)
+        {
+            await _previous.FocusAsync();
+        }
+    }
+
+    // The check runs only after the page has been loaded (the callback returns when it has), so the render
+    // it belongs to already has the new rows; a render before that would see old rows and a new page number.
+    private async Task GoAsync(int page, Arrow arrow)
+    {
+        await PageChanged.InvokeAsync(page);
+        (_used, _check) = (arrow, true);
+    }
+
+    private Task SizeChangedAsync(ChangeEventArgs args) =>
+        int.TryParse(args.Value?.ToString(), out var size) ? PageSizeChanged.InvokeAsync(size) : Task.CompletedTask;
+}

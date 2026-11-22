@@ -1,0 +1,108 @@
+@using System.Globalization
+@inject IStringLocalizer<Strings> L
+
+@* The list as a table (Stitch screen 02). The scroll area is a focusable named region, so a keyboard user
+   can scroll a table that is wider than the screen. Every symbol is decoration: state, privacy and
+   recognition are always words as well. The excerpt is text, never HTML. *@
+<div class="doc-list-scroll" role="region" aria-labelledby="doc-list-caption" tabindex="0">
+    <table class="doc-table doc-list-table">
+        <caption id="doc-list-caption">@L["DocumentsCaption"]</caption>
+        <thead>
+            <tr>
+                <th scope="col">@L["ColTitle"]</th>
+                <th scope="col">@L["ColTypeTags"]</th>
+                <th scope="col">@L["ClsFieldCorrespondent"]</th>
+                <th scope="col">@L["ColDate"]</th>
+                <th scope="col" class="doc-col-amount">@L["ClsFieldAmount"]</th>
+                <th scope="col">@L["ColStatus"]</th>
+                <th scope="col">@L["ColRecognition"]</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var document in Documents)
+            {
+                <tr id="@DocumentLinks.RowId(document.Id)" @key="document.Id">
+                    <th scope="row">
+                        <span class="doc-title-cell">
+                            <span class="doc-icon" aria-hidden="true"><MudIcon Icon="@Icons.Material.Outlined.Description" /></span>
+                            <span>
+                                <a class="doc-title-link" href="@DocumentLinks.Viewer(document.Id)">@document.Title</a>
+                                @if (document.IsPrivate)
+                                {
+                                    <Badge Text="@L["PrivateBadge"]" Icon="@Icons.Material.Filled.Lock" />
+                                }
+                                @if (document.Excerpt is { } excerpt)
+                                {
+                                    <span class="doc-excerpt">@excerpt</span>
+                                }
+                            </span>
+                        </span>
+                    </th>
+                    <td>
+                        @if (document.DocumentType is { } type)
+                        {
+                            <span class="doc-type">@type.Name</span>
+                        }
+                        else
+                        {
+                            @L["ClsNoValue"].Value
+                        }
+                        @if (document.Tags is { Count: > 0 } tags)
+                        {
+                            <span class="doc-tags">
+                                @foreach (var tag in tags)
+                                {
+                                    @* Razor drops the blank at the end of a line, so the separator is written out. *@
+                                    <span><span aria-hidden="true">#</span>@tag.Name</span>@(" ")
+                                }
+                            </span>
+                        }
+                    </td>
+                    <td>@(document.Correspondent?.Name ?? L["ClsNoValue"].Value)</td>
+                    <td>
+                        @if (document.DocumentDate is { } date)
+                        {
+                            <span class="doc-date">@FieldFormat.Date(date, CultureInfo.CurrentCulture)</span>
+                        }
+                        else
+                        {
+                            @L["ClsNoValue"].Value
+                        }
+                        <span class="doc-sub">
+                            <MudIcon Icon="@DocumentSourceText.Icon(document.Source)" aria-hidden="true" />
+                            <time datetime="@document.ReceivedAt.ToString("o", CultureInfo.InvariantCulture)">@ReceivedText(document)</time>
+                        </span>
+                    </td>
+                    <td class="doc-amount">@(document.Amount is { } amount ? FieldFormat.Amount(amount, CultureInfo.CurrentCulture) : L["ClsNoValue"].Value)</td>
+                    <td><StatusText Kind="@DocumentStatus.KindOf(document.State)" /></td>
+                    <td>
+                        @if (document.Recognition == DocumentRecognitionState.Automatic)
+                        {
+                            <Badge Text="@L["ClsRecognitionBadge"]" Icon="@Icons.Material.Filled.AutoAwesome" />
+                        }
+                        else if (document.Recognition == DocumentRecognitionState.Confirmed)
+                        {
+                            <Badge Text="@L["DocListConfirmed"]" Icon="@Icons.Material.Filled.Verified" />
+                        }
+                        else
+                        {
+                            @L["ClsNoValue"].Value
+                        }
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+@code {
+    [Parameter, EditorRequired] public IReadOnlyList<DocumentSummaryDto> Documents { get; set; } = [];
+
+    private string ReceivedText(DocumentSummaryDto document)
+    {
+        var time = document.ReceivedAt.ToLocalTime().ToString("g", CultureInfo.CurrentCulture);
+        return DocumentSourceText.Key(document.Source) is { } key
+            ? L["DocListReceivedVia", time, L[key].Value]
+            : L["DocListReceived", time];
+    }
+}

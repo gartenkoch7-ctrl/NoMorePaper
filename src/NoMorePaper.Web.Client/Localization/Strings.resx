@@ -1736,5 +1736,58 @@
   </data>
   <data name="MailFormHeading" xml:space="preserve">
     <value>Zugangsdaten</value>
+  <data name="DocListCount" xml:space="preserve">
+    <value>{0} Dokumente</value>
+  </data>
+  <data name="DocListCountOne" xml:space="preserve">
+    <value>1 Dokument</value>
+  </data>
+  <data name="DocListTypeGroup" xml:space="preserve">
+    <value>Nach Dokumentart filtern</value>
+  </data>
+  <data name="ColTypeTags" xml:space="preserve">
+    <value>Art und Tags</value>
+  </data>
+  <data name="ColDate" xml:space="preserve">
+    <value>Datum</value>
+  </data>
+  <data name="ColRecognition" xml:space="preserve">
+    <value>Erkennung</value>
+  </data>
+  <data name="DocListReceived" xml:space="preserve">
+    <value>Eingang {0}</value>
+  </data>
+  <data name="DocListReceivedVia" xml:space="preserve">
+    <value>Eingang {0} über {1}</value>
+  </data>
+  <data name="DocListConfirmed" xml:space="preserve">
+    <value>Bestätigt</value>
+  </data>
+  <data name="DocListPager" xml:space="preserve">
+    <value>Seiten der Dokumentliste</value>
+  </data>
+  <data name="DocListPageSize" xml:space="preserve">
+    <value>Zeilen pro Seite</value>
+  </data>
+  <data name="DocListPrevious" xml:space="preserve">
+    <value>Vorherige Seite</value>
+  </data>
+  <data name="DocListNext" xml:space="preserve">
+    <value>Nächste Seite</value>
+  </data>
+  <data name="DocListPage" xml:space="preserve">
+    <value>Seite {0}</value>
+  </data>
+  <data name="DocListRange" xml:space="preserve">
+    <value>Zeige {0}–{1} von {2} Dokumenten</value>
+  </data>
+  <data name="DocListViewGroup" xml:space="preserve">
+    <value>Ansicht</value>
+  </data>
+  <data name="DocListViewTable" xml:space="preserve">
+    <value>Tabelle</value>
+  </data>
+  <data name="DocListViewTiles" xml:space="preserve">
+    <value>Kacheln</value>
   </data>
 </root>

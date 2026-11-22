@@ -1,0 +1,67 @@
+@inject IStringLocalizer<Strings> L
+
+@* Document type as a row of toggle buttons (aria-pressed), each with the number of matching documents.
+   Only types that have documents are offered; a chosen type that no longer has any stays visible with 0,
+   so an active filter is never hidden. Choosing the pressed chip again changes nothing. *@
+@* Without counts (the call failed) only "all" and the chosen type are offered, without numbers, so the
+   filter can still be switched off. *@
+@* Once a type was chosen the group stays, so "all" keeps the focus when it is pressed. *@
+@if (Counts?.ByType.Count > 0 || _chipsShown)
+{
+    <div class="type-chips" role="group" aria-label="@L["DocListTypeGroup"]">
+        <button type="button" class="type-chip" aria-pressed="@(SelectedTypeId is null ? "true" : "false")"
+                @onclick="() => SelectAsync(null)">
+            <span>@L["FilterAll"]</span>@if (Counts is not null)
+            {
+                <span class="type-chip-count">@Counts.AllTypes</span>
+            }
+        </button>
+        @foreach (var entry in Entries)
+        {
+            <button type="button" class="type-chip" aria-pressed="@(SelectedTypeId == entry.Type.Id ? "true" : "false")"
+                    @onclick="() => SelectAsync(entry.Type.Id)" @key="entry.Type.Id">
+                <span>@entry.Type.Name</span>@if (Counts is not null)
+                {
+                    <span class="type-chip-count">@entry.Count</span>
+                }
+            </button>
+        }
+    </div>
+}
+
+@code {
+    // Names seen in earlier counts, so a chosen type can still be named when the counts no longer list it.
+    private readonly Dictionary<Guid, string> _names = [];
+    private bool _chipsShown;
+
+    [Parameter] public DocumentCountsDto? Counts { get; set; }
+
+    [Parameter] public Guid? SelectedTypeId { get; set; }
+
+    [Parameter] public EventCallback<Guid?> OnSelect { get; set; }
+
+    private IEnumerable<DocumentTypeCountDto> Entries
+    {
+        get
+        {
+            var entries = Counts?.ByType.ToList() ?? [];
+            if (SelectedTypeId is { } selected && entries.All(entry => entry.Type.Id != selected))
+            {
+                entries.Add(new DocumentTypeCountDto(new EntryDto(selected, _names.GetValueOrDefault(selected) ?? string.Empty), 0));
+            }
+
+            return entries;
+        }
+    }
+
+    protected override void OnParametersSet()
+    {
+        _chipsShown |= SelectedTypeId is not null;
+        foreach (var entry in Counts?.ByType ?? [])
+        {
+            _names[entry.Type.Id] = entry.Type.Name;
+        }
+    }
+
+    private Task SelectAsync(Guid? typeId) => typeId == SelectedTypeId ? Task.CompletedTask : OnSelect.InvokeAsync(typeId);
+}

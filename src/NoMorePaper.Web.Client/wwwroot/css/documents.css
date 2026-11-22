@@ -1,0 +1,147 @@
+/* Document list page head, filter card and type chips (Stitch screen 02). No outline rules on purpose:
+   focus is drawn by the browser default (ADR-0026, base.css). Values come from the --nmp-* variables. */
+
+.doc-page-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: var(--nmp-space-md);
+    margin-bottom: var(--nmp-space-lg);
+}
+
+/* Native h1: the theme's h1 (40 px) is larger than the design's headline-lg (28/36). */
+.doc-page-title {
+    display: inline-block;
+    margin: 0;
+    font-size: 1.75rem;
+    line-height: 2.25rem;
+    letter-spacing: -0.02em;
+    font-weight: 600;
+    color: var(--nmp-primary);
+}
+
+.doc-count {
+    margin-inline-start: var(--nmp-space-sm);
+    padding: 0.125rem 0.5rem;
+    border-radius: 9999px;
+    background: var(--nmp-elevated-high);
+    color: var(--nmp-text);
+    border: 1px solid var(--nmp-border);
+    font: 400 0.625rem/0.875rem var(--nmp-font-mono);
+    letter-spacing: 0.05em;
+}
+
+.view-toggle {
+    display: inline-flex;
+    padding: 0.125rem;
+    background: var(--nmp-canvas-lowest);
+    border: 1px solid var(--nmp-border);
+    border-radius: var(--nmp-radius);
+}
+
+.view-toggle button {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    padding: 0.375rem 0.5rem;
+    border: 0;
+    border-radius: 0.25rem;
+    background: transparent;
+    color: var(--nmp-text-variant);
+    font: 500 0.6875rem/1rem var(--nmp-font-mono);
+    letter-spacing: 0.04em;
+    cursor: pointer;
+}
+
+.view-toggle button:hover {
+    color: var(--nmp-primary);
+}
+
+.view-toggle button[aria-pressed="true"] {
+    background: var(--nmp-elevated-high);
+    color: var(--nmp-primary);
+}
+
+.view-toggle .mud-icon-root {
+    font-size: 1rem;
+}
+
+.doc-filter-card {
+    display: flex;
+    flex-direction: column;
+    gap: var(--nmp-space-md);
+    padding: var(--nmp-space-md);
+    background: var(--nmp-paper-low);
+    border: 1px solid var(--nmp-border);
+    border-radius: var(--nmp-radius);
+    margin-bottom: var(--nmp-space-lg);
+}
+
+.doc-filter-card #filter-toggle {
+    min-height: 2.25rem;
+    padding: 0 0.75rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    background: var(--nmp-canvas-lowest);
+    color: var(--nmp-text-variant);
+    font: 500 0.6875rem/1rem var(--nmp-font-mono);
+    letter-spacing: 0.04em;
+}
+
+.doc-filter-card #filter-toggle:hover {
+    color: var(--nmp-primary);
+}
+
+.doc-filter-card #filter-toggle .mud-icon-root {
+    font-size: 1rem;
+}
+
+.doc-filter-card .filter-heading {
+    margin: 0;
+}
+
+/* Wrap instead of scrolling sideways: stays usable at 200-400 % zoom. */
+.type-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--nmp-space-xs);
+}
+
+.type-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    padding: 0.25rem 0.75rem;
+    border-radius: 0.25rem;
+    background: var(--nmp-canvas-lowest);
+    color: var(--nmp-text-variant);
+    border: 1px solid var(--nmp-border);
+    font: 400 0.625rem/0.875rem var(--nmp-font-mono);
+    letter-spacing: 0.05em;
+    cursor: pointer;
+}
+
+.type-chip:hover {
+    color: var(--nmp-primary);
+    background: var(--nmp-surface-container);
+}
+
+.type-chip-count {
+    color: var(--nmp-outline);
+}
+
+.type-chip[aria-pressed="true"] {
+    background: var(--nmp-primary);
+    color: var(--nmp-on-primary);
+    border-color: var(--nmp-primary);
+    font-weight: 500;
+}
+
+.type-chip[aria-pressed="true"] .type-chip-count {
+    color: var(--nmp-on-primary);
+    background: rgb(0 0 0 / 0.2);
+    border-radius: 9999px;
+    padding: 0 0.25rem;
+}

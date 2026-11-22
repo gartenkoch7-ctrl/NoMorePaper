@@ -18,8 +18,8 @@ public sealed class DocumentListTests(ServerFixture server)
 
         await Assertions.Expect(page.GetByRole(AriaRole.Table)).ToBeVisibleAsync();
         await Assertions.Expect(page.Locator("caption")).ToHaveTextAsync("Alle Dokumente, neueste zuerst");
-        await Assertions.Expect(page.GetByRole(AriaRole.Columnheader)).ToHaveTextAsync(["Titel", "Absender", "Dokumentart", "Dokumentdatum", "Betrag", "Eingang", "Status"]);
-        await ExpectRowAsync(page, "Stromrechnung", "In Warteschlange");
+        await Assertions.Expect(page.GetByRole(AriaRole.Columnheader)).ToHaveTextAsync(["Titel", "Art und Tags", "Absender", "Datum", "Betrag", "Status", "Erkennung"]);
+        await ExpectRowAsync(page, "Stromrechnung", "Wartet");
         await ExpectRowAsync(page, "Mietvertrag", "Wird verarbeitet");
         await ExpectRowAsync(page, "Steuerbescheid", "Fertig");
         await ExpectRowAsync(page, "Kaputter Scan", "Fehlgeschlagen");
@@ -31,7 +31,7 @@ public sealed class DocumentListTests(ServerFixture server)
         await using var session = await ApiMocks.OpenViaNavigationAsync(server, SupportedCultures.English, "Documents",
             page => ApiMocks.ListAsync(page, SampleDocuments.OneOfEachState()));
 
-        await ExpectRowAsync(session.Page, "Stromrechnung", "Queued");
+        await ExpectRowAsync(session.Page, "Stromrechnung", "Waiting");
         await ExpectRowAsync(session.Page, "Kaputter Scan", "Failed");
     }
 
@@ -49,7 +49,7 @@ public sealed class DocumentListTests(ServerFixture server)
     {
         var fail = true;
         await using var session = await ApiMocks.OpenViaNavigationAsync(server, SupportedCultures.German, "Dokumente",
-            page => page.RouteAsync(new System.Text.RegularExpressions.Regex(@"/api/documents\?"), route => fail
+            page => RouteListAsync(page, route => fail
                 ? route.FulfillAsync(new RouteFulfillOptions { Status = 500, ContentType = "application/problem+json", Body = "{}" })
                 : route.FulfillAsync(new RouteFulfillOptions
                 {
@@ -76,7 +76,7 @@ public sealed class DocumentListTests(ServerFixture server)
         var calls = 0;
         var id = Guid.NewGuid();
         await using var session = await ApiMocks.OpenViaNavigationAsync(server, SupportedCultures.German, "Dokumente",
-            page => page.RouteAsync(new System.Text.RegularExpressions.Regex(@"/api/documents\?"), route =>
+            page => RouteListAsync(page, route =>
             {
                 var state = Interlocked.Increment(ref calls) == 1 ? "Processing" : "Done";
                 return route.FulfillAsync(new RouteFulfillOptions
@@ -102,7 +102,7 @@ public sealed class DocumentListTests(ServerFixture server)
         var calls = 0;
         var (brief, rechnung) = (Guid.NewGuid(), Guid.NewGuid());
         await using var session = await ApiMocks.OpenViaNavigationAsync(server, SupportedCultures.German, "Dokumente",
-            page => page.RouteAsync(new System.Text.RegularExpressions.Regex(@"/api/documents\?"), route =>
+            page => RouteListAsync(page, route =>
             {
                 var (first, second) = Interlocked.Increment(ref calls) == 1 ? ("Processing", "Queued") : ("Done", "Failed");
                 return route.FulfillAsync(new RouteFulfillOptions
@@ -121,6 +121,13 @@ public sealed class DocumentListTests(ServerFixture server)
         // One message with both changes, not the second one cutting off the first.
         await Assertions.Expect(page.Locator("main .documents-changes"))
             .ToHaveTextAsync("Brief: Status Fertig. Rechnung: Status Fehlgeschlagen");
+    }
+
+    // Own list answer, and no counts (see ApiMocks.ListAsync).
+    private static async Task RouteListAsync(IPage page, Func<IRoute, Task> handler)
+    {
+        await ApiMocks.NoCountsAsync(page);
+        await page.RouteAsync(new System.Text.RegularExpressions.Regex(@"/api/documents\?"), handler);
     }
 
     private static Task ExpectRowAsync(IPage page, string title, string state)

@@ -45,6 +45,10 @@ public static class DocumentFilterQuery
             filter.AmountFrom, filter.AmountTo, filter.IsPrivate,
         }.Count(value => value is not null);
 
+    /// <summary>The filter of the bar together with the document type of the chips; <c>null</c> when both are off.</summary>
+    public static DocumentFilterDto? Combine(DocumentFilterDto? bar, Guid? typeId) =>
+        ActiveCount(bar) == 0 && typeId is null ? null : (bar ?? new DocumentFilterDto()) with { DocumentTypeId = typeId };
+
     private static void Add(StringBuilder query, string name, string? value)
     {
         if (value is not null)

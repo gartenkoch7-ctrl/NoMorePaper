@@ -1,0 +1,158 @@
+/* Document list table (Stitch screen 02; pager and tiles are in their own files). No outline rules on purpose:
+   focus is drawn by the browser default (ADR-0026, base.css). Values come from the --nmp-* variables. */
+
+.doc-list-frame {
+    background: var(--nmp-canvas-lowest);
+    border: 1px solid var(--nmp-border);
+    border-radius: var(--nmp-radius);
+    overflow: hidden;
+}
+
+.doc-list-scroll {
+    overflow-x: auto;
+}
+
+.doc-list-table caption {
+    caption-side: top;
+    padding: 0.75rem 1rem;
+    margin: 0;
+    background: var(--nmp-paper-low);
+    border-bottom: 1px solid var(--nmp-border);
+    color: var(--nmp-text-variant);
+    font: 400 0.625rem/0.875rem var(--nmp-font-mono);
+    letter-spacing: 0.05em;
+    text-align: start;
+}
+
+.doc-list-table :is(th, td) {
+    padding: 0.75rem 1rem;
+    vertical-align: top;
+}
+
+.doc-list-table tbody th {
+    font-weight: 400;
+}
+
+.doc-list-table tbody tr:hover {
+    background: var(--nmp-surface-container);
+}
+
+.doc-icon {
+    flex: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2rem;
+    height: 2rem;
+    margin-top: 0.125rem;
+    border-radius: 0.25rem;
+    background: var(--nmp-elevated-high);
+    color: var(--nmp-primary);
+}
+
+.doc-icon .mud-icon-root {
+    font-size: 1.125rem;
+}
+
+.doc-list-table tbody tr:hover .doc-icon {
+    background: var(--nmp-primary);
+    color: var(--nmp-on-primary);
+}
+
+.doc-title-cell {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+}
+
+.doc-title-link {
+    font-size: 0.875rem;
+    line-height: 1.375rem;
+    font-weight: 500;
+    letter-spacing: -0.005em;
+    color: var(--nmp-primary);
+    text-decoration: none;
+}
+
+.doc-title-link:hover {
+    text-decoration: underline;
+}
+
+/* The server shortens the excerpt; it is not cut off here. */
+.doc-excerpt {
+    display: block;
+    margin-top: 0.125rem;
+    font: 400 0.75rem/1.125rem var(--nmp-font-mono);
+    color: var(--nmp-outline);
+}
+
+.doc-type {
+    display: inline-block;
+    padding: 0.125rem 0.5rem;
+    border-radius: 0.25rem;
+    background: var(--nmp-elevated-high);
+    color: var(--nmp-primary);
+    border: 1px solid var(--nmp-border);
+    font: 400 0.6875rem/1rem var(--nmp-font-mono);
+}
+
+.doc-tags {
+    display: block;
+    margin-top: 0.25rem;
+    font: 400 0.625rem/0.875rem var(--nmp-font-mono);
+    color: var(--nmp-outline);
+}
+
+.doc-date {
+    font: 500 0.6875rem/1rem var(--nmp-font-mono);
+    letter-spacing: 0.04em;
+    color: var(--nmp-primary);
+}
+
+.doc-sub {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    margin-top: 0.125rem;
+    font-size: 0.6875rem;
+    line-height: 1rem;
+    color: var(--nmp-outline);
+}
+
+.doc-sub .mud-icon-root {
+    font-size: 0.8125rem;
+}
+
+.doc-list-table td.doc-amount {
+    text-align: end;
+    white-space: nowrap;
+    font: 600 0.6875rem/1rem var(--nmp-font-mono);
+    color: var(--nmp-primary);
+}
+
+.doc-table th.doc-col-amount {
+    text-align: end;
+}
+
+.doc-list-table .nmp-status {
+    font-size: 0.6875rem;
+    line-height: 1rem;
+}
+
+.doc-list-table .nmp-status .mud-icon-root {
+    font-size: 0.9375rem;
+}
+
+/* components.css gives table icons a margin for icon + text cells; the badges and status here use a gap. */
+.doc-list-table td .mud-icon-root {
+    margin-inline-end: 0;
+}
+
+.doc-title-cell .nmp-badge {
+    margin-inline-start: 0.375rem;
+}
+
+/* The frame clips its corners; the browser's own focus ring is drawn inside so it is not cut off. */
+.doc-list-scroll:focus-visible {
+    outline-offset: -3px;
+}

@@ -23,8 +23,8 @@ Ablauf und Status-Stufen: [KB ui-prozess.md](../../kb/ui-prozess.md). Stitch-Pro
 
 | Nr. | Seite | Route | Ordner | Status |
 |---|---|---|---|---|
-| 01 | Anmelden | `/anmelden` | [01-anmelden](01-anmelden/notizen.md) | umgesetzt |
-| 02 | Dokumente (Übersicht, mit Seitenleiste und Kopf) | `/dokumente` | [02-dokumente](02-dokumente/notizen.md) | freigegeben |
+| 01 | Anmelden | `/anmelden` | [01-anmelden](01-anmelden/notizen.md) | umgesetzt (Abnahme offen) |
+| 02 | Dokumente (Übersicht, mit Seitenleiste und Kopf) | `/dokumente` | [02-dokumente](02-dokumente/notizen.md) | umgesetzt (Abnahme offen) |
 | 03 | Dokument ansehen (Viewer + Angaben) | `/dokumente/{id}` | [03-dokument-ansehen](03-dokument-ansehen/notizen.md) | freigegeben (`screen.png` fehlt) |
 | 04 | Eingänge (Scanner-Ordner, Mail, iCloud) | `/eingaenge` | [04-eingaenge](04-eingaenge/notizen.md) | freigegeben |
 

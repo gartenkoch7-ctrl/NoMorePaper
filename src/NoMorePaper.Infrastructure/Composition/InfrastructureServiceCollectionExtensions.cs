@@ -41,6 +41,7 @@ public static class InfrastructureServiceCollectionExtensions
             provider.GetRequiredService<IDirectorySync>(),
             provider.GetRequiredService<ILogger<FileSystemDocumentStorage>>()));
         services.AddScoped<IDocumentRepository, EfDocumentRepository>();
+        services.AddScoped<IDocumentCounts, EfDocumentCounts>();
         services.AddScoped<ISearchIndex, PostgresSearchIndex>();
         services.AddScoped<IClassificationStore, ClassificationStore>();
         services.AddScoped<IDocumentFieldsStore, EfDocumentFieldsStore>();
