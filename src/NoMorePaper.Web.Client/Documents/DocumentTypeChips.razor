@@ -5,7 +5,8 @@
    so an active filter is never hidden. Choosing the pressed chip again changes nothing. *@
 @* Without counts (the call failed) only "all" and the chosen type are offered, without numbers, so the
    filter can still be switched off. *@
-@if (Counts?.ByType.Count > 0 || SelectedTypeId is not null)
+@* Once a type was chosen the group stays, so "all" keeps the focus when it is pressed. *@
+@if (Counts?.ByType.Count > 0 || _chipsShown)
 {
     <div class="type-chips" role="group" aria-label="@L["DocListTypeGroup"]">
         <button type="button" class="type-chip" aria-pressed="@(SelectedTypeId is null ? "true" : "false")"
@@ -31,6 +32,7 @@
 @code {
     // Names seen in earlier counts, so a chosen type can still be named when the counts no longer list it.
     private readonly Dictionary<Guid, string> _names = [];
+    private bool _chipsShown;
 
     [Parameter] public DocumentCountsDto? Counts { get; set; }
 
@@ -54,6 +56,7 @@
 
     protected override void OnParametersSet()
     {
+        _chipsShown |= SelectedTypeId is not null;
         foreach (var entry in Counts?.ByType ?? [])
         {
             _names[entry.Type.Id] = entry.Type.Name;

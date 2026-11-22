@@ -26,10 +26,7 @@
 
 <div class="doc-filter-card">
     <DocumentFilterBar ActiveCount="@DocumentFilterQuery.ActiveCount(_barFilter)" OnApply="ApplyFilterAsync" />
-    @if (_counts is not null || _typeId is not null)
-    {
-        <DocumentTypeChips Counts="_counts" SelectedTypeId="_typeId" OnSelect="SelectTypeAsync" />
-    }
+    <DocumentTypeChips Counts="_counts" SelectedTypeId="_typeId" OnSelect="SelectTypeAsync" />
 </div>
 
 @* Two regions: the state changes of the poll and the number of documents a filter found must not cut each other off. *@

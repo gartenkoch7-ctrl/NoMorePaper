@@ -64,6 +64,11 @@
     border-top: 1px solid var(--nmp-border);
 }
 
+.doc-tile-amount-label,
+.doc-tile-amount {
+    display: block;
+}
+
 .doc-tile-amount-label {
     font: 400 0.625rem/0.875rem var(--nmp-font-mono);
     color: var(--nmp-outline);

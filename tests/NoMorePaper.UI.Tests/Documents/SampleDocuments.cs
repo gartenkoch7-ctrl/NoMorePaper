@@ -25,7 +25,7 @@ internal static class SampleDocuments
         new(Guid.NewGuid(), "Stromrechnung", new DateTimeOffset(2026, 11, 18, 10, 0, 0, TimeSpan.Zero), DocumentProcessingState.Done,
             IsPrivate: true, Correspondent: ClassificationSamples.StadtwerkeMuenchen, DocumentType: ClassificationSamples.Rechnung,
             DocumentDate: new DateOnly(2026, 11, 1), Amount: new MoneyDto(84.20m, "EUR"), Recognition: DocumentRecognitionState.Automatic,
-            Source: "mail", Excerpt: "Stromrechnung der Stadtwerke für Oktober.", Tags: [ClassificationSamples.Strom]),
+            Source: "mail", Excerpt: "Stromrechnung der Stadtwerke für Oktober.", Tags: [ClassificationSamples.Strom, ClassificationSamples.Steuer]),
         new(Guid.NewGuid(), "Handyvertrag", new DateTimeOffset(2026, 11, 17, 9, 0, 0, TimeSpan.Zero), DocumentProcessingState.Done,
             Correspondent: ClassificationSamples.Telekom, DocumentType: ClassificationSamples.Vertrag, Recognition: DocumentRecognitionState.Confirmed,
             Source: "upload"),

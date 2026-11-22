@@ -52,7 +52,8 @@
                             <span class="doc-tags">
                                 @foreach (var tag in tags)
                                 {
-                                    <span><span aria-hidden="true">#</span>@tag.Name </span>
+                                    @* Razor drops the blank at the end of a line, so the separator is written out. *@
+                                    <span><span aria-hidden="true">#</span>@tag.Name</span>@(" ")
                                 }
                             </span>
                         }

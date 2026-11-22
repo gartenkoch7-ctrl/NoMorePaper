@@ -1,4 +1,4 @@
-/* Document list table, pager and tiles (Stitch screen 02). No outline rules on purpose:
+/* Document list table (Stitch screen 02; pager and tiles are in their own files). No outline rules on purpose:
    focus is drawn by the browser default (ADR-0026, base.css). Values come from the --nmp-* variables. */
 
 .doc-list-frame {
@@ -146,6 +146,10 @@
 /* components.css gives table icons a margin for icon + text cells; the badges and status here use a gap. */
 .doc-list-table td .mud-icon-root {
     margin-inline-end: 0;
+}
+
+.doc-title-cell .nmp-badge {
+    margin-inline-start: 0.375rem;
 }
 
 /* The frame clips its corners; the browser's own focus ring is drawn inside so it is not cut off. */

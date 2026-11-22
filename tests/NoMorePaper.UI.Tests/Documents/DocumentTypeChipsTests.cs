@@ -93,8 +93,12 @@ public sealed class DocumentTypeChipsTests(ServerFixture server)
         await using var session = await ApiMocks.OpenViaNavigationAsync(server, SupportedCultures.German, "Dokumente", async page =>
         {
             await MockAsync(page, new ConcurrentQueue<string>());
-            await page.RouteAsync(new System.Text.RegularExpressions.Regex(@"/api/documents/counts\?.*documentTypeId="),
-                route => route.FulfillAsync(new RouteFulfillOptions { Status = 500, ContentType = "application/problem+json", Body = "{}" }));
+            // The first count (page load) works, every later one fails.
+            var calls = 0;
+            await page.RouteAsync(new System.Text.RegularExpressions.Regex(@"/api/documents/counts"),
+                route => Interlocked.Increment(ref calls) == 1
+                    ? route.FallbackAsync()
+                    : route.FulfillAsync(new RouteFulfillOptions { Status = 500, ContentType = "application/problem+json", Body = "{}" }));
         });
         var page = session.Page;
 
@@ -103,8 +107,11 @@ public sealed class DocumentTypeChipsTests(ServerFixture server)
         var chosen = page.GetByRole(AriaRole.Button, new() { Name = "Rechnung", Exact = true });
         await Assertions.Expect(chosen).ToHaveAttributeAsync("aria-pressed", "true");
         await Assertions.Expect(page.Locator(".type-chip-count")).ToHaveCountAsync(0);
-        await page.GetByRole(AriaRole.Button, new() { Name = "Alle", Exact = true }).ClickAsync();
-        await Assertions.Expect(page.GetByRole(AriaRole.Button, new() { Name = "Alle 3" })).ToHaveAttributeAsync("aria-pressed", "true");
+        var all = page.GetByRole(AriaRole.Button, new() { Name = "Alle", Exact = true });
+        await all.ClickAsync();
+        // Counts still fail: the group stays and the focus stays on the pressed button.
+        await Assertions.Expect(all).ToHaveAttributeAsync("aria-pressed", "true");
+        await Assertions.Expect(all).ToBeFocusedAsync();
     }
 
     [Fact]

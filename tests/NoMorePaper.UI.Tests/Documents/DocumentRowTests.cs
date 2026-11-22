@@ -32,8 +32,8 @@ public sealed class DocumentRowTests(ServerFixture server)
 
         await Assertions.Expect(row).ToContainTextAsync("Stromrechnung der Stadtwerke für Oktober.");
         await Assertions.Expect(row.Locator(".doc-type")).ToHaveTextAsync("Rechnung");
-        await Assertions.Expect(row.Locator(".doc-tags")).ToContainTextAsync("Strom");
-        await Assertions.Expect(row.Locator(".doc-tags span[aria-hidden=true]")).ToHaveTextAsync("#");
+        await Assertions.Expect(row.Locator(".doc-tags")).ToHaveTextAsync("#Strom #Steuer");
+        await Assertions.Expect(row.Locator(".doc-tags span[aria-hidden=true]")).ToHaveTextAsync(["#", "#"]);
         await Assertions.Expect(row.Locator(".doc-date")).ToHaveTextAsync("01.11.2026");
         await Assertions.Expect(row).ToContainTextAsync("über Mail");
         await Assertions.Expect(row.Locator(".doc-amount")).ToHaveTextAsync("84,20 EUR");
