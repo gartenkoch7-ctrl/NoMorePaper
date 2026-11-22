@@ -124,6 +124,64 @@ public sealed class AccountPagesAccessibilityTests(ServerFixture server)
     [Theory]
     [InlineData(SupportedCultures.German)]
     [InlineData(SupportedCultures.English)]
+    public async Task ResetDone_HasNoAxeViolations(string culture)
+    {
+        var fake = new FakeAccounts();
+        await using var session = await server.OpenAsync("/passwort/abc", culture, signedIn: false, async page =>
+        {
+            await fake.InstallAsync(page);
+            await fake.Mocks.RespondAsync(page, "POST", "/api/password-reset/abc", 204);
+        });
+        var page = session.Page;
+        await page.Locator("#reset-password").FillAsync("Ein-neues-Passwort");
+        await page.Locator("#reset-repeat").FillAsync("Ein-neues-Passwort");
+        await page.Keyboard.PressAsync("Enter");
+        await page.Locator("main [role=status]").WaitForAsync();
+
+        await AxeCheck.NoViolationsAsync(page);
+    }
+
+    [Theory]
+    [InlineData(SupportedCultures.German)]
+    [InlineData(SupportedCultures.English)]
+    public async Task EmergencyResetNewCode_HasNoAxeViolations(string culture)
+    {
+        var fake = new FakeAccounts();
+        await using var session = await server.OpenAsync("/notfall", culture, signedIn: false, async page =>
+        {
+            await fake.InstallAsync(page);
+            await fake.Mocks.RespondAsync(page, "POST", "/api/emergency-reset", 200, new EmergencyCodeDto("NEUERCODE1234567890A"));
+        });
+        var page = session.Page;
+        await page.Locator("#emergency-user").FillAsync("anna");
+        await page.Locator("#emergency-input").FillAsync("ABCDEFGHIJKLMNOPQRST");
+        await page.Locator("#emergency-password").FillAsync("Ein-neues-Passwort");
+        await page.Locator("#emergency-repeat").FillAsync("Ein-neues-Passwort");
+        await page.Keyboard.PressAsync("Enter");
+        await page.Locator("#emergency-code").WaitForAsync();
+
+        await AxeCheck.NoViolationsAsync(page);
+    }
+
+    [Theory]
+    [InlineData(SupportedCultures.German)]
+    [InlineData(SupportedCultures.English)]
+    public async Task SignInOnAPhone_HasNoAxeViolations(string culture)
+    {
+        var fake = new FakeAccounts();
+        await using var session = await server.OpenAsync("/anmelden", culture, signedIn: false, async page =>
+        {
+            await page.SetViewportSizeAsync(390, 844);
+            await fake.InstallAsync(page);
+        });
+        await session.Page.Locator("main [data-ready]").First.WaitForAsync();
+
+        await AxeCheck.NoViolationsAsync(session.Page);
+    }
+
+    [Theory]
+    [InlineData(SupportedCultures.German)]
+    [InlineData(SupportedCultures.English)]
     public async Task SignInError_HasNoAxeViolations(string culture)
     {
         var fake = new FakeAccounts { LoginStatus = 401 };

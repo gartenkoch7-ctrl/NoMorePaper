@@ -411,6 +411,12 @@
   <data name="SignInForgot" xml:space="preserve">
     <value>Passwort vergessen? Bitte den Verwalter um einen Rücksetzlink. Der Verwalter selbst braucht seinen Notfall-Code.</value>
   </data>
+  <data name="SignInForgotShort" xml:space="preserve">
+    <value>Passwort vergessen? Frag den Verwalter.</value>
+  </data>
+  <data name="SignInIntro" xml:space="preserve">
+    <value>Melde dich an, um papierlos zu arbeiten.</value>
+  </data>
   <data name="SignInEmergencyLink" xml:space="preserve">
     <value>Mit dem Notfall-Code ein neues Passwort setzen</value>
   </data>

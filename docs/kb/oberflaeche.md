@@ -77,6 +77,12 @@ innen 0,25 rem. Knöpfe 38 px hoch.
 | Reiter | `TabList.razor` | WAI-ARIA-Muster, Pfeile/Pos1/Ende über `TabNavigation` |
 | Knöpfe | `.nmp-button`, `.nmp-button-primary` | Standard umrandet, Hauptaktion weiß |
 | Kacheln | `.link-tiles`, `.link-tile` | große Links mit Titel und Erklärung |
+| Anmelderahmen | `Accounts/AccountFrame.razor` | Rahmen der Seiten für Abgemeldete: Logo-Kachel (`aria-hidden`), Überzeile, einzige H1, Unterzeile, Karte |
+
+**Felder** (`FormField`, `accounts.css`): Beschriftung Mono 11 px, Feld 44 px hoch auf `#0a0a0a`, optionales Symbol
+links (`aria-hidden`), bei Passwörtern Augen-Knopf rechts im Feld (Name „Passwort anzeigen: …“, Zustand in
+`aria-pressed`). Im Fokus weißer Rand; ein ungültiges Feld hat einen gestrichelten Rand in `--nmp-error`
+(nicht nur Farbe).
 
 ## Fokus
 

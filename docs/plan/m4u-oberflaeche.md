@@ -37,7 +37,7 @@ Grundsätze (aus den Notizen je Screen):
 - [x] Unterseite „Einstellungen“ bündelt Konto, Eingänge, Listen, Mitglieder (Admin); Routen bleiben gleich
 
 ### A. Anmelden (Screen 01)
-- [ ] `SignIn.razor` nach Entwurf: Logo lokal, Karte, Benutzername statt E-Mail, Link „Mit Notfall-Code
+- [x] `SignIn.razor` nach Entwurf: Logo lokal, Karte, Benutzername statt E-Mail, Link „Mit Notfall-Code
       anmelden“; dieselbe Gestaltung für Ersteinrichtung, Einladung, Passwort zurücksetzen, Notfall
 
 ### B. Dokumente (Screen 02)

@@ -8,40 +8,43 @@
 
 <PageTitle>@L["SetupTitle"]</PageTitle>
 
-<MudText Typo="Typo.h1">@L["SetupHeading"]</MudText>
-
-@if (_checking)
-{
-    <p role="status">@L["SessionLoading"]</p>
-}
-else if (_alreadyDone)
-{
-    <p data-ready>@L["SetupAlreadyDone"]</p>
-    <p><a href="anmelden">@L["SetupToSignIn"]</a></p>
-}
-else if (_emergencyCode is not null)
-{
-    <div data-ready>
-        <EmergencyCodeView Code="@_emergencyCode" OnConfirmed="ContinueAsync" />
-    </div>
-}
-else
-{
-    <p>@L["SetupIntro"]</p>
-    <form class="account-form" novalidate @onsubmit="SubmitAsync" data-ready>
-        <FormField Id="setup-display" Label="@L["FieldDisplayName"]" Autocomplete="name"
-                   @bind-Value="_displayName" Invalid='_form.IsInvalid("setup-display")' />
-        <FormField Id="setup-user" Label="@L["FieldUserName"]" Autocomplete="username"
-                   @bind-Value="_userName" Invalid='_form.IsInvalid("setup-user")' />
-        <FormField Id="setup-password" Label="@L["FieldNewPassword"]" Autocomplete="new-password" Password="true"
-                   Hint="@L["HintPasswordLength", FormValidation.MinPasswordLength]"
-                   @bind-Value="_password" Invalid='_form.IsInvalid("setup-password")' />
-        <FormField Id="setup-repeat" Label="@L["FieldRepeatPassword"]" Autocomplete="new-password" Password="true"
-                   @bind-Value="_repeat" Invalid='_form.IsInvalid("setup-repeat")' />
-        <LiveRegion @ref="_error" Assertive="true" Class="form-error" />
-        <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" Color="Color.Primary" Disabled="_busy">@L["SetupButton"]</MudButton>
-    </form>
-}
+<AccountFrame Heading="@L["SetupHeading"]" Intro="@(_checking || _alreadyDone || _emergencyCode is not null ? null : L["SetupIntro"].Value)">
+    @if (_checking)
+    {
+        <p role="status">@L["SessionLoading"]</p>
+    }
+    else if (_alreadyDone)
+    {
+        <p data-ready>@L["SetupAlreadyDone"]</p>
+        <p><a href="anmelden">@L["SetupToSignIn"]</a></p>
+    }
+    else if (_emergencyCode is not null)
+    {
+        <div data-ready>
+            <EmergencyCodeView Code="@_emergencyCode" OnConfirmed="ContinueAsync" />
+        </div>
+    }
+    else
+    {
+        <form class="account-form" novalidate @onsubmit="SubmitAsync" data-ready>
+            <FormField Id="setup-display" Label="@L["FieldDisplayName"]" Autocomplete="name" Icon="@Icons.Material.Outlined.Badge"
+                       @bind-Value="_displayName" Invalid='_form.IsInvalid("setup-display")' />
+            <FormField Id="setup-user" Label="@L["FieldUserName"]" Autocomplete="username" Icon="@Icons.Material.Outlined.Person"
+                       @bind-Value="_userName" Invalid='_form.IsInvalid("setup-user")' />
+            <FormField Id="setup-password" Label="@L["FieldNewPassword"]" Autocomplete="new-password" Password="true"
+                       Icon="@Icons.Material.Outlined.Lock"
+                       Hint="@L["HintPasswordLength", FormValidation.MinPasswordLength]"
+                       @bind-Value="_password" Invalid='_form.IsInvalid("setup-password")' />
+            <FormField Id="setup-repeat" Label="@L["FieldRepeatPassword"]" Autocomplete="new-password" Password="true"
+                       Icon="@Icons.Material.Outlined.Lock"
+                       @bind-Value="_repeat" Invalid='_form.IsInvalid("setup-repeat")' />
+            <LiveRegion @ref="_error" Assertive="true" Class="form-error" />
+            <button type="submit" class="nmp-button nmp-button-primary account-frame-submit" disabled="@_busy">
+                <span>@L["SetupButton"]</span><MudIcon Icon="@Icons.Material.Filled.ArrowForward" aria-hidden="true" />
+            </button>
+        </form>
+    }
+</AccountFrame>
 
 @code {
     private FormValidation _form = default!;
