@@ -81,9 +81,6 @@ public sealed class ClassificationAccessibilityTests(ServerFixture server)
         await page.Locator("#list-correspondents-merge").ClickAsync();
         await page.Locator("#list-tags-rename-" + ClassificationSamples.Strom.Id.ToString("N")).ClickAsync();
         await Assertions.Expect(page.Locator("#list-tags-rename-input")).ToBeFocusedAsync();
-        // The fixed header covers whatever scrolled under it; axe would flag that covered content,
-        // not the page itself. Where focus scrolled to depends on the page's height.
-        await page.EvaluateAsync("() => window.scrollTo(0, 0)");
 
         await AxeCheck.NoViolationsAsync(page);
     }

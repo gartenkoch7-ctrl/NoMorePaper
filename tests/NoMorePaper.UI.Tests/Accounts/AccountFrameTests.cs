@@ -115,6 +115,28 @@ public sealed class AccountFrameTests(ServerFixture server)
         Assert.True(fits);
     }
 
+    [Theory]
+    [InlineData(1280, 800)]
+    [InlineData(390, 844)]
+    [InlineData(320, 256)]
+    public async Task EmergencyCode_IsFullyVisibleInItsField(int width, int height)
+    {
+        await using var session = await OpenAsync("/einrichten", async page =>
+        {
+            await page.SetViewportSizeAsync(width, height);
+            await page.RouteAsync(new System.Text.RegularExpressions.Regex("/api/setup$"), route =>
+                route.Request.Method == "POST"
+                    ? route.FulfillAsync(new() { Status = 200, ContentType = "application/json", Body = "{\"emergencyCode\":\"ABCDEFGHIJKLMNOPQRST\"}" })
+                    : route.FallbackAsync());
+        }, setupNeeded: true);
+        await SetupFlow.FillAndSubmitAsync(session.Page);
+        var code = session.Page.Locator("#emergency-code");
+        await code.WaitForAsync();
+
+        var fits = await code.EvaluateAsync<bool>("el => el.scrollWidth <= el.clientWidth");
+        Assert.True(fits);
+    }
+
     [Fact]
     public async Task SignIn_LoadsNothingFromOtherHosts()
     {

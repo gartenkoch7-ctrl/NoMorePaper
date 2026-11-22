@@ -13,6 +13,9 @@ internal static class AxeCheck
 {
     public static async Task NoViolationsAsync(IPage page)
     {
+        // The header is sticky from 1024 px and covers rows above the focus; axe's target-size rule
+        // would flag that covered content, depending on where focus scrolled to. Check from the top.
+        await page.EvaluateAsync("() => window.scrollTo(0, 0)");
         var result = await page.RunAxe(AxeRules.Strict());
 
         Assert.True(result.Violations.Length == 0, Describe(result.Violations));
