@@ -134,4 +134,4 @@ Nein. S0-Vorgabe vollständig gezeigt. „Ja, teilen“ weiß statt neutral ist 
 in der App neutral umsetzen (oder der Nutzer entscheidet bei der Freigabe, ob „Ja, teilen“ weiß sein darf –
 im Papierkorb ist „Ja, leeren“ weiß freigegeben).
 
-Status (M4b-Nachtrag): Vorschlag – Freigabe durch den Nutzer offen
+Status (M4b-Nachtrag): freigegeben durch den Nutzer (2026-11-23); Restpunkte werden beim Umsetzen nach Plan behoben

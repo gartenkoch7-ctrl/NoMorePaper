@@ -78,4 +78,4 @@ Nein, nicht nötig: alle S0-Punkte sind gezeigt; die offenen Punkte (Viewer-Leis
 Zustände nur in `VersionsSection`, Erfolgsansagen) sind entweder unverändert bestehende App-Teile oder im Detailplan
 genau beschrieben. Optional: „Aktiv – wird angezeigt“ und die Rückfrage zur Wahl noch einmal in v3 zeigen.
 
-Status: Vorschlag v3 – Freigabe durch den Nutzer offen
+Status: freigegeben durch den Nutzer (2026-11-23); Restpunkte werden beim Umsetzen nach Plan behoben

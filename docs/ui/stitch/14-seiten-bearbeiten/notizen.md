@@ -84,4 +84,4 @@ auftauchen:
 - Anhängen: falschen Privat-Satz ersetzen; Rückfrage mit Privat-Hinweis („Das Ergebnis wird deshalb privat.“) zeigen;
   Abschnitt nur ohne ungespeicherte Änderungen (oder die Demo-Seiten ohne Änderung).
 
-Status: Vorschlag v3 – Freigabe durch den Nutzer offen
+Status: freigegeben durch den Nutzer (2026-11-23); Restpunkte werden beim Umsetzen nach Plan behoben

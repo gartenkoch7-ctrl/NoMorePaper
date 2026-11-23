@@ -119,4 +119,4 @@ H2 „Eingänge und neue Dokumente“ – passt zur Umsetzung). Weiterhin anders
 
 Nein. S0-Vorgabe vollständig gezeigt; Restpunkte sind unsichtbar (ARIA) oder betreffen den bestehenden Teil.
 
-Status (M4b-Nachtrag): Vorschlag – Freigabe durch den Nutzer offen
+Status (M4b-Nachtrag): freigegeben durch den Nutzer (2026-11-23); Restpunkte werden beim Umsetzen nach Plan behoben

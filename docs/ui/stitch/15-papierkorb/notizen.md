@@ -88,4 +88,4 @@ Rahmen, kein Rot) eingehalten. Die fehlende Rückfrage je Zeile ist in v2 entwor
 Optional (Nutzer entscheidet bei der Freigabe): Rückfrage „endgültig löschen“ je Zeile wieder zeigen und den
 Schrift-Link korrigieren, damit das Bild Mono zeigt.
 
-Status: Vorschlag v3 – Freigabe durch den Nutzer offen
+Status: freigegeben durch den Nutzer (2026-11-23); Restpunkte werden beim Umsetzen nach Plan behoben
