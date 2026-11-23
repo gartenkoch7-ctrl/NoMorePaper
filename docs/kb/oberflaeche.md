@@ -128,7 +128,7 @@ hebt Fokus selbst hervor.
   Punkte und Linie sind reines CSS (`content: ""`), nichts davon wird vorgelesen.
 - **Werkzeugleiste:** Symbolknöpfe mit `aria-label`, Zoom und Seite als Text; „Originalfarben“ und „Vollbild“ als Textknöpfe mit
   `aria-pressed`. Vollbild (`wwwroot/js/fullscreen.js`) nur, wo der Browser Elemente ins Vollbild setzen kann (iPhone: kein Knopf);
-  die Spalte `#doc-view-viewer` geht ins Vollbild, die Ansage „Vollbild an“ kommt aus ihr.
+  die Spalte `#doc-view-viewer` geht ins Vollbild (alles drumherum ist dabei `inert`, damit Tab nicht hinausläuft), die Ansage „Vollbild an“ kommt aus ihr.
 - **Seitenbreite im Test:** Bei 100 % ist eine A4-Seite etwa 800 px breit; Pixeltests des Viewers brauchen daher ein Fenster von
   mindestens 1800 px, sonst ist die Seite im schmaleren Viewer seitlich angeschnitten.
 - `.nmp-visually-hidden` (design.css) blendet Überschriften nur optisch aus (Reiter „Verlauf“).

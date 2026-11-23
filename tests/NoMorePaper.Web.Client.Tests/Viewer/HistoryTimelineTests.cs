@@ -102,11 +102,15 @@ public sealed class HistoryTimelineTests
     public void EveryTitleAndSourceKey_HasAText(string culture)
     {
         var strings = new ResourceManager("NoMorePaper.Web.Client.Localization.Strings", typeof(Strings).Assembly);
-        var info = CultureInfo.GetCultureInfo(culture);
+        // German is the neutral resource (Strings.resx, no satellite), English has its own file.
+        var info = culture == "de" ? CultureInfo.InvariantCulture : CultureInfo.GetCultureInfo(culture);
         var keys = Enum.GetValues<HistoryEntryKind>().Select(HistoryTimeline.TitleKey)
             .Concat(["HistoryVia", "HistoryHint"])
             .Concat(_knownSources.Select(source => HistoryTimeline.SourceKey(source)!));
 
-        Assert.All(keys, key => Assert.False(string.IsNullOrWhiteSpace(strings.GetString(key, info)), $"{culture}: {key}"));
+        // Without parents: GetString would fall back to German and hide a missing English text.
+        var set = strings.GetResourceSet(info, createIfNotExists: true, tryParents: false);
+        Assert.NotNull(set);
+        Assert.All(keys, key => Assert.False(string.IsNullOrWhiteSpace(set.GetString(key)), $"{culture}: {key}"));
     }
 }

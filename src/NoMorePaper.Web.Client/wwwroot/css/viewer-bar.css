@@ -1,0 +1,108 @@
+/* Toolbar after Stitch screen 03: icon buttons carry their name in aria-label, text buttons show it. */
+.viewer-bar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--nmp-space-xs);
+    padding: var(--nmp-space-xs) var(--nmp-space-sm);
+    background-color: var(--nmp-paper-low);
+    border-radius: var(--nmp-radius);
+}
+
+.viewer-bar-group {
+    display: inline-flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--nmp-space-xs);
+}
+
+.viewer-bar-view {
+    flex: 1 1 auto;
+}
+
+.viewer-bar-end {
+    display: inline-flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--nmp-space-xs);
+    margin-inline-start: auto;
+}
+
+.viewer-bar-separator {
+    width: 1px;
+    height: 1rem;
+    margin: 0 var(--nmp-space-xs);
+    background-color: var(--nmp-border-strong);
+}
+
+.viewer-icon-button,
+.viewer-text-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: 2rem;
+    border: 0;
+    border-radius: var(--nmp-radius-sm);
+    background-color: var(--nmp-surface-container);
+    color: var(--nmp-text);
+    font: inherit;
+    cursor: pointer;
+}
+
+.viewer-icon-button {
+    width: 2rem;
+    padding: 0;
+}
+
+.viewer-text-button {
+    min-width: auto;
+    gap: 0.25rem;
+    padding: 0 var(--nmp-space-sm);
+    font-family: var(--nmp-font-mono);
+    font-size: 0.625rem;
+    line-height: 0.875rem;
+    letter-spacing: 0.05em;
+    font-weight: 500;
+}
+
+.viewer-icon-button:hover,
+.viewer-text-button:hover {
+    background-color: var(--nmp-elevated-high);
+    color: var(--nmp-primary);
+}
+
+.viewer-icon-button .mud-icon-root,
+.viewer-text-button .mud-icon-root {
+    font-size: 1.125rem;
+}
+
+/* The pressed switch is filled and carries a check mark: never told apart by colour alone. */
+.viewer-text-button[aria-pressed="true"] {
+    background-color: var(--nmp-primary);
+    color: var(--nmp-on-primary);
+}
+
+.viewer-text-button[aria-pressed="true"]::before {
+    content: "\2713\00a0" / "";
+}
+
+.viewer-zoom,
+.viewer-page {
+    padding: 0 var(--nmp-space-xs);
+    color: var(--nmp-primary);
+    font-family: var(--nmp-font-mono);
+    font-size: 0.625rem;
+    line-height: 0.875rem;
+    letter-spacing: 0.05em;
+    font-weight: 500;
+    font-variant-numeric: tabular-nums;
+}
+
+.viewer-keys,
+.viewer-no-text,
+.viewer-message {
+    margin: var(--nmp-space-sm) 0;
+    color: var(--nmp-text-secondary);
+    font-size: 0.75rem;
+    line-height: 1.125rem;
+}

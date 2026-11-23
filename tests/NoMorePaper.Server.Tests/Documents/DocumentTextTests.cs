@@ -44,8 +44,9 @@ public sealed class DocumentTextTests(ApiFixture api)
         var (other, _) = await api.CreateMemberAsync("text-private-other", Ct);
         var id = await UploadAsync(owner, "text-privat.pdf", 7003, isPrivate: true);
         await api.CompleteAsync(id, "Geheimer Text");
+        using var admin = api.CreateAdminClient();
 
-        foreach (var stranger in new[] { other, api.CreateAdminClient() })
+        foreach (var stranger in new[] { other, admin })
         {
             using var response = await stranger.GetAsync($"/api/documents/{id}/text", Ct);
             Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);

@@ -16,7 +16,7 @@ internal static class DocumentTextEndpoints
     }
 
     private static async Task<IResult> GetAsync(
-        Guid id, GetDocumentText get, ILogger<GetDocumentText> logger, CancellationToken cancellationToken)
+        Guid id, GetDocumentText get, ILoggerFactory loggers, CancellationToken cancellationToken)
     {
         var text = await get.GetAsync(id, cancellationToken).ConfigureAwait(false);
         if (text is null)
@@ -24,7 +24,8 @@ internal static class DocumentTextEndpoints
             return Results.Problem(title: "Not found.", statusCode: StatusCodes.Status404NotFound);
         }
 
-        logger.DocumentTextServed(id, text.Text?.Length ?? 0);
+        // A static class cannot be a logger category type, so the category is its name, like the other endpoints.
+        loggers.CreateLogger("NoMorePaper.Server.Documents.DocumentTextEndpoints").DocumentTextServed(id, text.Text?.Length ?? 0);
         return Results.Ok(new DocumentTextDto(text.Text));
     }
 }

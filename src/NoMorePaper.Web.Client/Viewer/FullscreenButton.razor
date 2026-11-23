@@ -42,13 +42,20 @@
 
     private async Task ToggleAsync()
     {
+        string? error;
         try
         {
-            await Js.InvokeVoidAsync("nmpFullscreen.toggle", TargetId);
+            // The script catches the browser's refusal and returns its name (NotAllowedError, TypeError ...).
+            error = await Js.InvokeAsync<string?>("nmpFullscreen.toggle", TargetId);
         }
         catch (JSException ex)
         {
-            Logger.FullscreenFailed(ex.GetType().Name);
+            error = ex.GetType().Name;
+        }
+
+        if (error is not null)
+        {
+            Logger.FullscreenFailed(error);
             await OnFailed.InvokeAsync();
         }
     }

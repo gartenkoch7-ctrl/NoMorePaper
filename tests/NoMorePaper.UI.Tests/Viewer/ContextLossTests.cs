@@ -146,7 +146,8 @@ public sealed class ContextLossTests(ServerFixture server)
 
     private async Task<ViewerSession> OpenAsync(byte[]? pdf = null)
     {
-        // Tall enough that the whole page is inside the screenshot.
+        // Tall enough that the whole page is inside the screenshot, and wide enough for it: the viewer column is only
+        // ~530 px wide next to the tabs, but A4 at 100 % is wider, so at 1280 px the measuring points lie outside it.
         var viewer = await ViewerPages.OpenAsync(server, SupportedCultures.German, pdf ?? ViewerPdfs.BlueBox(595, 842),
             prepare: page => page.SetViewportSizeAsync(1800, 1600));
         await ViewerPages.WaitUntilShownAsync(viewer.Page);

@@ -1,6 +1,5 @@
 /* The side of the document page (tabs "Angaben", "Erkannter Text", "Verlauf"), after Stitch screen 03.
-   Tokens from base.css, no outline rules on purpose: focus is drawn by the browser default (ADR-0026).
-   The .doc-view-side rules take effect once the page puts its side column in that class. */
+   Tokens from base.css, no outline rules on purpose: focus is drawn by the browser default (ADR-0026). */
 
 /* ---- Angaben (read-only) -------------------------------------------------------------------- */
 
@@ -112,4 +111,10 @@
 
 .doc-privacy {
     margin: var(--nmp-space-md) 0;
+}
+
+/* An empty live region must not leave a gap in the card. */
+.doc-view-side .live-region:empty {
+    min-height: 0;
+    margin: 0;
 }

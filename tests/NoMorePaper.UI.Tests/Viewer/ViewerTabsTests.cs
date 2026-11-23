@@ -1,5 +1,6 @@
 using Microsoft.Playwright;
 using NoMorePaper.Contracts.Documents;
+using NoMorePaper.UI.Tests.Accounts;
 using NoMorePaper.UI.Tests.Classification;
 using NoMorePaper.UI.Tests.Hosting;
 using NoMorePaper.Web.Client.Localization;
@@ -65,7 +66,7 @@ public sealed class ViewerTabsTests(ServerFixture server)
         await Assertions.Expect(page.GetByRole(AriaRole.Tab).Nth(index)).ToHaveAttributeAsync("aria-selected", "true");
         await Assertions.Expect(page.Locator("[role=tabpanel]:not([hidden]) :is(.doc-text, .doc-history, .fields-summary)").First).ToBeVisibleAsync();
 
-        await ViewerPageTests.AssertNoViolationsAsync(page);
+        await AxeCheck.NoViolationsAsync(page);
     }
 
     [Fact]
@@ -74,7 +75,7 @@ public sealed class ViewerTabsTests(ServerFixture server)
         await using var viewer = await ViewerPages.OpenAsync(server, De, ViewerPdfs.TwoPages());
         var page = viewer.Page;
         await ViewerPages.WaitUntilShownAsync(page);
-        Assert.Equal(0, viewer.TextRequests);
+        Assert.True(await viewer.StaysAtAsync(0));
 
         await ViewerPages.SelectTabAsync(page, "Erkannter Text");
         var text = page.GetByRole(AriaRole.Region, new() { Name = "Erkannter Text" });
@@ -84,7 +85,7 @@ public sealed class ViewerTabsTests(ServerFixture server)
         await ViewerPages.SelectTabAsync(page, "Verlauf");
         await ViewerPages.SelectTabAsync(page, "Erkannter Text");
 
-        Assert.Equal(1, viewer.TextRequests);
+        Assert.True(await viewer.StaysAtAsync(1));
     }
 
     [Fact]
@@ -111,7 +112,7 @@ public sealed class ViewerTabsTests(ServerFixture server)
         await ViewerPages.SelectTabAsync(viewer.Page, "Erkannter Text");
 
         await Assertions.Expect(viewer.Page.Locator("#doc-text-panel")).ToContainTextAsync("Der Text steht bereit");
-        Assert.Equal(0, viewer.TextRequests);
+        Assert.True(await viewer.StaysAtAsync(0));
     }
 
     [Fact]

@@ -105,7 +105,7 @@ public sealed class ViewerPageTests(ServerFixture server)
         await Assertions.Expect(page.Locator(".viewer-text")).ToContainTextAsync("Seite eins mit Text");
     }
 
-    internal static async Task AssertNoViolationsAsync(IPage page)
+    private static async Task AssertNoViolationsAsync(IPage page)
     {
         var result = await page.RunAxe(AxeRules.Strict());
         var text = new StringBuilder();

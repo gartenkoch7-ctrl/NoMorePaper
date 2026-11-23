@@ -1,5 +1,5 @@
-/* Reiterinhalte der Seite "Dokument ansehen": Erkannter Text und Verlauf.
-   Nur Tokens aus base.css, keine outline-Regeln (ADR-0026); der Fokus kommt vom Browser/design.css. */
+/* Reading tabs of the document page: recognized text and history. Tokens from base.css, no outline
+   rules on purpose: focus is drawn by the browser (ADR-0026). */
 
 /* ---- Erkannter Text ------------------------------------------------------------------------- */
 

@@ -10,7 +10,7 @@
         </a>
         <Breadcrumb Items="_path" />
     </div>
-    <span class="doc-view-received">@L["ViewerReceived", string.Empty]<time datetime="@Detail.ReceivedAt.ToString("o", CultureInfo.InvariantCulture)">@Detail.ReceivedAt.ToLocalTime().ToString("g", CultureInfo.CurrentCulture)</time></span>
+    <span class="doc-view-received">@L["ViewerReceivedLabel"] <time datetime="@Detail.ReceivedAt.ToString("o", CultureInfo.InvariantCulture)">@Detail.ReceivedAt.ToLocalTime().ToString("g", CultureInfo.CurrentCulture)</time></span>
 </div>
 
 @code {

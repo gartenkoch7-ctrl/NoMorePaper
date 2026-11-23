@@ -102,6 +102,28 @@ public sealed class ViewerLayoutTests(ServerFixture server)
     }
 
     [Fact]
+    public async Task Fullscreen_KeepsTheTabKeyInsideTheViewer_AndGivesTheRestBack()
+    {
+        await using var viewer = await ViewerPages.OpenAsync(server, De, ViewerPdfs.TwoPages());
+        var page = viewer.Page;
+        await ViewerPages.WaitUntilShownAsync(page);
+        var button = page.GetByRole(AriaRole.Button, new() { Name = "Vollbild", Exact = true });
+        await button.ClickAsync();
+        await Assertions.Expect(button).ToHaveAttributeAsync("aria-pressed", "true");
+
+        foreach (var key in new[] { "Shift+Tab", "Shift+Tab", "Shift+Tab", "Tab", "Tab", "Tab", "Tab", "Tab", "Tab", "Tab", "Tab", "Tab" })
+        {
+            await page.Keyboard.PressAsync(key);
+            // Leaving the last control hands focus to the browser (body); it must never land on a covered control.
+            Assert.True(await page.EvaluateAsync<bool>("document.activeElement === document.body || !!document.activeElement.closest('#doc-view-viewer')"), key);
+        }
+
+        await page.EvaluateAsync("document.exitFullscreen()");
+        await Assertions.Expect(button).ToHaveAttributeAsync("aria-pressed", "false");
+        Assert.Equal(0, await page.EvaluateAsync<int>("document.querySelectorAll('[inert]').length"));
+    }
+
+    [Fact]
     public async Task Fullscreen_WhereTheBrowserCannot_HasNoButton()
     {
         await using var viewer = await ViewerPages.OpenAsync(server, De, ViewerPdfs.TwoPages(),

@@ -27,7 +27,7 @@ else if (State == DocumentProcessingState.Failed)
 else if (_error is not null)
 {
     <NoticeBox Kind="NoticeKind.Error" Announce="true" Message="@L["TextLoadError", _error]">
-        <button type="button" class="nmp-button" @onclick="LoadAsync">@L["Retry"]</button>
+        <button type="button" id="doc-text-retry" class="nmp-button" @onclick="RetryAsync">@L["Retry"]</button>
     </NoticeBox>
 }
 else if (_loading || !_requested)
@@ -44,7 +44,7 @@ else if (_text.Length == 0)
 }
 else if (ShowsText)
 {
-    <section @ref="_box" class="doc-text" tabindex="0" aria-labelledby="doc-text-heading">@_text</section>
+    <section @ref="_box" id="doc-text-box" class="doc-text" tabindex="0" aria-labelledby="doc-text-heading">@_text</section>
 }
 <LiveRegion @ref="_status" />
 
@@ -56,6 +56,7 @@ else if (ShowsText)
     private string? _error;
     private ElementReference _box;
     private LiveRegion? _status;
+    private PendingFocus _focus = default!;
 
     // The copy button and the text box exist only in this state; the box is what gets focused.
     private bool ShowsText => State == DocumentProcessingState.Done && _error is null && !_loading && !string.IsNullOrEmpty(_text);
@@ -102,6 +103,37 @@ else if (ShowsText)
         _text = result.Value.Text;
         Logger.RecognizedTextLoaded(_text?.Length ?? 0);
     }
+
+    // After "Erneut versuchen" the button is gone (the box is replaced by the loading line): focus goes to the
+    // text, or to the new retry button when it failed again, and the result is said aloud.
+    private async Task RetryAsync()
+    {
+        await LoadAsync();
+        string message;
+        if (ShowsText)
+        {
+            _focus.On("doc-text-box");
+            message = L["TextLoaded"];
+        }
+        else if (_error is not null)
+        {
+            _focus.On("doc-text-retry");
+            message = L["TextLoadError", _error];
+        }
+        else
+        {
+            message = _text is null ? L["TextNotYet"] : L["TextEmpty"];
+        }
+
+        if (_status is not null)
+        {
+            await _status.Announce(message);
+        }
+    }
+
+    protected override void OnInitialized() => _focus = new PendingFocus(Js);
+
+    protected override Task OnAfterRenderAsync(bool firstRender) => _focus.ApplyAsync();
 
     private async Task CopyAsync()
     {
