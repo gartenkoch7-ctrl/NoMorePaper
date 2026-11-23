@@ -1920,4 +1920,607 @@
   <data name="SearchResultsLabel" xml:space="preserve">
     <value>Search results</value>
   </data>
+  <data name="NavTrash" xml:space="preserve">
+    <value>Trash</value>
+  </data>
+  <data name="SettingsTrashText" xml:space="preserve">
+    <value>Restore or permanently delete removed documents and versions.</value>
+  </data>
+  <data name="PeTitle" xml:space="preserve">
+    <value>Edit pages</value>
+  </data>
+  <data name="PeTitleFor" xml:space="preserve">
+    <value>Edit pages – {0}</value>
+  </data>
+  <data name="PeLoading" xml:space="preserve">
+    <value>Loading pages …</value>
+  </data>
+  <data name="PeLoadError" xml:space="preserve">
+    <value>The pages could not be loaded: {0}</value>
+  </data>
+  <data name="PeForbidden" xml:space="preserve">
+    <value>You may not edit this document.</value>
+  </data>
+  <data name="PePending" xml:space="preserve">
+    <value>The document is being edited right now. The new version appears as soon as it is ready.</value>
+  </data>
+  <data name="PeToViewer" xml:space="preserve">
+    <value>Go to the document</value>
+  </data>
+  <data name="PeToReview" xml:space="preserve">
+    <value>Go to "To review"</value>
+  </data>
+  <data name="PeSave" xml:space="preserve">
+    <value>Save</value>
+  </data>
+  <data name="PeSaving" xml:space="preserve">
+    <value>Saving …</value>
+  </data>
+  <data name="PeDiscard" xml:space="preserve">
+    <value>Discard everything</value>
+  </data>
+  <data name="PeAppend" xml:space="preserve">
+    <value>Append document</value>
+  </data>
+  <data name="PeSaveExplain" xml:space="preserve">
+    <value>Only "Save" creates a new version. The original is kept.</value>
+  </data>
+  <data name="PeActionsLabel" xml:space="preserve">
+    <value>Actions for the document</value>
+  </data>
+  <data name="PePagesLabel" xml:space="preserve">
+    <value>Pages of the document</value>
+  </data>
+  <data name="PeNoPages" xml:space="preserve">
+    <value>No pages are known for this document yet. They appear once it has been processed.</value>
+  </data>
+  <data name="PeAllDeleted" xml:space="preserve">
+    <value>All pages are deleted. At least one page must stay.</value>
+  </data>
+  <data name="PeLeaveWarning" xml:space="preserve">
+    <value>You have unsaved changes. Leave anyway?</value>
+  </data>
+  <data name="PePageOf" xml:space="preserve">
+    <value>Page {0} of {1}</value>
+  </data>
+  <data name="PeBeginsWith" xml:space="preserve">
+    <value>Begins with: {0}</value>
+  </data>
+  <data name="PeBlank" xml:space="preserve">
+    <value>Probably blank</value>
+  </data>
+  <data name="PeDeletedPage" xml:space="preserve">
+    <value>Deleted page (formerly page {0})</value>
+  </data>
+  <data name="PeUndoDelete" xml:space="preserve">
+    <value>Undo delete</value>
+  </data>
+  <data name="PeGroup" xml:space="preserve">
+    <value>Edit page {0}</value>
+  </data>
+  <data name="PeKeysHint" xml:space="preserve">
+    <value>Keys on the card: R turns right, Shift+R turns left, Delete deletes or undoes the deletion, Alt+Arrow up or down moves, T sets a split point, Z crops. Ctrl+Z undoes the last change.</value>
+  </data>
+  <data name="PeRotateLeft" xml:space="preserve">
+    <value>Rotate left</value>
+  </data>
+  <data name="PeRotateRight" xml:space="preserve">
+    <value>Rotate right</value>
+  </data>
+  <data name="PeMoveUp" xml:space="preserve">
+    <value>Move up</value>
+  </data>
+  <data name="PeMoveDown" xml:space="preserve">
+    <value>Move down</value>
+  </data>
+  <data name="PeCrop" xml:space="preserve">
+    <value>Crop</value>
+  </data>
+  <data name="PeAuto" xml:space="preserve">
+    <value>Trim edges and straighten automatically</value>
+  </data>
+  <data name="PeDelete" xml:space="preserve">
+    <value>Delete page</value>
+  </data>
+  <data name="PeSplitHere" xml:space="preserve">
+    <value>Split here</value>
+  </data>
+  <data name="PeStateRotatedRight" xml:space="preserve">
+    <value>Rotated right</value>
+  </data>
+  <data name="PeStateRotatedLeft" xml:space="preserve">
+    <value>Rotated left</value>
+  </data>
+  <data name="PeStateRotatedHalf" xml:space="preserve">
+    <value>Rotated by 180 degrees</value>
+  </data>
+  <data name="PeStateCropped" xml:space="preserve">
+    <value>Cropped</value>
+  </data>
+  <data name="PeStateMoved" xml:space="preserve">
+    <value>Moved (formerly page {0})</value>
+  </data>
+  <data name="PeSplitRow" xml:space="preserve">
+    <value>Split point: document {0} ends after page {1}</value>
+  </data>
+  <data name="PeSplitRemove" xml:space="preserve">
+    <value>Remove split point</value>
+  </data>
+  <data name="PeAnnRotatedRight" xml:space="preserve">
+    <value>Page {0} rotated right.</value>
+  </data>
+  <data name="PeAnnRotatedLeft" xml:space="preserve">
+    <value>Page {0} rotated left.</value>
+  </data>
+  <data name="PeAnnDeleted" xml:space="preserve">
+    <value>Page {0} deleted.</value>
+  </data>
+  <data name="PeAnnUndeleted" xml:space="preserve">
+    <value>Deletion of page {0} undone.</value>
+  </data>
+  <data name="PeAnnMoved" xml:space="preserve">
+    <value>Page moved, now page {0} of {1}.</value>
+  </data>
+  <data name="PeAnnSplitSet" xml:space="preserve">
+    <value>Split point set after page {0}.</value>
+  </data>
+  <data name="PeAnnSplitRemoved" xml:space="preserve">
+    <value>Split point after page {0} removed.</value>
+  </data>
+  <data name="PeAnnUndone" xml:space="preserve">
+    <value>Last change undone.</value>
+  </data>
+  <data name="PeAnnNothingToUndo" xml:space="preserve">
+    <value>Nothing to undo.</value>
+  </data>
+  <data name="PeAnnDiscarded" xml:space="preserve">
+    <value>All changes discarded.</value>
+  </data>
+  <data name="PeAnnCropCleared" xml:space="preserve">
+    <value>Crop of page {0} removed.</value>
+  </data>
+  <data name="PeDiscardTitle" xml:space="preserve">
+    <value>Discard all changes?</value>
+  </data>
+  <data name="PeDiscardText" xml:space="preserve">
+    <value>Your changes to this document are lost.</value>
+  </data>
+  <data name="PeDiscardConfirm" xml:space="preserve">
+    <value>Yes, discard</value>
+  </data>
+  <data name="PeSaved" xml:space="preserve">
+    <value>Saved. The new version is being made and appears in the document as soon as it is ready.</value>
+  </data>
+  <data name="PeSavedSplit" xml:space="preserve">
+    <value>Saved. The document is being split into {0} documents. The new documents appear under "To review".</value>
+  </data>
+  <data name="PeSaveFailed" xml:space="preserve">
+    <value>Saving was not possible: {0}</value>
+  </data>
+  <data name="PeErrorConflict" xml:space="preserve">
+    <value>The document is being edited or has changed. Reload the page and try again.</value>
+  </data>
+  <data name="PeAppendDirty" xml:space="preserve">
+    <value>Save or discard your changes first.</value>
+  </data>
+  <data name="PeAppendSearch" xml:space="preserve">
+    <value>Search for a document</value>
+  </data>
+  <data name="PeAppendHint" xml:space="preserve">
+    <value>Search by title or content. The pages of the chosen document are added at the end.</value>
+  </data>
+  <data name="PeAppendSearching" xml:space="preserve">
+    <value>Searching …</value>
+  </data>
+  <data name="PeAppendNone" xml:space="preserve">
+    <value>No matching documents.</value>
+  </data>
+  <data name="PeAppendHits" xml:space="preserve">
+    <value>Results</value>
+  </data>
+  <data name="PeAppendSearchError" xml:space="preserve">
+    <value>The search was not possible: {0}</value>
+  </data>
+  <data name="PeAppendHit" xml:space="preserve">
+    <value>Append: {0}</value>
+  </data>
+  <data name="PeAppendQuestion" xml:space="preserve">
+    <value>Append "{0}" to "{1}"?</value>
+  </data>
+  <data name="PeAppendExplain" xml:space="preserve">
+    <value>The pages are added at the end. "{0}" then goes to the trash.</value>
+  </data>
+  <data name="PeAppendPrivate" xml:space="preserve">
+    <value>"{0}" is private. The result therefore becomes private.</value>
+  </data>
+  <data name="PeAppendConfirm" xml:space="preserve">
+    <value>Yes, append</value>
+  </data>
+  <data name="PeAppendFailed" xml:space="preserve">
+    <value>Appending was not possible: {0}</value>
+  </data>
+  <data name="PeAppended" xml:space="preserve">
+    <value>"{0}" is being appended. The new version appears in the document as soon as it is ready.</value>
+  </data>
+  <data name="CropActive" xml:space="preserve">
+    <value>Crop active</value>
+  </data>
+  <data name="CropExplain" xml:space="preserve">
+    <value>The page is replaced by an image and recognized again.</value>
+  </data>
+  <data name="CropGroup" xml:space="preserve">
+    <value>Crop of page {0}</value>
+  </data>
+  <data name="CropKeys" xml:space="preserve">
+    <value>Arrow keys move the corner by 1 %, with Shift by 0.2 %.</value>
+  </data>
+  <data name="CropCornerTopLeft" xml:space="preserve">
+    <value>Top left corner</value>
+  </data>
+  <data name="CropCornerTopRight" xml:space="preserve">
+    <value>Top right corner</value>
+  </data>
+  <data name="CropCornerBottomRight" xml:space="preserve">
+    <value>Bottom right corner</value>
+  </data>
+  <data name="CropCornerBottomLeft" xml:space="preserve">
+    <value>Bottom left corner</value>
+  </data>
+  <data name="CropCornerPosition" xml:space="preserve">
+    <value>{0}: {1} % from the left, {2} % from the top</value>
+  </data>
+  <data name="CropApply" xml:space="preserve">
+    <value>Apply crop</value>
+  </data>
+  <data name="CropClear" xml:space="preserve">
+    <value>Remove crop</value>
+  </data>
+  <data name="CropWorking" xml:space="preserve">
+    <value>Analyzing the page …</value>
+  </data>
+  <data name="CropApplied" xml:space="preserve">
+    <value>Crop for page {0} applied.</value>
+  </data>
+  <data name="CropCancelled" xml:space="preserve">
+    <value>Crop cancelled.</value>
+  </data>
+  <data name="CropAutoResult" xml:space="preserve">
+    <value>Rotated by {0} degrees, {1}.</value>
+  </data>
+  <data name="CropAutoStraight" xml:space="preserve">
+    <value>Not rotated, {0}.</value>
+  </data>
+  <data name="CropAutoNoEdges" xml:space="preserve">
+    <value>no edges removed</value>
+  </data>
+  <data name="CropRemovedTop" xml:space="preserve">
+    <value>top edge {0} cm removed</value>
+  </data>
+  <data name="CropRemovedRight" xml:space="preserve">
+    <value>right edge {0} cm removed</value>
+  </data>
+  <data name="CropRemovedBottom" xml:space="preserve">
+    <value>bottom edge {0} cm removed</value>
+  </data>
+  <data name="CropRemovedLeft" xml:space="preserve">
+    <value>left edge {0} cm removed</value>
+  </data>
+  <data name="CropNotFound" xml:space="preserve">
+    <value>No page edge found. Set the corners by hand?</value>
+  </data>
+  <data name="CropSetByHand" xml:space="preserve">
+    <value>Set corners by hand</value>
+  </data>
+  <data name="CropFailed" xml:space="preserve">
+    <value>The crop was not possible: {0}</value>
+  </data>
+  <data name="VerHeading" xml:space="preserve">
+    <value>Versions</value>
+  </data>
+  <data name="VerOriginal" xml:space="preserve">
+    <value>Original</value>
+  </data>
+  <data name="VerEdited" xml:space="preserve">
+    <value>Edited</value>
+  </data>
+  <data name="VerActive" xml:space="preserve">
+    <value>Active – shown</value>
+  </data>
+  <data name="VerDownloadOriginal" xml:space="preserve">
+    <value>Download: original</value>
+  </data>
+  <data name="VerDownloadEdited" xml:space="preserve">
+    <value>Download: edited version</value>
+  </data>
+  <data name="VerNoEdited" xml:space="preserve">
+    <value>No edited version yet.</value>
+  </data>
+  <data name="VerNoEditedHint" xml:space="preserve">
+    <value>Use "Edit pages" to make one.</value>
+  </data>
+  <data name="VerKeepLegend" xml:space="preserve">
+    <value>Keep</value>
+  </data>
+  <data name="VerKeepBoth" xml:space="preserve">
+    <value>Both</value>
+  </data>
+  <data name="VerKeepBothExplain" xml:space="preserve">
+    <value>The original and the edited version stay.</value>
+  </data>
+  <data name="VerKeepEdited" xml:space="preserve">
+    <value>Edited version only</value>
+  </data>
+  <data name="VerKeepEditedExplain" xml:space="preserve">
+    <value>The original goes to the trash for 30 days.</value>
+  </data>
+  <data name="VerKeepOriginal" xml:space="preserve">
+    <value>Original only</value>
+  </data>
+  <data name="VerKeepOriginalExplain" xml:space="preserve">
+    <value>The edited version goes to the trash for 30 days.</value>
+  </data>
+  <data name="VerSave" xml:space="preserve">
+    <value>Save choice</value>
+  </data>
+  <data name="VerSaved" xml:space="preserve">
+    <value>Choice saved.</value>
+  </data>
+  <data name="VerSaveFailed" xml:space="preserve">
+    <value>The choice could not be saved: {0}</value>
+  </data>
+  <data name="VerTrashHint" xml:space="preserve">
+    <value>Versions that are not kept go to the trash for 30 days.</value>
+  </data>
+  <data name="VerEditPages" xml:space="preserve">
+    <value>Edit pages</value>
+  </data>
+  <data name="VerPending" xml:space="preserve">
+    <value>Being edited</value>
+  </data>
+  <data name="VerPendingText" xml:space="preserve">
+    <value>The new version appears as soon as it is ready.</value>
+  </data>
+  <data name="VerFinished" xml:space="preserve">
+    <value>The new version is ready.</value>
+  </data>
+  <data name="VerPollGaveUp" xml:space="preserve">
+    <value>The edit takes longer than expected. Reload the page later.</value>
+  </data>
+  <data name="VerConfirmEditedTitle" xml:space="preserve">
+    <value>Move the original to the trash?</value>
+  </data>
+  <data name="VerConfirmEditedText" xml:space="preserve">
+    <value>The original stays in the trash for 30 days and can be restored until then. Afterwards the document keeps only the edited version.</value>
+  </data>
+  <data name="VerConfirmOriginalTitle" xml:space="preserve">
+    <value>Move the edited version to the trash?</value>
+  </data>
+  <data name="VerConfirmOriginalText" xml:space="preserve">
+    <value>The edited version stays in the trash for 30 days and can be restored until then. Afterwards the document keeps only the original.</value>
+  </data>
+  <data name="VerConfirmYes" xml:space="preserve">
+    <value>Yes, move to the trash</value>
+  </data>
+  <data name="VerAfterHeading" xml:space="preserve">
+    <value>Edited documents</value>
+  </data>
+  <data name="VerAfterLegend" xml:space="preserve">
+    <value>Keep after editing</value>
+  </data>
+  <data name="VerAfterHint" xml:space="preserve">
+    <value>Applies to documents you edit from now on. You can change it per document in the "Versions" section.</value>
+  </data>
+  <data name="VerAfterSave" xml:space="preserve">
+    <value>Save</value>
+  </data>
+  <data name="VerAfterSaved" xml:space="preserve">
+    <value>Setting saved.</value>
+  </data>
+  <data name="VerAfterLoading" xml:space="preserve">
+    <value>Loading the setting …</value>
+  </data>
+  <data name="VerAfterLoadError" xml:space="preserve">
+    <value>The setting could not be loaded: {0}</value>
+  </data>
+  <data name="VerAfterSaveError" xml:space="preserve">
+    <value>The setting could not be saved: {0}</value>
+  </data>
+  <data name="TrashTitle" xml:space="preserve">
+    <value>Trash</value>
+  </data>
+  <data name="TrashIntro" xml:space="preserve">
+    <value>Deleted items stay here for 30 days. You only see your own documents.</value>
+  </data>
+  <data name="TrashLoading" xml:space="preserve">
+    <value>Loading the trash …</value>
+  </data>
+  <data name="TrashLoadError" xml:space="preserve">
+    <value>The trash could not be loaded: {0}</value>
+  </data>
+  <data name="TrashHeading" xml:space="preserve">
+    <value>Deleted items ({0})</value>
+  </data>
+  <data name="TrashCaption" xml:space="preserve">
+    <value>Deleted items</value>
+  </data>
+  <data name="TrashColTitle" xml:space="preserve">
+    <value>Title</value>
+  </data>
+  <data name="TrashColKind" xml:space="preserve">
+    <value>What</value>
+  </data>
+  <data name="TrashColDeleted" xml:space="preserve">
+    <value>Deleted on</value>
+  </data>
+  <data name="TrashColPurge" xml:space="preserve">
+    <value>Permanently deleted on</value>
+  </data>
+  <data name="TrashColActions" xml:space="preserve">
+    <value>Actions</value>
+  </data>
+  <data name="TrashKindDocument" xml:space="preserve">
+    <value>Document</value>
+  </data>
+  <data name="TrashKindOriginal" xml:space="preserve">
+    <value>Original</value>
+  </data>
+  <data name="TrashKindEdited" xml:space="preserve">
+    <value>Edited version</value>
+  </data>
+  <data name="TrashRestore" xml:space="preserve">
+    <value>Restore</value>
+  </data>
+  <data name="TrashRestoreFor" xml:space="preserve">
+    <value>Restore {0}</value>
+  </data>
+  <data name="TrashPurge" xml:space="preserve">
+    <value>Delete permanently</value>
+  </data>
+  <data name="TrashPurgeFor" xml:space="preserve">
+    <value>Delete {0} permanently</value>
+  </data>
+  <data name="TrashEmpty" xml:space="preserve">
+    <value>Empty the trash</value>
+  </data>
+  <data name="TrashDocInTrash" xml:space="preserve">
+    <value>The document itself is in the trash. Restore the document first.</value>
+  </data>
+  <data name="TrashPurgeQuestion" xml:space="preserve">
+    <value>Delete "{0}" permanently?</value>
+  </data>
+  <data name="TrashPurgeExplain" xml:space="preserve">
+    <value>This cannot be undone.</value>
+  </data>
+  <data name="TrashPurgeConfirm" xml:space="preserve">
+    <value>Yes, delete permanently</value>
+  </data>
+  <data name="TrashSwapQuestion" xml:space="preserve">
+    <value>Restore "{0}"?</value>
+  </data>
+  <data name="TrashSwapExplain" xml:space="preserve">
+    <value>The document has a newer version by now. When restoring, the two swap places: the current version goes to the trash.</value>
+  </data>
+  <data name="TrashSwapConfirm" xml:space="preserve">
+    <value>Yes, swap</value>
+  </data>
+  <data name="TrashEmptyQuestion" xml:space="preserve">
+    <value>Really empty the trash?</value>
+  </data>
+  <data name="TrashEmptyExplain" xml:space="preserve">
+    <value>{0} items are deleted permanently. This cannot be undone.</value>
+  </data>
+  <data name="TrashEmptyExplainOne" xml:space="preserve">
+    <value>One item is deleted permanently. This cannot be undone.</value>
+  </data>
+  <data name="TrashEmptyConfirm" xml:space="preserve">
+    <value>Yes, empty</value>
+  </data>
+  <data name="TrashRestored" xml:space="preserve">
+    <value>"{0}" restored.</value>
+  </data>
+  <data name="TrashRestoredSwapped" xml:space="preserve">
+    <value>"{0}" restored. The previous version is now in the trash.</value>
+  </data>
+  <data name="TrashPurged" xml:space="preserve">
+    <value>"{0}" deleted permanently.</value>
+  </data>
+  <data name="TrashEmptied" xml:space="preserve">
+    <value>Trash emptied.</value>
+  </data>
+  <data name="TrashEmptyState" xml:space="preserve">
+    <value>The trash is empty.</value>
+  </data>
+  <data name="TrashActionFailed" xml:space="preserve">
+    <value>That was not possible: {0}</value>
+  </data>
+  <data name="TrashErrorConflict" xml:space="preserve">
+    <value>That was not possible because the item or its document has changed meanwhile. Reload the trash.</value>
+  </data>
+  <data name="TrashMove" xml:space="preserve">
+    <value>Move to trash</value>
+  </data>
+  <data name="TrashMoveQuestion" xml:space="preserve">
+    <value>Move "{0}" to the trash?</value>
+  </data>
+  <data name="TrashMoveExplain" xml:space="preserve">
+    <value>It stays in the trash for 30 days and can be restored until then.</value>
+  </data>
+  <data name="TrashMoveConfirm" xml:space="preserve">
+    <value>Yes, move to the trash</value>
+  </data>
+  <data name="TrashMoved" xml:space="preserve">
+    <value>"{0}" is now in the trash.</value>
+  </data>
+  <data name="TrashToList" xml:space="preserve">
+    <value>Go to the document list</value>
+  </data>
+  <data name="TrashMoveFailed" xml:space="preserve">
+    <value>The document could not be moved to the trash: {0}</value>
+  </data>
+  <data name="SplitHeading" xml:space="preserve">
+    <value>Split suggestion</value>
+  </data>
+  <data name="SplitSummary" xml:space="preserve">
+    <value>Split suggestion: {0} documents (pages {1}).</value>
+  </data>
+  <data name="SplitSummaryBlank" xml:space="preserve">
+    <value>Split suggestion: {0} documents (pages {1}), {2}.</value>
+  </data>
+  <data name="SplitBlankOne" xml:space="preserve">
+    <value>page {0} probably blank</value>
+  </data>
+  <data name="SplitBlankMany" xml:space="preserve">
+    <value>pages {0} probably blank</value>
+  </data>
+  <data name="SplitPart" xml:space="preserve">
+    <value>Document {0}: {1}</value>
+  </data>
+  <data name="SplitPartStarts" xml:space="preserve">
+    <value>Document {0}: {1} – begins with "{2}"</value>
+  </data>
+  <data name="SplitPagesOne" xml:space="preserve">
+    <value>Page {0}</value>
+  </data>
+  <data name="SplitPagesRange" xml:space="preserve">
+    <value>Pages {0}–{1}</value>
+  </data>
+  <data name="SplitDo" xml:space="preserve">
+    <value>Split</value>
+  </data>
+  <data name="SplitDoFor" xml:space="preserve">
+    <value>Split: {0}</value>
+  </data>
+  <data name="SplitAdjust" xml:space="preserve">
+    <value>Adjust</value>
+  </data>
+  <data name="SplitAdjustFor" xml:space="preserve">
+    <value>Adjust: {0}</value>
+  </data>
+  <data name="SplitDismiss" xml:space="preserve">
+    <value>Do not split</value>
+  </data>
+  <data name="SplitDismissFor" xml:space="preserve">
+    <value>Do not split: {0}</value>
+  </data>
+  <data name="SplitConfirmQuestion" xml:space="preserve">
+    <value>Split into {0} documents?</value>
+  </data>
+  <data name="SplitConfirmExplain" xml:space="preserve">
+    <value>{0} new documents are made. The original document goes to the trash for 30 days.</value>
+  </data>
+  <data name="SplitConfirmYes" xml:space="preserve">
+    <value>Yes, split</value>
+  </data>
+  <data name="SplitDone" xml:space="preserve">
+    <value>"{0}" is being split. The new documents appear under "To review".</value>
+  </data>
+  <data name="SplitDismissed" xml:space="preserve">
+    <value>"{0}" is not split.</value>
+  </data>
+  <data name="SplitFailed" xml:space="preserve">
+    <value>That was not possible: {0}</value>
+  </data>
+  <data name="SplitErrorAnswered" xml:space="preserve">
+    <value>Somebody has answered the suggestion already. The list is reloaded.</value>
+  </data>
 </root>

@@ -25,6 +25,7 @@ internal static class ViewerPages
     /// <summary>
     /// Opens the viewer. <paramref name="prepare"/> runs on the start page first (e.g. to take
     /// WebGL away); with <paramref name="archive"/> false only the original exists.
+    /// <paramref name="detail"/> replaces the answer for the document (versions, trash, pending edits).
     /// </summary>
     public static async Task<ViewerSession> OpenAsync(
         ServerFixture server,
@@ -38,13 +39,14 @@ internal static class ViewerPages
         bool isMine = false,
         bool isPrivate = false,
         string? text = SampleText,
-        int textStatus = 200)
+        int textStatus = 200,
+        DocumentDetailDto? detail = null)
     {
         var session = await server.OpenAsync("/", culture);
         try
         {
             var page = session.Page;
-            var id = Guid.NewGuid();
+            var id = detail?.Id ?? Guid.NewGuid();
             if (prepare is not null)
             {
                 await prepare(page);
@@ -52,7 +54,7 @@ internal static class ViewerPages
 
             var original = new DocumentFileDto("brief.pdf", originalType, pdf.Length, "0");
             var archiveFile = archive ? new DocumentFileDto("brief.pdf", "application/pdf", pdf.Length, "0") : null;
-            var detail = new DocumentDetailDto(id, Title, DateTimeOffset.UtcNow, state, null, original, archiveFile, IsMine: isMine, IsPrivate: isPrivate);
+            detail ??= new DocumentDetailDto(id, Title, DateTimeOffset.UtcNow, state, null, original, archiveFile, IsMine: isMine, IsPrivate: isPrivate);
             await ApiMocks.RespondAsync(page, new Regex($"/api/documents/{id}$"), "GET", detail);
             // The "Angaben" panel asks for the fields; nothing recognized, nothing editable here.
             await ApiMocks.RespondAsync(page, new Regex($"/api/documents/{id}/fields$"), "GET", fields ?? ClassificationSamples.NoFields());

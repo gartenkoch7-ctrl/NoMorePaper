@@ -27,21 +27,23 @@ internal sealed class InputsHttp(HttpClient http, IStringLocalizer<Strings> loca
     /// For a 400 with <c>errors: { field: [word] }</c>: the caller's text and the request field it is about, or
     /// <c>null</c> to fall back to <paramref name="special"/>.
     /// </param>
-    public async Task<ApiResult<T>> SendAsync<T>(
+    public Task<ApiResult<T>> SendAsync<T>(
         HttpMethod method, string uri, object? body, string operation, Func<int, string?>? special, string? field,
+        Func<RefusedInput, (string Text, string Field)?>? refused, CancellationToken ct)
+        => SendContentAsync<T>(
+            method, uri, body is null ? null : JsonContent.Create(body, body.GetType()), operation, special, field, refused, ct);
+
+    /// <summary>Sends ready-made content (e.g. a multipart form); it is disposed together with the request.</summary>
+    public async Task<ApiResult<T>> SendContentAsync<T>(
+        HttpMethod method, string uri, HttpContent? content, string operation, Func<int, string?>? special, string? field,
         Func<RefusedInput, (string Text, string Field)?>? refused, CancellationToken ct)
     {
         try
         {
-            using var request = new HttpRequestMessage(method, uri);
+            using var request = new HttpRequestMessage(method, uri) { Content = content };
             if (method != HttpMethod.Get)
             {
                 request.Headers.Add(RequestHeader, "1");
-            }
-
-            if (body is not null)
-            {
-                request.Content = JsonContent.Create(body, body.GetType());
             }
 
             using var response = await http.SendAsync(request, ct);
