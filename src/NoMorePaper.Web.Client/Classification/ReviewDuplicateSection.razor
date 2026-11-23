@@ -1,0 +1,70 @@
+@using System.Globalization
+@inject IStringLocalizer<Strings> L
+
+@* The possible-duplicate part of a review card: explanation, comparison table and the two answers.
+   The table keeps its caption and scopes; "Dieses löschen" is neutral (red is for errors only), the
+   confirmation follows in a ConfirmBox owned by the page. *@
+<section class="review-duplicate" aria-labelledby="@(Key)-dup">
+    <MudText Typo="Typo.h3" id="@(Key + "-dup")">
+        <MudIcon Icon="@Icons.Material.Filled.ContentCopy" aria-hidden="true" />
+        <span>@L["ReviewDuplicateHeading"]</span>
+    </MudText>
+    <p>@L["ReviewDuplicateExplain"]</p>
+    <table class="doc-table">
+        <caption>@L["ReviewCompareCaption"]</caption>
+        <thead>
+            <tr>
+                <th scope="col">@L["ReviewCompareField"]</th>
+                <th scope="col">@L["ReviewCompareThis"]</th>
+                <th scope="col">@L["ReviewCompareOther"]</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <th scope="row">@L["ColTitle"]</th>
+                <td>@Item.Title</td>
+                <td><a href="@DocumentLinks.Viewer(Other.Id)">@Other.Title</a></td>
+            </tr>
+            <tr>
+                <th scope="row">@L["ColReceived"]</th>
+                <td>@Received(Item.ReceivedAt)</td>
+                <td>@Received(Other.ReceivedAt)</td>
+            </tr>
+            <tr>
+                <th scope="row">@L["ClsFieldDate"]</th>
+                <td>@Date(Item.Fields.DocumentDate)</td>
+                <td>@Date(Other.DocumentDate)</td>
+            </tr>
+            <tr>
+                <th scope="row">@L["ClsFieldCorrespondent"]</th>
+                <td>@(Item.Fields.Correspondent?.Name ?? L["ClsNoValue"])</td>
+                <td>@(Other.Correspondent?.Name ?? L["ClsNoValue"])</td>
+            </tr>
+        </tbody>
+    </table>
+    <div class="button-row">
+        <button type="button" class="nmp-button" aria-label="@L["ReviewKeepFor", Item.Title]"
+                @onclick="OnKeep">@L["ReviewKeep"]</button>
+        <button type="button" id="review-delete-@Item.Id.ToString("N")" class="nmp-button" aria-label="@L["ReviewDeleteFor", Item.Title]"
+                @onclick="OnAskDelete">
+            <MudIcon Icon="@Icons.Material.Filled.Delete" aria-hidden="true" />
+            <span>@L["ReviewDelete"]</span>
+        </button>
+    </div>
+</section>
+
+@code {
+    [Parameter, EditorRequired] public ReviewItemDto Item { get; set; } = default!;
+
+    [Parameter, EditorRequired] public DuplicateCandidateDto Other { get; set; } = default!;
+
+    [Parameter] public EventCallback OnKeep { get; set; }
+
+    [Parameter] public EventCallback OnAskDelete { get; set; }
+
+    private string Key => "review-" + Item.Id.ToString("N");
+
+    private static string Received(DateTimeOffset at) => at.ToLocalTime().ToString("g", CultureInfo.CurrentCulture);
+
+    private string Date(DateOnly? date) => date is { } value ? FieldFormat.Date(value, CultureInfo.CurrentCulture) : L["ClsNoValue"];
+}

@@ -1,3 +1,4 @@
+using System.Text.RegularExpressions;
 using Microsoft.Playwright;
 using NoMorePaper.Contracts.Classification;
 using NoMorePaper.UI.Tests.Hosting;
@@ -27,7 +28,8 @@ public sealed class ReviewPageTests(ServerFixture server)
         await Assertions.Expect(page.GetByRole(AriaRole.Heading, new() { Level = 2 })).ToHaveTextAsync(["Stromrechnung November", "Brief Finanzamt"]);
         var article = page.GetByRole(AriaRole.Article).First;
         var text = await article.InnerTextAsync();
-        Assert.True(text.IndexOf("Zusammenfassung", StringComparison.Ordinal) < text.IndexOf("Absender", StringComparison.Ordinal));
+        // Labels are set in capitals by CSS (Stitch 06), so innerText returns them upper case.
+        Assert.True(text.IndexOf("Zusammenfassung", StringComparison.Ordinal) < text.IndexOf("Absender", StringComparison.OrdinalIgnoreCase));
         Assert.Contains("Automatisch erkannt, noch nicht geprüft.", text, StringComparison.Ordinal);
         Assert.Contains("84,20 EUR", text, StringComparison.Ordinal);
         await Assertions.Expect(page.Locator(".review-summary")).ToHaveTextAsync("2 Dokumente zu prüfen.");
@@ -108,7 +110,11 @@ public sealed class ReviewPageTests(ServerFixture server)
         await delete.ClickAsync();
         var box = page.GetByRole(AriaRole.Group, new() { Name = "„Stromrechnung (Scan)“ wirklich löschen?" });
         await Assertions.Expect(box).ToBeVisibleAsync();
+        await Assertions.Expect(box.GetByRole(AriaRole.Heading)).ToBeFocusedAsync();
+        await page.Keyboard.PressAsync("Tab");
         await Assertions.Expect(box.GetByRole(AriaRole.Button, new() { Name = "Abbrechen" })).ToBeFocusedAsync();
+        // Neutral: red and white are for errors and the main action, never for the destructive confirm.
+        await Assertions.Expect(box.GetByRole(AriaRole.Button, new() { Name = "Ja, löschen" })).Not.ToHaveClassAsync(new Regex("nmp-button-primary"));
         await page.Keyboard.PressAsync("Escape");
         await Assertions.Expect(box).ToHaveCountAsync(0);
         await Assertions.Expect(delete).ToBeFocusedAsync();

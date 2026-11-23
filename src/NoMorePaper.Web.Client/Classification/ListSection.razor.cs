@@ -17,6 +17,8 @@ public sealed partial class ListSection
     private LiveRegion? _error;
     private EntryDto[] _entries = [];
     private EntryDto? _renaming;
+    // New key per ask, so a re-ask re-creates the box and it takes focus again.
+    private int _mergeRound;
     private string _newName = string.Empty;
     private string _target = string.Empty;
     private string? _loadError;
@@ -77,8 +79,8 @@ public sealed partial class ListSection
 
     private void AskRename(EntryDto entry)
     {
+        // The ConfirmBox focuses the name field itself (InitialFocusId).
         (_renaming, _newName, _merging) = (entry, entry.Name, false);
-        _focus.On(Prefix + "-rename-input");
     }
 
     private void CancelRename()
@@ -91,13 +93,10 @@ public sealed partial class ListSection
         _renaming = null;
     }
 
-    private async Task OnRenameKey(KeyboardEventArgs args)
+    // Enter saves only inside the field; Escape is handled by the ConfirmBox around it.
+    private async Task OnRenameInputKey(KeyboardEventArgs args)
     {
-        if (args.Key == "Escape")
-        {
-            CancelRename();
-        }
-        else if (args.Key == "Enter")
+        if (args.Key == "Enter")
         {
             await RenameAsync();
         }
@@ -139,22 +138,14 @@ public sealed partial class ListSection
         }
 
         (_merging, _renaming) = (true, null);
+        _mergeRound++;
         _target = _entries.First(entry => _selected.Contains(entry.Id)).Id.ToString();
-        _focus.On(Prefix + "-merge-cancel");
     }
 
     private void CancelMerge()
     {
         _merging = false;
         _focus.On(Prefix + "-merge");
-    }
-
-    private void OnMergeKey(KeyboardEventArgs args)
-    {
-        if (args.Key == "Escape")
-        {
-            CancelMerge();
-        }
     }
 
     private async Task MergeAsync()

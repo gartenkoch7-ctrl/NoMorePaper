@@ -3,9 +3,18 @@
 
 <PageTitle>@L["ListsTitle"]</PageTitle>
 
-<MudText Typo="Typo.h1">@L["ListsHeading"]</MudText>
+<Breadcrumb Items="_path" />
+
+<MudText Typo="Typo.h2" HtmlTag="h1">@L["ListsHeading"]</MudText>
 <p>@L["ListsIntro"]</p>
 
 <ListSection Kind="EntryKind.Correspondents" Heading="@L["ListsCorrespondents"]" />
 <ListSection Kind="EntryKind.DocumentTypes" Heading="@L["ListsDocumentTypes"]" />
 <ListSection Kind="EntryKind.Tags" Heading="@L["ListsTags"]" />
+
+@code {
+    private IReadOnlyList<Design.BreadcrumbItem> _path = [];
+
+    protected override void OnInitialized() =>
+        _path = [new Design.BreadcrumbItem(L["NavSettings"], "einstellungen"), new Design.BreadcrumbItem(L["ListsHeading"], null)];
+}

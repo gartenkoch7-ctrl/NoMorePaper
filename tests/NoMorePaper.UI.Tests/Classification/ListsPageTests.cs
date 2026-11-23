@@ -76,6 +76,31 @@ public sealed class ListsPageTests(ServerFixture server)
     }
 
     [Fact]
+    public async Task Rename_EnterOnTheCancelButton_DoesNotSave()
+    {
+        var mocks = new AccountMocks();
+        await using var session = await OpenAsync(mocks, ClassificationSamples.Correspondents);
+        var page = session.Page;
+
+        await page.GetByRole(AriaRole.Button, new() { Name = "Umbenennen: Telekom" }).ClickAsync();
+        await page.Keyboard.PressAsync("Tab");
+        await Assertions.Expect(page.GetByRole(AriaRole.Button, new() { Name = "Abbrechen" })).ToBeFocusedAsync();
+        await page.Keyboard.PressAsync("Enter");
+
+        await Assertions.Expect(page.GetByRole(AriaRole.Group, new() { Name = "„Telekom“ umbenennen" })).ToHaveCountAsync(0);
+        Assert.False(mocks.WasCalled("PUT", $"/api/classification/correspondents/{ClassificationSamples.Telekom.Id}"));
+    }
+
+    [Fact]
+    public async Task Path_LinksBackToTheSettings()
+    {
+        await using var session = await OpenAsync(new AccountMocks(), ClassificationSamples.Correspondents);
+
+        await Assertions.Expect(session.Page.Locator(".nmp-breadcrumb").GetByRole(AriaRole.Link, new() { Name = "Einstellungen" }))
+            .ToHaveAttributeAsync("href", "einstellungen");
+    }
+
+    [Fact]
     public async Task Rename_EscapeCancels_WithoutAskingTheServer()
     {
         var mocks = new AccountMocks();
@@ -121,7 +146,7 @@ public sealed class ListsPageTests(ServerFixture server)
 
         var box = page.GetByRole(AriaRole.Group, new() { Name = "2 Einträge zusammenführen?" });
         await Assertions.Expect(box).ToContainTextAsync("Das lässt sich nicht rückgängig machen.");
-        await Assertions.Expect(box.GetByRole(AriaRole.Button, new() { Name = "Abbrechen" })).ToBeFocusedAsync();
+        await Assertions.Expect(box.GetByRole(AriaRole.Heading)).ToBeFocusedAsync();
         await box.GetByLabel("Dieser Eintrag bleibt erhalten").SelectOptionAsync(new SelectOptionValue { Label = "Vodafone" });
         await box.GetByRole(AriaRole.Button, new() { Name = "Ja, zusammenführen" }).ClickAsync();
 

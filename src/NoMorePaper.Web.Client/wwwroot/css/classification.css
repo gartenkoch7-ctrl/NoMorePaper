@@ -173,23 +173,6 @@ select.form-input {
     margin: 0;
 }
 
-.review-list {
-    padding: 0;
-    list-style: none;
-}
-
-.review-item {
-    margin-bottom: 2rem;
-    padding: 1rem 1.5rem;
-    border: 3px solid var(--nmp-text);
-}
-
-.review-duplicate {
-    margin: 1rem 0;
-    padding-top: 0.5rem;
-    border-top: 2px dashed var(--nmp-text);
-}
-
 /* ---- Filters and lists ---------------------------------------------------------------------- */
 
 .filter-bar {
@@ -214,18 +197,4 @@ select.form-input {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr));
     gap: 1rem 1.5rem;
-}
-
-.list-section {
-    margin-bottom: 2.5rem;
-}
-
-.list-select {
-    width: 1.75rem;
-    height: 1.75rem;
-    accent-color: var(--nmp-accent);
-}
-
-.list-selected {
-    margin: 0.75rem 0;
 }
