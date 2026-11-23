@@ -77,6 +77,7 @@
     private string? _searchError;
     private string? _failed;
     private bool _searching;
+    private bool _sending;
 
     [Parameter, EditorRequired] public Guid DocumentId { get; set; }
 
@@ -163,23 +164,32 @@
 
     private async Task AppendAsync()
     {
-        if (_chosen is not { } hit)
+        // A second click while the first request runs must not append the document twice.
+        if (_sending || _chosen is not { } hit)
         {
             return;
         }
 
+        _sending = true;
         Logger.PageEditorAppendSent();
-        var result = await Editing.AppendAsync(DocumentId, hit.Id);
-        _chosen = null;
-        if (!result.IsSuccess)
+        try
         {
-            Logger.PageEditorFailed(result.IsConflict ? "conflict" : "error");
-            _failed = result.Error;
-            _focus.On(HitId(hit));
-            return;
-        }
+            var result = await Editing.AppendAsync(DocumentId, hit.Id);
+            _chosen = null;
+            if (!result.IsSuccess)
+            {
+                Logger.PageEditorFailed(result.IsConflict ? "conflict" : "error");
+                _failed = result.Error;
+                _focus.On(HitId(hit));
+                return;
+            }
 
-        await OnAppended.InvokeAsync(hit.Title);
+            await OnAppended.InvokeAsync(hit.Title);
+        }
+        finally
+        {
+            _sending = false;
+        }
     }
 
     public void Dispose()

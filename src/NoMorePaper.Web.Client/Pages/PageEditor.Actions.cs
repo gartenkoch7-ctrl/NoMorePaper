@@ -9,9 +9,6 @@ public sealed partial class PageEditor
     // Cropped images by the key the model holds; filled by the crop step. Sent with "Speichern" as page-<n>.
     private readonly Dictionary<string, byte[]> _crops = [];
 
-    // Card the last action was on; Strg+Z puts focus back on it, because the button that had focus may be gone.
-    private int _lastPage;
-
     // "Zuschneiden" and the automatic crop are switched on once the crop step exists.
     private static bool CropEnabled => false;
 
@@ -30,7 +27,6 @@ public sealed partial class PageEditor
         }
 
         var page = Model.Entries[index].SourcePage;
-        _lastPage = page;
         switch (action)
         {
             case PageAction.RotateRight:
@@ -92,8 +88,10 @@ public sealed partial class PageEditor
             return;
         }
 
-        _focus.On(PageEditorIds.Button(page, "split"));
-        await Say(L[set ? "PeAnnSplitSet" : "PeAnnSplitRemoved", Model.NumberOf(index)]);
+        _focus.On(SplitFocus(index, page));
+        // A point that only closes deleted pages divides nothing; saying "gesetzt" alone would be wrong.
+        var message = !set ? "PeAnnSplitRemoved" : Model.EffectiveSplitsAfter.Contains(index) ? "PeAnnSplitSet" : "PeAnnSplitIdle";
+        await Say(L[message, Model.NumberOf(index)]);
     }
 
     // The "Trennstelle entfernen" button is gone afterwards; focus goes to the "Hier teilen" button of the card above.
@@ -104,9 +102,13 @@ public sealed partial class PageEditor
             return;
         }
 
-        _focus.On(PageEditorIds.Button(Model.Entries[index].SourcePage, "split"));
+        _focus.On(SplitFocus(index, Model.Entries[index].SourcePage));
         await Say(L["PeAnnSplitRemoved", Model.NumberOf(index)]);
     }
+
+    // A deleted card has no "Hier teilen" button, so its heading gets the focus.
+    private string SplitFocus(int index, int page)
+        => Model.Entries[index].Deleted ? PageEditorIds.Heading(page) : PageEditorIds.Button(page, "split");
 
     private async Task OnListKeyDown(KeyboardEventArgs e)
     {
@@ -115,15 +117,16 @@ public sealed partial class PageEditor
             return;
         }
 
-        if (!Model.Undo())
+        if (!Model.CanUndo)
         {
             await Say(L["PeAnnNothingToUndo"]);
             return;
         }
 
-        if (_lastPage > 0 && Model.Entries.Any(entry => entry.SourcePage == _lastPage))
+        // The card the undone change touched; the button that had focus may be gone.
+        if (Model.Undo() is { } page && Model.Entries.Any(entry => entry.SourcePage == page))
         {
-            _focus.On(PageEditorIds.Heading(_lastPage));
+            _focus.On(PageEditorIds.Heading(page));
         }
 
         await Say(L["PeAnnUndone"]);

@@ -98,6 +98,7 @@ public sealed partial class PageEditor
 
     private async Task LoadAsync()
     {
+        var retry = _loadError is not null;
         _loading = true;
         _loadError = null;
         _saved = SavedKind.None;
@@ -107,6 +108,7 @@ public sealed partial class PageEditor
             _loading = false;
             _loadError = pages.Error ?? string.Empty;
             Logger.PageEditorFailed("load");
+            FocusAfterRetry(retry, PageEditorIds.Retry);
             return;
         }
 
@@ -121,8 +123,22 @@ public sealed partial class PageEditor
         }
 
         _loading = false;
+        FocusAfterRetry(retry, PageEditorIds.Heading1);
         Logger.PageEditorLoaded(_pages.Pages.Count);
     }
+
+    // The button that was pressed is gone once the page is reloaded; the keyboard user must land somewhere sensible.
+    // Set at the end of the load: the render in between (the loading text) would use the request up.
+    private void FocusAfterRetry(bool retry, string id)
+    {
+        if (retry)
+        {
+            _focus.On(id);
+        }
+    }
+
+    // The previews are cached by URL (thumbnails.js); an edit keeps the archive URL, so the version of the document is part of it.
+    private string PreviewSource => $"{DocumentLinks.Archive(Id)}?v={_detail?.EditedAt?.UtcTicks ?? 0}";
 
     // The suggestion belongs to the review list; the pages endpoint does not carry it.
     private async Task ApplySuggestionAsync()

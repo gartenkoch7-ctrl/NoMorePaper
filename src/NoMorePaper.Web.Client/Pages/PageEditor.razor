@@ -87,9 +87,9 @@ else if (_pages is not null)
                 {
                     var index = i;
                     <PageCard @key="Model.Entries[index].SourcePage" Model="Model" Index="index" Info="InfoOf(Model.Entries[index])"
-                              Source="@DocumentLinks.Archive(Id)" Readonly="@(_saved != SavedKind.None)" CropEnabled="CropEnabled"
+                              Source="@PreviewSource" Readonly="@(_saved != SavedKind.None)" CropEnabled="CropEnabled"
                               OnAction="action => OnCardActionAsync(index, action)" />
-                    @if (Model.SplitsAfter.Contains(index))
+                    @if (Model.EffectiveSplitsAfter.Contains(index))
                     {
                         <li @key="@("split-" + index)" class="pe-split">
                             <span>@L["PeSplitRow", Model.DocumentNumberOfSplit(index), Model.NumberOf(index)]</span>

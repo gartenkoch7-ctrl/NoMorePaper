@@ -1999,7 +1999,7 @@
     <value>Seite {0} bearbeiten</value>
   </data>
   <data name="PeKeysHint" xml:space="preserve">
-    <value>Tasten auf der Karte: R dreht nach rechts, Umschalt+R nach links, Entf löscht oder macht das Löschen rückgängig, Alt+Pfeil nach oben oder unten verschiebt, T setzt eine Trennstelle, Z schneidet zu. Strg+Z macht die letzte Änderung rückgängig.</value>
+    <value>Tasten auf der Karte: R dreht nach rechts, Umschalt+R nach links, Entf löscht oder macht das Löschen rückgängig, Alt+Pfeil nach oben oder unten verschiebt, T setzt eine Trennstelle. Strg+Z macht die letzte Änderung rückgängig. Mit NVDA zuerst in den Fokusmodus wechseln (NVDA+Leertaste).</value>
   </data>
   <data name="PeRotateLeft" xml:space="preserve">
     <value>Nach links drehen</value>
@@ -2063,6 +2063,9 @@
   </data>
   <data name="PeAnnSplitSet" xml:space="preserve">
     <value>Trennstelle nach Seite {0} gesetzt.</value>
+  </data>
+  <data name="PeAnnSplitIdle" xml:space="preserve">
+    <value>Trennstelle nach Seite {0} gesetzt. Sie teilt das Dokument erst, wenn davor und danach eine Seite bleibt.</value>
   </data>
   <data name="PeAnnSplitRemoved" xml:space="preserve">
     <value>Trennstelle nach Seite {0} entfernt.</value>

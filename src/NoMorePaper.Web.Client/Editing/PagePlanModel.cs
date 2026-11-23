@@ -11,7 +11,10 @@ public sealed class PagePlanModel
 {
     private readonly record struct Snapshot(IReadOnlyList<PageEntry> Entries, IReadOnlySet<int> Splits);
 
-    private readonly Stack<Snapshot> _undo = new();
+    // The state to return to and the source page the change touched (0: none), so focus can go back to it.
+    private readonly record struct UndoStep(Snapshot Previous, int Page);
+
+    private readonly Stack<UndoStep> _undo = new();
     private readonly Snapshot _initial;
     private Snapshot _now;
 
@@ -50,8 +53,11 @@ public sealed class PagePlanModel
     /// <summary>The entry was moved from its stored position (its source page differs from its place in the list).</summary>
     public bool IsMoved(int index) => _now.Entries[index].SourcePage != index + 1;
 
+    /// <summary>Split points that divide the document; one that only closes deleted pages (or has only deleted ones behind it) is left out.</summary>
+    public IReadOnlySet<int> EffectiveSplitsAfter => SplitPoints.Effective(_now.Entries, _now.Splits);
+
     /// <summary>Number (from 1) of the document that ends at the split point after entry <paramref name="index"/>.</summary>
-    public int DocumentNumberOfSplit(int index) => _now.Splits.Count(split => split <= index);
+    public int DocumentNumberOfSplit(int index) => EffectiveSplitsAfter.Count(split => split <= index);
 
     public void RotateRight(int index) => Rotate(index, true);
 
@@ -93,20 +99,23 @@ public sealed class PagePlanModel
             splits.Add(index);
         }
 
-        Push(new Snapshot(_now.Entries, splits));
+        Push(new Snapshot(_now.Entries, splits), _now.Entries[index].SourcePage);
         return true;
     }
 
-    /// <summary>Undoes the last change; false when there is none.</summary>
-    public bool Undo()
+    /// <summary>
+    /// Undoes the last change (check <see cref="CanUndo"/> first). Returns the source page the change touched,
+    /// <c>null</c> when it touched none or there was nothing to undo.
+    /// </summary>
+    public int? Undo()
     {
-        if (!_undo.TryPop(out var previous))
+        if (!_undo.TryPop(out var step))
         {
-            return false;
+            return null;
         }
 
-        _now = previous;
-        return true;
+        _now = step.Previous;
+        return step.Page > 0 ? step.Page : null;
     }
 
     /// <summary>Drops every change (after "Alles verwerfen").</summary>
@@ -133,7 +142,7 @@ public sealed class PagePlanModel
             }
         }
 
-        Push(new Snapshot(entries, splits));
+        Push(new Snapshot(entries, splits), 0);
     }
 
     /// <summary>The plan of one document; deleted pages are left out. Use when <see cref="IsSplit"/> is false.</summary>
@@ -174,7 +183,7 @@ public sealed class PagePlanModel
 
         var entries = _now.Entries.ToList();
         entries[index] = change(entries[index]);
-        Push(new Snapshot(entries, _now.Splits));
+        Push(new Snapshot(entries, _now.Splits), entries[index].SourcePage);
     }
 
     // Index of the nearest entry in the direction that is not deleted, or -1; also -1 when index is out of range.
@@ -205,13 +214,13 @@ public sealed class PagePlanModel
 
         var entries = _now.Entries.ToList();
         (entries[from], entries[to]) = (entries[to], entries[from]);
-        Push(new Snapshot(entries, _now.Splits));
+        Push(new Snapshot(entries, _now.Splits), entries[to].SourcePage);
         return to;
     }
 
-    private void Push(Snapshot next)
+    private void Push(Snapshot next, int page)
     {
-        _undo.Push(_now);
+        _undo.Push(new UndoStep(_now, page));
         _now = next;
     }
 }

@@ -1,3 +1,4 @@
+using System.Collections.Concurrent;
 using System.Text.Json;
 using System.Text.RegularExpressions;
 using Microsoft.Playwright;
@@ -30,6 +31,12 @@ internal sealed class FakePageEditor
 
     public bool IsPrivate { get; init; }
 
+    /// <summary>Version of the document (the detail carries it); the page puts it into the preview URL.</summary>
+    public DateTimeOffset? EditedAt { get; set; }
+
+    /// <summary>How many of the first loads of the pages fail with a server error (the retry button follows).</summary>
+    public int FailedPageLoads { get; init; }
+
     public IReadOnlyList<PageInfoDto> Pages { get; init; } =
     [
         new(1, "Sehr geehrte Frau Muster", false, true),
@@ -46,6 +53,9 @@ internal sealed class FakePageEditor
     public SplitSuggestionDto? Suggestion { get; init; }
 
     public AccountMocks Mocks { get; } = new();
+
+    /// <summary>URLs the previews were requested from (the archive PDF), in request order.</summary>
+    public ConcurrentQueue<string> ArchiveRequests { get; } = new();
 
     public string Path => $"/dokumente/{Id}/seiten";
 
@@ -81,11 +91,26 @@ internal sealed class FakePageEditor
         var pdf = EditingPdfs.ThreePages();
         var detail = new DocumentDetailDto(
             Id, Title, DateTimeOffset.UtcNow, DocumentProcessingState.Done, null, null,
-            new DocumentFileDto("brief.pdf", "application/pdf", pdf.Length, "0"), IsPrivate: IsPrivate, IsMine: true);
-        await ApiMocks.RespondAsync(page, new Regex($"/api/documents/{Id}$"), "GET", detail);
+            new DocumentFileDto("brief.pdf", "application/pdf", pdf.Length, "0"), IsPrivate: IsPrivate, IsMine: true, EditedAt: EditedAt);
+        // The detail is read when the page loads, so a test can change EditedAt before it comes back.
+        await page.RouteAsync(new Regex($"/api/documents/{Id}$"), route => route.Request.Method == "GET"
+            ? route.FulfillAsync(new RouteFulfillOptions
+            {
+                Status = 200,
+                ContentType = "application/json",
+                Body = JsonSerializer.Serialize(detail with { EditedAt = EditedAt }, _json),
+            })
+            : route.ContinueAsync());
         await ApiMocks.RespondAsync(page, new Regex($"/api/documents/{Id}/pages$"), "GET", new DocumentPagesDto(Id, Title, CanEdit, EditPending, Pages));
-        await page.RouteAsync(new Regex($"/api/documents/{Id}/files/archive$"), route => route.FulfillAsync(
-            new RouteFulfillOptions { Status = 200, ContentType = "application/pdf", BodyBytes = pdf }));
+        var loads = 0;
+        await page.RouteAsync(new Regex($"/api/documents/{Id}/pages$"), route => route.Request.Method == "GET" && Interlocked.Increment(ref loads) <= FailedPageLoads
+            ? route.FulfillAsync(new RouteFulfillOptions { Status = 500, ContentType = "application/problem+json", Body = "{\"title\":\"Fehler\"}" })
+            : route.FallbackAsync());
+        await page.RouteAsync(new Regex($"/api/documents/{Id}/files/archive(\\?.*)?$"), route =>
+        {
+            ArchiveRequests.Enqueue(route.Request.Url);
+            return route.FulfillAsync(new RouteFulfillOptions { Status = 200, ContentType = "application/pdf", BodyBytes = pdf });
+        });
         await ApiMocks.SearchAsync(page, Hits);
         if (Suggestion is not null)
         {

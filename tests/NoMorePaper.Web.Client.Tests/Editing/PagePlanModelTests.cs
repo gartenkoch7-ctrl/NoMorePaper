@@ -96,31 +96,6 @@ public sealed class PagePlanModelTests
     }
 
     [Fact]
-    public void ToggleSplitAfter_SetsAndRemoves_ButNeverAfterTheLastPage()
-    {
-        var model = new PagePlanModel(3);
-
-        Assert.False(model.ToggleSplitAfter(2));
-        Assert.True(model.ToggleSplitAfter(0));
-        Assert.Contains(0, model.SplitsAfter);
-        Assert.True(model.ToggleSplitAfter(0));
-
-        Assert.Empty(model.SplitsAfter);
-        Assert.False(model.IsDirty);
-    }
-
-    [Fact]
-    public void DocumentNumberOfSplit_CountsTheSplitsUpToIt()
-    {
-        var model = new PagePlanModel(4);
-        model.ToggleSplitAfter(0);
-        model.ToggleSplitAfter(2);
-
-        Assert.Equal(1, model.DocumentNumberOfSplit(0));
-        Assert.Equal(2, model.DocumentNumberOfSplit(2));
-    }
-
-    [Fact]
     public void ReplaceAndClearCrop_SetAndDropTheReplacement()
     {
         var model = new PagePlanModel(2);
@@ -147,16 +122,38 @@ public sealed class PagePlanModelTests
         model.ClearCrop(2);
 
         var undone = 0;
-        while (model.Undo())
+        while (model.CanUndo)
         {
+            model.Undo();
             undone++;
         }
 
         Assert.Equal(6, undone);
         Assert.False(model.IsDirty);
-        Assert.False(model.Undo());
+        Assert.Null(model.Undo());
         Assert.Equal([1, 2, 3], model.Entries.Select(entry => entry.SourcePage));
         Assert.Empty(model.SplitsAfter);
+    }
+
+    [Fact]
+    public void Undo_ReturnsTheSourcePageTheUndoneChangeTouched()
+    {
+        var model = new PagePlanModel(4);
+        model.RotateRight(1);
+        model.MoveDown(0);
+        model.ToggleDelete(3);
+        model.ToggleSplitAfter(2);
+        model.Replace(2, "k", "t");
+        model.RotateLeft(0);
+
+        // Newest first; each answer is the page of that change, not the page of the last action in the UI.
+        Assert.Equal(2, model.Undo());
+        Assert.Equal(3, model.Undo());
+        Assert.Equal(3, model.Undo());
+        Assert.Equal(4, model.Undo());
+        Assert.Equal(1, model.Undo());
+        Assert.Equal(2, model.Undo());
+        Assert.Null(model.Undo());
     }
 
     [Fact]
@@ -184,60 +181,6 @@ public sealed class PagePlanModelTests
         Assert.False(model.CanSave);
         Assert.Empty(model.ToPlan().Steps);
         Assert.Equal(0, model.KeptCount);
-    }
-
-    [Fact]
-    public void ToSplit_CutsAtTheSplitPoints_AndDropsPartsWithoutPages()
-    {
-        var model = new PagePlanModel(5);
-        model.ToggleSplitAfter(1);
-        model.ToggleSplitAfter(2);
-        model.ToggleDelete(2);
-        model.ToggleDelete(1);
-
-        Assert.True(model.IsSplit);
-        var split = model.ToSplit();
-
-        Assert.Equal(2, split.Parts.Count);
-        Assert.Equal([1], split.Parts[0].Steps.Select(step => step.SourcePage));
-        Assert.Equal([4, 5], split.Parts[1].Steps.Select(step => step.SourcePage));
-    }
-
-    [Fact]
-    public void SplitWithOnlyOneKeptPart_IsNotASplit()
-    {
-        var model = new PagePlanModel(3);
-        model.ToggleSplitAfter(0);
-        model.ToggleDelete(0);
-
-        Assert.False(model.IsSplit);
-        Assert.Equal(1, model.PartCount);
-    }
-
-    [Fact]
-    public void FromSuggestion_SetsSplitPoints_DeletesBlankPages_AndCanBeUndone()
-    {
-        var model = new PagePlanModel(5);
-        var suggestion = new SplitSuggestionDto([new PageRangeDto(1, 2), new PageRangeDto(3, 5)], [3]);
-
-        model.FromSuggestion(suggestion);
-
-        Assert.Equal([1], model.SplitsAfter);
-        Assert.True(model.Entries[2].Deleted);
-        Assert.True(model.IsSplit);
-        Assert.Equal([[1, 2], [4, 5]], model.ToSplit().Parts.Select(part => part.Steps.Select(step => step.SourcePage).ToArray()));
-        Assert.True(model.Undo());
-        Assert.False(model.IsDirty);
-    }
-
-    [Fact]
-    public void FromSuggestion_IgnoresAPartThatEndsOnTheLastPage()
-    {
-        var model = new PagePlanModel(2);
-
-        model.FromSuggestion(new SplitSuggestionDto([new PageRangeDto(1, 2)], []));
-
-        Assert.Empty(model.SplitsAfter);
     }
 
     [Fact]

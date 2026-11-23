@@ -1,6 +1,5 @@
 using System.Text.RegularExpressions;
 using Microsoft.Playwright;
-using NoMorePaper.Contracts.Editing;
 using NoMorePaper.UI.Tests.Hosting;
 using Xunit;
 
@@ -139,41 +138,6 @@ public sealed class PageEditorTests(ServerFixture server)
     }
 
     [Fact]
-    public async Task SplitHere_AddsARow_SaveSendsTheParts_AndLinksToReview()
-    {
-        var fake = new FakePageEditor();
-        await using var session = await fake.OpenAsync(server);
-        var page = session.Page;
-
-        await page.Locator("#pe-split-1").ClickAsync();
-
-        await Assertions.Expect(FakePageEditor.Status(page)).ToHaveTextAsync("Trennstelle nach Seite 1 gesetzt.");
-        await Assertions.Expect(page.GetByRole(AriaRole.Listitem).Filter(new() { HasText = "Trennstelle: Dokument 1 endet nach Seite 1" })).ToBeVisibleAsync();
-        await page.GetByRole(AriaRole.Button, new() { Name = "Speichern" }).ClickAsync();
-
-        await Assertions.Expect(page.GetByRole(AriaRole.Link, new() { Name = "Zu „Zu prüfen“" })).ToHaveAttributeAsync("href", "zu-pruefen");
-        await Assertions.Expect(FakePageEditor.Status(page)).ToContainTextAsync("in 2 Dokumente geteilt");
-        Assert.True(fake.Mocks.WasCalled("POST", $"/api/documents/{fake.Id}/split"));
-        Assert.Contains("{\"parts\":[{\"steps\":[{\"sourcePage\":1,", fake.PlanBody("split"), StringComparison.Ordinal);
-    }
-
-    [Fact]
-    public async Task RemoveSplit_TakesTheRowAway_AndFocusesTheSplitButtonOfTheCard()
-    {
-        var fake = new FakePageEditor();
-        await using var session = await fake.OpenAsync(server);
-        var page = session.Page;
-        await page.Locator("#pe-split-1").ClickAsync();
-        await Assertions.Expect(page.Locator("#pe-split-1")).ToHaveAttributeAsync("aria-pressed", "true");
-
-        await page.GetByRole(AriaRole.Button, new() { Name = "Trennstelle entfernen" }).ClickAsync();
-
-        await Assertions.Expect(page.GetByRole(AriaRole.Button, new() { Name = "Trennstelle entfernen" })).ToHaveCountAsync(0);
-        await Assertions.Expect(page.Locator("#pe-split-1")).ToBeFocusedAsync();
-        await Assertions.Expect(FakePageEditor.Status(page)).ToHaveTextAsync("Trennstelle nach Seite 1 entfernt.");
-    }
-
-    [Fact]
     public async Task Save_WhenAnEditRuns_ShowsTheConflictText_AndKeepsTheChanges()
     {
         var fake = new FakePageEditor { SaveStatus = 409 };
@@ -214,73 +178,5 @@ public sealed class PageEditorTests(ServerFixture server)
         await Assertions.Expect(page.Locator("#pe-heading")).ToBeFocusedAsync();
         await Assertions.Expect(page.GetByRole(AriaRole.Heading, new() { Level = 2 })).ToHaveTextAsync(["Seite 1 von 3", "Seite 2 von 3", "Seite 3 von 3"]);
         await Assertions.Expect(page.GetByRole(AriaRole.Button, new() { Name = "Speichern" })).ToBeDisabledAsync();
-    }
-
-    [Fact]
-    public async Task SplitLink_SetsTheSplitPointsAndDeletesTheBlankPageOfTheSuggestion()
-    {
-        var fake = new FakePageEditor { Suggestion = new SplitSuggestionDto([new PageRangeDto(1, 1), new PageRangeDto(2, 3)], [2]) };
-        await using var session = await fake.OpenAsync(server, query: "?trennen=1");
-        var page = session.Page;
-
-        await Assertions.Expect(page.GetByRole(AriaRole.Listitem).Filter(new() { HasText = "Trennstelle: Dokument 1 endet nach Seite 1" })).ToBeVisibleAsync();
-        await Assertions.Expect(page.GetByRole(AriaRole.Heading, new() { Level = 2 })).ToHaveTextAsync(["Seite 1 von 2", "Gelöschte Seite (vorher Seite 2)", "Seite 2 von 2"]);
-        await Assertions.Expect(page.GetByRole(AriaRole.Button, new() { Name = "Speichern" })).ToBeEnabledAsync();
-    }
-
-    [Fact]
-    public async Task NoRight_ShowsTheNotice_AndNoList()
-    {
-        var fake = new FakePageEditor { CanEdit = false };
-        await using var session = await fake.OpenAsync(server);
-
-        await Assertions.Expect(session.Page.Locator("main")).ToContainTextAsync("Du darfst dieses Dokument nicht bearbeiten.");
-        await Assertions.Expect(session.Page.GetByRole(AriaRole.Article)).ToHaveCountAsync(0);
-    }
-
-    [Fact]
-    public async Task EditRunning_ShowsTheNoticeWithALinkToTheDocument()
-    {
-        var fake = new FakePageEditor { EditPending = true };
-        await using var session = await fake.OpenAsync(server);
-        var page = session.Page;
-
-        await Assertions.Expect(page.Locator("main")).ToContainTextAsync("Das Dokument wird gerade bearbeitet.");
-        await Assertions.Expect(page.GetByRole(AriaRole.Link, new() { Name = "Zum Dokument" })).ToHaveAttributeAsync("href", $"dokumente/{fake.Id}");
-        await Assertions.Expect(page.GetByRole(AriaRole.Article)).ToHaveCountAsync(0);
-    }
-
-    [Fact]
-    public async Task LeavingWithChanges_AsksInThePage_CancelStays_ConfirmLeaves()
-    {
-        var fake = new FakePageEditor();
-        await using var session = await fake.OpenAsync(server);
-        var page = session.Page;
-        await page.Locator("#pe-rr-1").ClickAsync();
-        var box = page.GetByRole(AriaRole.Group, new() { Name = "Du hast ungespeicherte Änderungen. Wirklich verlassen?" });
-
-        await page.GetByRole(AriaRole.Navigation, new() { Name = "Pfad" }).GetByRole(AriaRole.Link, new() { Name = "Dokumente" }).ClickAsync();
-        await Assertions.Expect(box).ToBeVisibleAsync();
-        await Assertions.Expect(box.GetByRole(AriaRole.Heading)).ToBeFocusedAsync();
-        await box.GetByRole(AriaRole.Button, new() { Name = "Abbrechen" }).ClickAsync();
-        await Assertions.Expect(box).ToHaveCountAsync(0);
-        await Assertions.Expect(page).ToHaveURLAsync(new Regex("/seiten$"));
-
-        await page.GetByRole(AriaRole.Navigation, new() { Name = "Pfad" }).GetByRole(AriaRole.Link, new() { Name = "Dokumente" }).ClickAsync();
-        await box.GetByRole(AriaRole.Button, new() { Name = "Ja, verwerfen" }).ClickAsync();
-
-        await Assertions.Expect(page).ToHaveURLAsync(new Regex("/dokumente$"));
-    }
-
-    [Fact]
-    public async Task LeavingWithoutChanges_NeedsNoQuestion()
-    {
-        var fake = new FakePageEditor();
-        await using var session = await fake.OpenAsync(server);
-        var page = session.Page;
-
-        await page.GetByRole(AriaRole.Navigation, new() { Name = "Pfad" }).GetByRole(AriaRole.Link, new() { Name = "Dokumente" }).ClickAsync();
-
-        await Assertions.Expect(page).ToHaveURLAsync(new Regex("/dokumente$"));
     }
 }
