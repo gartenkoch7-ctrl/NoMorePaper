@@ -132,7 +132,8 @@ select.form-input {
 
 .fields-editor {
     padding: 1rem 1.5rem;
-    border: 3px solid var(--nmp-text);
+    border: 1px solid var(--nmp-border);
+    border-radius: var(--nmp-radius-lg);
 }
 
 .fields-summary {

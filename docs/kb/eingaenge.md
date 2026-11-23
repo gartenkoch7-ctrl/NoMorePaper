@@ -130,7 +130,7 @@ Stand: Schritt 0 (gemeinsame Bausteine). Die Spuren A–E ergänzen ihre Abschni
 ## Seite „Eingänge“, Einstellungen, Besitzer prüfen (Spur E)
 - `GET /api/inputs` liefert `InputStatusDto[]` aus `ListInputStatus` (Sichtbarkeit siehe oben); Mitglieder
   sehen nie fremde Kontonamen oder iCloud-Zeilen.
-- Seite `/eingaenge` (Navigation „Eingänge“): Reiter je Eingang, Aufbau siehe unten. Die Seite fragt jede Minute neu (`PeriodicTimer`); eine
+- Seite `/eingaenge` (Einstellungen → Eingänge): Reiter je Eingang, Aufbau siehe unten. Die Seite fragt jede Minute neu (`PeriodicTimer`); eine
   Änderung von Zustand oder Problem sagt die Live-Region an, „Jetzt aktualisieren“ antwortet immer. Der
   Knopf bleibt aktiv (ein deaktivierter Knopf verliert den Tastaturfokus). Ein Ladefehler ersetzt die Zeilen
   durch eine Fehlermeldung mit „Erneut versuchen“. Scheitert ein Laden von Hand mit demselben Fehler noch einmal,
@@ -325,7 +325,7 @@ API-Client wird von der Seite selbst gebaut (nicht in `Program.cs` registriert, 
 **„Aus der Mail“** (`MailOriginSection`) steht im Viewer direkt nach der Zusammenfassung: Hinweis, Absender,
 Betreff als Definitionsliste mit eigener Überschrift.
 ## Kamera (Spur A)
-Seite `/kamera` (Navigation „Kamera“). Ablauf: „Kamera starten“ → Rückkamera (`getUserMedia`,
+Seite `/kamera` (Hinzufügen → Kamera). Ablauf: „Kamera starten“ → Rückkamera (`getUserMedia`,
 `facingMode: environment`, ideal 3840 px) → je Videobild Kantenerkennung → Hinweise, Töne → Auto-Auslöser →
 Seitenliste → „Fertig“ → `POST /api/documents/pages` → ein PDF, Quelle `Camera`.
 
@@ -425,7 +425,7 @@ Repo. Server: `tests/NoMorePaper.Server.Tests/Documents/PageUploadTests.cs`; Ans
 ### Prüfliste iPhone mit VoiceOver (Nutzer)
 Voraussetzung: NoMorePaper über die `https`-Adresse von `tailscale serve` in Safari (oder als installierte
 PWA) geöffnet, angemeldet.
-1. „Kamera“ in der Navigation wählen. VoiceOver liest Überschrift „Mit der Kamera aufnehmen“ und die Erklärung.
+1. „Hinzufügen → Kamera“ wählen. VoiceOver liest Überschrift „Mit der Kamera aufnehmen“ und die Erklärung.
 2. Schalter „Töne“ und „Privat“ sind als Schalter mit Namen und Hinweis zu hören; „Privat“ entspricht der
    Konto-Einstellung.
 3. „Kamera starten“ doppeltippen. Safari fragt nach der Kamera → erlauben. Ansage „Kamera und

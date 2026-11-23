@@ -1,7 +1,4 @@
 @inject IStringLocalizer<Strings> L
 
 @* "Private" as a symbol and as text, never colour alone. *@
-<span class="private-badge">
-    <MudIcon Icon="@Icons.Material.Filled.Lock" />
-    <span>@L["PrivateBadge"]</span>
-</span>
+<Badge Text="@L["PrivateBadge"]" Icon="@Icons.Material.Filled.Lock" />

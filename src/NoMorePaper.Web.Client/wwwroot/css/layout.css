@@ -111,7 +111,7 @@
     margin-inline-start: auto;
 }
 
-.menu-toggle {
+.nmp-button.menu-toggle {
     display: none;
 }
 
@@ -152,7 +152,7 @@
         padding: var(--nmp-space-md);
     }
 
-    .menu-toggle {
+    .nmp-button.menu-toggle {
         display: inline-flex;
     }
 
@@ -185,19 +185,7 @@
 
 /* Buttons that are links (upload in the header) look like the design's buttons. */
 a.nmp-button {
-    display: inline-flex;
-    align-items: center;
-    gap: var(--nmp-space-xs);
     text-decoration: none;
-}
-
-.nmp-button .mud-icon-root {
-    font-size: 1.125rem;
-}
-
-.menu-toggle {
-    align-items: center;
-    gap: var(--nmp-space-xs);
 }
 
 /* Wide screens keep the header fixed; it can wrap to two lines up to about 1250 px. Scrolling to a

@@ -110,14 +110,6 @@ public sealed partial class DocumentViewer : IAsyncDisposable
         Logger.ViewerTabSelected(id switch { TextTab => "text", HistoryTab => "history", _ => "fields" });
     }
 
-    private static string StateIcon(DocumentProcessingState state) => state switch
-    {
-        DocumentProcessingState.Queued => Icons.Material.Filled.Schedule,
-        DocumentProcessingState.Processing => Icons.Material.Filled.Sync,
-        DocumentProcessingState.Done => Icons.Material.Filled.CheckCircle,
-        _ => Icons.Material.Filled.Error,
-    };
-
     private Task OnFullscreenChangedAsync(bool active) =>
         AnnounceAsync(L[active ? "ViewerFullscreenOn" : "ViewerFullscreenOff"]);
 

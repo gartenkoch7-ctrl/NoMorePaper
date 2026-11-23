@@ -30,7 +30,14 @@ public sealed partial class Documents
         {
             while (InProgress && await timer.WaitForNextTickAsync(_cts.Token))
             {
+                var before = _lastStates;
                 await LoadAsync(announceChanges: true);
+                if (StateChanged(before))
+                {
+                    // A finished document can change the type counts of the filter chips.
+                    await LoadCountsAsync();
+                }
+
                 StateHasChanged();
             }
         }
@@ -43,6 +50,9 @@ public sealed partial class Documents
             _polling = false;
         }
     }
+
+    private bool StateChanged(Dictionary<Guid, DocumentProcessingState> before) =>
+        _documents.Any(d => before.TryGetValue(d.Id, out var state) && state != d.State);
 
     // All changes of one poll in one message: one announcement per document would cut off the one
     // before it, so only the last change would be heard.

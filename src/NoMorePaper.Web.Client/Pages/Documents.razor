@@ -39,11 +39,11 @@
 }
 else if (_error is not null)
 {
-    <div role="alert" class="error-box" data-ready>
-        <MudIcon Icon="@Icons.Material.Filled.Error" />
-        <span>@L["DocumentsLoadError", _error]</span>
+    <div data-ready>
+        <NoticeBox Kind="NoticeKind.Error" Announce="true" Message="@L["DocumentsLoadError", _error]">
+            <button type="button" class="nmp-button" @onclick="ReloadAsync">@L["Retry"]</button>
+        </NoticeBox>
     </div>
-    <MudButton Variant="Variant.Outlined" Color="Color.Primary" OnClick="ReloadAsync">@L["Retry"]</MudButton>
 }
 else if (_documents.Length == 0 && _page == 1)
 {

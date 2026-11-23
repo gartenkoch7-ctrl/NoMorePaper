@@ -27,12 +27,6 @@
     color: var(--nmp-outline);
 }
 
-.inputs-refresh .nmp-button {
-    display: inline-flex;
-    align-items: center;
-    gap: var(--nmp-space-xs);
-}
-
 .input-panel {
     margin-top: var(--nmp-space-lg);
 }

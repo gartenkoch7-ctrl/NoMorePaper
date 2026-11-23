@@ -22,11 +22,11 @@
 }
 else if (_loadError is not null)
 {
-    <div role="alert" class="error-box" data-ready>
-        <MudIcon Icon="@Icons.Material.Filled.Error" />
-        <span>@L["ErrorPrefix", _loadError]</span>
+    <div data-ready>
+        <NoticeBox Kind="NoticeKind.Error" Announce="true" Message="@L["ErrorPrefix", _loadError]">
+            <button type="button" class="nmp-button" @onclick="LoadAsync">@L["Retry"]</button>
+        </NoticeBox>
     </div>
-    <button type="button" class="nmp-button" @onclick="LoadAsync">@L["Retry"]</button>
 }
 else if (_loading)
 {
@@ -82,8 +82,8 @@ else
         <LiveRegion @ref="_error" Assertive="true" Class="form-error" />
         <LiveRegion @ref="_status" />
         <div class="button-row">
-            <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" Color="Color.Primary">@L["MailSave"]</MudButton>
-            <MudButton Variant="Variant.Outlined" Color="Color.Primary" OnClick="TestAsync">@L["MailTest"]</MudButton>
+            <button type="submit" class="nmp-button nmp-button-primary">@L["MailSave"]</button>
+            <button type="button" class="nmp-button" @onclick="TestAsync">@L["MailTest"]</button>
         </div>
     </form>
     </section>

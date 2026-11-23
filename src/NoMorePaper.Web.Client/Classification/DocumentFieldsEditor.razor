@@ -5,10 +5,7 @@
     <MudText Typo="Typo.h3" id="@(Prefix + "-heading")">@L["ClsEditHeading"]</MudText>
     @if (_loadError is not null)
     {
-        <div role="alert" class="error-box">
-            <MudIcon Icon="@Icons.Material.Filled.Error" />
-            <span>@L["ClsEditLoadError", _loadError]</span>
-        </div>
+        <NoticeBox Kind="NoticeKind.Error" Announce="true" Message="@L["ClsEditLoadError", _loadError]" />
         <div class="button-row">
             <button type="button" class="nmp-button" @onclick="LoadAsync">@L["Retry"]</button>
             <button type="button" class="nmp-button" @onclick="() => OnCancel.InvokeAsync()">@L["Cancel"]</button>

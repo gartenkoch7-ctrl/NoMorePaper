@@ -29,7 +29,7 @@
                                 <a class="doc-title-link" href="@DocumentLinks.Viewer(document.Id)">@document.Title</a>
                                 @if (document.IsPrivate)
                                 {
-                                    <Badge Text="@L["PrivateBadge"]" Icon="@Icons.Material.Filled.Lock" />
+                                    <PrivateBadge />
                                 }
                                 @if (document.Excerpt is { } excerpt)
                                 {
