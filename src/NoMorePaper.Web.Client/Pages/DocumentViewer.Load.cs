@@ -17,8 +17,11 @@ public sealed partial class DocumentViewer
         // The same component is reused when the route switches to another document.
         _loadedId = Id;
         _tab = FieldsTab;
+        _openGen++;
         await Viewer.CloseAsync();
         (_detail, _fields, _error, _source, _state, _opened, _showFailed) = (null, null, null, null, null, false, false);
+        // A note of the previous document must not be announced with the first view of the next one.
+        _finishedNote = null;
         _originalColors = await Preferences.LoadOriginalColorsAsync();
 
         var result = await Api.GetAsync(Id);
@@ -44,8 +47,15 @@ public sealed partial class DocumentViewer
             return;
         }
 
-        _finishedNote = L[withoutEditedVersion ? "VerRebuildFinished" : "VerFinished"];
+        _openGen++;
         await Viewer.CloseAsync();
+        // The close yields: the user may have switched documents or left meanwhile.
+        if (_disposed || id != Id)
+        {
+            return;
+        }
+
+        _finishedNote = L[withoutEditedVersion ? "VerRebuildFinished" : "VerFinished"];
         (_state, _opened, _showFailed) = (null, false, false);
         ApplyDetail(result.Value);
         StateHasChanged();

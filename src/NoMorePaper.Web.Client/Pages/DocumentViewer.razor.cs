@@ -38,6 +38,8 @@ public sealed partial class DocumentViewer : IAsyncDisposable
     private ElementReference _stage;
     private DocumentFieldsDto? _fields;
     private string? _finishedNote;
+    // Bumped on every close: a stale OpenAsync that reports failure must not flag the newer open.
+    private int _openGen;
 
     [Parameter] public Guid Id { get; set; }
 
@@ -60,8 +62,9 @@ public sealed partial class DocumentViewer : IAsyncDisposable
 
         _opened = true;
         var id = Id;
+        var gen = ++_openGen;
         var shown = await Viewer.OpenAsync(_stage, _source, _originalColors, OnViewChangedAsync, OnRendererChangedAsync);
-        if (!shown && !_disposed && id == Id)
+        if (!shown && !_disposed && id == Id && gen == _openGen)
         {
             _showFailed = true;
             StateHasChanged();
