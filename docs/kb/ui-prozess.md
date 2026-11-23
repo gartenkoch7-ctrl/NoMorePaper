@@ -90,6 +90,11 @@ Von Hand:
 
 ## Regeln
 
+- **Jede Änderung an der Oberfläche geht zuerst über Stitch** (Entscheidung des Nutzers 2026-11-23): auch
+  kleine Änderungen (Element dazu, weg, verschoben) werden erst im Stitch-Screen gemacht
+  (`edit_screens` bzw. `generate_screen_from_text` über den Stitch-MCP), dann abgeholt und erst danach im Code
+  umgesetzt. So zeigen die Mockups immer die echte App. Den Stand in Stitch prüft der Agent selbst per MCP.
+  Screens **einzeln nacheinander** erzeugen – gleichzeitige Aufträge hingen sich auf (2026-11-23).
 - Stitch-HTML ist **Vorlage, nie Produktcode**: übernommen werden Aufbau, Abstände, Radien,
   Knopf-Hierarchie. Tailwind, CDN, Google Fonts und externe Bilder kommen nie in den Build.
 - **Keine neuen Funktionen aus Entwürfen**, außer sie stehen in `notizen.md` unter „Übernehmen“ **und**

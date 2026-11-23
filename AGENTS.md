@@ -87,6 +87,7 @@ Der Hauptnutzer ist blind bzw. stark sehbehindert. Barrierefreiheit ist Pflicht,
 - **Neue oder überarbeitete Seiten** folgen dem [UI-Prozess](docs/kb/ui-prozess.md): Entwurf im
   Stitch-Projekt „NoMorePaper“ → abholen → prüfen → Freigabe durch den Nutzer → umsetzen → abnehmen.
   Stitch-HTML ist nur Vorlage, nie Produktcode; Funktionen aus Entwürfen nur, wenn sie im Plan stehen.
+  **Jede** UI-Änderung, auch eine kleine, wird zuerst im Stitch-Screen gemacht (Stitch-MCP), dann im Code.
 
 ### 2.6 Statische Klassen
 - `static` nur für Code **ohne Nebenwirkungen** (reine Logik, Konstanten).
