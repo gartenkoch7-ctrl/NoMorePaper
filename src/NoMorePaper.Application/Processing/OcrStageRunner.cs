@@ -1,6 +1,8 @@
 using System.Diagnostics;
 using Microsoft.Extensions.Logging;
 using NoMorePaper.Application.Documents;
+using NoMorePaper.Application.Editing;
+using NoMorePaper.Application.Recognition;
 using NoMorePaper.Application.Telemetry;
 using NoMorePaper.Domain.Processing;
 
@@ -8,16 +10,46 @@ namespace NoMorePaper.Application.Processing;
 
 /// <summary>
 /// The OCR stage of a claimed job: runs a <see cref="ProcessingAttempt"/> in a working folder of its own
-/// and records its outcome. A failed attempt is recorded with a technical reason only (exception type,
-/// tool and exit code) and retried by the <see cref="RetryPolicy"/> unless the failure is permanent.
-/// Exceptions while the Worker stops are passed on, so the caller hands the job back.
+/// and records its outcome, then looks for a content duplicate (<see cref="FindContentDuplicate"/>). A
+/// failed attempt is recorded with a technical reason only (exception type, tool and exit code) and
+/// retried by the <see cref="RetryPolicy"/> unless the failure is permanent. Exceptions while the Worker
+/// stops are passed on, so the caller hands the job back.
 /// </summary>
-internal sealed class OcrStage(IDocumentStorage storage, IOcrEngine ocr, IWorkingFolder workingFolder, TimeProvider time, ILogger logger)
+/// <remarks>Logs under the category of <see cref="ProcessNextDocument"/>, as OCR did before the stages had runners.</remarks>
+internal sealed class OcrStageRunner(
+    IDocumentStorage storage,
+    IOcrEngine ocr,
+    IWorkingFolder workingFolder,
+    IPageAnalyzer pages,
+    FindContentDuplicate duplicates,
+    TimeProvider time,
+    ILogger<ProcessNextDocument> logger) : IStageRunner
 {
-    private readonly ProcessingAttempt _attempt = new(storage, ocr, workingFolder);
+    private readonly ProcessingAttempt _attempt = new(storage, ocr, workingFolder, pages);
+
+    public async Task RunAsync(IJobQueue queue, JobClaim claim, CancellationToken stoppingToken)
+    {
+        ArgumentNullException.ThrowIfNull(queue);
+        ArgumentNullException.ThrowIfNull(claim);
+        if (await RunOcrAsync(queue, claim, stoppingToken).ConfigureAwait(false) is not { } text)
+        {
+            return;
+        }
+
+        // After OCR is complete the job belongs to the next stage: the check only adds a hint to the
+        // document, and a stop during it has nothing to hand back (the caller's release finds no claim).
+        try
+        {
+            await duplicates.RunAsync(claim.DocumentId, text, stoppingToken).ConfigureAwait(false);
+        }
+        catch (Exception exception) when (stoppingToken.IsCancellationRequested && exception is not OperationCanceledException)
+        {
+            throw new OperationCanceledException("The Worker stopped during the duplicate check.", exception, stoppingToken);
+        }
+    }
 
     /// <returns>The recognized text when the stage is complete, otherwise <c>null</c>.</returns>
-    public async Task<string?> RunAsync(IJobQueue queue, JobClaim claim, CancellationToken stoppingToken)
+    private async Task<string?> RunOcrAsync(IJobQueue queue, JobClaim claim, CancellationToken stoppingToken)
     {
         using var activity = ApplicationTelemetry.Source.StartActivity("nomorepaper.processing.document");
         activity?.SetTag("nomorepaper.processing.attempt", claim.Attempt);

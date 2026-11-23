@@ -1,3 +1,5 @@
+using NoMorePaper.Domain.Documents;
+
 namespace NoMorePaper.Application.Accounts;
 
 /// <summary>
@@ -16,6 +18,14 @@ public interface IAccountPreferencesStore
     /// is changed unless saved.
     /// </returns>
     Task<PreferencesResult> SaveAsync(Guid accountId, AccountPreferences preferences, CancellationToken cancellationToken);
+
+    /// <summary>The account's choice which versions an edited document keeps (ADR-0025).</summary>
+    /// <returns>The choice, or <see cref="VersionPolicy.KeepBoth"/> if it never made one.</returns>
+    Task<VersionPolicy> GetAfterEditingAsync(Guid accountId, CancellationToken cancellationToken);
+
+    /// <summary>Saves the account's choice which versions an edited document keeps; the other preferences stay.</summary>
+    /// <returns><c>false</c>, changing nothing, when the account was removed meanwhile.</returns>
+    Task<bool> SetAfterEditingAsync(Guid accountId, VersionPolicy policy, CancellationToken cancellationToken);
 
     /// <summary>The account a mail sender belongs to; the address is normalized here (<see cref="AccountPreferences.NormalizeAddress"/>).</summary>
     /// <returns>The account, or <c>null</c> for an unknown or invalid address.</returns>

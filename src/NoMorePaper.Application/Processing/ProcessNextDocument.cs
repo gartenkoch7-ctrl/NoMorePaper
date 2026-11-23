@@ -1,29 +1,24 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using NoMorePaper.Application.Documents;
 using NoMorePaper.Application.Recognition;
 using NoMorePaper.Domain.Processing;
 
 namespace NoMorePaper.Application.Processing;
 
 /// <summary>
-/// Claims the next due job and runs its stage: OCR (<see cref="OcrStage"/>), followed by the content
-/// duplicate check (<see cref="FindContentDuplicate"/>), or recognition (<see cref="RecognizeDocument"/>).
-/// Each stage records its failures with a technical reason only and retries them by the
-/// <see cref="RetryPolicy"/>; a failed attempt or an unreachable queue never stops the caller's loop. On
-/// shutdown the job is handed back.
+/// Claims the next due job and runs its stage with the <see cref="IStageRunner"/> registered for it:
+/// OCR (followed by the content duplicate check), recognition, and the stages M4b adds. Each stage
+/// records its failures with a technical reason only and retries them by the <see cref="RetryPolicy"/>;
+/// a failed attempt or an unreachable queue never stops the caller's loop. On shutdown the job is handed back.
 /// </summary>
 /// <remarks>
 /// One instance per Worker (singleton): it remembers whether claiming fails, to log an outage once.
-/// Recognition jobs are claimed only once the model is ready (<see cref="RecognitionReadiness"/>).
-/// Each call works in a scope of its own, because the queue holds a database context; the use cases of
-/// recognition come from that scope.
+/// Jobs at the stages that ask the local LLM are claimed only once the model is ready
+/// (<see cref="RecognitionReadiness"/>). Each call works in a scope of its own, because the queue holds a
+/// database context; the stage runners come from that scope.
 /// </remarks>
 public sealed class ProcessNextDocument(
     IServiceScopeFactory scopes,
-    IDocumentStorage storage,
-    IOcrEngine ocr,
-    IWorkingFolder workingFolder,
     RecognitionReadiness readiness,
     TimeProvider time,
     ILogger<ProcessNextDocument> logger)
@@ -37,7 +32,6 @@ public sealed class ProcessNextDocument(
     // Handing a job back must not wait for ever when the database is gone; the host stops soon after.
     private static readonly TimeSpan s_releaseTimeout = TimeSpan.FromSeconds(5);
 
-    private readonly OcrStage _ocr = new(storage, ocr, workingFolder, time, logger);
     private bool _claimFailing;
 
     /// <summary>Claims and processes the next due job, if any.</summary>
@@ -84,17 +78,16 @@ public sealed class ProcessNextDocument(
 
     private async Task RunStageAsync(IServiceProvider services, IJobQueue queue, JobClaim claim, CancellationToken stoppingToken)
     {
-        string? text = null;
         try
         {
-            if (claim.Stage == JobStage.Recognition)
+            var runner = services.GetKeyedService<IStageRunner>(claim.Stage);
+            if (runner is null)
             {
-                await services.GetRequiredService<RecognizeDocument>().RunAsync(queue, claim, stoppingToken).ConfigureAwait(false);
+                await FailWithoutRunnerAsync(queue, claim, stoppingToken).ConfigureAwait(false);
+                return;
             }
-            else
-            {
-                text = await _ocr.RunAsync(queue, claim, stoppingToken).ConfigureAwait(false);
-            }
+
+            await runner.RunAsync(queue, claim, stoppingToken).ConfigureAwait(false);
         }
         catch (Exception exception) when (stoppingToken.IsCancellationRequested)
         {
@@ -108,19 +101,22 @@ public sealed class ProcessNextDocument(
 
             throw new OperationCanceledException("The Worker stopped during the attempt.", exception, stoppingToken);
         }
+    }
 
-        // After OCR is complete the job belongs to the recognition stage: the check only adds a hint
-        // to the document, and a stop during it has nothing to hand back.
-        if (text is not null)
+    // A stage without a runner (e.g. one a later milestone adds, queued by a newer build) must neither stop
+    // the Worker nor block the queue: the attempt fails like any other, so the job waits for its retry
+    // delay and the jobs behind it run.
+    private async Task FailWithoutRunnerAsync(IJobQueue queue, JobClaim claim, CancellationToken stoppingToken)
+    {
+        try
         {
-            try
-            {
-                await services.GetRequiredService<FindContentDuplicate>().RunAsync(claim.DocumentId, text, stoppingToken).ConfigureAwait(false);
-            }
-            catch (Exception exception) when (stoppingToken.IsCancellationRequested && exception is not OperationCanceledException)
-            {
-                throw new OperationCanceledException("The Worker stopped during the duplicate check.", exception, stoppingToken);
-            }
+            var reason = $"No runner for stage {claim.Stage}";
+            var failure = await queue.FailAsync(claim, reason, permanent: false, time.GetUtcNow(), stoppingToken).ConfigureAwait(false);
+            logger.StageRunnerMissing(claim.Stage.ToString(), claim.DocumentId, failure.Outcome.ToString());
+        }
+        catch (Exception exception) when (!stoppingToken.IsCancellationRequested)
+        {
+            logger.FailureNotRecorded(claim.DocumentId, exception.GetType().Name);
         }
     }
 

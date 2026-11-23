@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using NoMorePaper.Application.Accounts;
+using NoMorePaper.Domain.Documents;
 using NoMorePaper.Infrastructure.Persistence;
 using Npgsql;
 
@@ -63,6 +64,34 @@ public sealed class EfAccountPreferencesStore(AppDbContext db) : IAccountPrefere
             db.ChangeTracker.Clear();
             await transaction.CommitAsync(cancellationToken).ConfigureAwait(false);
             return new PreferencesResult(PreferencesOutcome.Saved);
+        }
+    }
+
+    public async Task<VersionPolicy> GetAfterEditingAsync(Guid accountId, CancellationToken cancellationToken) =>
+        await db.Set<AccountPreferencesRow>().AsNoTracking()
+            .Where(row => row.AccountId == accountId)
+            .Select(row => (VersionPolicy?)row.AfterEditing)
+            .SingleOrDefaultAsync(cancellationToken)
+            .ConfigureAwait(false) ?? VersionPolicy.KeepBoth;
+
+    public async Task<bool> SetAfterEditingAsync(Guid accountId, VersionPolicy policy, CancellationToken cancellationToken)
+    {
+        // One statement: a new row keeps the default for new documents (shared), an existing one only
+        // changes this column.
+        var value = policy.ToString();
+        try
+        {
+            await db.Database.ExecuteSqlAsync(
+                $"""
+                INSERT INTO account_preferences (account_id, new_documents_private, after_editing) VALUES ({accountId}, false, {value})
+                ON CONFLICT (account_id) DO UPDATE SET after_editing = EXCLUDED.after_editing
+                """,
+                cancellationToken).ConfigureAwait(false);
+            return true;
+        }
+        catch (PostgresException error) when (error.SqlState == PostgresErrorCodes.ForeignKeyViolation)
+        {
+            return false;
         }
     }
 

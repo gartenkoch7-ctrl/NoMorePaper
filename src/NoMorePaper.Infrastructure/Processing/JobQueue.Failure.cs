@@ -20,6 +20,7 @@ public sealed partial class JobQueue
         var transaction = await db.Database.BeginTransactionAsync(cancellationToken).ConfigureAwait(false);
         await using (transaction.ConfigureAwait(false))
         {
+            await LockDocumentAsync(claim.DocumentId, cancellationToken).ConfigureAwait(false);
             var job = await LockClaimedJobAsync(claim, cancellationToken).ConfigureAwait(false);
             if (job is null)
             {

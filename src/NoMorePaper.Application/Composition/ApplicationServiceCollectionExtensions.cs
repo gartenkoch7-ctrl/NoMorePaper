@@ -8,6 +8,7 @@ using NoMorePaper.Application.Inputs.Mail;
 using NoMorePaper.Application.Processing;
 using NoMorePaper.Application.Recognition;
 using NoMorePaper.Application.Search;
+using NoMorePaper.Application.Trash;
 
 namespace NoMorePaper.Application.Composition;
 
@@ -30,6 +31,7 @@ public static class ApplicationServiceCollectionExtensions
         services.AddScoped<OpenDocumentFile>();
         services.AddScoped<SearchDocuments>();
         services.AddScoped<SetDocumentPrivacy>();
+        services.AddScoped<MoveDocumentToTrash>();
         services.AddScoped<ListInputStatus>();
         services.AddScoped<ConfigureMailbox>();
         services.AddAccounts();
@@ -74,6 +76,8 @@ public static class ApplicationServiceCollectionExtensions
         services.AddScoped<ResetWithEmergencyCode>();
         services.AddScoped<GetPreferences>();
         services.AddScoped<ChangePreferences>();
+        services.AddScoped<GetAfterEditing>();
+        services.AddScoped<ChangeAfterEditing>();
     }
 
     /// <summary>
@@ -91,6 +95,7 @@ public static class ApplicationServiceCollectionExtensions
         services.AddScoped<RecognizeDocument>();
         services.AddScoped<FindContentDuplicate>();
         services.AddScoped<EnqueueBacklog>();
+        services.AddStageRunners();
 
         // The background inputs (ADR-0024) take files in without a signed-in account.
         services.AddScoped<IntakeDocument>();
@@ -98,6 +103,17 @@ public static class ApplicationServiceCollectionExtensions
         // The mail input asks the local LLM (IMailAssessor), which only the Worker provides.
         services.AddScoped<MailIntake>();
         services.AddScoped<ProcessMailbox>();
+        return services;
+    }
+
+    /// <summary>
+    /// The runner of each <see cref="JobStage"/>, keyed by the stage (<see cref="ProcessNextDocument"/>).
+    /// Part of <see cref="AddDocumentProcessing"/>; the Worker tests wire it on its own.
+    /// </summary>
+    public static IServiceCollection AddStageRunners(this IServiceCollection services)
+    {
+        services.AddKeyedScoped<IStageRunner, OcrStageRunner>(JobStage.Ocr);
+        services.AddKeyedScoped<IStageRunner, RecognitionStageRunner>(JobStage.Recognition);
         return services;
     }
 }

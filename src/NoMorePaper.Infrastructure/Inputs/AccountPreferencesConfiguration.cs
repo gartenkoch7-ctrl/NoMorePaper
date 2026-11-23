@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using NoMorePaper.Application.Accounts;
+using NoMorePaper.Domain.Documents;
 using NoMorePaper.Infrastructure.Accounts;
 
 namespace NoMorePaper.Infrastructure.Inputs;
@@ -13,12 +14,22 @@ internal sealed class AccountPreferencesConfiguration :
     IEntityTypeConfiguration<AccountPreferencesRow>,
     IEntityTypeConfiguration<MailSenderRow>
 {
+    private const int EnumLength = 16;
+
     public void Configure(EntityTypeBuilder<AccountPreferencesRow> builder)
     {
         builder.ToTable("account_preferences");
         builder.HasKey(row => row.AccountId);
         builder.Property(row => row.AccountId).HasColumnName("account_id").ValueGeneratedNever();
         builder.Property(row => row.NewDocumentsPrivate).HasColumnName("new_documents_private");
+
+        // Written by plain SQL only; rows from before M4b get the default of the migration.
+        builder.Property(row => row.AfterEditing)
+            .HasColumnName("after_editing")
+            .HasConversion<string>()
+            .HasMaxLength(EnumLength)
+            .HasDefaultValue(VersionPolicy.KeepBoth)
+            .HasSentinel((VersionPolicy)(-1));
         builder.HasOne<AccountUser>().WithMany().HasForeignKey(row => row.AccountId).OnDelete(DeleteBehavior.Cascade);
     }
 

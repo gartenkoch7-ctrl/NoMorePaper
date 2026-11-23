@@ -1,3 +1,5 @@
+using NoMorePaper.Contracts.Editing;
+
 namespace NoMorePaper.Contracts.Classification;
 
 /// <summary>
@@ -5,9 +7,11 @@ namespace NoMorePaper.Contracts.Classification;
 /// by the signed-in account.
 /// </summary>
 /// <param name="PossibleDuplicate">The document it may duplicate; <c>null</c> when there is none.</param>
+/// <param name="Split">Where the scanned stack probably splits; <c>null</c> without a suggestion.</param>
 public sealed record ReviewItemDto(
     Guid Id,
     string Title,
     DateTimeOffset ReceivedAt,
     DocumentFieldsDto Fields,
-    DuplicateCandidateDto? PossibleDuplicate);
+    DuplicateCandidateDto? PossibleDuplicate,
+    SplitSuggestionDto? Split = null);

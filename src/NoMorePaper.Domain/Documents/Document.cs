@@ -5,7 +5,8 @@ namespace NoMorePaper.Domain.Documents;
 /// <c>Queued → Processing → Done | Failed</c>; <c>Processing → Processing</c> is allowed, because a
 /// retry or a Worker taking over an abandoned job starts the same document again. Its fields
 /// (correspondent, type, date, …) and who may edit them are in <c>Document.Classification.cs</c>; its
-/// origin and the owner check in <c>Document.Intake.cs</c>.
+/// origin and the owner check in <c>Document.Intake.cs</c>; its files in <c>Document.Files.cs</c>; the
+/// trash in <c>Document.Trash.cs</c>; versions and the split suggestion in <c>Document.Editing.cs</c>.
 /// </summary>
 public sealed partial class Document
 {
@@ -14,8 +15,6 @@ public sealed partial class Document
 
     /// <summary>Longer failure reasons are cut, so recording a failure never fails itself.</summary>
     public const int MaxFailureReasonLength = 1000;
-
-    private readonly List<DocumentFile> _files = [];
 
     private Document(Guid id, string title, DateTimeOffset receivedAt, Guid? ownerId, bool isPrivate, DocumentSource source)
     {
@@ -53,8 +52,6 @@ public sealed partial class Document
     /// <summary>Technical reason of the last failure (no document content); <c>null</c> unless failed.</summary>
     public string? FailureReason { get; private set; }
 
-    public IReadOnlyList<DocumentFile> Files => _files.AsReadOnly();
-
     /// <summary>Creates a queued document; the time comes from the caller's clock.</summary>
     /// <param name="ownerId">The account that received it.</param>
     /// <param name="isPrivate">Whether only <paramref name="ownerId"/> may see it.</param>
@@ -72,8 +69,11 @@ public sealed partial class Document
         return new Document(Guid.CreateVersion7(utc), title, utc, ownerId, isPrivate, source);
     }
 
-    /// <summary>Whether the account may see this document: its owner always, everybody else only when it is not private.</summary>
-    public bool IsVisibleTo(Guid accountId) => !IsPrivate || OwnerId == accountId;
+    /// <summary>
+    /// Whether the account may see this document: its owner always, everybody else only when it is not
+    /// private. A document in the trash is visible nowhere but on its owner's trash page.
+    /// </summary>
+    public bool IsVisibleTo(Guid accountId) => !IsInTrash && (!IsPrivate || OwnerId == accountId);
 
     /// <summary>Hides the document from everybody but its owner.</summary>
     /// <exception cref="InvalidOperationException"><paramref name="actor"/> is not the owner.</exception>
@@ -89,21 +89,6 @@ public sealed partial class Document
     {
         RequireOwner(actor);
         IsPrivate = false;
-    }
-
-    /// <summary>Returns the file of the given kind, or <c>null</c> if it has not been stored yet.</summary>
-    public DocumentFile? FindFile(DocumentFileKind kind) => _files.Find(file => file.Kind == kind);
-
-    /// <summary>Adds a file; each kind exists at most once, because originals are never replaced.</summary>
-    public void AttachFile(DocumentFile file)
-    {
-        ArgumentNullException.ThrowIfNull(file);
-        if (FindFile(file.Kind) is not null)
-        {
-            throw new InvalidOperationException($"Document {Id} already has a {file.Kind} file.");
-        }
-
-        _files.Add(file);
     }
 
     public void StartProcessing()
@@ -143,7 +128,7 @@ public sealed partial class Document
     {
         if (OwnerId is not { } owner || owner != actor)
         {
-            throw new InvalidOperationException($"Only the owner may change who sees or edits document {Id}.");
+            throw new InvalidOperationException($"Only the owner may do this with document {Id}.");
         }
     }
 

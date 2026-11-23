@@ -27,8 +27,8 @@ internal static class WorkerComposition
         builder.Services.AddHealthChecks().AddCheck<HeartbeatHealthCheck>("heartbeat");
         builder.AddWorkerTelemetry(ApplicationTelemetry.Name, InfrastructureTelemetry.Name);
 
-        // OCR runs only in the Worker, whose image contains the tools (Dockerfile.worker).
-        builder.Services.AddSingleton<ExternalProcess>();
+        // OCR runs only in the Worker, whose image contains the tools (Dockerfile.worker); the
+        // ExternalProcess it uses comes from AddInfrastructure, shared with the page tools.
         builder.Services.AddSingleton<IOcrEngine, OcrMyPdfEngine>();
 
         // Read when first resolved, like the data root of the storage (AddInfrastructure).

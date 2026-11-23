@@ -7,5 +7,5 @@ namespace NoMorePaper.Worker.Tests.Processing;
 internal static class JobQueueExtensions
 {
     public static Task<JobClaim?> ClaimNextAsync(this JobQueue queue, TimeSpan lockFor, CancellationToken cancellationToken) =>
-        queue.ClaimNextAsync(lockFor, includeRecognition: true, cancellationToken);
+        queue.ClaimNextAsync(lockFor, includeLlmStages: true, cancellationToken);
 }

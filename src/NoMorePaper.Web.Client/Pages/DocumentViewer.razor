@@ -40,12 +40,15 @@ else
             </div>
             <div class="doc-view-actions">
                 <ul class="doc-view-downloads" aria-label="@L["ViewerDownloads"]">
-                    <li>
-                        <a class="doc-view-action" href="@DocumentLinks.Original(Id)" download aria-label="@L["DownloadOriginal"]">
-                            <MudIcon Icon="@Icons.Material.Filled.Download" aria-hidden="true" />
-                            <span>@L["DownloadOriginalShort"]</span>
-                        </a>
-                    </li>
+                    @if (_detail.Original is not null)
+                    {
+                        <li>
+                            <a class="doc-view-action" href="@DocumentLinks.Original(Id)" download aria-label="@L["DownloadOriginal"]">
+                                <MudIcon Icon="@Icons.Material.Filled.Download" aria-hidden="true" />
+                                <span>@L["DownloadOriginalShort"]</span>
+                            </a>
+                        </li>
+                    }
                     @if (_detail.Archive is not null)
                     {
                         <li>

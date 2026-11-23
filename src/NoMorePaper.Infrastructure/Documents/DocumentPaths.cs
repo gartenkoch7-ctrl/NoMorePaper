@@ -12,6 +12,9 @@ internal sealed class DocumentPaths
 {
     public const string ArchiveFileName = "archive.pdf";
 
+    /// <summary>The newest edited version, next to the archive PDF (M4b).</summary>
+    public const string EditedFileName = "edited.pdf";
+
     /// <summary>Search pattern for the original, whatever its extension.</summary>
     public const string OriginalPattern = OriginalBaseName + ".*";
 
@@ -30,6 +33,12 @@ internal sealed class DocumentPaths
     }
 
     public string InboxFolder(Guid id) => Below("inbox", IdSegment(id));
+
+    /// <summary><c>trash/&lt;trashItemId&gt;/</c>: the files of one trash entry (M4b).</summary>
+    public string TrashFolder(Guid trashItemId) => Below("trash", IdSegment(trashItemId));
+
+    /// <summary><c>edits/&lt;id&gt;/</c>: page images of an edit the Worker has not carried out yet (M4b).</summary>
+    public string EditsFolder(Guid id) => Below("edits", IdSegment(id));
 
     /// <summary>Year and month come from the timestamp inside the version 7 id (UTC), so they never change.</summary>
     public string ArchiveFolder(Guid id)

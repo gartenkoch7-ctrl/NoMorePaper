@@ -883,7 +883,7 @@
     <value>Really delete “{0}”?</value>
   </data>
   <data name="ReviewDeleteExplain" xml:space="preserve">
-    <value>The document will be deleted. This cannot be undone. The existing document stays.</value>
+    <value>The document goes to the trash for 30 days and can be restored until then. The existing document stays.</value>
   </data>
   <data name="ReviewDeleteConfirm" xml:space="preserve">
     <value>Yes, delete</value>
@@ -898,7 +898,7 @@
     <value>Details of “{0}” saved and confirmed.</value>
   </data>
   <data name="ReviewDeleted" xml:space="preserve">
-    <value>“{0}” deleted.</value>
+    <value>“{0}” moved to the trash.</value>
   </data>
   <data name="FilterToggle" xml:space="preserve">
     <value>Filter</value>

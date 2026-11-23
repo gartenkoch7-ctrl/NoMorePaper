@@ -1,15 +1,16 @@
 using NoMorePaper.Application.Documents;
+using NoMorePaper.Application.Editing;
 using NoMorePaper.Domain.Documents;
 
 namespace NoMorePaper.Application.Processing;
 
 /// <summary>
 /// One processing attempt of a claimed job: marks the document as processing, runs OCR on a
-/// working copy of the original, stores the archive PDF, moves the original into the archive and
-/// completes the document. Every database step checks the claim, so a Worker that lost its job to
-/// another one stops without changing it.
+/// working copy of the original, reads its pages (<see cref="IPageAnalyzer"/>), stores the archive PDF,
+/// moves the original into the archive and completes the document. Every database step checks the
+/// claim, so a Worker that lost its job to another one stops without changing it.
 /// </summary>
-internal sealed class ProcessingAttempt(IDocumentStorage storage, IOcrEngine ocr, IWorkingFolder workingFolder)
+internal sealed class ProcessingAttempt(IDocumentStorage storage, IOcrEngine ocr, IWorkingFolder workingFolder, IPageAnalyzer pages)
 {
     /// <param name="work">Empty working folder of this attempt; the caller deletes it.</param>
     /// <returns>The OCR result, or <c>null</c> when the claim was lost and the result is discarded.</returns>
@@ -37,6 +38,7 @@ internal sealed class ProcessingAttempt(IDocumentStorage storage, IOcrEngine ocr
 
         var output = Path.Combine(work, "archive.pdf");
         var result = await ocr.CreateArchiveAsync(input, original.MediaType, output, stoppingToken).ConfigureAwait(false);
+        var pageInfos = await pages.AnalyzeAsync(output, input, stoppingToken).ConfigureAwait(false);
 
         // Files are not guarded by the claim: only a Worker far past its lock (longer than OCR's time
         // limit) could still replace the archive PDF here, and its completion is then rejected.
@@ -49,7 +51,7 @@ internal sealed class ProcessingAttempt(IDocumentStorage storage, IOcrEngine ocr
 
         // Moving the original and completing are both safe to repeat if the attempt fails in between.
         await storage.ArchiveOriginalAsync(id, stoppingToken).ConfigureAwait(false);
-        var completed = await queue.CompleteAsync(claim, result.Text, archive, stoppingToken).ConfigureAwait(false);
+        var completed = await queue.CompleteAsync(claim, result.Text, archive, pageInfos, stoppingToken).ConfigureAwait(false);
         return completed ? result : null;
     }
 }

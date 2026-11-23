@@ -2,6 +2,8 @@ using NoMorePaper.Application.Accounts;
 using NoMorePaper.Application.Classification;
 using NoMorePaper.Application.Tests.Accounts;
 using NoMorePaper.Application.Tests.Documents;
+using NoMorePaper.Application.Tests.Trash;
+using NoMorePaper.Application.Trash;
 using NoMorePaper.Domain.Documents;
 using Xunit;
 
@@ -14,6 +16,8 @@ public sealed class DocumentCommandTests
     private readonly FakeCurrentAccount _current = new();
     private readonly FakeAccountStore _accounts = new();
     private readonly FakeDocumentStorage _storage = new();
+    private readonly FakeTrashStore _trash = new();
+    private readonly RequeueOnlyJobQueue _queue = new();
 
     private static CancellationToken Ct => TestContext.Current.CancellationToken;
 
@@ -63,15 +67,19 @@ public sealed class DocumentCommandTests
     }
 
     [Fact]
-    public async Task DeleteDuplicate_ByTheOwner_DeletesRecordAndFiles()
+    public async Task DeleteDuplicate_ByTheOwner_MovesItToTheTrash_AndKeepsTheFiles()
     {
         var document = Duplicate(_current.Id);
         var log = new RecordingLogger<DeleteDuplicate>();
 
         Assert.Equal(ChangeOutcome.Changed, await Delete(log).DeleteAsync(document.Id, Ct));
 
-        Assert.Equal([document.Id], _documents.Deleted);
-        Assert.Equal([document.Id], _storage.Deleted);
+        Assert.True(document.IsInTrash);
+        var item = Assert.Single(_trash.Items);
+        Assert.Equal((TrashItemKind.Document, document.Id), (item.Kind, item.DocumentId));
+        Assert.Equal([document.Id], _queue.Cancelled);
+        Assert.Empty(_storage.Deleted);
+        Assert.Equal(1, _documents.Saves);
         Assert.Equal([5254], log.EventIds);
     }
 
@@ -86,19 +94,9 @@ public sealed class DocumentCommandTests
         Assert.Equal(ChangeOutcome.Conflict, await Delete().DeleteAsync(plain.Id, Ct));
         Assert.Equal(ChangeOutcome.Forbidden, await Delete().DeleteAsync(edited.Id, Ct));
 
-        Assert.Empty(_documents.Deleted);
-        Assert.Empty(_storage.Deleted);
-    }
-
-    [Fact]
-    public async Task DeleteDuplicate_WhenTheFilesCannotBeRemoved_StillReportsTheDeletion()
-    {
-        var document = Duplicate(_current.Id);
-        _storage.DeleteFailure = new IOException("busy");
-        var log = new RecordingLogger<DeleteDuplicate>();
-
-        Assert.Equal(ChangeOutcome.Changed, await Delete(log).DeleteAsync(document.Id, Ct));
-        Assert.Equal([5254, 5255], log.EventIds);
+        Assert.False(plain.IsInTrash || edited.IsInTrash);
+        Assert.Empty(_trash.Items);
+        Assert.Empty(_queue.Cancelled);
     }
 
     [Fact]
@@ -169,5 +167,10 @@ public sealed class DocumentCommandTests
     }
 
     private DeleteDuplicate Delete(RecordingLogger<DeleteDuplicate>? log = null) =>
-        new(_documents, _storage, _current, log ?? new RecordingLogger<DeleteDuplicate>());
+        new(
+            _documents,
+            new MoveDocumentToTrash(
+                _documents, _trash, _queue, new FakeDocumentEdits(), _current, TimeProvider.System, new RecordingLogger<MoveDocumentToTrash>()),
+            _current,
+            log ?? new RecordingLogger<DeleteDuplicate>());
 }

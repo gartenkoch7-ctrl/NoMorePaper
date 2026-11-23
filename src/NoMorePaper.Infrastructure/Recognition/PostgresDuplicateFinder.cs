@@ -1,4 +1,5 @@
 using System.Globalization;
+using System.Runtime.CompilerServices;
 using Microsoft.EntityFrameworkCore;
 using NoMorePaper.Application.Recognition;
 using NoMorePaper.Domain.Documents;
@@ -28,15 +29,19 @@ public sealed class PostgresDuplicateFinder(AppDbContext db) : IDuplicateFinder
 
             // A document without owner (M1, before setup) is never private, so it counts as shared. A
             // document marked as duplicate of this one is not its original: the hint points one way only.
-            var found = await db.Database.SqlQuery<Guid>(
-                    $"""
+            // Neither side may lie in the trash. {0} is the document, {1} the state Done.
+            var found = await db.Database.SqlQuery<Guid>(FormattableStringFactory.Create(
+                    $$"""
                     SELECT o.id AS "Value" FROM documents d
                     JOIN documents o ON o.id <> d.id AND o.content_text % d.content_text
-                    WHERE d.id = {documentId} AND o.state = {done} AND (o.owner_id = d.owner_id OR NOT o.is_private)
+                    WHERE d.id = {0} AND {{TrashSql.NotInTrash}} AND {{TrashSql.NotInTrashOf("o")}}
+                      AND o.state = {1} AND (o.owner_id = d.owner_id OR NOT o.is_private)
                       AND o.possible_duplicate_of IS DISTINCT FROM d.id
                     ORDER BY similarity(o.content_text, d.content_text) DESC, o.received_at, o.id
                     LIMIT 1
-                    """)
+                    """,
+                    documentId,
+                    done))
                 .ToListAsync(cancellationToken)
                 .ConfigureAwait(false);
             await transaction.CommitAsync(cancellationToken).ConfigureAwait(false);

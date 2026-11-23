@@ -1,4 +1,3 @@
-using Microsoft.EntityFrameworkCore;
 using NoMorePaper.Domain.Classification;
 using NoMorePaper.Domain.Documents;
 using NoMorePaper.Infrastructure.Classification;
@@ -97,27 +96,6 @@ public sealed class DocumentFieldsStoreTests(PostgresFixture postgres)
         var candidate = review.Single(item => item.Id == duplicate.Id).PossibleDuplicate;
         Assert.Equal((original.Id, "Finanzamt"), (candidate?.Id, candidate?.Correspondent?.Name));
         Assert.All(review, item => Assert.True(item.Fields.CanEdit));
-    }
-
-    [Fact]
-    public async Task Delete_RemovesTheDocumentWithItsJob_AndClearsHintsPointingToIt()
-    {
-        await using var database = await AccountDatabase.CreateAsync(postgres, "fields_delete");
-        var anna = Guid.CreateVersion7();
-        var db = database.Db();
-        var copy = await Seed.DocumentAsync(db, anna, isPrivate: false);
-        var other = await Seed.DocumentAsync(db, anna, isPrivate: false);
-        other.MarkPossibleDuplicate(copy.Id);
-        await db.SaveChangesAsync(Ct);
-        await db.Database.ExecuteSqlAsync($"INSERT INTO processing_jobs (document_id, attempt, next_attempt_at) VALUES ({copy.Id}, 0, now())", Ct);
-
-        var store = Store(database);
-        await store.DeleteAsync((await store.FindVisibleAsync(copy.Id, anna, Ct))!, Ct);
-
-        var read = database.Db();
-        Assert.False(await read.Documents.AnyAsync(d => d.Id == copy.Id, Ct));
-        Assert.False(await read.ProcessingJobs.AnyAsync(j => j.DocumentId == copy.Id, Ct));
-        Assert.Null((await read.Documents.SingleAsync(d => d.Id == other.Id, Ct)).PossibleDuplicateOf);
     }
 
     private static EfDocumentFieldsStore Store(AccountDatabase database) => new(database.Db());

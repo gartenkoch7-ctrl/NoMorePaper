@@ -1,4 +1,5 @@
 using Microsoft.Extensions.Logging;
+using NoMorePaper.Domain.Documents;
 
 namespace NoMorePaper.Application.Accounts;
 
@@ -49,4 +50,7 @@ internal static partial class AccountsLog
 
     [LoggerMessage(EventId = 5113, Level = LogLevel.Warning, Message = "Account {AccountId} no longer exists; its session was refused: {Action}")]
     public static partial void AccountGone(this ILogger logger, Guid accountId, string action);
+
+    [LoggerMessage(EventId = 5114, Level = LogLevel.Information, Message = "Account {AccountId} now keeps {Policy} after editing a document")]
+    public static partial void AfterEditingChanged(this ILogger logger, Guid accountId, VersionPolicy policy);
 }

@@ -8,12 +8,18 @@ public sealed class OpenDocumentFile(IDocumentRepository documents, IDocumentSto
 {
     /// <returns>
     /// The file and its bytes, or <c>null</c> if the document, the file or its bytes do not exist, or
-    /// the document is private to another account.
+    /// the document is private to another account or in the trash.
     /// </returns>
     public async Task<DocumentFileContent?> OpenAsync(Guid id, DocumentFileKind kind, CancellationToken cancellationToken)
     {
         var detail = await documents.GetAsync(id, current.Id, cancellationToken).ConfigureAwait(false);
-        var file = kind == DocumentFileKind.Original ? detail?.Original : detail?.Archive;
+        var file = kind switch
+        {
+            DocumentFileKind.Original => detail?.Original,
+            DocumentFileKind.Archive => detail?.Archive,
+            DocumentFileKind.Edited => detail?.Edited,
+            _ => null,
+        };
         if (file is null)
         {
             return null;

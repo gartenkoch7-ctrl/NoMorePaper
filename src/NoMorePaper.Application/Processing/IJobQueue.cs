@@ -1,5 +1,6 @@
 using System.Diagnostics.CodeAnalysis;
 using NoMorePaper.Application.Documents;
+using NoMorePaper.Application.Editing;
 using NoMorePaper.Application.Recognition;
 using NoMorePaper.Domain.Documents;
 using NoMorePaper.Domain.Processing;
@@ -23,12 +24,15 @@ public interface IJobQueue
 {
     /// <summary>
     /// Claims the due job nobody holds with the lowest priority number, the earliest among equals,
-    /// counting it as a new attempt of its stage.
+    /// counting it as a new attempt of its stage. Jobs of documents in the trash are never claimed.
     /// </summary>
     /// <param name="lockFor">How long the job stays claimed; longer than processing may take.</param>
-    /// <param name="includeRecognition">Whether jobs at <see cref="JobStage.Recognition"/> may be claimed (model ready).</param>
+    /// <param name="includeLlmStages">
+    /// Whether jobs at the stages that ask the local LLM (<see cref="JobStage.Recognition"/>,
+    /// <see cref="JobStage.Separation"/>) may be claimed (model ready); OCR and edits always may.
+    /// </param>
     /// <returns>The claim, or <c>null</c> when no job is due.</returns>
-    Task<JobClaim?> ClaimNextAsync(TimeSpan lockFor, bool includeRecognition, CancellationToken cancellationToken);
+    Task<JobClaim?> ClaimNextAsync(TimeSpan lockFor, bool includeLlmStages, CancellationToken cancellationToken);
 
     /// <summary>Marks the document as being processed and returns it with its files (OCR stage).</summary>
     /// <returns>The document, or <c>null</c> when the claim is lost and nothing was changed.</returns>
@@ -38,12 +42,30 @@ public interface IJobQueue
     /// Stores the result of a successful OCR attempt and moves the job on to
     /// <see cref="JobStage.Recognition"/>, due at once with its attempts reset, in one transaction. A
     /// document without text, without owner or with confirmed fields has nothing to recognize: its job
-    /// is removed instead.
+    /// is removed instead. The page information replaces the document's earlier one in the same transaction.
     /// </summary>
     /// <param name="text">Recognized text; empty when the document has none.</param>
     /// <param name="archive">What the storage wrote for the archive PDF.</param>
+    /// <param name="pages">One entry per page of the archive PDF (<see cref="IPageAnalyzer"/>).</param>
     /// <returns><c>false</c> when the claim is lost and nothing was changed.</returns>
-    Task<bool> CompleteAsync(JobClaim claim, string text, StoredFile archive, CancellationToken cancellationToken);
+    Task<bool> CompleteAsync(
+        JobClaim claim, string text, StoredFile archive, IReadOnlyList<PageInfo> pages, CancellationToken cancellationToken);
+
+    /// <summary>
+    /// Queues the planned edit of a done document (<see cref="IDocumentEdits"/>, saved before) as a job at
+    /// <see cref="JobStage.Edit"/>, due at once with priority 0. A waiting recognition job nobody holds is
+    /// taken over: recognition then follows the edit. Joins the caller's open transaction.
+    /// </summary>
+    /// <param name="recognizeAfter">Recognition follows the edit even without a waiting recognition job.</param>
+    /// <returns><c>false</c>, changing nothing, while another job of the document runs or waits (OCR, edit, separation).</returns>
+    Task<bool> EnqueueEditAsync(Guid documentId, bool recognizeAfter, CancellationToken cancellationToken);
+
+    /// <summary>
+    /// Removes the document's job, whatever its stage, e.g. because the document went to the trash. A
+    /// Worker running it loses its claim and discards its result. Joins the caller's open transaction.
+    /// </summary>
+    /// <returns>Whether there was a job.</returns>
+    Task<bool> CancelAsync(Guid documentId, CancellationToken cancellationToken);
 
     /// <summary>
     /// Records a failed attempt: schedules the next one after the <see cref="RetryPolicy"/> delay,

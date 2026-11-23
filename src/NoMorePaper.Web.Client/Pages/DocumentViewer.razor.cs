@@ -129,7 +129,7 @@ public sealed partial class DocumentViewer : IAsyncDisposable
     // Shows the archive PDF/A when there is one; a PDF original can be shown before processing.
     private static string? SourceOf(DocumentDetailDto detail) =>
         detail.Archive is not null ? DocumentLinks.Archive(detail.Id)
-        : detail.Original.MediaType == PdfMediaType ? DocumentLinks.Original(detail.Id)
+        : detail.Original?.MediaType == PdfMediaType ? DocumentLinks.Original(detail.Id)
         : null;
 
     private async Task OnViewChangedAsync(ViewerState state)

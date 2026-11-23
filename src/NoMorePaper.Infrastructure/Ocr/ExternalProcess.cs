@@ -7,8 +7,8 @@ namespace NoMorePaper.Infrastructure.Ocr;
 /// <summary>
 /// Runs a command-line tool without a shell: arguments go through <see cref="ProcessStartInfo.ArgumentList"/>,
 /// so no file name or path can be read as an option or a shell command. Standard input is closed,
-/// standard output is discarded (it never reaches the Worker's own log), and only the end of
-/// standard error is kept for the caller.
+/// standard output is discarded or written to a file of the caller (it never reaches the Worker's own log),
+/// and only the end of standard error is kept for the caller.
 /// </summary>
 public sealed class ExternalProcess(TimeProvider time, ILogger<ExternalProcess> logger)
 {
@@ -36,8 +36,43 @@ public sealed class ExternalProcess(TimeProvider time, ILogger<ExternalProcess> 
     /// <exception cref="System.ComponentModel.Win32Exception">The program could not be started, e.g. it is not installed.</exception>
     /// <exception cref="TimeoutException">The program ran longer than <paramref name="timeout"/>.</exception>
     /// <exception cref="OperationCanceledException">Cancelled; the program was killed.</exception>
-    public async Task<(int ExitCode, string StdErrTail)> RunAsync(
-        string fileName, IReadOnlyList<string> args, string? tempFolder, TimeSpan timeout, CancellationToken cancellationToken)
+    public Task<(int ExitCode, string StdErrTail)> RunAsync(
+        string fileName, IReadOnlyList<string> args, string? tempFolder, TimeSpan timeout, CancellationToken cancellationToken) =>
+        RunCoreAsync(fileName, args, tempFolder, Stream.Null, timeout, cancellationToken);
+
+    /// <summary>
+    /// Runs the program like <see cref="RunAsync(string, IReadOnlyList{string}, string?, TimeSpan, CancellationToken)"/>
+    /// and writes its standard output to <paramref name="outputPath"/> (for tools that answer only there,
+    /// e.g. <c>pdffonts</c>); the file is the caller's, in its working folder.
+    /// </summary>
+    /// <inheritdoc cref="RunAsync(string, IReadOnlyList{string}, string?, TimeSpan, CancellationToken)"/>
+    public async Task<(int ExitCode, string StdErrTail)> RunToFileAsync(
+        string fileName, IReadOnlyList<string> args, string outputPath, TimeSpan timeout, CancellationToken cancellationToken)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(outputPath);
+        var output = new FileStream(outputPath, FileMode.Create, FileAccess.Write, FileShare.None, 81920, FileOptions.Asynchronous);
+        await using (output.ConfigureAwait(false))
+        {
+            return await RunCoreAsync(fileName, args, Path.GetDirectoryName(Path.GetFullPath(outputPath)), output, timeout, cancellationToken)
+                .ConfigureAwait(false);
+        }
+    }
+
+    /// <summary>
+    /// Runs the program like <see cref="RunAsync(string, IReadOnlyList{string}, TimeSpan, CancellationToken)"/>
+    /// and copies its standard output to <paramref name="output"/> (for short answers, e.g. a page count);
+    /// a stream of fixed size makes a longer output fail with <see cref="NotSupportedException"/>.
+    /// </summary>
+    /// <inheritdoc cref="RunAsync(string, IReadOnlyList{string}, string?, TimeSpan, CancellationToken)"/>
+    public Task<(int ExitCode, string StdErrTail)> RunToStreamAsync(
+        string fileName, IReadOnlyList<string> args, Stream output, TimeSpan timeout, CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(output);
+        return RunCoreAsync(fileName, args, tempFolder: null, output, timeout, cancellationToken);
+    }
+
+    private async Task<(int ExitCode, string StdErrTail)> RunCoreAsync(
+        string fileName, IReadOnlyList<string> args, string? tempFolder, Stream standardOutput, TimeSpan timeout, CancellationToken cancellationToken)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(fileName);
         ArgumentNullException.ThrowIfNull(args);
@@ -48,7 +83,7 @@ public sealed class ExternalProcess(TimeProvider time, ILogger<ExternalProcess> 
         var started = time.GetTimestamp();
         process.Start();
         process.StandardInput.Close();
-        var drainOutput = process.StandardOutput.BaseStream.CopyToAsync(Stream.Null, CancellationToken.None);
+        var drainOutput = process.StandardOutput.BaseStream.CopyToAsync(standardOutput, CancellationToken.None);
         var readErrors = ReadTailAsync(process.StandardError);
 
         using var timeoutSource = new CancellationTokenSource(timeout, time);

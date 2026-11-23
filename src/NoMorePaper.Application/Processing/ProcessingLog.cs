@@ -6,7 +6,8 @@ namespace NoMorePaper.Application.Processing;
 
 /// <summary>
 /// Log events and instruments of document processing (docs/kb/telemetrie.md). The ids 2101–2111
-/// come from the Worker range, where processing lived in M1, and stay stable. Only ids, attempts,
+/// come from the Worker range, where processing lived in M1, and stay stable; new events take
+/// 5000–5099. Only ids, attempts,
 /// counts, durations and technical reasons; never titles, file names or text.
 /// </summary>
 internal static partial class ProcessingLog
@@ -55,4 +56,7 @@ internal static partial class ProcessingLog
 
     [LoggerMessage(EventId = 2111, Level = LogLevel.Warning, Message = "Could not hand back document {DocumentId} on shutdown ({ErrorType}); the job runs again when its lock expires")]
     public static partial void ReleaseFailed(this ILogger logger, Guid documentId, string errorType);
+
+    [LoggerMessage(EventId = 5000, Level = LogLevel.Error, Message = "No runner for stage {Stage} of document {DocumentId}; the attempt counts as failed ({Outcome})")]
+    public static partial void StageRunnerMissing(this ILogger logger, string stage, Guid documentId, string outcome);
 }

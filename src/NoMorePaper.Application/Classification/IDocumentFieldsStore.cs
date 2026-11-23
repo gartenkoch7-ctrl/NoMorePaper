@@ -12,9 +12,9 @@ public interface IDocumentFieldsStore
 {
     /// <summary>
     /// The document with its tags and editors, tracked for <see cref="SaveAsync"/>. It stays locked against
-    /// the Worker finishing a recognition until <see cref="SaveAsync"/> or <see cref="DeleteAsync"/>.
+    /// the Worker finishing a recognition until <see cref="SaveAsync"/> (or until the scope ends).
     /// </summary>
-    /// <returns><c>null</c> if it does not exist or <paramref name="viewerId"/> may not see it.</returns>
+    /// <returns><c>null</c> if it does not exist, lies in the trash or <paramref name="viewerId"/> may not see it.</returns>
     Task<Document?> FindVisibleAsync(Guid documentId, Guid viewerId, CancellationToken cancellationToken);
 
     /// <summary>Whether <paramref name="viewerId"/> may see every one of these entries (visibility rule of the lists).</summary>
@@ -28,11 +28,11 @@ public interface IDocumentFieldsStore
     Task<bool> AreVisibleAsync(
         Guid viewerId, ClassificationKind kind, IReadOnlyCollection<Guid> entryIds, EntryAudience audience, CancellationToken cancellationToken);
 
-    /// <summary>Writes the changes of the documents loaded by <see cref="FindVisibleAsync"/>; only changed columns.</summary>
+    /// <summary>
+    /// Writes the changes of the documents loaded by <see cref="FindVisibleAsync"/> (only changed columns),
+    /// together with what other stores wrote into the same change, and commits it.
+    /// </summary>
     Task SaveAsync(CancellationToken cancellationToken);
-
-    /// <summary>Deletes a document loaded by <see cref="FindVisibleAsync"/> with its file records, tags, editors and job.</summary>
-    Task DeleteAsync(Document document, CancellationToken cancellationToken);
 
     /// <returns>
     /// The fields as <paramref name="viewerId"/> sees them, or <c>null</c> if the document does not exist

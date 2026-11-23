@@ -62,15 +62,6 @@ public sealed class EfDocumentFieldsStore(AppDbContext db) : IDocumentFieldsStor
         await CommitChangeAsync(cancellationToken).ConfigureAwait(false);
     }
 
-    public async Task DeleteAsync(Document document, CancellationToken cancellationToken)
-    {
-        // Files, tags and editors are owned and go with the document; the database cascades the
-        // processing job and clears duplicate hints that point here.
-        db.Documents.Remove(document);
-        await db.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
-        await CommitChangeAsync(cancellationToken).ConfigureAwait(false);
-    }
-
     private async Task CommitChangeAsync(CancellationToken cancellationToken)
     {
         if (_change is null)

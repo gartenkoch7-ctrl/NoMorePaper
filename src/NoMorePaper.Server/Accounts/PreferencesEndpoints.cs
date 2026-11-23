@@ -1,5 +1,7 @@
 using NoMorePaper.Application.Accounts;
+using NoMorePaper.Contracts.Editing;
 using NoMorePaper.Contracts.Inputs;
+using NoMorePaper.Server.Documents;
 using NoMorePaper.Server.Inputs;
 
 namespace NoMorePaper.Server.Accounts;
@@ -7,7 +9,8 @@ namespace NoMorePaper.Server.Accounts;
 /// <summary>
 /// <c>GET/PUT /api/account/preferences</c>: the signed-in account's choice for new documents and its mail
 /// senders. A refused address is a validation problem on <c>mailSenders</c>: 400 <c>invalid</c>, or 409
-/// <c>taken</c> when another account has it.
+/// <c>taken</c> when another account has it. <c>GET/PUT /api/account/after-editing</c>: which versions its
+/// edited documents keep by default (M4b); an unknown choice is 400.
 /// </summary>
 internal static class PreferencesEndpoints
 {
@@ -17,6 +20,8 @@ internal static class PreferencesEndpoints
     {
         api.MapGet("/account/preferences", GetAsync);
         api.MapPut("/account/preferences", ChangeAsync);
+        api.MapGet("/account/after-editing", GetAfterEditingAsync);
+        api.MapPut("/account/after-editing", ChangeAfterEditingAsync);
         return api;
     }
 
@@ -57,4 +62,23 @@ internal static class PreferencesEndpoints
 
     private static IResult Refused(string word, int status) =>
         Results.ValidationProblem(new Dictionary<string, string[]> { [SendersField] = [word] }, statusCode: status);
+
+    private static async Task<IResult> GetAfterEditingAsync(GetAfterEditing get, CancellationToken cancellationToken) =>
+        Results.Ok(new AfterEditingDto((await get.GetAsync(cancellationToken).ConfigureAwait(false)).ToDto()));
+
+    private static async Task<IResult> ChangeAfterEditingAsync(
+        AfterEditingDto? body, ChangeAfterEditing change, AccountSessions sessions, HttpContext context, CancellationToken cancellationToken)
+    {
+        if (body?.Policy.ToDomain() is not { } policy)
+        {
+            return Results.Problem(title: "Unknown choice.", statusCode: StatusCodes.Status400BadRequest);
+        }
+
+        return await change.ChangeAsync(policy, cancellationToken).ConfigureAwait(false) switch
+        {
+            PreferencesOutcome.Saved => Results.NoContent(),
+            PreferencesOutcome.AccountGone => await sessions.EndRemovedAsync(context).ConfigureAwait(false),
+            _ => Results.Problem(title: "Unknown choice.", statusCode: StatusCodes.Status400BadRequest),
+        };
+    }
 }

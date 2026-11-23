@@ -40,7 +40,8 @@ Ziffern und `_`, mindestens drei Teile, z. B. `nomorepaper.worker.heartbeat`.
 
 Innerhalb eines Bereichs bekommt jedes Feature einen eigenen Hunderterblock (z. B. Server-Start
 1000–1099). EventIds sind solutionweit eindeutig. Ausnahme seit M2 (Schritt 0): Verarbeitung (2101–2111)
-und Annahme (3200–3204) sind nach Application umgezogen und haben ihre Nummern behalten.
+und Annahme (3200–3204) sind nach Application umgezogen und haben ihre Nummern behalten; neue
+Ereignisse der Verarbeitung bekommen Application 5000–5099 (seit M4b).
 
 Blöcke der Eingänge (M4, [Detailplan](../plan/features/m4-eingaenge-detail.md)): Server 1400–1499
 (Einstellungen, Eingangsstatus, Besitzer prüfen, Einrichtung), 1500–1599 (Seiten-Upload); Worker 2300–2399
@@ -48,6 +49,11 @@ Blöcke der Eingänge (M4, [Detailplan](../plan/features/m4-eingaenge-detail.md)
 3900–3949 (PDF, Geheimnisse, LLM-Zugang); Web.Client 4600–4699 (Kamera), 4700–4799 (Eingänge, davon
 4790–4799 die API-Clients); Application 5300–5399 (neue Ereignisse der Annahme), 5400–5499 (Mail-Prüfung).
 Die Annahme behält 3200/3201 und nennt dort die Quelle.
+
+Blöcke M4b ([Detailplan](../plan/features/m4b-scan-bearbeitung-detail.md)), bereits belegt: Infrastructure 3950–3969
+(Seitenwerkzeuge: qpdf, Seitenanalyse; `EditingLog`) und 3970–3989 (Papierkorb-Ablage und Bearbeitungsseiten
+`TrashStorageLog`, Auftragsübernahme 3976–3977 `QueueLog`); Application 5000–5099 (Verarbeitung, neu: 5000
+`StageRunnerMissing`) und 5600–5699 (Papierkorb, `TrashLog`). 5255 ist entfallen und bleibt reserviert.
 
 Block der Startseite (M4u Spur E): Web.Client 4950–4999 (4800–4949 sind für M4b reserviert, siehe
 [Detailplan M4b](../plan/features/m4b-scan-bearbeitung-detail.md)).
@@ -164,6 +170,19 @@ Block der Startseite (M4u Spur E): Web.Client 4950–4999 (4800–4949 sind für
 | 3901 | Warning | `Infrastructure/Security/SecretLog` | Gespeichertes Geheimnis nicht entschlüsselbar: Zweck (`MailPassword`, `ICloudSession`); es muss neu eingegeben werden |
 | 3902 | Warning | `Infrastructure/Recognition/OllamaLog` | `LlmGate`: Ollama blieb belegt, eine Anfrage gab nach der Höchstwartezeit auf: Priorität (`Recognition`, `Mail`), Wartezeit in ms |
 | 3903 | Warning | `Infrastructure/Documents/Pdf/PdfLog` | PDF konnte nicht erzeugt werden (z. B. Bild unlesbar): Art, Ausnahmetyp |
+| 3950 | Information | `Infrastructure/Editing/EditingLog` | qpdf hat ein PDF aus Seiten zusammengesetzt: Seitenzahl, Dauer in ms |
+| 3951 | Information | `Infrastructure/Editing/EditingLog` | Seiten analysiert: Seitenzahl, Dauer in ms, Anzahl vermutlich leerer Seiten, Anzahl Seiten mit Text im Original |
+| 3952 | Information | `Infrastructure/Editing/EditingLog` | Werkzeug (poppler) endete mit Exit-Code; das Original gilt als ohne Textebene: Werkzeug, Exit-Code |
+| 3953 | Warning | `Infrastructure/Editing/EditingLog` | Arbeitsordner der Seitenwerkzeuge nicht gelöscht (nur Ausnahmetyp); nur Platzverlust |
+| 3954 | Warning | `Infrastructure/Editing/EditingLog` | Seitenanalyse (poppler) fehlgeschlagen (nur Ausnahmetyp, z. B. Werkzeug fehlt, Exit-Code, Zeitlimit); das Archiv wird ohne Seiteninformation gespeichert, der OCR-Versuch gilt als erfolgreich |
+| 3970 | Information | `Infrastructure/Documents/TrashStorageLog` | Datei eines Dokuments in einen Papierkorb-Eintrag verschoben: Art (`DocumentFileKind`), Dokument-Id, Papierkorb-Eintrag-Id |
+| 3971 | Information | `Infrastructure/Documents/TrashStorageLog` | Datei eines Dokuments aus einem Papierkorb-Eintrag zurückgeholt: Art, Dokument-Id, Eintrag-Id |
+| 3972 | Information | `Infrastructure/Documents/TrashStorageLog` | Dateien eines Papierkorb-Eintrags endgültig entfernt: Eintrag-Id |
+| 3973 | Information | `Infrastructure/Documents/TrashStorageLog` | Bild für eine ersetzte Seite einer Bearbeitung gespeichert: Seitennummer, Dokument-Id, Größe in Bytes |
+| 3974 | Information | `Infrastructure/Documents/TrashStorageLog` | Seitenbilder einer Bearbeitung verworfen: Dokument-Id |
+| 3975 | Warning | `Infrastructure/Documents/TrashStorageLog` | Bild für eine Seite nicht speicherbar (nur Ausnahmetyp); die halbe Datei wurde verworfen: Seitennummer, Dokument-Id |
+| 3976 | Information | `Infrastructure/Processing/QueueLog` | Wartende Erkennung eines Dokuments von einer Bearbeitung übernommen; sie folgt der Bearbeitung: Dokument-Id |
+| 3977 | Information | `Infrastructure/Processing/QueueLog` | Bearbeitung abgelehnt, weil noch ein anderer Job des Dokuments läuft oder wartet: Dokument-Id |
 | 4000 | Information | `Web.Client/Telemetry/WebClientLog` | Kultur (Sprache) angewendet |
 | 4001 | Warning | `Web.Client/Telemetry/WebClientLog` | Gespeicherte Sprache wird nicht unterstützt, Standard wird genommen |
 | 4002 | Warning | `Web.Client/Telemetry/WebClientLog` | Sprachpräferenz nicht lesbar oder nicht speicherbar |
@@ -248,6 +267,7 @@ Block der Startseite (M4u Spur E): Web.Client 4950–4999 (4800–4949 sind für
 | 4791 | Warning | `Web.Client/Inputs/InputsLog` | Eingangs-/Einstellungs-API nicht erreichbar: Vorgang, Ausnahmetyp |
 | 4950 | Debug | `Web.Client/Start/StartLog` | Teil der Startseite geladen: Teil (`recent`, `inputs`), Anzahl der Einträge |
 | 4951 | Warning | `Web.Client/Start/StartLog` | Teil der Startseite nicht ladbar: Teil (`recent`, `inputs`) |
+| 5000 | Error | `Application/Processing/ProcessingLog` | Für die Stufe des geholten Jobs ist kein `IStageRunner` registriert: Stufe, Dokument-Id, Ergebnis (`RetryScheduled`, `GivenUp`, `ClaimLost`); der Versuch zählt als Fehlschlag mit Wartezeit, die Warteschlange läuft weiter (Fehler beim Speichern: 2107) |
 | 5100 | Information | `Application/Accounts/AccountsLog` | Haushalt eingerichtet: Verwalter-Id, Anzahl übernommener Dokumente ohne Besitzer (M1) |
 | 5101 | Warning | `Application/Accounts/AccountsLog` | Einrichtung abgelehnt, Haushalt schon eingerichtet |
 | 5102 | Information | `Application/Accounts/AccountsLog` | Einladung erzeugt: Konto-Id des Verwalters, Ablaufzeit (nie der Link) |
@@ -262,6 +282,7 @@ Block der Startseite (M4u Spur E): Web.Client 4950–4999 (4800–4949 sind für
 | 5111 | Warning | `Application/Accounts/AccountsLog` | Verwalter-Aktion eines Mitglieds abgelehnt (403): Konto-Id, Aktion (`invite`, `list-members`, `remove-member`, `reset-link`) |
 | 5112 | Information | `Application/Accounts/AccountsLog` | Hinweis auf Zurücksetzen durch den Verwalter bestätigt: Konto-Id |
 | 5113 | Warning | `Application/Accounts/AccountsLog` | Änderung abgelehnt, weil das angemeldete Konto entfernt wurde (Cookie noch nicht geprüft): Konto-Id, Vorgang (`upload`, `set-privacy`, `change-password`, `acknowledge-reset`, `edit-fields`, `confirm`, `set-editors`, `keep-duplicate`, `delete-duplicate`, `create-entry`, `rename-entry`, `merge-entries`) |
+| 5114 | Information | `Application/Accounts/AccountsLog` | Einstellung „Nach dem Bearbeiten behalten“ geändert: Konto-Id, Fassungsregel (`VersionPolicy`: `KeepBoth`, `EditedOnly`, `OriginalOnly`) |
 | 5120 | Information | `Application/Documents/DocumentPrivacyLog` | Besitzer hat „privat“ umgestellt: Dokument-Id, neuer Wert, Konto-Id |
 | 5200 | Information | `Application/Recognition/RecognitionLog` | Erkennung beginnt: Dokument-Id, Versuch Nr. |
 | 5201 | Information | `Application/Recognition/RecognitionLog` | Dokument erkannt: Dauer in ms, Anzahl Beispiele, Anzahl von den Prüfungen verworfener Werte |
@@ -282,8 +303,8 @@ Block der Startseite (M4u Spur E): Web.Client 4950–4999 (4800–4949 sind für
 | 5251 | Information | `Application/Classification/ClassificationLog` | Angaben bestätigt: Dokument-Id, Konto-Id |
 | 5252 | Information | `Application/Classification/ClassificationLog` | Bearbeiter gesetzt: Dokument-Id, Konto-Id des Besitzers, Anzahl Bearbeiter |
 | 5253 | Information | `Application/Classification/ClassificationLog` | Mögliches Duplikat behalten (Hinweis entfernt): Dokument-Id, Konto-Id |
-| 5254 | Information | `Application/Classification/ClassificationLog` | Mögliches Duplikat vom Besitzer gelöscht: Dokument-Id, Konto-Id |
-| 5255 | Warning | `Application/Classification/ClassificationLog` | Dateien des gelöschten Duplikats nicht entfernt (nur Platzverlust): Dokument-Id, Ausnahmetyp |
+| 5254 | Information | `Application/Classification/ClassificationLog` | Mögliches Duplikat vom Besitzer in den Papierkorb gelegt (statt gelöscht): Dokument-Id, Konto-Id |
+| 5255 | – | – | entfallen (M4b); Nummer bleibt reserviert, nicht wiederverwenden (das Dokument geht in den Papierkorb, siehe 5254 und 5600) |
 | 5256 | Warning | `Application/Classification/ClassificationLog` | Änderung an einem Dokument abgelehnt: Konto-Id, Ergebnis (`NotFound`, `Forbidden`, `Invalid`, `Conflict`), Vorgang (`edit-fields`, `confirm`, `set-editors`, `keep-duplicate`, `delete-duplicate`), Dokument-Id; `Conflict` bei `edit-fields`/`confirm`: Erkennungsstatus anders als der, mit dem die Seite die Angaben geladen hat |
 | 5257 | Information | `Application/Classification/ClassificationLog` | Listeneintrag gefunden oder angelegt: Konto-Id, Eintrag-Id, Liste (`Correspondent`, `DocumentType`, `Tag`) – nie der Name |
 | 5258 | Information | `Application/Classification/ClassificationLog` | Listeneintrag umbenannt: Konto-Id, Eintrag-Id, Liste |
@@ -305,6 +326,8 @@ Block der Startseite (M4u Spur E): Web.Client 4950–4999 (4800–4949 sind für
 | 5407 | Information | `Application/Inputs/Mail/MailLog` | Zeitbudget des Laufs (5 min) erreicht: Anzahl verarbeiteter Mails |
 | 5408 | Information | `Application/Inputs/Mail/MailLog` | Lauf über das Postfach: Mails, neue Dokumente, ohne Dokument, aussortiert, Dauer in ms |
 | 5409 | Warning | `Application/Inputs/Mail/MailLog` | Mails nicht aus dem Posteingang verschiebbar: Anzahl; sie bleiben, der nächste Lauf versucht nur das Verschieben (Problem `StuckItems`) |
+| 5600 | Information | `Application/Trash/TrashLog` | Besitzer hat ein Dokument in den Papierkorb gelegt: Dokument-Id, Konto-Id, Papierkorb-Eintrag-Id |
+| 5601 | Information | `Application/Trash/TrashLog` | Auftrag und geplante Bearbeitung eines Dokuments verworfen, weil es in den Papierkorb ging: Dokument-Id |
 
 Web.Client: Die Ereignisse erscheinen nur in der Browser-Konsole und enthalten nur Sprachkürzel,
 Größen, Anzahlen, Statuscodes, Dauern und technische Fehlernamen – nie Dateinamen, Titel,

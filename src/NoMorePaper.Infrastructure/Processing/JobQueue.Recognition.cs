@@ -1,7 +1,9 @@
+using System.Runtime.CompilerServices;
 using Microsoft.EntityFrameworkCore;
 using NoMorePaper.Application.Processing;
 using NoMorePaper.Application.Recognition;
 using NoMorePaper.Domain.Documents;
+using NoMorePaper.Infrastructure.Persistence;
 
 namespace NoMorePaper.Infrastructure.Processing;
 
@@ -28,11 +30,9 @@ public sealed partial class JobQueue
         var transaction = await db.Database.BeginTransactionAsync(cancellationToken).ConfigureAwait(false);
         await using (transaction.ConfigureAwait(false))
         {
-            // The document first, then the job: deleting a document locks them in this order too (the
-            // job goes by cascade), so the two never wait for each other. A confirmation committed
-            // before is seen below; confirmed fields are never overwritten.
-            await db.Database.ExecuteSqlAsync($"SELECT 1 FROM documents WHERE id = {claim.DocumentId} FOR NO KEY UPDATE", cancellationToken)
-                .ConfigureAwait(false);
+            // The document first, then the job (see LockDocumentAsync). A confirmation committed before
+            // is seen below; confirmed fields are never overwritten.
+            await LockDocumentAsync(claim.DocumentId, cancellationToken).ConfigureAwait(false);
             var job = await LockClaimedJobAsync(claim, cancellationToken).ConfigureAwait(false);
             if (job is null)
             {
@@ -84,16 +84,22 @@ public sealed partial class JobQueue
         var stage = nameof(JobStage.Recognition);
         var done = nameof(ProcessingState.Done);
         var now = time.GetUtcNow();
+        // {0} stage, {1} now, {2} document, {3} Done.
         var changed = await db.Database.ExecuteSqlAsync(
-            $"""
-            INSERT INTO processing_jobs (document_id, stage, priority, attempt, next_attempt_at)
-            SELECT d.id, {stage}, 0, 0, {now} FROM documents d
-            WHERE d.id = {documentId} AND d.state = {done} AND d.owner_id IS NOT NULL AND d.content_text ~ '\S'
-            ON CONFLICT (document_id) DO UPDATE SET
-                priority = 0, attempt = 0, next_attempt_at = EXCLUDED.next_attempt_at,
-                claim_id = NULL, locked_until = NULL, last_error = NULL
-            WHERE processing_jobs.stage = {stage}
-            """,
+            FormattableStringFactory.Create(
+                $$"""
+                INSERT INTO processing_jobs (document_id, stage, priority, attempt, next_attempt_at)
+                SELECT d.id, {0}, 0, 0, {1} FROM documents d
+                WHERE d.id = {2} AND d.state = {3} AND d.owner_id IS NOT NULL AND d.content_text ~ '\S' AND {{TrashSql.NotInTrash}}
+                ON CONFLICT (document_id) DO UPDATE SET
+                    priority = 0, attempt = 0, next_attempt_at = EXCLUDED.next_attempt_at,
+                    claim_id = NULL, locked_until = NULL, last_error = NULL
+                WHERE processing_jobs.stage = {0}
+                """,
+                stage,
+                now,
+                documentId,
+                done),
             cancellationToken).ConfigureAwait(false);
         return changed > 0;
     }
@@ -106,14 +112,22 @@ public sealed partial class JobQueue
         var done = nameof(ProcessingState.Done);
         var none = nameof(RecognitionState.None);
         var dueAt = now.ToUniversalTime();
+        // {0} stage, {1} priority, {2} due, {3} Done, {4} no fields.
         return db.Database.ExecuteSqlAsync(
-            $"""
-            INSERT INTO processing_jobs (document_id, stage, priority, attempt, next_attempt_at)
-            SELECT d.id, {stage}, {priority}, 0, {dueAt} FROM documents d
-            WHERE d.state = {done} AND d.recognition = {none} AND d.owner_id IS NOT NULL AND d.content_text ~ '\S'
-              AND NOT EXISTS (SELECT 1 FROM processing_jobs j WHERE j.document_id = d.id)
-            ON CONFLICT (document_id) DO NOTHING
-            """,
+            FormattableStringFactory.Create(
+                $$"""
+                INSERT INTO processing_jobs (document_id, stage, priority, attempt, next_attempt_at)
+                SELECT d.id, {0}, {1}, 0, {2} FROM documents d
+                WHERE d.state = {3} AND d.recognition = {4} AND d.owner_id IS NOT NULL AND d.content_text ~ '\S'
+                  AND {{TrashSql.NotInTrash}}
+                  AND NOT EXISTS (SELECT 1 FROM processing_jobs j WHERE j.document_id = d.id)
+                ON CONFLICT (document_id) DO NOTHING
+                """,
+                stage,
+                priority,
+                dueAt,
+                done,
+                none),
             cancellationToken);
     }
 }

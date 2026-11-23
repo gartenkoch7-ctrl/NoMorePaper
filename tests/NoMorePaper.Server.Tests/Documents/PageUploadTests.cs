@@ -33,8 +33,8 @@ public sealed class PageUploadTests(ApiFixture api)
         var fields = await admin.GetFromJsonAsync<DocumentFieldsDto>($"/api/documents/{id}/fields", Ct);
 
         Assert.Equal(DocumentProcessingState.Queued, detail!.State);
-        Assert.Equal("application/pdf", detail.Original.MediaType);
-        Assert.Equal($"Kamera {takenAt:yyyy-MM-dd HH-mm}.pdf", detail.Original.FileName);
+        Assert.Equal("application/pdf", detail.Original?.MediaType);
+        Assert.Equal($"Kamera {takenAt:yyyy-MM-dd HH-mm}.pdf", detail.Original?.FileName);
         Assert.False(detail.IsPrivate);
         Assert.Equal("camera", fields!.Source);
         Assert.Empty(TempFiles());
@@ -76,7 +76,7 @@ public sealed class PageUploadTests(ApiFixture api)
 
         var id = (await response.Content.ReadFromJsonAsync<UploadResultDto>(Ct))!.Id;
         using var admin = api.CreateAdminClient();
-        var name = (await admin.GetFromJsonAsync<DocumentDetailDto>($"/api/documents/{id}", Ct))!.Original.FileName;
+        var name = (await admin.GetFromJsonAsync<DocumentDetailDto>($"/api/documents/{id}", Ct))!.Original!.FileName;
         var named = DateTime.ParseExact(name, "'Kamera 'yyyy-MM-dd HH-mm'.pdf'", CultureInfo.InvariantCulture);
         Assert.InRange(named, before.LocalDateTime.AddMinutes(-1), DateTime.Now.AddMinutes(1));
     }

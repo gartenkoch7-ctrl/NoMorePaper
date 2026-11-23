@@ -43,7 +43,7 @@ public sealed class JobQueueOutcomeTests(PostgresFixture postgres)
             var job = (await queue.ClaimNextAsync(QueueDatabase.LockFor, Ct))!;
             Assert.Equal(JobStage.Ocr, job.Stage);
             await queue.StartAsync(job, Ct);
-            Assert.True(await queue.CompleteAsync(job, "Rechnung", new StoredFile(4711, QueueDatabase.Sha256), Ct));
+            Assert.True(await queue.CompleteAsync(job, "Rechnung", new StoredFile(4711, QueueDatabase.Sha256), [], Ct));
         }
 
         var document = await data.DocumentAsync(id);

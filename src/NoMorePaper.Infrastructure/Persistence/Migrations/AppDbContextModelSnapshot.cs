@@ -199,6 +199,14 @@ namespace NoMorePaper.Infrastructure.Persistence.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("correspondent_id");
 
+                    b.Property<DateTimeOffset?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("deleted_at");
+
+                    b.Property<Guid?>("DeletedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("deleted_by");
+
                     b.Property<DateOnly?>("DocumentDate")
                         .HasColumnType("date")
                         .HasColumnName("document_date");
@@ -206,6 +214,10 @@ namespace NoMorePaper.Infrastructure.Persistence.Migrations
                     b.Property<Guid?>("DocumentTypeId")
                         .HasColumnType("uuid")
                         .HasColumnName("document_type_id");
+
+                    b.Property<DateTimeOffset?>("EditedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("edited_at");
 
                     b.Property<string>("FailureReason")
                         .HasMaxLength(1000)
@@ -250,6 +262,10 @@ namespace NoMorePaper.Infrastructure.Persistence.Migrations
                         .HasColumnType("character varying(16)")
                         .HasColumnName("source");
 
+                    b.Property<string>("SplitSuggestion")
+                        .HasColumnType("jsonb")
+                        .HasColumnName("split_suggestion");
+
                     b.Property<string>("State")
                         .IsRequired()
                         .HasMaxLength(16)
@@ -266,6 +282,11 @@ namespace NoMorePaper.Infrastructure.Persistence.Migrations
                         .HasMaxLength(500)
                         .HasColumnType("character varying(500)")
                         .HasColumnName("title");
+
+                    b.Property<string>("VersionPolicy")
+                        .HasMaxLength(16)
+                        .HasColumnType("character varying(16)")
+                        .HasColumnName("version_policy");
 
                     b.ComplexProperty(typeof(Dictionary<string, object>), "Amount", "NoMorePaper.Domain.Documents.Document.Amount#Money", b1 =>
                         {
@@ -310,6 +331,8 @@ namespace NoMorePaper.Infrastructure.Persistence.Migrations
                     NpgsqlIndexBuilderExtensions.HasOperators(b.HasIndex("ContentText"), new[] { "gin_trgm_ops" });
 
                     b.HasIndex("CorrespondentId");
+
+                    b.HasIndex("DeletedAt");
 
                     b.HasIndex("DocumentDate");
 
@@ -508,6 +531,69 @@ namespace NoMorePaper.Infrastructure.Persistence.Migrations
                     b.ToTable("password_reset_tokens", (string)null);
                 });
 
+            modelBuilder.Entity("NoMorePaper.Infrastructure.Editing.DocumentEditRow", b =>
+                {
+                    b.Property<Guid>("DocumentId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("document_id");
+
+                    b.Property<string>("Data")
+                        .IsRequired()
+                        .HasColumnType("jsonb")
+                        .HasColumnName("data");
+
+                    b.Property<string>("Kind")
+                        .IsRequired()
+                        .HasMaxLength(16)
+                        .HasColumnType("character varying(16)")
+                        .HasColumnName("kind");
+
+                    b.Property<bool>("RecognizeAfter")
+                        .HasColumnType("boolean")
+                        .HasColumnName("recognize_after");
+
+                    b.Property<DateTimeOffset>("RequestedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("requested_at");
+
+                    b.Property<Guid>("RequestedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("requested_by");
+
+                    b.HasKey("DocumentId");
+
+                    b.ToTable("document_edits", (string)null);
+                });
+
+            modelBuilder.Entity("NoMorePaper.Infrastructure.Editing.DocumentPageRow", b =>
+                {
+                    b.Property<Guid>("DocumentId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("document_id");
+
+                    b.Property<int>("Page")
+                        .HasColumnType("integer")
+                        .HasColumnName("page");
+
+                    b.Property<bool>("HadTextLayer")
+                        .HasColumnType("boolean")
+                        .HasColumnName("had_text_layer");
+
+                    b.Property<string>("Head")
+                        .IsRequired()
+                        .HasMaxLength(300)
+                        .HasColumnType("character varying(300)")
+                        .HasColumnName("head");
+
+                    b.Property<bool>("ProbablyBlank")
+                        .HasColumnType("boolean")
+                        .HasColumnName("probably_blank");
+
+                    b.HasKey("DocumentId", "Page");
+
+                    b.ToTable("document_pages", (string)null);
+                });
+
             modelBuilder.Entity("NoMorePaper.Infrastructure.Heartbeat.WorkerHeartbeat", b =>
                 {
                     b.Property<string>("WorkerName")
@@ -529,6 +615,14 @@ namespace NoMorePaper.Infrastructure.Persistence.Migrations
                     b.Property<Guid>("AccountId")
                         .HasColumnType("uuid")
                         .HasColumnName("account_id");
+
+                    b.Property<string>("AfterEditing")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(16)
+                        .HasColumnType("character varying(16)")
+                        .HasDefaultValue("KeepBoth")
+                        .HasColumnName("after_editing");
 
                     b.Property<bool>("NewDocumentsPrivate")
                         .HasColumnType("boolean")
@@ -719,6 +813,49 @@ namespace NoMorePaper.Infrastructure.Persistence.Migrations
                     b.ToTable("processing_jobs", (string)null);
                 });
 
+            modelBuilder.Entity("NoMorePaper.Infrastructure.Trash.TrashItemRow", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<DateTimeOffset>("DeletedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("deleted_at");
+
+                    b.Property<Guid>("DocumentId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("document_id");
+
+                    b.Property<string>("File")
+                        .HasColumnType("jsonb")
+                        .HasColumnName("file");
+
+                    b.Property<string>("Kind")
+                        .IsRequired()
+                        .HasMaxLength(16)
+                        .HasColumnType("character varying(16)")
+                        .HasColumnName("kind");
+
+                    b.Property<DateTimeOffset>("PurgeAfter")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("purge_after");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("title");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("DocumentId");
+
+                    b.HasIndex("PurgeAfter");
+
+                    b.ToTable("trash_items", (string)null);
+                });
+
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<System.Guid>", b =>
                 {
                     b.HasOne("NoMorePaper.Infrastructure.Accounts.AccountUser", null)
@@ -894,6 +1031,24 @@ namespace NoMorePaper.Infrastructure.Persistence.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("NoMorePaper.Infrastructure.Editing.DocumentEditRow", b =>
+                {
+                    b.HasOne("NoMorePaper.Domain.Documents.Document", null)
+                        .WithMany()
+                        .HasForeignKey("DocumentId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("NoMorePaper.Infrastructure.Editing.DocumentPageRow", b =>
+                {
+                    b.HasOne("NoMorePaper.Domain.Documents.Document", null)
+                        .WithMany()
+                        .HasForeignKey("DocumentId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("NoMorePaper.Infrastructure.Inputs.AccountPreferencesRow", b =>
                 {
                     b.HasOne("NoMorePaper.Infrastructure.Accounts.AccountUser", null)
@@ -937,6 +1092,15 @@ namespace NoMorePaper.Infrastructure.Persistence.Migrations
                 });
 
             modelBuilder.Entity("NoMorePaper.Infrastructure.Processing.ProcessingJob", b =>
+                {
+                    b.HasOne("NoMorePaper.Domain.Documents.Document", null)
+                        .WithMany()
+                        .HasForeignKey("DocumentId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("NoMorePaper.Infrastructure.Trash.TrashItemRow", b =>
                 {
                     b.HasOne("NoMorePaper.Domain.Documents.Document", null)
                         .WithMany()

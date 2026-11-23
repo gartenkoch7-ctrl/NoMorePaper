@@ -72,7 +72,7 @@ public sealed class EfDocumentRepositoryTests(PostgresFixture postgres)
 
         Assert.NotNull(detail);
         Assert.Equal((id, "Brief", ProcessingState.Done, null), (detail.Id, detail.Title, detail.State, detail.FailureReason));
-        Assert.Equal("scan.pdf", detail.Original.FileName);
+        Assert.Equal("scan.pdf", detail.Original?.FileName);
         Assert.Equal("archive.pdf", detail.Archive?.FileName);
     }
 

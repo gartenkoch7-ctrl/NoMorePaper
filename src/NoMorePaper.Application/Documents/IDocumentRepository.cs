@@ -44,8 +44,9 @@ public interface IDocumentRepository
     Task<Guid?> FindOwnedBySha256Async(Guid ownerId, string sha256, CancellationToken cancellationToken);
 
     /// <returns>
-    /// The document, or <c>null</c> if it does not exist, has no original file, or is private to
-    /// another account: callers cannot tell these apart, so a private document's existence stays hidden.
+    /// The document, or <c>null</c> if it does not exist, lies in the trash, has no source file (original or
+    /// edited version), or is private to another account: callers cannot tell these apart, so a private
+    /// document's existence stays hidden.
     /// </returns>
     Task<DocumentDetail?> GetAsync(Guid id, Guid viewerId, CancellationToken cancellationToken);
 

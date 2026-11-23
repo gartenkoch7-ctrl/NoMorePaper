@@ -100,6 +100,20 @@ public sealed class ExternalProcessTests
     public async Task Run_Fails_WhenTheProgramIsNotInstalled() =>
         await Assert.ThrowsAsync<Win32Exception>(() => _process.RunAsync("nomorepaper-no-such-tool", [], s_timeout, Ct));
 
+    [Fact]
+    public async Task RunToStream_KeepsAShortAnswer_AndFailsWhenItOverflowsAStreamOfFixedSize()
+    {
+        var buffer = new byte[64];
+        using var answer = new MemoryStream(buffer, writable: true);
+
+        var (exitCode, _) = await _process.RunToStreamAsync("dotnet", ["--version"], answer, s_timeout, Ct);
+
+        Assert.Equal(0, exitCode);
+        Assert.Matches(@"^\d+\.\d+", System.Text.Encoding.ASCII.GetString(buffer, 0, (int)answer.Position));
+        using var tooSmall = new MemoryStream(new byte[2], writable: true);
+        await Assert.ThrowsAsync<NotSupportedException>(() => _process.RunToStreamAsync("dotnet", ["--version"], tooSmall, s_timeout, Ct));
+    }
+
     // Runs for 60 s unless killed.
     private static (string FileName, string[] Args) Sleeper() =>
         OperatingSystem.IsWindows() ? ("ping", ["-n", "60", "127.0.0.1"]) : ("sleep", ["60"]);

@@ -56,8 +56,7 @@ public sealed class RecognitionStageTests(PostgresFixture postgres)
     public async Task Recognition_Waits_UntilTheModelIsReady()
     {
         await using var harness = await ProcessorHarness.CreateAsync(postgres, "recognition_not_ready");
-        var waiting = new ProcessNextDocument(
-            harness.Scopes, harness.Storage, harness.Ocr, harness.WorkingFolder, new RecognitionReadiness(), harness.Time, harness.Log);
+        var waiting = new ProcessNextDocument(harness.Scopes, new RecognitionReadiness(), harness.Time, harness.Log);
         var id = await harness.AddQueuedDocumentAsync();
 
         Assert.True(await waiting.ProcessNextAsync(Ct));

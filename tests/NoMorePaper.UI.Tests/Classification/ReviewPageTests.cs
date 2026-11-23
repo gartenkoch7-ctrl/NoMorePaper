@@ -123,7 +123,7 @@ public sealed class ReviewPageTests(ServerFixture server)
         await delete.ClickAsync();
         await page.GetByRole(AriaRole.Button, new() { Name = "Ja, löschen" }).ClickAsync();
 
-        await Assertions.Expect(page.Locator("main .live-region").First).ToHaveTextAsync("„Stromrechnung (Scan)“ gelöscht. Nichts mehr zu prüfen.");
+        await Assertions.Expect(page.Locator("main .live-region").First).ToHaveTextAsync("„Stromrechnung (Scan)“ in den Papierkorb gelegt. Nichts mehr zu prüfen.");
         Assert.True(fake.Mocks.WasCalled("DELETE", $"/api/documents/{item.Id}"));
     }
 

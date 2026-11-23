@@ -37,7 +37,7 @@ public sealed class UploadTests(ApiFixture api)
         Assert.NotNull(detail);
         Assert.Equal(DocumentProcessingState.Queued, detail.State);
         Assert.Equal(Path.GetFileNameWithoutExtension(fileName), detail.Title);
-        Assert.Equal(mediaType, detail.Original.MediaType);
+        Assert.Equal(mediaType, detail.Original!.MediaType);
         Assert.Equal(fileName, detail.Original.FileName);
         Assert.Equal(bytes.Length, detail.Original.SizeBytes);
         Assert.Null(detail.Archive);
@@ -116,7 +116,7 @@ public sealed class UploadTests(ApiFixture api)
 
         var detail = await api.CreateAdminClient().GetFromJsonAsync<DocumentDetailDto>($"/api/documents/{result!.Id}", Ct);
 
-        Assert.Equal("evil name.pdf", detail!.Original.FileName);
+        Assert.Equal("evil name.pdf", detail!.Original?.FileName);
         Assert.Equal("evil name", detail.Title);
     }
 
@@ -138,7 +138,7 @@ public sealed class UploadTests(ApiFixture api)
         Assert.Equal(SHA256.HashData(bytes), SHA256.HashData(downloaded));
 
         var detail = await client.GetFromJsonAsync<DocumentDetailDto>($"/api/documents/{id}", Ct);
-        Assert.Equal(Convert.ToHexStringLower(SHA256.HashData(bytes)), detail!.Original.Sha256);
+        Assert.Equal(Convert.ToHexStringLower(SHA256.HashData(bytes)), detail!.Original?.Sha256);
 
         using var range = new HttpRequestMessage(HttpMethod.Get, $"/api/documents/{id}/files/original");
         range.Headers.Range = new(0, 99);

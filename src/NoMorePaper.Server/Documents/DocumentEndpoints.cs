@@ -1,3 +1,4 @@
+using Microsoft.Net.Http.Headers;
 using NoMorePaper.Application.Documents;
 using NoMorePaper.Contracts.Documents;
 using NoMorePaper.Domain.Documents;
@@ -61,7 +62,10 @@ internal static class DocumentEndpoints
         return detail is null ? NotFound() : Results.Ok(detail.ToDto());
     }
 
-    // The bytes are served as stored: same SHA-256 as at upload, never converted (ADR-0003).
+    // The bytes are served as stored: same SHA-256 as at upload, never converted (ADR-0003). An edit
+    // replaces the archive and the edited version under the same address, so the browser must ask again
+    // every time (no-cache); the hash as ETag lets it keep its copy while nothing changed. Private: no
+    // shared cache on the way may keep a document.
     private static async Task<IResult> DownloadAsync(
         Guid id, string kind, HttpContext context, OpenDocumentFile open, CancellationToken cancellationToken)
     {
@@ -69,6 +73,7 @@ internal static class DocumentEndpoints
         {
             "original" => DocumentFileKind.Original,
             "archive" => DocumentFileKind.Archive,
+            "edited" => DocumentFileKind.Edited,
             _ => (DocumentFileKind?)null,
         };
         if (fileKind is null)
@@ -84,7 +89,13 @@ internal static class DocumentEndpoints
 
         // The type was detected from the content at upload; nosniff keeps browsers from second-guessing it.
         context.Response.Headers.XContentTypeOptions = "nosniff";
-        return Results.File(opened.Content, opened.File.MediaType, opened.File.FileName, enableRangeProcessing: true);
+        context.Response.Headers.CacheControl = "private, no-cache";
+        return Results.File(
+            opened.Content,
+            opened.File.MediaType,
+            opened.File.FileName,
+            entityTag: new EntityTagHeaderValue($"\"{opened.File.Sha256}\""),
+            enableRangeProcessing: true);
     }
 
     private static async Task<IResult> SetPrivacyAsync(

@@ -27,8 +27,8 @@ public sealed class PostgresSearchIndex(AppDbContext db, ILogger<PostgresSearchI
         d.is_private AS "IsPrivate", d.owner_id IS NOT DISTINCT FROM @viewer AS "IsMine",
         """ + DocumentFilterSql.LabelColumns;
 
-    // Only finished documents the viewer may see; the filters of the list narrow it further.
-    private const string Visible = " WHERE d.state = 'Done' AND (d.owner_id = @viewer OR NOT d.is_private)";
+    // Only finished documents the viewer may see, never those in the trash; the filters of the list narrow it further.
+    private const string Visible = " WHERE d.state = 'Done' AND " + TrashSql.NotInTrash + " AND (d.owner_id = @viewer OR NOT d.is_private)";
 
     private static readonly Histogram<double> s_duration = InfrastructureTelemetry.Meter.CreateHistogram<double>(
         "nomorepaper.search.duration", unit: "ms", description: "Time to answer a search");

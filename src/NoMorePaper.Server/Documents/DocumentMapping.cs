@@ -1,6 +1,7 @@
 using NoMorePaper.Application.Documents;
 using NoMorePaper.Application.Search;
 using NoMorePaper.Contracts.Documents;
+using NoMorePaper.Contracts.Editing;
 using NoMorePaper.Domain.Documents;
 using NoMorePaper.Server.Classification;
 using NoMorePaper.Server.Inputs;
@@ -29,10 +30,31 @@ internal static class DocumentMapping
             detail.ReceivedAt,
             detail.State.ToDto(),
             detail.FailureReason,
-            detail.Original.ToDto(),
+            detail.Original?.ToDto(),
             detail.Archive?.ToDto(),
             detail.IsPrivate,
-            detail.IsMine);
+            detail.IsMine,
+            detail.Edited?.ToDto(),
+            detail.EditedAt,
+            detail.EditPending,
+            detail.VersionPolicy.ToDto());
+
+    public static VersionPolicyDto ToDto(this VersionPolicy policy) => policy switch
+    {
+        VersionPolicy.KeepBoth => VersionPolicyDto.KeepBoth,
+        VersionPolicy.EditedOnly => VersionPolicyDto.EditedOnly,
+        VersionPolicy.OriginalOnly => VersionPolicyDto.OriginalOnly,
+        _ => throw new ArgumentOutOfRangeException(nameof(policy), policy, "Unknown version policy."),
+    };
+
+    /// <returns>The policy, or <c>null</c> for a value the API does not know.</returns>
+    public static VersionPolicy? ToDomain(this VersionPolicyDto policy) => policy switch
+    {
+        VersionPolicyDto.KeepBoth => VersionPolicy.KeepBoth,
+        VersionPolicyDto.EditedOnly => VersionPolicy.EditedOnly,
+        VersionPolicyDto.OriginalOnly => VersionPolicy.OriginalOnly,
+        _ => null,
+    };
 
     public static SearchHitDto ToDto(this SearchHit hit)
     {

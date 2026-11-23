@@ -28,7 +28,7 @@ public sealed class JobQueueTakeoverTests(PostgresFixture postgres)
         var queue = data.Queue(db);
 
         Assert.Null(await queue.StartAsync(stale, Ct));
-        Assert.False(await queue.CompleteAsync(stale, "stale text", s_archive, Ct));
+        Assert.False(await queue.CompleteAsync(stale, "stale text", s_archive, [], Ct));
         Assert.Equal(new RecordedFailure(FailureOutcome.ClaimLost), await queue.FailAsync(stale, "IOException", permanent: true, s_start, Ct));
         Assert.False(await queue.ReleaseAsync(stale, Ct));
 
@@ -49,7 +49,7 @@ public sealed class JobQueueTakeoverTests(PostgresFixture postgres)
         var queue = data.Queue(db);
 
         Assert.NotNull(await queue.StartAsync(owner, Ct));
-        Assert.True(await queue.CompleteAsync(owner, "Rechnung", s_archive, Ct));
+        Assert.True(await queue.CompleteAsync(owner, "Rechnung", s_archive, [], Ct));
 
         Assert.Equal(ProcessingState.Done, (await data.DocumentAsync(owner.DocumentId)).State);
         Assert.Equal(JobStage.Recognition, (await data.JobAsync(owner.DocumentId))!.Stage);
@@ -68,7 +68,7 @@ public sealed class JobQueueTakeoverTests(PostgresFixture postgres)
 
         await using (var db = data.Context())
         {
-            Assert.False(await data.Queue(db).CompleteAsync(stale, "stale text", s_archive, Ct));
+            Assert.False(await data.Queue(db).CompleteAsync(stale, "stale text", s_archive, [], Ct));
         }
 
         var job = await data.JobAsync(owner.DocumentId);
@@ -98,7 +98,7 @@ public sealed class JobQueueTakeoverTests(PostgresFixture postgres)
         {
             var queue = data.Queue(db);
             Assert.Null(await queue.StartAsync(stale, Ct));
-            Assert.False(await queue.CompleteAsync(stale, "stale text", s_archive, Ct));
+            Assert.False(await queue.CompleteAsync(stale, "stale text", s_archive, [], Ct));
             Assert.Equal(new RecordedFailure(FailureOutcome.ClaimLost), await queue.FailAsync(stale, "IOException", permanent: true, s_start, Ct));
             Assert.False(await queue.ReleaseAsync(stale, Ct));
             Assert.Null(await queue.StartAsync(owner, Ct));
@@ -110,7 +110,7 @@ public sealed class JobQueueTakeoverTests(PostgresFixture postgres)
         Assert.Null((await data.DocumentAsync(third.DocumentId)).ContentText);
         await using (var db = data.Context())
         {
-            Assert.True(await data.Queue(db).CompleteAsync(third, "Rechnung", s_archive, Ct));
+            Assert.True(await data.Queue(db).CompleteAsync(third, "Rechnung", s_archive, [], Ct));
         }
     }
 

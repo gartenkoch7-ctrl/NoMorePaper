@@ -14,14 +14,14 @@ COPY src/ src/
 RUN dotnet publish src/NoMorePaper.Worker/NoMorePaper.Worker.csproj -c Release --no-restore -o /app -p:UseAppHost=false
 
 # --- runtime: the glibc image (Ubuntu 24.04 for .NET 10), because OCRmyPDF, the Tesseract language
-# data, Ghostscript, libheif and poppler are distribution packages there; it also brings ICU.
+# data, Ghostscript, libheif, poppler and qpdf (page edits, M4b) are distribution packages there; it also brings ICU.
 # Non-root user "app" (APP_UID).
 FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS final
 # libheif-plugin-libde265: heif-convert cannot decode HEIC (HEVC) photos without it.
 # curl: the compose healthcheck calls /health with it.
 RUN apt-get update \
     && apt-get install -y --no-install-recommends \
-        ocrmypdf tesseract-ocr-deu tesseract-ocr-eng img2pdf libheif-examples libheif-plugin-libde265 poppler-utils curl \
+        ocrmypdf tesseract-ocr-deu tesseract-ocr-eng img2pdf libheif-examples libheif-plugin-libde265 poppler-utils qpdf curl \
     && rm -rf /var/lib/apt/lists/*
 WORKDIR /app
 # Mount points owned by the app user: fresh named volumes inherit this ownership.

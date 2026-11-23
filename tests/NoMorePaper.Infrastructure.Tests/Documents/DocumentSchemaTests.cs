@@ -57,6 +57,45 @@ public sealed class DocumentSchemaTests(PostgresFixture postgres)
     }
 
     [Fact]
+    public async Task EditedFile_IsReplacedInPlace_InOneContextAndAcrossContexts()
+    {
+        // Files are owned rows keyed (document_id, kind): a replacement deletes and inserts the same key.
+        const string database = "documents_replace_edited";
+        var document = Document.Receive("Brief", s_received, s_owner, isPrivate: false);
+        document.AttachFile(new DocumentFile(DocumentFileKind.Original, "Scan 1.jpg", "image/jpeg", 1234, Sha256));
+        await using (var db = await MigratedContextAsync(database))
+        {
+            db.Documents.Add(document);
+            await db.SaveChangesAsync(Ct);
+        }
+
+        await using (var db = postgres.CreateContext(database))
+        {
+            var loaded = await db.Documents.SingleAsync(d => d.Id == document.Id, Ct);
+            loaded.ReplaceFile(new DocumentFile(DocumentFileKind.Edited, "edited.pdf", "application/pdf", 1, Sha256), s_received.AddHours(1));
+            await db.SaveChangesAsync(Ct);
+            loaded.ReplaceFile(new DocumentFile(DocumentFileKind.Edited, "edited.pdf", "application/pdf", 2, Sha256), s_received.AddHours(2));
+            await db.SaveChangesAsync(Ct);
+        }
+
+        await using (var db = postgres.CreateContext(database))
+        {
+            var loaded = await db.Documents.SingleAsync(d => d.Id == document.Id, Ct);
+            Assert.Equal(((long?)2, (DateTimeOffset?)s_received.AddHours(2)), (loaded.FindFile(DocumentFileKind.Edited)?.SizeBytes, loaded.EditedAt));
+            loaded.ReplaceFile(new DocumentFile(DocumentFileKind.Edited, "edited.pdf", "application/pdf", 3, Sha256), s_received.AddHours(3));
+            await db.SaveChangesAsync(Ct);
+        }
+
+        await using (var db = postgres.CreateContext(database))
+        {
+            var loaded = await db.Documents.AsNoTracking().SingleAsync(d => d.Id == document.Id, Ct);
+            Assert.Equal([DocumentFileKind.Original, DocumentFileKind.Edited], loaded.Files.Select(file => file.Kind).Order());
+            Assert.Equal(((long?)3, (DateTimeOffset?)s_received.AddHours(3)), (loaded.FindFile(DocumentFileKind.Edited)?.SizeBytes, loaded.EditedAt));
+            Assert.Equal(2, await ScalarAsync<int>(db, $"SELECT count(*)::int AS \"Value\" FROM document_files"));
+        }
+    }
+
+    [Fact]
     public async Task Deleting_ADocument_RemovesItsFilesAndJob()
     {
         await using var db = await MigratedContextAsync("documents_cascade");

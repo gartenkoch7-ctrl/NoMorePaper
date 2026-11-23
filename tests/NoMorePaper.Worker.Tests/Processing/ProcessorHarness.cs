@@ -3,6 +3,9 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using NoMorePaper.Application.Classification;
+using NoMorePaper.Application.Composition;
+using NoMorePaper.Application.Documents;
+using NoMorePaper.Application.Editing;
 using NoMorePaper.Application.Processing;
 using NoMorePaper.Application.Recognition;
 using NoMorePaper.Domain.Documents;
@@ -38,7 +41,17 @@ internal sealed class ProcessorHarness : IAsyncDisposable
     {
         _postgres = postgres;
         _database = database;
+        Storage = new FileSystemDocumentStorage(_dataRoot.FullName, new SkippedDirectorySync(), NullLogger<FileSystemDocumentStorage>.Instance);
+        WorkingFolder = new WorkingFolder(Path.Combine(_dataRoot.FullName, WorkingFolder.FolderName), Time, NullLogger<WorkingFolder>.Instance);
+        WorkingFolder.Prepare();
+
         var services = new ServiceCollection();
+        services.AddSingleton<IDocumentStorage>(Storage);
+        services.AddSingleton<IOcrEngine>(Ocr);
+        services.AddSingleton<IWorkingFolder>(WorkingFolder);
+        services.AddSingleton<IPageAnalyzer>(Pages);
+        services.AddSingleton<ILogger<ProcessNextDocument>>(Log);
+        services.AddStageRunners();
         services.AddSingleton<TimeProvider>(Time);
         services.AddDbContext<AppDbContext>(options => options.UseNpgsql(postgres.ConnectionString(database)));
         services.AddScoped<IJobQueue, JobQueue>();
@@ -54,13 +67,12 @@ internal sealed class ProcessorHarness : IAsyncDisposable
         services.AddScoped<EnqueueBacklog>();
         _services = services.BuildServiceProvider();
 
-        Storage = new FileSystemDocumentStorage(_dataRoot.FullName, new SkippedDirectorySync(), NullLogger<FileSystemDocumentStorage>.Instance);
-        WorkingFolder = new WorkingFolder(Path.Combine(_dataRoot.FullName, WorkingFolder.FolderName), Time, NullLogger<WorkingFolder>.Instance);
-        WorkingFolder.Prepare();
         Readiness.MarkReady();
-        Processor = new ProcessNextDocument(
-            _services.GetRequiredService<IServiceScopeFactory>(), Storage, Ocr, WorkingFolder, Readiness, Time, Log);
+        Processor = new ProcessNextDocument(_services.GetRequiredService<IServiceScopeFactory>(), Readiness, Time, Log);
     }
+
+    /// <summary>Stands in for the page analysis with poppler.</summary>
+    public FakePageAnalyzer Pages { get; } = new();
 
     /// <summary>Ready from the start; a test that waits for the model sets up its own.</summary>
     public RecognitionReadiness Readiness { get; } = new();

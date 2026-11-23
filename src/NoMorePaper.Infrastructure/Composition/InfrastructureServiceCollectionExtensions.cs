@@ -5,16 +5,21 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Logging;
 using NoMorePaper.Application.Classification;
 using NoMorePaper.Application.Documents;
+using NoMorePaper.Application.Editing;
 using NoMorePaper.Application.Heartbeat;
 using NoMorePaper.Application.Persistence;
 using NoMorePaper.Application.Processing;
 using NoMorePaper.Application.Search;
+using NoMorePaper.Application.Trash;
 using NoMorePaper.Infrastructure.Classification;
 using NoMorePaper.Infrastructure.Documents;
+using NoMorePaper.Infrastructure.Editing;
 using NoMorePaper.Infrastructure.Heartbeat;
 using NoMorePaper.Infrastructure.Persistence;
 using NoMorePaper.Infrastructure.Processing;
+using NoMorePaper.Infrastructure.Ocr;
 using NoMorePaper.Infrastructure.Search;
+using NoMorePaper.Infrastructure.Trash;
 
 namespace NoMorePaper.Infrastructure.Composition;
 
@@ -47,10 +52,27 @@ public static class InfrastructureServiceCollectionExtensions
         services.AddScoped<IClassificationStore, ClassificationStore>();
         services.AddScoped<IDocumentFieldsStore, EfDocumentFieldsStore>();
         services.AddInputs();
+        services.AddEditing(configuration);
 
         services.AddNoMorePaperDataProtection(configuration);
 
         return services;
+    }
+
+    // Scan editing and the trash (M4b): stores for both hosts; the page tools run only in the Worker,
+    // whose image contains qpdf and poppler.
+    private static void AddEditing(this IServiceCollection services, IConfiguration configuration)
+    {
+        services.AddScoped<ITrashStore, EfTrashStore>();
+        services.AddScoped<IDocumentPages, EfDocumentPages>();
+        services.AddScoped<IDocumentEdits, EfDocumentEdits>();
+        services.AddSingleton<IEditPageStorage>(provider => new EditPageStorage(
+            DataPath(configuration),
+            provider.GetRequiredService<IDirectorySync>(),
+            provider.GetRequiredService<ILogger<EditPageStorage>>()));
+        services.TryAddSingleton<ExternalProcess>();
+        services.AddSingleton<IPdfTool, QpdfTool>();
+        services.AddSingleton<IPageAnalyzer, PopplerPageAnalyzer>();
     }
 
     private static string DataPath(IConfiguration configuration) =>

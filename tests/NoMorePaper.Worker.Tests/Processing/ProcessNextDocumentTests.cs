@@ -1,6 +1,7 @@
 using NoMorePaper.Application.Processing;
 using NoMorePaper.Domain.Documents;
 using NoMorePaper.Domain.Processing;
+using NoMorePaper.Infrastructure.Editing;
 using NoMorePaper.Worker.Tests.Persistence;
 using Xunit;
 
@@ -44,6 +45,20 @@ public sealed class ProcessNextDocumentTests(PostgresFixture postgres)
 
         await using var archive = harness.Storage.OpenRead(id, DocumentFileKind.Archive);
         Assert.Equal("%PDF-1.7 archive", await new StreamReader(archive).ReadToEndAsync(Ct));
+    }
+
+    [Fact]
+    public async Task ProcessNext_StoresThePagesOfTheArchive_WithIt()
+    {
+        await using var harness = await ProcessorHarness.CreateAsync(postgres, "processor_pages");
+        var id = await harness.AddQueuedDocumentAsync();
+
+        Assert.True(await harness.Processor.ProcessNextAsync(Ct));
+
+        Assert.True(harness.Pages.ArchiveExisted);
+        await using var db = harness.OtherWorkerContext();
+        var pages = await new EfDocumentPages(db).ListAsync(id, Ct);
+        Assert.Equal(harness.Pages.Pages, pages);
     }
 
     [Fact]

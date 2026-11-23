@@ -34,10 +34,10 @@ public sealed partial class Document
 
     /// <summary>
     /// Whether the account may change the fields: the owner, and the chosen editors while they can see
-    /// the document. A document without owner (M1, before setup) cannot be edited by anybody.
+    /// the document. A document without owner (M1, before setup) or in the trash cannot be edited by anybody.
     /// </summary>
     public bool CanEdit(Guid accountId) =>
-        OwnerId is { } owner && (owner == accountId || (!IsPrivate && _editors.Exists(editor => editor.AccountId == accountId)));
+        !IsInTrash && OwnerId is { } owner && (owner == accountId || (!IsPrivate && _editors.Exists(editor => editor.AccountId == accountId)));
 
     /// <summary>Replaces the members who may edit the fields; the owner always may and is not listed.</summary>
     /// <exception cref="InvalidOperationException"><paramref name="actor"/> is not the owner.</exception>

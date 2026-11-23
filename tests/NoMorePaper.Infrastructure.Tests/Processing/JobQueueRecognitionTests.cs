@@ -47,7 +47,7 @@ public sealed class JobQueueRecognitionTests(PostgresFixture postgres)
         var claim = (await queue.ClaimNextAsync(QueueDatabase.LockFor, Ct))!;
         await queue.StartAsync(claim, Ct);
 
-        Assert.True(await queue.CompleteAsync(claim, " \n", new StoredFile(1, QueueDatabase.Sha256), Ct));
+        Assert.True(await queue.CompleteAsync(claim, " \n", new StoredFile(1, QueueDatabase.Sha256), [], Ct));
 
         Assert.Equal(ProcessingState.Done, (await data.DocumentAsync(id)).State);
         Assert.Null(await data.JobAsync(id));
@@ -62,9 +62,9 @@ public sealed class JobQueueRecognitionTests(PostgresFixture postgres)
         await using var db = data.Context();
         var queue = data.Queue(db);
 
-        Assert.Equal(upload, (await queue.ClaimNextAsync(QueueDatabase.LockFor, includeRecognition: false, Ct))?.DocumentId);
-        Assert.Null(await queue.ClaimNextAsync(QueueDatabase.LockFor, includeRecognition: false, Ct));
-        Assert.Equal(JobStage.Recognition, (await queue.ClaimNextAsync(QueueDatabase.LockFor, includeRecognition: true, Ct))?.Stage);
+        Assert.Equal(upload, (await queue.ClaimNextAsync(QueueDatabase.LockFor, includeLlmStages: false, Ct))?.DocumentId);
+        Assert.Null(await queue.ClaimNextAsync(QueueDatabase.LockFor, includeLlmStages: false, Ct));
+        Assert.Equal(JobStage.Recognition, (await queue.ClaimNextAsync(QueueDatabase.LockFor, includeLlmStages: true, Ct))?.Stage);
     }
 
     [Fact]
@@ -200,7 +200,7 @@ public sealed class JobQueueRecognitionTests(PostgresFixture postgres)
             var queue = data.Queue(db);
             second = (await queue.ClaimNextAsync(QueueDatabase.LockFor, Ct))!;
             await queue.StartAsync(second, Ct);
-            Assert.True(await queue.CompleteAsync(second, "Rechnung", new StoredFile(1, QueueDatabase.Sha256), Ct));
+            Assert.True(await queue.CompleteAsync(second, "Rechnung", new StoredFile(1, QueueDatabase.Sha256), [], Ct));
         }
 
         await using var next = data.Context();

@@ -14,8 +14,6 @@ internal sealed class FakeDocumentFieldsStore : IDocumentFieldsStore
 
     public int Saves { get; private set; }
 
-    public List<Guid> Deleted { get; } = [];
-
     /// <summary>What <see cref="CountReviewAsync"/> answers.</summary>
     public int ReviewCount { get; set; }
 
@@ -39,13 +37,6 @@ internal sealed class FakeDocumentFieldsStore : IDocumentFieldsStore
     public Task SaveAsync(CancellationToken cancellationToken)
     {
         Saves++;
-        return Task.CompletedTask;
-    }
-
-    public Task DeleteAsync(Document document, CancellationToken cancellationToken)
-    {
-        Documents.Remove(document);
-        Deleted.Add(document.Id);
         return Task.CompletedTask;
     }
 

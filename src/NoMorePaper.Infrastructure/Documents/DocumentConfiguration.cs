@@ -1,6 +1,10 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using NoMorePaper.Domain.Documents;
+using NoMorePaper.Domain.Editing;
+using NoMorePaper.Infrastructure.Editing;
+using NoMorePaper.Infrastructure.Persistence;
 using NpgsqlTypes;
 
 namespace NoMorePaper.Infrastructure.Documents;
@@ -62,8 +66,31 @@ internal sealed class DocumentConfiguration : IEntityTypeConfiguration<Document>
         // The list shows the newest documents first.
         builder.HasIndex(document => document.ReceivedAt);
 
+        ConfigureEditing(builder);
         builder.OwnsMany(document => document.Files, ConfigureFiles);
         builder.Navigation(document => document.Files).UsePropertyAccessMode(PropertyAccessMode.Field);
+    }
+
+    // Trash, versions and split suggestion (M4b, ADR-0025). The named filter hides documents in the trash
+    // from every EF query; the trash's own queries switch it off. Plain SQL uses TrashSql.
+    private static void ConfigureEditing(EntityTypeBuilder<Document> builder)
+    {
+        builder.Property(document => document.DeletedAt).HasColumnName("deleted_at");
+        builder.Property(document => document.DeletedBy).HasColumnName("deleted_by");
+        builder.HasQueryFilter(TrashSql.FilterName, document => document.DeletedAt == null);
+        builder.HasIndex(document => document.DeletedAt);
+
+        builder.Property(document => document.VersionPolicy)
+            .HasColumnName("version_policy")
+            .HasConversion<string>()
+            .HasMaxLength(EnumLength);
+        builder.Property(document => document.EditedAt).HasColumnName("edited_at");
+        builder.Property(document => document.SplitSuggestion)
+            .HasColumnName("split_suggestion")
+            .HasColumnType("jsonb")
+            .HasConversion(new ValueConverter<SplitSuggestion?, string?>(
+                suggestion => suggestion == null ? null : SplitSuggestionJson.Write(suggestion),
+                json => json == null ? null : SplitSuggestionJson.Read(json)));
     }
 
     private static void ConfigureFiles(OwnedNavigationBuilder<Document, DocumentFile> file)

@@ -33,8 +33,8 @@ public interface IDocumentStorage
     void DiscardInbox(Guid id);
 
     /// <summary>
-    /// Removes every stored file of a deleted document, in the inbox and in the archive; does nothing
-    /// when there is none. Only for documents that are no longer recorded.
+    /// Removes every stored file of a deleted document, in the inbox, the archive and pending edits; does
+    /// nothing when there is none. Only for documents that are no longer recorded.
     /// </summary>
     /// <exception cref="IOException">A folder could not be removed.</exception>
     /// <exception cref="UnauthorizedAccessException">A folder could not be removed.</exception>
@@ -43,4 +43,29 @@ public interface IDocumentStorage
     /// <summary>Opens a stored file for reading; the original is found in the archive or, before processing, in the inbox.</summary>
     /// <exception cref="FileNotFoundException">No such file is stored.</exception>
     Stream OpenRead(Guid id, DocumentFileKind kind);
+
+    /// <summary>Stores the newest edited version (<c>edited.pdf</c>) next to the archive PDF, replacing an earlier one.</summary>
+    Task<StoredFile> SaveEditedAsync(Guid id, Stream content, CancellationToken cancellationToken);
+
+    /// <summary>
+    /// Moves the original or the edited version of a processed document into the trash folder of the
+    /// entry <paramref name="trashItemId"/>, without copying. Does nothing when it was moved already.
+    /// </summary>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="kind"/> is the archive.</exception>
+    /// <exception cref="FileNotFoundException">The file is neither in the archive nor in the trash folder.</exception>
+    Task MoveToTrashAsync(Guid id, DocumentFileKind kind, Guid trashItemId, CancellationToken cancellationToken);
+
+    /// <summary>
+    /// Moves a file back from the trash folder of <paramref name="trashItemId"/> to its place in the archive
+    /// and removes the then empty trash folder. Does nothing when it was moved back already.
+    /// </summary>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="kind"/> is the archive.</exception>
+    /// <exception cref="IOException">Its place is taken; the caller moves the other file to the trash first.</exception>
+    /// <exception cref="FileNotFoundException">The file is neither in the trash folder nor in the archive.</exception>
+    Task RestoreFromTrashAsync(Guid trashItemId, Guid id, DocumentFileKind kind, CancellationToken cancellationToken);
+
+    /// <summary>Removes the trash folder of an entry for good; does nothing when there is none.</summary>
+    /// <exception cref="IOException">The folder could not be removed.</exception>
+    /// <exception cref="UnauthorizedAccessException">The folder could not be removed.</exception>
+    void PurgeTrash(Guid trashItemId);
 }

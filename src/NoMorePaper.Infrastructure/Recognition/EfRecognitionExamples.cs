@@ -1,3 +1,4 @@
+using System.Runtime.CompilerServices;
 using Microsoft.EntityFrameworkCore;
 using NoMorePaper.Application.Classification;
 using NoMorePaper.Application.Recognition;
@@ -32,20 +33,27 @@ public sealed class EfRecognitionExamples(AppDbContext db) : IRecognitionExample
         }
 
         // One query for the order: the first correspondent's documents first, newest first within one.
+        // Documents in the trash are no examples. {0} ids, {1} confirmed, {2} except, {3} with own, {4} owner, {5} limit.
         var confirmed = nameof(RecognitionState.Confirmed);
         var withOwn = audience == EntryAudience.Account;
-        var chosen = await db.Database.SqlQuery<Guid>(
-                $"""
+        var chosen = await db.Database.SqlQuery<Guid>(FormattableStringFactory.Create(
+                $$"""
                 SELECT ranked.id AS "Value" FROM (
-                    SELECT d.id, d.received_at, array_position({ids}, d.correspondent_id) AS mention,
+                    SELECT d.id, d.received_at, array_position({0}, d.correspondent_id) AS mention,
                            row_number() OVER (PARTITION BY d.correspondent_id ORDER BY d.received_at DESC, d.id DESC) AS n
                     FROM documents d
-                    WHERE d.correspondent_id = ANY({ids}) AND d.recognition = {confirmed} AND d.id <> {exceptDocumentId}
-                      AND (({withOwn} AND d.owner_id = {ownerId}) OR NOT d.is_private)) ranked
-                WHERE ranked.n <= {limit}
+                    WHERE d.correspondent_id = ANY({0}) AND d.recognition = {1} AND d.id <> {2} AND {{TrashSql.NotInTrash}}
+                      AND (({3} AND d.owner_id = {4}) OR NOT d.is_private)) ranked
+                WHERE ranked.n <= {5}
                 ORDER BY ranked.mention, ranked.received_at DESC, ranked.id DESC
-                LIMIT {limit}
-                """)
+                LIMIT {5}
+                """,
+                ids,
+                confirmed,
+                exceptDocumentId,
+                withOwn,
+                ownerId,
+                limit))
             .ToListAsync(cancellationToken)
             .ConfigureAwait(false);
         if (chosen.Count == 0)

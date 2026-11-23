@@ -65,4 +65,14 @@ internal sealed class FakeDocumentStorage : IDocumentStorage
 
     public Stream OpenRead(Guid id, DocumentFileKind kind) =>
         StoredBytes is { } bytes ? new MemoryStream(bytes) : throw new FileNotFoundException("Not stored.");
+
+    public Task<StoredFile> SaveEditedAsync(Guid id, Stream content, CancellationToken cancellationToken) => throw new NotSupportedException();
+
+    public Task MoveToTrashAsync(Guid id, DocumentFileKind kind, Guid trashItemId, CancellationToken cancellationToken) =>
+        throw new NotSupportedException();
+
+    public Task RestoreFromTrashAsync(Guid trashItemId, Guid id, DocumentFileKind kind, CancellationToken cancellationToken) =>
+        throw new NotSupportedException();
+
+    public void PurgeTrash(Guid trashItemId) => throw new NotSupportedException();
 }

@@ -883,7 +883,7 @@
     <value>„{0}“ wirklich löschen?</value>
   </data>
   <data name="ReviewDeleteExplain" xml:space="preserve">
-    <value>Das Dokument wird gelöscht. Das lässt sich nicht rückgängig machen. Das vorhandene Dokument bleibt erhalten.</value>
+    <value>Das Dokument kommt 30 Tage in den Papierkorb und lässt sich bis dahin wiederherstellen. Das vorhandene Dokument bleibt erhalten.</value>
   </data>
   <data name="ReviewDeleteConfirm" xml:space="preserve">
     <value>Ja, löschen</value>
@@ -898,7 +898,7 @@
     <value>Angaben von „{0}“ gespeichert und bestätigt.</value>
   </data>
   <data name="ReviewDeleted" xml:space="preserve">
-    <value>„{0}“ gelöscht.</value>
+    <value>„{0}“ in den Papierkorb gelegt.</value>
   </data>
   <data name="FilterToggle" xml:space="preserve">
     <value>Filter</value>

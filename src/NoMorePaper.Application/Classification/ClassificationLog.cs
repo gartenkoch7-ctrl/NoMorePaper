@@ -21,11 +21,8 @@ internal static partial class ClassificationLog
     [LoggerMessage(EventId = 5253, Level = LogLevel.Information, Message = "Account {AccountId} kept document {DocumentId} despite the duplicate hint")]
     public static partial void DuplicateKept(this ILogger logger, Guid documentId, Guid accountId);
 
-    [LoggerMessage(EventId = 5254, Level = LogLevel.Information, Message = "Owner {AccountId} deleted document {DocumentId}, a possible duplicate")]
+    [LoggerMessage(EventId = 5254, Level = LogLevel.Information, Message = "Owner {AccountId} moved document {DocumentId}, a possible duplicate, to the trash")]
     public static partial void DuplicateDeleted(this ILogger logger, Guid documentId, Guid accountId);
-
-    [LoggerMessage(EventId = 5255, Level = LogLevel.Warning, Message = "Could not remove the files of deleted document {DocumentId} ({ErrorType})")]
-    public static partial void DeletedFilesLeft(this ILogger logger, Guid documentId, string errorType);
 
     [LoggerMessage(EventId = 5256, Level = LogLevel.Warning, Message = "Account {AccountId} was refused ({Outcome}): {Action} on document {DocumentId}")]
     public static partial void DocumentChangeRefused(this ILogger logger, Guid accountId, ChangeOutcome outcome, string action, Guid documentId);

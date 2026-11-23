@@ -9,9 +9,9 @@ namespace NoMorePaper.Infrastructure.Documents;
 /// Stores document files below a data root (the <c>/data</c> volume shared by Server and Worker).
 /// Writes are atomic (<see cref="AtomicFileWriter"/>), moves flush the target folder
 /// (<see cref="IDirectorySync"/>), and readers open files so that a concurrent rename or replace
-/// does not fail.
+/// does not fail. The trash folders are handled in <c>FileSystemDocumentStorage.Trash.cs</c>.
 /// </summary>
-public sealed class FileSystemDocumentStorage : IDocumentStorage
+public sealed partial class FileSystemDocumentStorage : IDocumentStorage
 {
     private const string InboxArea = "inbox";
     private const string ArchiveArea = "archive";
@@ -97,7 +97,7 @@ public sealed class FileSystemDocumentStorage : IDocumentStorage
 
     public void Delete(Guid id)
     {
-        foreach (var folder in new[] { _paths.InboxFolder(id), _paths.ArchiveFolder(id) })
+        foreach (var folder in new[] { _paths.InboxFolder(id), _paths.ArchiveFolder(id), _paths.EditsFolder(id) })
         {
             if (Directory.Exists(folder))
             {
@@ -112,6 +112,7 @@ public sealed class FileSystemDocumentStorage : IDocumentStorage
         var stream = kind switch
         {
             DocumentFileKind.Archive => TryOpen(Path.Combine(archive, DocumentPaths.ArchiveFileName)),
+            DocumentFileKind.Edited => TryOpen(Path.Combine(archive, DocumentPaths.EditedFileName)),
 
             // Archive, then inbox, then archive again: the original may move in between.
             DocumentFileKind.Original => TryOpen(FindOriginal(archive))

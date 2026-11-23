@@ -118,6 +118,7 @@ Pfade: `D/` = `src/NoMorePaper.Domain/`, `App/` = `src/NoMorePaper.Application/`
 | 4350–4379 | Web.Client | P2d Fassungen, Werkswert |
 | 4800–4849 | Web.Client | P3c Papierkorb, Löschen im Viewer |
 | 4900–4919 | Web.Client | P4d Trennvorschlag |
+| 5000–5099 | Application | Verarbeitung (neu, M4b P0: 5000 `StageRunnerMissing`) |
 | 5500–5599 | Application | P1 Bearbeitung |
 | 5600–5699 | Application | Papierkorb (5600–5609 P0 `MoveDocumentToTrash`, 5610–5649 P3a) |
 | 5700–5799 | Application | P4 Stapel-Trennung |
@@ -213,6 +214,19 @@ Nach P0 **und** Freigabe von S0, im Integrationsbranch. Muster: [M4u E0](m4u-e-r
 
 ## Paket P1 – Bearbeitung im Worker (Spur A) · Modell: **Opus** · Effort: `high`
 
+**Aus dem P0-Review (2026-11-23), Pflicht in P1:**
+- **Atomare Fassungen:** `edited.pdf`/`archive.pdf` nicht vor dem DB-Commit an festen Namen überschreiben. Neue Datei
+  in einen Staging-Pfad (`*.pending` bzw. `edits/<id>/<editId>/`) schreiben, nach dem Commit idempotent umbenennen;
+  die vorige bearbeitete Fassung **vorher** per `RemoveFile` + `TrashItem` (Commit) und danach `MoveToTrashAsync` in den
+  Papierkorb (ADR-0025). Scheitert der Commit, bleiben Platte und Hash konsistent.
+- **Seitenbilder je Bearbeitung:** `EditPageStorage` legt Bilder unter `edits/<id>/<editId>/page-<n>.jpg` ab
+  (`editId` in `document_edits`), oder `RequestPageEdit` prüft `EnqueueEditAsync` **vor** dem Speichern der Bilder – ein
+  abgelehnter zweiter Auftrag (409) darf die Bilder des laufenden nicht überschreiben.
+- Runner für `Edit` registrieren; der fail-soft-Pfad aus P0 (Stufe ohne Runner) bleibt als Absicherung.
+- **Aufgegebener `Edit`-Auftrag:** `JobQueue.GiveUpAsync` löscht bei Stufe `Edit` in derselben Transaktion die Zeile in
+  `document_edits` und verwirft die Bearbeitungsseiten (`edits/<id>/<editId>/`); bei `recognize_after` legt es wieder einen
+  `Recognition`-Auftrag an. IT-Test „Edit nach MaxAttempts → `EditPending` false, Erkennung wieder geplant“.
+
 | Datei | neu/ändern | Was genau | Tests | ca. Zeilen |
 |---|---|---|---|---|
 | `App/Editing/RequestPageEdit.cs` | neu | `DocumentChangeGuard.LoadAsync(…, d => d.CanEdit(current.Id))`, `State == Done`; `PagePlan.Validate(PageCount)`; ersetzte Seiten (JPEG über `FileSignature`, ≤ 15 MB, ≤ 50) über `IEditPageStorage`; `IDocumentEdits.SaveAsync` + `EnqueueEditAsync` in der Transaktion der Zeilensperre; `false` → `Conflict` | AT | 140 |
@@ -306,6 +320,14 @@ Branch `feat/m04b-c-papierkorb`. Pakete P3a → P3b → P3c. **Exklusiv:** `App/
 **Hotspot:** `DocumentViewer.razor` (eine Zeile).
 
 ### Paket P3a – Anwendungsfälle und Endpunkte · Modell: **Opus** · Effort: `high`
+
+**Aus dem P0-Review (2026-11-23), Pflicht in P3a:**
+- **Wiederherstellen vor/während der Verarbeitung:** Ein Dokument, das im Zustand `Queued`/`Processing` in den
+  Papierkorb kam, hat keinen Auftrag mehr. `RestoreTrashItem` legt in diesem Fall einen neuen OCR-Auftrag an.
+- **Eine Transaktion je Scope:** `EfDocumentFieldsStore.FindVisibleAsync` (`_change ??= BeginTransactionAsync`) wirft,
+  wenn `EfTrashStore` schon eine Transaktion geöffnet hat – beide nutzen `db.Database.CurrentTransaction` mit.
+- **Endgültiges Löschen eines Dokuments:** Die Cascade entfernt auch dessen `Original`/`Edited`-Papierkorbeinträge; deren
+  Ordner `trash/<entryId>/` vorher über `PurgeTrash` für alle Einträge des Dokuments löschen.
 
 | Datei | neu/ändern | Was genau | Tests | ca. Zeilen |
 |---|---|---|---|---|
