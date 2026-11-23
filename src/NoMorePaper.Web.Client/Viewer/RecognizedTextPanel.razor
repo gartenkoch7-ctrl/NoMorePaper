@@ -36,11 +36,11 @@ else if (_loading || !_requested)
 }
 else if (_text is null)
 {
-    <p>@L["TextNotYet"]</p>
+    <p id="doc-text-note" tabindex="-1">@L["TextNotYet"]</p>
 }
 else if (_text.Length == 0)
 {
-    <p>@L["TextEmpty"]</p>
+    <p id="doc-text-note" tabindex="-1">@L["TextEmpty"]</p>
 }
 else if (ShowsText)
 {
@@ -109,25 +109,19 @@ else if (ShowsText)
     private async Task RetryAsync()
     {
         await LoadAsync();
-        string message;
         if (ShowsText)
         {
             _focus.On("doc-text-box");
-            message = L["TextLoaded"];
-        }
-        else if (_error is not null)
-        {
-            _focus.On("doc-text-retry");
-            message = L["TextLoadError", _error];
+            if (_status is not null)
+            {
+                await _status.Announce(L["TextLoaded"]);
+            }
         }
         else
         {
-            message = _text is null ? L["TextNotYet"] : L["TextEmpty"];
-        }
-
-        if (_status is not null)
-        {
-            await _status.Announce(message);
+            // Failure: the alert box is read once when it appears, and the focused retry button is read as well,
+            // so nothing is announced on top. An empty or not-yet text lands on its note (focusable, tabindex -1).
+            _focus.On(_error is not null ? "doc-text-retry" : "doc-text-note");
         }
     }
 

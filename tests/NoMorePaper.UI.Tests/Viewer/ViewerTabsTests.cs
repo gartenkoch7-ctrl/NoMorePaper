@@ -1,3 +1,4 @@
+using System.Text.RegularExpressions;
 using Microsoft.Playwright;
 using NoMorePaper.Contracts.Documents;
 using NoMorePaper.UI.Tests.Accounts;
@@ -137,6 +138,35 @@ public sealed class ViewerTabsTests(ServerFixture server)
         await page.GetByRole(AriaRole.Button, new() { Name = "Erneut versuchen" }).ClickAsync();
 
         Assert.True(await WaitForRequestsAsync(viewer, 2));
+    }
+
+    [Fact]
+    public async Task Retry_FailingAgain_FocusesTheRetryButton_AndSaysTheErrorOnlyOnce()
+    {
+        await using var viewer = await ViewerPages.OpenAsync(server, De, ViewerPdfs.TwoPages(), textStatus: 500);
+        var page = viewer.Page;
+        await ViewerPages.SelectTabAsync(page, "Erkannter Text");
+        var retry = page.GetByRole(AriaRole.Button, new() { Name = "Erneut versuchen" });
+        await retry.ClickAsync();
+
+        await Assertions.Expect(retry).ToBeFocusedAsync();
+        await Assertions.Expect(page.Locator("#doc-text-panel").GetByText("konnte nicht geladen werden")).ToHaveCountAsync(1);
+        await Assertions.Expect(page.Locator("#doc-text-panel .live-region")).ToHaveTextAsync(string.Empty);
+    }
+
+    [Fact]
+    public async Task Retry_ReturningNoText_MovesFocusToTheNote()
+    {
+        await using var viewer = await ViewerPages.OpenAsync(server, De, ViewerPdfs.TwoPages(), textStatus: 500);
+        var page = viewer.Page;
+        await ViewerPages.SelectTabAsync(page, "Erkannter Text");
+        await page.RouteAsync(new Regex($"/api/documents/{viewer.Id}/text$"), route => route.FulfillAsync(
+            new RouteFulfillOptions { Status = 200, ContentType = "application/json", Body = """{"text":""}""" }));
+
+        await page.GetByRole(AriaRole.Button, new() { Name = "Erneut versuchen" }).ClickAsync();
+
+        await Assertions.Expect(page.Locator("#doc-text-note")).ToBeFocusedAsync();
+        await Assertions.Expect(page.Locator("#doc-text-note")).ToHaveTextAsync("Auf diesem Dokument wurde kein Text erkannt.");
     }
 
     [Fact]
