@@ -38,7 +38,7 @@ else
         }
     </section>
 
-    <section aria-labelledby="members-heading">
+    <section class="members-list" aria-labelledby="members-heading">
         <MudText Typo="Typo.h3" HtmlTag="h2" id="members-heading">@L["MembersListHeading"]</MudText>
         @if (_loading)
         {
@@ -50,8 +50,9 @@ else
         }
         else
         {
+            <div class="table-scroll" role="region" aria-labelledby="members-caption" tabindex="0">
             <table class="doc-table" data-ready>
-                <caption>@L["MembersCaption"]</caption>
+                <caption id="members-caption">@L["MembersCaption"]</caption>
                 <thead>
                     <tr>
                         <th scope="col">@L["ColName"]</th>
@@ -83,6 +84,7 @@ else
                     }
                 </tbody>
             </table>
+            </div>
         }
     </section>
 

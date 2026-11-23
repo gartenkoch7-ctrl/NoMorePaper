@@ -43,7 +43,7 @@
 }
 
 .account-card > h2 {
-    margin-top: 0;
+    margin: 0 0 var(--nmp-space-md);
 }
 
 .account-card .account-form {
@@ -109,7 +109,8 @@
 }
 
 /* --- Mitglieder --- */
-.members-invite {
+.members-invite,
+.members-list {
     margin: var(--nmp-space-lg) 0;
     padding: var(--nmp-space-lg);
     border-radius: var(--nmp-radius-lg);
@@ -140,4 +141,16 @@
 
 .members-invite .members-link {
     margin-bottom: 0;
+}
+
+.account-signout .button-row {
+    margin-top: var(--nmp-space-md);
+}
+
+.members-list .doc-table :is(th, td):last-child {
+    text-align: end;
+}
+
+.members-link > h2 {
+    margin: 0 0 var(--nmp-space-md);
 }

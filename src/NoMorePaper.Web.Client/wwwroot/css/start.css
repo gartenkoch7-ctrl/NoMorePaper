@@ -51,9 +51,6 @@
     margin-inline-start: auto;
 }
 
-.start-table-scroll {
-    overflow-x: auto;
-}
 
 .start-inputs {
     display: flex;
@@ -110,4 +107,9 @@
     justify-content: center;
     min-height: 4rem;
     font-size: 1rem;
+}
+
+/* The second quick action is a filled surface so both read as buttons, the first stays the white main action. */
+.start-action-secondary {
+    background-color: var(--nmp-elevated-high);
 }

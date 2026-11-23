@@ -70,7 +70,9 @@ public sealed class AccessibilityTests(ServerFixture server)
             }
             """);
 
-        Assert.Equal(["rgb(19, 19, 19)", "rgb(229, 226, 225)", "16px"], style);
+        // The intro of "Add" is deliberately muted (Stitch 11).
+        var color = path == "/hinzufuegen" ? "rgb(196, 199, 200)" : "rgb(229, 226, 225)";
+        Assert.Equal(["rgb(19, 19, 19)", color, "16px"], style);
     }
 
     private static string Describe(AxeResultItem[] violations)

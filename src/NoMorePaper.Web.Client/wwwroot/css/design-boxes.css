@@ -33,7 +33,7 @@
 
 .nmp-confirm {
     padding: 1.5rem;
-    background: var(--nmp-paper);
+    background: var(--nmp-surface-container);
     border: 1px solid var(--nmp-border);
     border-radius: 1rem;
     color: var(--nmp-primary);
@@ -42,6 +42,9 @@
 
 .nmp-confirm :is(h2, h3, h4) {
     margin: 0 0 0.5rem;
+    font-size: 1.125rem;
+    line-height: 1.75rem;
+    font-weight: 500;
 }
 
 .nmp-confirm p {

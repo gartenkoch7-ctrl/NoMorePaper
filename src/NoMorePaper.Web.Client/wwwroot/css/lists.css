@@ -26,3 +26,20 @@
 .list-selected {
     margin: 0;
 }
+
+p + .list-section {
+    margin-top: var(--nmp-space-lg);
+}
+
+/* Name left, merge checkbox centred, actions at the end. nowrap on the last column keeps the buttons in one row;
+   at 400 % the table-scroll region takes the overflow. */
+.list-section .doc-table :is(th, td):nth-child(2) {
+    width: 12rem;
+    text-align: center;
+}
+
+.list-section .doc-table :is(th, td):last-child {
+    width: 1%;
+    text-align: end;
+    white-space: nowrap;
+}

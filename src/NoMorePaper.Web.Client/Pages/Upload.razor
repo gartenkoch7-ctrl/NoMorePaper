@@ -56,14 +56,14 @@
                 @if (result.Id is { } id)
                 {
                     <MudIcon Icon="@Icons.Material.Filled.CheckCircle" Class="upload-ok" aria-hidden="true" />
-                    <span>@SuccessText(result)</span>
+                    <span class="upload-result-text">@SuccessText(result)</span>
                     <a href="@DocumentLinks.Of(id)">@L["UploadShowInList", result.FileName]</a>
                 }
                 else if (result.IsDuplicate)
                 {
                     @* Not an error: the file is safe, it was there before. The link leads to it. *@
                     <MudIcon Icon="@Icons.Material.Filled.Info" Class="upload-info" aria-hidden="true" />
-                    <span>@L["UploadDuplicateNamed", result.FileName]</span>
+                    <span class="upload-result-text">@L["UploadDuplicateNamed", result.FileName]</span>
                     @if (result.ExistingId is { } existing)
                     {
                         <a href="@DocumentLinks.Viewer(existing)">@L["UploadShowExisting", result.FileName]</a>
@@ -72,7 +72,7 @@
                 else
                 {
                     <MudIcon Icon="@Icons.Material.Filled.Error" Class="upload-failed" aria-hidden="true" />
-                    <span>@L["UploadFailed", result.FileName, result.Error ?? string.Empty]</span>
+                    <span class="upload-result-text">@L["UploadFailed", result.FileName, result.Error ?? string.Empty]</span>
                 }
             </li>
         }

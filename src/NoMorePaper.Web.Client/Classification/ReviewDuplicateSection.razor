@@ -10,8 +10,9 @@
         <span>@L["ReviewDuplicateHeading"]</span>
     </MudText>
     <p>@L["ReviewDuplicateExplain"]</p>
+    <div class="table-scroll" role="region" aria-labelledby="@(Key)-cmp-caption" tabindex="0">
     <table class="doc-table">
-        <caption>@L["ReviewCompareCaption"]</caption>
+        <caption id="@(Key)-cmp-caption">@L["ReviewCompareCaption"]</caption>
         <thead>
             <tr>
                 <th scope="col">@L["ReviewCompareField"]</th>
@@ -42,6 +43,7 @@
             </tr>
         </tbody>
     </table>
+    </div>
     <div class="button-row">
         <button type="button" class="nmp-button" aria-label="@L["ReviewKeepFor", Item.Title]"
                 @onclick="OnKeep">@L["ReviewKeep"]</button>

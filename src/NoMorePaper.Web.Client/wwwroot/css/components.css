@@ -154,3 +154,19 @@
 .link-tile p {
     margin: 0;
 }
+
+/* No message, no space: an empty announcer would only leave a gap. */
+.live-region:empty {
+    min-height: 0;
+    margin: 0;
+}
+
+/* Wide tables scroll inside their own focusable region instead of the page. The browser's own focus ring is
+   drawn inside so it is not cut off. */
+.table-scroll {
+    overflow-x: auto;
+}
+
+.table-scroll:focus-visible {
+    outline-offset: -3px;
+}

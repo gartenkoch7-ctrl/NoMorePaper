@@ -113,6 +113,10 @@
 }
 
 /* Until it is drawn: neither an empty box on screen nor an unnamed image for screen readers. */
+.thumbnail:has(canvas[hidden]) {
+    min-height: 0;
+}
+
 .thumbnail canvas[hidden] {
     display: none;
 }

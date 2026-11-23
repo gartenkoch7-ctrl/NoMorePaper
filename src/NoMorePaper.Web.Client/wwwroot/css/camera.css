@@ -1,0 +1,56 @@
+/* Page "Kamera" (Stitch 13), M4u Spur E: picture frame, hints, buttons. */
+
+.camera-stage {
+    margin: var(--nmp-space-md) 0;
+    max-width: 48rem;
+    border: 3px solid var(--nmp-primary);
+}
+
+.camera-stage video {
+    display: block;
+    width: 100%;
+    max-height: 60vh;
+    object-fit: contain;
+    background: #000;
+}
+
+.camera-hint {
+    display: flex;
+    align-items: center;
+    gap: var(--nmp-space-sm);
+    margin: var(--nmp-space-md) 0;
+    padding: var(--nmp-space-md);
+    background-color: var(--nmp-elevated-high);
+    border-radius: var(--nmp-radius);
+    font-size: 1rem;
+    line-height: 1.625rem;
+}
+
+.camera-actions .nmp-button {
+    min-height: 44px;
+}
+
+@media (max-width: 48rem) {
+    .camera-actions {
+        flex-direction: column;
+    }
+
+    .camera-actions .nmp-button {
+        width: 100%;
+    }
+}
+
+.camera-start {
+    margin-bottom: var(--nmp-space-lg);
+}
+
+/* Between the tone option and the privacy switch; the hint lines up with the label, not the checkbox. */
+.capture-options .form-hint {
+    padding-inline-start: 1.75rem;
+}
+
+.capture-options .form-hint + * {
+    padding-top: var(--nmp-space-md);
+    border-top: 1px solid var(--nmp-border);
+}
+

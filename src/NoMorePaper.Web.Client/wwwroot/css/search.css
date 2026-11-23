@@ -63,3 +63,10 @@
         grid-template-columns: 1fr;
     }
 }
+
+/* Below this width the card needs the room; the thumbnail is only a hint. */
+@media (max-width: 30rem) {
+    .search-hit .thumbnail {
+        display: none;
+    }
+}

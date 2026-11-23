@@ -21,8 +21,9 @@
     }
     else
     {
+        <div class="table-scroll" role="region" aria-labelledby="@(Prefix)-caption" tabindex="0">
         <table class="doc-table" data-ready>
-            <caption>@L["ListsCaption", Heading]</caption>
+            <caption id="@(Prefix)-caption">@L["ListsCaption", Heading]</caption>
             <thead>
                 <tr>
                     <th scope="col">@L["ColName"]</th>
@@ -50,6 +51,7 @@
                 }
             </tbody>
         </table>
+        </div>
         <div class="list-footer">
             <p class="list-selected">@L["ListsSelectedCount", _selected.Count]</p>
             <button type="button" id="@(Prefix)-merge" class="nmp-button" @onclick="AskMerge">@L["ListsMerge"]</button>
