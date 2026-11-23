@@ -8,8 +8,8 @@ namespace NoMorePaper.Infrastructure.Recognition;
 /// </summary>
 internal static partial class SeparationAssessorLog
 {
-    [LoggerMessage(EventId = 3990, Level = LogLevel.Information, Message = "Model read {Pages} pages of a stack after {ElapsedMs} ms and found {Boundaries} boundaries")]
-    public static partial void StackAssessed(this ILogger logger, int pages, long elapsedMs, int boundaries);
+    [LoggerMessage(EventId = 3990, Level = LogLevel.Information, Message = "Model read {Pages} pages of a stack ({PromptEvalCount} prompt tokens) after {ElapsedMs} ms and found {Boundaries} boundaries")]
+    public static partial void StackAssessed(this ILogger logger, int pages, int promptEvalCount, long elapsedMs, int boundaries);
 
     [LoggerMessage(EventId = 3991, Level = LogLevel.Warning, Message = "The model named {Dropped} boundaries outside the stack or twice; they were dropped")]
     public static partial void BoundariesDropped(this ILogger logger, int dropped);

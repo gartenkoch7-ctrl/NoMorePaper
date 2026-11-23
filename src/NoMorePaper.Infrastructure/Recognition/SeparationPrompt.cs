@@ -11,7 +11,17 @@ namespace NoMorePaper.Infrastructure.Recognition;
 public static class SeparationPrompt
 {
     /// <summary>Pages the model reads at most; a longer stack is separated by the page signs beyond them.</summary>
-    public const int MaxPages = 30;
+    /// <remarks>
+    /// With <see cref="MaxHeadLength"/> the request stays within the context shared with recognition (4 096
+    /// tokens, of them 600 for the answer) even for text of only 2 characters per token; German has more.
+    /// </remarks>
+    public const int MaxPages = 15;
+
+    /// <summary>
+    /// Characters of each page's start the model reads: the letterhead and the sender stand at the top. The
+    /// page signs read the whole stored start (<see cref="PageInfo.MaxHeadLength"/>).
+    /// </summary>
+    public const int MaxHeadLength = 160;
 
     /// <summary>Rules for all stacks, with <c>\n</c> line ends whatever the source file has.</summary>
     public static string System { get; } = Rules.Replace("\r\n", "\n", StringComparison.Ordinal);
@@ -40,7 +50,7 @@ public static class SeparationPrompt
                 text.Append(" (vermutlich leer)");
             }
 
-            var head = page.Head.Length > PageInfo.MaxHeadLength ? page.Head[..PageInfo.MaxHeadLength] : page.Head;
+            var head = page.Head.Length > MaxHeadLength ? page.Head[..MaxHeadLength] : page.Head;
             text.Append(":\n<<<\n").Append(head.Replace("\r\n", "\n", StringComparison.Ordinal).Trim()).Append("\n>>>\n");
         }
 

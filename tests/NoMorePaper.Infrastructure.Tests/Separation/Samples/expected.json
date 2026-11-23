@@ -12,6 +12,7 @@
     "stack-09.json": { "boundaries": [3], "senderOnly": [] },
     "stack-10.json": { "boundaries": [4, 5], "senderOnly": [5] },
     "stack-11.json": { "boundaries": [3], "senderOnly": [] },
-    "stack-12.json": { "boundaries": [2, 3, 4, 5], "senderOnly": [3, 5] }
+    "stack-12.json": { "boundaries": [2, 3, 4, 5], "senderOnly": [3, 5] },
+    "stack-13.json": { "boundaries": [3, 7, 9], "senderOnly": [7] }
   }
 }

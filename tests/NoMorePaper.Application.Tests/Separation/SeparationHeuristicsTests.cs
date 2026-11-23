@@ -12,6 +12,8 @@ public sealed class SeparationHeuristicsTests
 
     private const string Continued = "der Betrag wird am 15.11.2026 von Ihrem Konto abgebucht. Bei Fragen erreichen Sie uns";
 
+    private const string Receipt = "Apotheke am Markt\nBeleg-Nr. 4711\nSumme 12,80 EUR";
+
     [Fact]
     public void IsScannedStack_NeedsSeveralPages_WithoutTextLayer()
     {
@@ -78,12 +80,42 @@ public sealed class SeparationHeuristicsTests
     }
 
     [Fact]
+    public void Find_InAMixedDuplexScan_ABlankEvenPage_SeparatesOnlyWithAnotherSign()
+    {
+        // Two-sided letter, one-sided two-sheet letter, one-sided receipt, two-sided letter.
+        var candidates = SeparationHeuristics.Find(
+        [
+            Page(1, Letter), Page(2, Continued), Page(3, Letter), Blank(4), Page(5, Continued), Blank(6),
+            Page(7, Receipt), Blank(8), Page(9, "Kita Sonnenschein\nGuten Tag Frau Muster,"), Page(10, Continued),
+        ]);
+
+        Assert.Equal(
+            [(1, SplitReason.Salutation), (3, SplitReason.Salutation), (9, SplitReason.Salutation)],
+            candidates.Starts.OrderBy(start => start.Key).Select(start => (start.Key, start.Value)));
+        Assert.Equal([4, 6, 8], candidates.BlankPages);
+        Assert.Equal([3, 9], Firsts(candidates.ToSuggestion([])));
+        Assert.Equal([3, 7, 9], Firsts(candidates.ToSuggestion([7])));
+    }
+
+    [Fact]
+    public void Find_ReadsBlankPages_AsSeparators_OnceOneIsAFrontSide()
+    {
+        var candidates = SeparationHeuristics.Find([Page(1, Letter), Blank(2), Page(3, Receipt), Page(4, Continued), Blank(5), Page(6, Receipt)]);
+
+        Assert.Equal(
+            [(1, SplitReason.Salutation), (3, SplitReason.Blank), (6, SplitReason.Blank)],
+            candidates.Starts.OrderBy(start => start.Key).Select(start => (start.Key, start.Value)));
+    }
+
+    [Fact]
     public void Find_OrdersThePages_ByNumber()
     {
         var candidates = SeparationHeuristics.Find([Page(3, Letter), Page(1, Letter), Page(2, Continued)]);
 
         Assert.Equal([1, 3], candidates.Starts.Keys.Order());
     }
+
+    private static int[] Firsts(SplitSuggestion? suggestion) => suggestion is null ? [] : [.. suggestion.Parts.Skip(1).Select(part => part.First)];
 
     private static PageInfo Page(int number, string head) => new(number, head, ProbablyBlank: false, HadTextLayer: false);
 

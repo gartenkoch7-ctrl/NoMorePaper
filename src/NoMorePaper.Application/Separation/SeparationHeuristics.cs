@@ -32,9 +32,12 @@ public static partial class SeparationHeuristics
         var starts = new Dictionary<int, SplitReason>();
         var continuations = new HashSet<int>();
 
-        // An empty back side says nothing about where a document ends; a blank page only separates
-        // when the stack is not a duplex scan of one-sided pages.
-        var blankSeparates = !IsDuplexOfOneSidedPages(ordered);
+        // An empty back side says nothing about where a document ends. With blank pages on even pages only,
+        // the stack is probably a duplex scan, whose blanks are back sides of one-sided sheets (all or some
+        // of them, when two-sided sheets are mixed in): a blank page is no sign there, and a document after
+        // it starts only where another sign shows (counter, salutation, the LLM's sender change). A blank
+        // odd page is a front side, so the stack holds separator sheets.
+        var blankSeparates = blank.Exists(page => page % 2 == 1);
         var afterBlank = false;
         foreach (var page in ordered)
         {
@@ -97,10 +100,6 @@ public static partial class SeparationHeuristics
         ArgumentNullException.ThrowIfNull(head);
         return Salutation().IsMatch(head);
     }
-
-    // Every even page blank and no odd one: the fronts of one-sided pages, scanned on both sides.
-    private static bool IsDuplexOfOneSidedPages(List<PageInfo> pages) =>
-        pages.Count % 2 == 0 && pages.All(page => page.ProbablyBlank == (page.Page % 2 == 0));
 
     // A bare "2/3" counts only alone on its line, so dates (1/3/2026) and fractions in text do not.
     [GeneratedRegex(

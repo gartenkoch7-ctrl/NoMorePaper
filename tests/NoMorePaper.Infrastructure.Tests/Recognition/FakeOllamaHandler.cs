@@ -11,14 +11,14 @@ internal sealed class FakeOllamaHandler : HttpMessageHandler
 
     public List<(string Path, JsonNode Body)> Requests { get; } = [];
 
-    public static string ChatAnswer(string content, string doneReason = "stop") => new JsonObject
+    public static string ChatAnswer(string content, string doneReason = "stop", int promptEvalCount = 912) => new JsonObject
     {
         ["model"] = "ministral-3:8b-instruct-2512-q4_K_M",
         ["message"] = new JsonObject { ["role"] = "assistant", ["content"] = content },
         ["done"] = true,
         ["done_reason"] = doneReason,
         ["load_duration"] = 7_000_000_000L,
-        ["prompt_eval_count"] = 912,
+        ["prompt_eval_count"] = promptEvalCount,
         ["eval_count"] = 151,
     }.ToJsonString();
 

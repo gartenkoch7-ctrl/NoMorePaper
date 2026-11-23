@@ -43,11 +43,29 @@ public sealed class AnswerSplitSuggestionTests
     {
         var document = Stack(_current.Id);
         _splitter.Outcome = refusal;
+        SplitSuggestion? whileAsked = null;
+        _splitter.WhileAsked = () => whileAsked = document.SplitSuggestion;
 
         Assert.Equal(ChangeOutcome.Conflict, await Answer().AcceptAsync(document.Id, Ct));
 
+        Assert.Equal(s_suggestion, whileAsked);
         Assert.Equal(s_suggestion, document.SplitSuggestion);
         Assert.Equal(0, _documents.Saves);
+        Assert.DoesNotContain(5710, _log.EventIds);
+    }
+
+    [Fact]
+    public async Task Accept_EndsTheSuggestion_OnlyAfterTheSplitIsQueued()
+    {
+        var document = Stack(_current.Id);
+        SplitSuggestion? whileAsked = null;
+        _splitter.WhileAsked = () => whileAsked = document.SplitSuggestion;
+
+        Assert.Equal(ChangeOutcome.Changed, await Answer().AcceptAsync(document.Id, Ct));
+
+        Assert.Equal(s_suggestion, whileAsked);
+        Assert.Null(document.SplitSuggestion);
+        Assert.Equal(1, _documents.Saves);
     }
 
     [Fact]

@@ -34,7 +34,7 @@ public sealed class OllamaSeparationAssessor(
         // Waiting for other requests must end while the job's lock still covers a whole request.
         using var lease = await gate.EnterAsync(LlmPriority.Recognition, OllamaRecognizer.MaxWait(settings), cancellationToken).ConfigureAwait(false);
         var started = time.GetTimestamp();
-        var content = await AskAsync(Request(asked), cancellationToken).ConfigureAwait(false);
+        var (content, promptCount) = await AskAsync(Request(asked), cancellationToken).ConfigureAwait(false);
         var assessment = SeparationAnswer.Parse(content, asked.Count, out var dropped);
         if (dropped > 0)
         {
@@ -42,13 +42,17 @@ public sealed class OllamaSeparationAssessor(
         }
 
         var elapsedMs = (long)time.GetElapsedTime(started).TotalMilliseconds;
-        logger.StackAssessed(asked.Count, elapsedMs, assessment.Boundaries.Count);
+        logger.StackAssessed(asked.Count, promptCount, elapsedMs, assessment.Boundaries.Count);
         return assessment;
     }
 
     public void Dispose() => http.Dispose();
 
-    private async Task<string> AskAsync(JsonObject body, CancellationToken cancellationToken)
+    // Only for the log and the context check: a missing or odd value never fails an otherwise good answer.
+    private static int PromptCount(JsonElement root) =>
+        root.TryGetProperty("prompt_eval_count", out var value) && value.ValueKind == JsonValueKind.Number && value.TryGetInt32(out var count) ? count : 0;
+
+    private async Task<(string Content, int PromptCount)> AskAsync(JsonObject body, CancellationToken cancellationToken)
     {
         using var timeout = new CancellationTokenSource(settings.Timeout, time);
         using var linked = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, timeout.Token);
@@ -75,7 +79,16 @@ public sealed class OllamaSeparationAssessor(
                 throw new InvalidDataException("The answer of the model is incomplete.");
             }
 
-            return content.GetString() ?? string.Empty;
+            var promptCount = PromptCount(root);
+            if (promptCount + AnswerTokens > OllamaRecognizer.ContextTokens)
+            {
+                // Ollama cuts a too long input silently from its start, rules included; such an answer is no
+                // assessment of the stack, so only the page signs count.
+                logger.ContextFull(promptCount, OllamaRecognizer.ContextTokens);
+                throw new InvalidDataException("The stack did not fit into the context of the model.");
+            }
+
+            return (content.GetString() ?? string.Empty, promptCount);
         }
         catch (HttpRequestException exception)
         {

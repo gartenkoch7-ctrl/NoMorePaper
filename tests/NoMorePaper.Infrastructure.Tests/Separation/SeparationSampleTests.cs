@@ -3,15 +3,15 @@ using Xunit;
 
 namespace NoMorePaper.Infrastructure.Tests.Separation;
 
-/// <summary>The page signs alone on the 12 sample stacks: every boundary they can see, and no other.</summary>
+/// <summary>The page signs alone on the 13 sample stacks: every boundary they can see, and no other.</summary>
 public sealed class SeparationSampleTests
 {
     [Fact]
-    public void TheSamples_AreTwelveScannedStacks()
+    public void TheSamples_AreThirteenScannedStacks()
     {
         var samples = SeparationSamples.Load();
 
-        Assert.Equal(12, samples.Count);
+        Assert.Equal(13, samples.Count);
         Assert.All(samples, sample => Assert.True(SeparationHeuristics.IsScannedStack(sample.Pages), sample.Name));
         Assert.All(samples, sample => Assert.Subset(sample.Boundaries.ToHashSet(), sample.SenderOnly.ToHashSet()));
     }

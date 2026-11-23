@@ -5,7 +5,7 @@ using NoMorePaper.Domain.Editing;
 namespace NoMorePaper.Infrastructure.Tests.Separation;
 
 /// <summary>
-/// The 12 self-made scanned stacks of <c>Separation/Samples</c> as page starts, with their known boundaries
+/// The 13 self-made scanned stacks of <c>Separation/Samples</c> as page starts, with their known boundaries
 /// (<c>expected.json</c>); the same set for the page signs alone and for the measurement with a real Ollama.
 /// </summary>
 internal static class SeparationSamples

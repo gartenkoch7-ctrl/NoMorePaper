@@ -11,9 +11,13 @@ internal sealed class RecordingSplitRequester : ISplitRequester
 
     public List<(Guid Id, SplitPlan Plan)> Requests { get; } = [];
 
+    /// <summary>Runs while the split is asked for, to see the state the split would save with.</summary>
+    public Action? WhileAsked { get; set; }
+
     public Task<ChangeOutcome> RequestAsync(Guid id, SplitPlan plan, CancellationToken cancellationToken)
     {
         Requests.Add((id, plan));
+        WhileAsked?.Invoke();
         return Task.FromResult(Outcome);
     }
 }

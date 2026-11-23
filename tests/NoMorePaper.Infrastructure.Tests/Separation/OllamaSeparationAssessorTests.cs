@@ -1,4 +1,5 @@
 using System.Net;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using NoMorePaper.Application.Editing;
 using NoMorePaper.Application.Recognition;
@@ -49,17 +50,39 @@ public sealed class OllamaSeparationAssessorTests : IDisposable
     }
 
     [Fact]
-    public async Task Assess_AsksAboutThirtyPagesAtMost()
+    public async Task ALongStack_IsAskedAboutWithinTheContext_AndThePromptTokensAreLogged()
     {
-        var pages = Enumerable.Range(1, 40).Select(page => new PageInfo(page, "Seite " + page, false, false)).ToList();
-        _ollama.Reply(HttpStatusCode.OK, FakeOllamaHandler.ChatAnswer("""{"senders":[],"boundaries":[30,31]}"""));
+        var head = string.Concat(Enumerable.Repeat("Stadtwerke München GmbH · Emmy-Noether-Straße 2 · 80992 München\n", 5))[..PageInfo.MaxHeadLength];
+        var pages = Enumerable.Range(1, 40).Select(page => new PageInfo(page, head, false, false)).ToList();
+        _ollama.Reply(HttpStatusCode.OK, FakeOllamaHandler.ChatAnswer($$"""{"senders":[],"boundaries":[{{SeparationPrompt.MaxPages}},{{SeparationPrompt.MaxPages + 1}}]}"""));
+        var log = new RecordingLogger<OllamaSeparationAssessor>();
 
-        var answer = await Assessor().AssessAsync(pages, Ct);
+        var answer = await Assessor(logger: log).AssessAsync(pages, Ct);
 
-        Assert.Equal([30], answer.Boundaries);
-        var user = (string?)_ollama.Requests[0].Body["messages"]![1]!["content"];
-        Assert.Contains("Seite 30:", user, StringComparison.Ordinal);
-        Assert.DoesNotContain("Seite 31:", user, StringComparison.Ordinal);
+        Assert.Equal([SeparationPrompt.MaxPages], answer.Boundaries);
+        var messages = _ollama.Requests[0].Body["messages"]!;
+        var user = (string)messages[1]!["content"]!;
+        Assert.Contains($"Seite {SeparationPrompt.MaxPages}:", user, StringComparison.Ordinal);
+        Assert.DoesNotContain($"Seite {SeparationPrompt.MaxPages + 1}:", user, StringComparison.Ordinal);
+        Assert.DoesNotContain(head[..(SeparationPrompt.MaxHeadLength + 1)], user, StringComparison.Ordinal);
+
+        // Fits even at 2 characters per token, far fewer than German text has.
+        var promptChars = ((string)messages[0]!["content"]!).Length + user.Length;
+        Assert.True(promptChars <= 2 * (OllamaRecognizer.ContextTokens - OllamaSeparationAssessor.AnswerTokens), $"{promptChars} characters");
+        Assert.Equal([3992, 3991, 3990], log.EventIds);
+        Assert.Contains("(912 prompt tokens)", log.Messages.Last(), StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public async Task AnAnswerAfterACutInput_FailsTheRequest()
+    {
+        var full = OllamaRecognizer.ContextTokens - OllamaSeparationAssessor.AnswerTokens + 1;
+        _ollama.Reply(HttpStatusCode.OK, FakeOllamaHandler.ChatAnswer("""{"senders":[],"boundaries":[3]}""", promptEvalCount: full));
+        var log = new RecordingLogger<OllamaSeparationAssessor>();
+
+        await Assert.ThrowsAsync<InvalidDataException>(() => Assessor(logger: log).AssessAsync(s_stack, Ct));
+
+        Assert.Equal([3528], log.EventIds);
     }
 
     [Theory]
@@ -126,8 +149,13 @@ public sealed class OllamaSeparationAssessorTests : IDisposable
         Assert.Empty(_ollama.Requests);
     }
 
-    private OllamaSeparationAssessor Assessor(OllamaSettings? settings = null) =>
-        new(new HttpClient(_ollama, disposeHandler: false) { BaseAddress = s_settings.Endpoint }, settings ?? s_settings, new LlmGate(TimeProvider.System, NullLogger<LlmGate>.Instance), TimeProvider.System, NullLogger<OllamaSeparationAssessor>.Instance);
+    private OllamaSeparationAssessor Assessor(OllamaSettings? settings = null, ILogger<OllamaSeparationAssessor>? logger = null) =>
+        new(
+            new HttpClient(_ollama, disposeHandler: false) { BaseAddress = s_settings.Endpoint },
+            settings ?? s_settings,
+            new LlmGate(TimeProvider.System, NullLogger<LlmGate>.Instance),
+            TimeProvider.System,
+            logger ?? NullLogger<OllamaSeparationAssessor>.Instance);
 
     // The gate's wait passes at once: timers of this provider fire after 10 ms.
     private sealed class ShortWait : TimeProvider

@@ -40,20 +40,18 @@ public sealed class AnswerSplitSuggestion(
             return ChangeOutcome.Conflict;
         }
 
-        // Dropped before the split is queued, so the document leaves "to review" in the same commit; a
-        // refused split saves nothing, and the suggestion stays.
+        // The suggestion is left untouched while the split is asked for: a refused split changes nothing.
         var plan = suggestion.ToPlan();
-        document.DismissSplit();
         var split = await splitter.RequestAsync(id, plan, cancellationToken).ConfigureAwait(false);
         if (split != ChangeOutcome.Changed)
         {
-            document.SuggestSplit(suggestion);
-
             // The plan comes from the stored suggestion, not from the request: when it does not fit, the
             // document changed since (pages edited), which is a conflict, not a bad request.
             return split == ChangeOutcome.Invalid ? ChangeOutcome.Conflict : split;
         }
 
+        // Saved in the same transaction as the queued split, so the document leaves "to review" with it.
+        document.DismissSplit();
         await documents.SaveAsync(cancellationToken).ConfigureAwait(false);
         logger.SplitAccepted(current.Id, id, plan.Parts.Count);
         return ChangeOutcome.Changed;

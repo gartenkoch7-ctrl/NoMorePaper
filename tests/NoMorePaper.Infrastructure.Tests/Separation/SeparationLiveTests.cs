@@ -7,7 +7,8 @@ using Xunit;
 namespace NoMorePaper.Infrastructure.Tests.Separation;
 
 /// <summary>
-/// The measurement of the stack separation (goal: at least 80 % of the boundaries of the 12 sample stacks)
+/// The measurement of the stack separation (goal: at least 80 % of the boundaries of the 13 sample stacks,
+/// and wrong boundaries at most a fifth of the expected ones)
 /// against a real Ollama with the model already loaded, only when <c>NOMOREPAPER_TEST_OLLAMA</c> names its
 /// address; skipped otherwise, also in CI. Never downloads the model.
 /// </summary>
@@ -18,7 +19,7 @@ public sealed class SeparationLiveTests
     private static CancellationToken Ct => TestContext.Current.CancellationToken;
 
     [Fact]
-    public async Task TheSamples_AreSeparated_AtLeastEightyPercentRight()
+    public async Task TheSamples_AreSeparated_EightyPercentFound_AndFewWrong()
     {
         var endpoint = Environment.GetEnvironmentVariable(EndpointVariable);
         Assert.SkipWhen(string.IsNullOrWhiteSpace(endpoint), $"Set {EndpointVariable} to run against a real Ollama.");
@@ -42,9 +43,14 @@ public sealed class SeparationLiveTests
                 $"{sample.Name}: expected {string.Join(",", sample.Boundaries)}, found {string.Join(",", found)}, model {string.Join(",", assessment.Boundaries)}");
         }
 
-        var share = (double)right / expected;
-        TestContext.Current.SendDiagnosticMessage(
-            string.Create(CultureInfo.InvariantCulture, $"{right} of {expected} boundaries right ({share:P0}), {wrong} wrong"));
-        Assert.True(share >= 0.8, string.Create(CultureInfo.InvariantCulture, $"Only {share:P0} of the boundaries were found ({wrong} wrong)."));
+        // A wrong boundary costs the user as much as a missed one: both need a correction in "to review".
+        var recall = (double)right / expected;
+        var precision = right + wrong == 0 ? 1 : (double)right / (right + wrong);
+        var f1 = recall + precision == 0 ? 0 : 2 * recall * precision / (recall + precision);
+        var summary = string.Create(
+            CultureInfo.InvariantCulture, $"{right} of {expected} boundaries right ({recall:P0}), {wrong} wrong (precision {precision:P0}, F1 {f1:F2})");
+        TestContext.Current.SendDiagnosticMessage(summary);
+        Assert.True(recall >= 0.8, "Too few boundaries found: " + summary);
+        Assert.True(wrong <= 0.2 * expected, "Too many wrong boundaries: " + summary);
     }
 }
