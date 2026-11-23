@@ -1872,4 +1872,52 @@
   <data name="ViewerFullscreenFailed" xml:space="preserve">
     <value>Full screen is not possible here.</value>
   </data>
+  <data name="HomeGreeting" xml:space="preserve">
+    <value>Hello, {0}</value>
+  </data>
+  <data name="StartReviewUnknown" xml:space="preserve">
+    <value>The number of documents waiting could not be loaded.</value>
+  </data>
+  <data name="StartReviewOpen" xml:space="preserve">
+    <value>Review now</value>
+  </data>
+  <data name="StartRecentHeading" xml:space="preserve">
+    <value>Recently added</value>
+  </data>
+  <data name="StartRecentCaption" xml:space="preserve">
+    <value>The five documents received last</value>
+  </data>
+  <data name="StartRecentAll" xml:space="preserve">
+    <value>Show all documents</value>
+  </data>
+  <data name="StartRecentEmpty" xml:space="preserve">
+    <value>No documents yet. Upload a file or take a sheet with the camera.</value>
+  </data>
+  <data name="StartRecentError" xml:space="preserve">
+    <value>The recently added documents could not be loaded: {0}</value>
+  </data>
+  <data name="StartInputsError" xml:space="preserve">
+    <value>The state of the inputs could not be loaded: {0}</value>
+  </data>
+  <data name="StartInputProblemFor" xml:space="preserve">
+    <value>{0}: {1}.</value>
+  </data>
+  <data name="StartInputOpen" xml:space="preserve">
+    <value>Open input {0}</value>
+  </data>
+  <data name="StartInputsAll" xml:space="preserve">
+    <value>Show all inputs</value>
+  </data>
+  <data name="StartActionsHeading" xml:space="preserve">
+    <value>Add a document</value>
+  </data>
+  <data name="StartUpload" xml:space="preserve">
+    <value>Upload a file</value>
+  </data>
+  <data name="StartCamera" xml:space="preserve">
+    <value>Take with the camera</value>
+  </data>
+  <data name="SearchResultsLabel" xml:space="preserve">
+    <value>Search results</value>
+  </data>
 </root>
