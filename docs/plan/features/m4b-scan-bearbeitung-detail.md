@@ -5,7 +5,7 @@ Gehört zu [m4b-scan-bearbeitung.md](../m4b-scan-bearbeitung.md). Regeln: [AGENT
 [M4u Spur E](m4u-e-rest-detail.md).
 
 **Erstellt von:** Opus (Stufe 3) · **Datum:** 2026-11-19 · **Aufgefrischt:** 2026-11-23 (nach M3, M4, M4u; Stand
-`develop` `a95ed00`) · **Offene Designfragen:** F1, F2 in der Meilensteindatei (betreffen nur P1 bzw. P2b)
+`develop` `a95ed00`) · **Offene Designfragen:** keine (F1, F2 vom Nutzer 2026-11-23 wie empfohlen beantwortet: Nachlauf ja, `NavigationLock` ja)
 
 Grundlagen der Oberfläche: freigegebene Entwürfe [14](../../ui/stitch/14-seiten-bearbeiten/notizen.md),
 [15](../../ui/stitch/15-papierkorb/notizen.md), [16](../../ui/stitch/16-fassungen/notizen.md). **Anforderung** sind dort

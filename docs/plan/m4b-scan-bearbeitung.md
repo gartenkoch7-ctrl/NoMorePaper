@@ -156,7 +156,8 @@ Eigene Datei: [features/m4b-scan-bearbeitung-detail.md](features/m4b-scan-bearbe
 
 ## Offene Fragen / Risiken
 
-**Fragen an den Nutzer** (je mit Empfehlung; alles andere entscheiden Plan, ADRs, Entwürfe und Code):
+**Fragen an den Nutzer** (je mit Empfehlung; alles andere entscheiden Plan, ADRs, Entwürfe und Code).
+**Beantwortet 2026-11-23: F1 und F2 wie empfohlen** (Seitentexte nachholen; `NavigationLock` mit Rückfrage).
 
 | Nr. | Frage | Empfehlung | Bei der anderen Antwort |
 |---|---|---|---|
