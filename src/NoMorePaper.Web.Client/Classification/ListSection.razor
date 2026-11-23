@@ -1,6 +1,6 @@
 @* One maintained list (correspondents, document types or tags) on the page "Listen": rename an
-   entry, or select several and merge them. Both ask in a group on the page, not in a modal dialog:
-   the safe choice comes first and takes focus, and Escape cancels. *@
+   entry, or select several and merge them. Both ask in a ConfirmBox on the page, not in a modal dialog:
+   the heading takes focus (rename: the name field), "Abbrechen" comes first, and Escape cancels. *@
 <section class="list-section" aria-labelledby="@Prefix-heading">
     <MudText Typo="Typo.h2" id="@(Prefix + "-heading")">@Heading</MudText>
     <LiveRegion @ref="_status" />
@@ -12,10 +12,7 @@
     }
     else if (_loadError is not null)
     {
-        <div role="alert" class="error-box" data-ready>
-            <MudIcon Icon="@Icons.Material.Filled.Error" />
-            <span>@L["ListsLoadError", _loadError]</span>
-        </div>
+        <div data-ready><NoticeBox Kind="NoticeKind.Error" Announce="true" Message="@L["ListsLoadError", _loadError]" /></div>
         <button type="button" class="nmp-button" @onclick="LoadAsync">@L["Retry"]</button>
     }
     else if (_entries.Length == 0)
@@ -44,37 +41,39 @@
                         </td>
                         <td>
                             <button type="button" id="@RowId("rename", entry)" class="nmp-button" aria-label="@L["ListsRenameFor", entry.Name]"
-                                    @onclick="() => AskRename(entry)">@L["ListsRename"]</button>
+                                    @onclick="() => AskRename(entry)">
+                                <MudIcon Icon="@Icons.Material.Filled.Edit" aria-hidden="true" />
+                                <span>@L["ListsRename"]</span>
+                            </button>
                         </td>
                     </tr>
                 }
             </tbody>
         </table>
-        <p class="list-selected">@L["ListsSelectedCount", _selected.Count]</p>
-        <button type="button" id="@(Prefix)-merge" class="nmp-button" @onclick="AskMerge">@L["ListsMerge"]</button>
+        <div class="list-footer">
+            <p class="list-selected">@L["ListsSelectedCount", _selected.Count]</p>
+            <button type="button" id="@(Prefix)-merge" class="nmp-button" @onclick="AskMerge">@L["ListsMerge"]</button>
+        </div>
     }
 
     @if (_renaming is not null)
     {
-        <section class="confirm-box" role="group" aria-labelledby="@Prefix-rename-heading" @onkeydown="OnRenameKey">
-            <MudText Typo="Typo.h3" id="@(Prefix + "-rename-heading")">@L["ListsRenameHeading", _renaming.Name]</MudText>
+        <ConfirmBox Id="@(Prefix + "-rename")" HeadingLevel="3" Title="@L["ListsRenameHeading", _renaming.Name]"
+                    ConfirmLabel="@L["ListsRenameConfirm"]" PrimaryConfirm="true" InitialFocusId="@(Prefix + "-rename-input")"
+                    OnConfirm="RenameAsync" OnCancel="CancelRename">
             <div class="form-field">
                 <label for="@Prefix-rename-input">@L["ListsNewName"]</label>
                 <input id="@Prefix-rename-input" class="form-input" type="text" maxlength="200" autocomplete="off"
-                       @bind="_newName" @bind:event="oninput" />
+                       @bind="_newName" @bind:event="oninput" @onkeydown="OnRenameInputKey" />
             </div>
-            <div class="button-row">
-                <button type="button" class="nmp-button" @onclick="CancelRename">@L["Cancel"]</button>
-                <button type="button" class="nmp-button" @onclick="RenameAsync">@L["ListsRenameConfirm"]</button>
-            </div>
-        </section>
+        </ConfirmBox>
     }
 
     @if (_merging)
     {
-        <section class="confirm-box" role="group" aria-labelledby="@Prefix-merge-heading" @onkeydown="OnMergeKey">
-            <MudText Typo="Typo.h3" id="@(Prefix + "-merge-heading")">@L["ListsMergeQuestion", _selected.Count]</MudText>
-            <p>@L["ListsMergeExplain"]</p>
+        <ConfirmBox Id="@(Prefix + "-merge-box")" HeadingLevel="3" Title="@L["ListsMergeQuestion", _selected.Count]"
+                    Text="@L["ListsMergeExplain"]" ConfirmLabel="@L["ListsMergeConfirm"]"
+                    OnConfirm="MergeAsync" OnCancel="CancelMerge">
             <div class="form-field">
                 <label for="@Prefix-merge-target">@L["ListsMergeTarget"]</label>
                 <select id="@Prefix-merge-target" class="form-input" @bind="_target">
@@ -84,10 +83,6 @@
                     }
                 </select>
             </div>
-            <div class="button-row">
-                <button type="button" id="@(Prefix)-merge-cancel" class="nmp-button" @onclick="CancelMerge">@L["Cancel"]</button>
-                <button type="button" class="nmp-button" @onclick="MergeAsync">@L["ListsMergeConfirm"]</button>
-            </div>
-        </section>
+        </ConfirmBox>
     }
 </section>

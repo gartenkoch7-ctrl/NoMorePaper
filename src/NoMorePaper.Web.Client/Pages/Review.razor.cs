@@ -1,6 +1,4 @@
-using System.Globalization;
 using Microsoft.AspNetCore.Components;
-using Microsoft.AspNetCore.Components.Web;
 using Microsoft.Extensions.Localization;
 using Microsoft.Extensions.Logging;
 using Microsoft.JSInterop;
@@ -74,10 +72,6 @@ public sealed partial class Review
 
     private string CountText(int count) => count == 1 ? L["ReviewCountOne"] : L["ReviewCount", count];
 
-    private static string Received(DateTimeOffset at) => at.ToLocalTime().ToString("g", CultureInfo.CurrentCulture);
-
-    private string Date(DateOnly? date) => date is { } value ? FieldFormat.Date(value, CultureInfo.CurrentCulture) : L["ClsNoValue"];
-
     private async Task ConfirmAsync(ReviewItemDto item)
     {
         var result = await Api.ConfirmAsync(item.Id, item.Fields.Recognition);
@@ -145,8 +139,8 @@ public sealed partial class Review
 
     private void AskDelete(ReviewItemDto item)
     {
+        // The ConfirmBox takes focus itself (heading first, so the screen reader reads the question).
         _deleting = item;
-        _focus.On("review-cancel");
     }
 
     private void CancelDelete()
@@ -157,14 +151,6 @@ public sealed partial class Review
         }
 
         _deleting = null;
-    }
-
-    private void OnConfirmKey(KeyboardEventArgs args)
-    {
-        if (args.Key == "Escape")
-        {
-            CancelDelete();
-        }
     }
 
     private async Task DeleteAsync()

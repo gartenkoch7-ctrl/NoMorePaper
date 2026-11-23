@@ -1,1 +1,77 @@
 /* Page "Zu prüfen" (Stitch 06), M4u Spur E. */
+
+.review-summary {
+    max-width: 56rem;
+}
+
+.review-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--nmp-space-lg);
+    max-width: 56rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.review-item {
+    padding: var(--nmp-space-lg);
+    background: var(--nmp-surface-container);
+    border-radius: var(--nmp-radius-lg);
+}
+
+.review-item .fields-recognition {
+    margin: var(--nmp-space-sm) 0 var(--nmp-space-md);
+}
+
+.review-item .button-row {
+    margin-top: var(--nmp-space-md);
+}
+
+.review-fields {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--nmp-space-md) var(--nmp-space-lg);
+    margin: var(--nmp-space-md) 0;
+}
+
+.review-fields dt {
+    color: var(--nmp-outline);
+    font-family: var(--nmp-font-mono);
+    font-size: 0.6875rem;
+    font-weight: 400;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+}
+
+.review-fields dd {
+    margin: var(--nmp-space-xs) 0 0;
+}
+
+@media (min-width: 48rem) {
+    .review-fields {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+.review-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--nmp-space-xs);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.review-duplicate {
+    margin: var(--nmp-space-md) 0;
+    padding: var(--nmp-space-md);
+    background: var(--nmp-paper-low);
+    border-radius: var(--nmp-radius);
+}
+
+.review-duplicate h3 {
+    display: flex;
+    align-items: center;
+    gap: var(--nmp-space-sm);
+}
