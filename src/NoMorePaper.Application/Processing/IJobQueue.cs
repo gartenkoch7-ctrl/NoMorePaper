@@ -68,6 +68,14 @@ public interface IJobQueue
     Task<bool> CancelAsync(Guid documentId, CancellationToken cancellationToken);
 
     /// <summary>
+    /// Queues the OCR of a document that was not done yet (queued or being processed) when it went to the
+    /// trash and lost its job, due at once with priority 0. Does nothing for a document that is done, failed,
+    /// in the trash or has a job. Joins the caller's open transaction, after the tracked changes are written.
+    /// </summary>
+    /// <returns>Whether a job was queued.</returns>
+    Task<bool> RequeueOcrAsync(Guid documentId, CancellationToken cancellationToken);
+
+    /// <summary>
     /// Records a failed attempt: schedules the next one after the <see cref="RetryPolicy"/> delay,
     /// or, when all attempts are used up or the failure is permanent, removes the job. A job given up
     /// at <see cref="JobStage.Ocr"/> marks the document as failed; at <see cref="JobStage.Recognition"/>

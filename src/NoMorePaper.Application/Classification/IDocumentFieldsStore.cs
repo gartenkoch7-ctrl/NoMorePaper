@@ -12,7 +12,9 @@ public interface IDocumentFieldsStore
 {
     /// <summary>
     /// The document with its tags and editors, tracked for <see cref="SaveAsync"/>. It stays locked against
-    /// the Worker finishing a recognition until <see cref="SaveAsync"/> (or until the scope ends).
+    /// the Worker finishing a recognition until <see cref="SaveAsync"/> (or until the scope ends). A change
+    /// another store of the scope opened (e.g. <see cref="Trash.ITrashStore.FindLockedAsync"/>) is joined, and
+    /// that store commits it.
     /// </summary>
     /// <returns><c>null</c> if it does not exist, lies in the trash or <paramref name="viewerId"/> may not see it.</returns>
     Task<Document?> FindVisibleAsync(Guid documentId, Guid viewerId, CancellationToken cancellationToken);

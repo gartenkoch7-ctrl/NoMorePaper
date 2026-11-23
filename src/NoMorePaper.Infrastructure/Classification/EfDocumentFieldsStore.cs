@@ -41,8 +41,13 @@ public sealed class EfDocumentFieldsStore(AppDbContext db) : IDocumentFieldsStor
         // The row is locked before it is read, in the order the Worker uses when it finishes a
         // recognition (document, then job), so a confirmation and a recognition take turns instead of
         // one overwriting the other. A refused change never saves: disposing the scoped context at the
-        // end of the request rolls back and frees the lock.
-        _change ??= await db.Database.BeginTransactionAsync(cancellationToken).ConfigureAwait(false);
+        // end of the request rolls back and frees the lock. A change another store of the scope opened
+        // (the trash) is joined; that store commits it.
+        if (db.Database.CurrentTransaction is null)
+        {
+            _change = await db.Database.BeginTransactionAsync(cancellationToken).ConfigureAwait(false);
+        }
+
         await db.Database.ExecuteSqlAsync($"SELECT 1 FROM documents WHERE id = {documentId} FOR NO KEY UPDATE", cancellationToken)
             .ConfigureAwait(false);
         return await VisibleTo(viewerId).SingleOrDefaultAsync(document => document.Id == documentId, cancellationToken)
