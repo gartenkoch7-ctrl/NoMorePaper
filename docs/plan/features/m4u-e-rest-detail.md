@@ -284,3 +284,10 @@ E0 ──┬─► S1 ─┐
 ### Rückblick (nach Abschluss)
 | Paket | geplante Stufe | passend? | Anmerkung |
 |---|---|---|---|
+| E0 Bausteine, Texte | 2 (Sonnet) | ja | ohne Befund im Review |
+| E1 Startseite | 2 (Sonnet) | ja | ohne Befund; Wettlauf in Tests (ungemockte Start-Aufrufe → 401 → Abmeldung) erst im Gesamtlauf aufgefallen – gemeinsamer Helfer `StartPageMocks` |
+| E2 Zu prüfen + Listen | 2 (Sonnet) | ja | `@key` an wiederverwendeten Rückfragen fehlte (Fokus beim Wechsel) – im Plan künftig vorgeben |
+| E3 Konto + Mitglieder | 2 (Sonnet) | ja | gleicher `@key`-Befund |
+| E4 Suche, Hinzufügen, Hochladen, Kamera | 2 (Sonnet) | ja | alte `.search-hit`-Regeln in `viewer.css` übersehen; Werte außerhalb der Tokens |
+| E5 Doku | 1 (Haiku) | ja | EventId-Konflikt mit M4b (4800–4899) erkannt und gemeldet – Plan hätte reservierte Blöcke prüfen müssen |
+| E6 Review | 3 (Opus) | ja | je Spur ein Review + Gesamt-Review + Nachreview; Überschriftengrößen erst im Gesamt-Review aufgefallen |

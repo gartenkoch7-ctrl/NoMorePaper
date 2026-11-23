@@ -27,15 +27,15 @@ Ablauf und Status-Stufen: [KB ui-prozess.md](../../kb/ui-prozess.md). Stitch-Pro
 | 02 | Dokumente (Übersicht, mit Seitenleiste und Kopf) | `/dokumente` | [02-dokumente](02-dokumente/notizen.md) | umgesetzt (Abnahme offen) |
 | 03 | Dokument ansehen (Viewer + Angaben) | `/dokumente/{id}` | [03-dokument-ansehen](03-dokument-ansehen/notizen.md) | umgesetzt (Abnahme offen; `screen.png` fehlt) |
 | 04 | Eingänge (Scanner-Ordner, Mail, iCloud) | `/eingaenge` | [04-eingaenge](04-eingaenge/notizen.md) | umgesetzt (Abnahme offen) |
-| 05 | Startseite (Übersicht) | `/` | [05-startseite](05-startseite/notizen.md) | freigegeben 2026-11-23 |
-| 06 | Zu prüfen | `/zu-pruefen` | [06-zu-pruefen](06-zu-pruefen/notizen.md) | freigegeben 2026-11-23 |
-| 07 | Suche | `/suche` | [07-suche](07-suche/notizen.md) | freigegeben 2026-11-23 |
-| 08 | Listen | `/listen` | [08-listen](08-listen/notizen.md) | freigegeben 2026-11-23 |
-| 09 | Konto | `/konto` | [09-konto](09-konto/notizen.md) | freigegeben 2026-11-23 |
-| 10 | Mitglieder | `/mitglieder` | [10-mitglieder](10-mitglieder/notizen.md) | freigegeben 2026-11-23 |
-| 11 | Hinzufügen | `/hinzufuegen` | [11-hinzufuegen](11-hinzufuegen/notizen.md) | freigegeben 2026-11-23 |
-| 12 | Hochladen | `/hochladen` | [12-hochladen](12-hochladen/notizen.md) | freigegeben 2026-11-23 |
-| 13 | Kamera (mobil) | `/kamera` | [13-kamera](13-kamera/notizen.md) | freigegeben 2026-11-23 |
+| 05 | Startseite (Übersicht) | `/` | [05-startseite](05-startseite/notizen.md) | umgesetzt (Abnahme offen) |
+| 06 | Zu prüfen | `/zu-pruefen` | [06-zu-pruefen](06-zu-pruefen/notizen.md) | umgesetzt (Abnahme offen) |
+| 07 | Suche | `/suche` | [07-suche](07-suche/notizen.md) | umgesetzt (Abnahme offen) |
+| 08 | Listen | `/listen` | [08-listen](08-listen/notizen.md) | umgesetzt (Abnahme offen) |
+| 09 | Konto | `/konto` | [09-konto](09-konto/notizen.md) | umgesetzt (Abnahme offen) |
+| 10 | Mitglieder | `/mitglieder` | [10-mitglieder](10-mitglieder/notizen.md) | umgesetzt (Abnahme offen) |
+| 11 | Hinzufügen | `/hinzufuegen` | [11-hinzufuegen](11-hinzufuegen/notizen.md) | umgesetzt (Abnahme offen) |
+| 12 | Hochladen | `/hochladen` | [12-hochladen](12-hochladen/notizen.md) | umgesetzt (Abnahme offen) |
+| 13 | Kamera (mobil) | `/kamera` | [13-kamera](13-kamera/notizen.md) | umgesetzt (Abnahme offen) |
 | 14 | Seiten bearbeiten (M4b) | `/dokumente/{id}/seiten` | [14-seiten-bearbeiten](14-seiten-bearbeiten/notizen.md) | freigegeben 2026-11-23 |
 | 15 | Papierkorb (M4b) | `/papierkorb` | [15-papierkorb](15-papierkorb/notizen.md) | freigegeben 2026-11-23 |
 | 16 | Fassungen im Viewer (M4b) | `/dokumente/{id}` | [16-fassungen](16-fassungen/notizen.md) | freigegeben 2026-11-23 |
