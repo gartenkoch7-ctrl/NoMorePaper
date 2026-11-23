@@ -128,7 +128,8 @@ nach `develop` mergen – nur Doku).
 ## Detailplan
 
 Spuren: [A](features/m4u-a-anmelden-detail.md) · [B](features/m4u-b-dokumente-detail.md) ·
-[C](features/m4u-c-viewer-detail.md) · [D](features/m4u-d-eingaenge-detail.md). Offene Fragen aller vier Pläne
+[C](features/m4u-c-viewer-detail.md) · [D](features/m4u-d-eingaenge-detail.md) ·
+[E](features/m4u-e-rest-detail.md) (2026-11-23, Entwürfe 05–13; offene Frage F1). Offene Fragen aller vier Pläne
 vom Nutzer am 2026-11-22 **alle wie empfohlen** beantwortet; Entwürfe 01–04 freigegeben.
 
 Nach [Vorlage](detailplan-vorlage.md). **Erstellt von:** Opus · **Datum:** 2026-11-22. Spuren A–E bekommen
