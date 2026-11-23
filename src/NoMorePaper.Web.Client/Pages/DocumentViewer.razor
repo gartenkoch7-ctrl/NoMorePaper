@@ -70,6 +70,7 @@ else
                     <div role="tabpanel" id="doc-fields-panel" aria-labelledby="doc-fields-tab" tabindex="0" hidden="@(_tab != FieldsTab)">
                         <DocumentFieldsPanel DocumentId="Id" Title="@_detail.Title" IsMine="_detail.IsMine" OnTitleChanged="OnTitleChanged"
                                              IsPrivate="_detail.IsPrivate" OnPrivacyChanged="OnPrivacyChanged" OnFieldsLoaded="OnFieldsLoaded" />
+                        <VersionsSection Detail="_detail" Fields="_fields" OnEditFinished="ReloadAsync" OnDetailChanged="OnDetailChanged" />
                     </div>
                     <div role="tabpanel" id="doc-text-panel" aria-labelledby="doc-text-tab" tabindex="0" hidden="@(_tab != TextTab)">
                         <RecognizedTextPanel DocumentId="Id" State="_detail.State" Active="@(_tab == TextTab)" />

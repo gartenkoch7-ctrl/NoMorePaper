@@ -31,7 +31,8 @@
         align-items: start;
     }
 
-    .account-grid .account-prefs {
+    .account-grid .account-prefs,
+    .account-grid .account-after-editing {
         grid-column: 1 / -1;
     }
 }

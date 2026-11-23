@@ -37,6 +37,7 @@ public sealed partial class DocumentViewer : IAsyncDisposable
     private LiveRegion? _announcer;
     private ElementReference _stage;
     private DocumentFieldsDto? _fields;
+    private string? _finishedNote;
 
     [Parameter] public Guid Id { get; set; }
 
@@ -139,6 +140,12 @@ public sealed partial class DocumentViewer : IAsyncDisposable
         // An unchanged state answers a repeated command (zoom at 1600 %, last page): say both.
         var repeated = previous == state;
         var parts = new List<string>();
+        if (_finishedNote is not null)
+        {
+            parts.Add(_finishedNote);
+            _finishedNote = null;
+        }
+
         if (previous is null || repeated || previous.Page != state.Page || previous.PageCount != state.PageCount)
         {
             parts.Add(L["ViewerPageOf", state.Page, state.PageCount]);
@@ -178,6 +185,18 @@ public sealed partial class DocumentViewer : IAsyncDisposable
         _detail = _detail is null ? null : _detail with { IsPrivate = isPrivate };
 
     private void OnFieldsLoaded(DocumentFieldsDto fields) => _fields = fields;
+
+    private void OnDetailChanged(DocumentDetailDto detail) => _detail = detail;
+
+    // A finished edit: load the document again so the viewer shows the new archive. The note is said
+    // with the first view announcement (a newer announcement would replace it).
+    private async Task ReloadAsync()
+    {
+        _finishedNote = L["VerFinished"];
+        _loadedId = Guid.Empty;
+        await OnParametersSetAsync();
+        StateHasChanged();
+    }
 
     private Task ZoomOutAsync() => Viewer.ZoomOutAsync().AsTask();
 

@@ -73,6 +73,15 @@ internal sealed class FakeAccounts
                 ContentType = _signedIn ? "application/json" : "application/problem+json",
                 Body = _signedIn ? "{\"newDocumentsPrivate\":false,\"mailSenders\":[]}" : "{}",
             }));
+        // The account page reads the default for edited documents; a test about it mocks its own answer.
+        await page.RouteAsync(new Regex("/api/account/after-editing$"), route => route.Request.Method != "GET"
+            ? route.FallbackAsync()
+            : route.FulfillAsync(new RouteFulfillOptions
+            {
+                Status = _signedIn ? 200 : 401,
+                ContentType = _signedIn ? "application/json" : "application/problem+json",
+                Body = _signedIn ? "{\"policy\":\"KeepBoth\"}" : "{}",
+            }));
         await page.RouteAsync(new Regex("/api/review/count$"), route => route.Request.Method != "GET"
             ? route.FallbackAsync()
             : route.FulfillAsync(new RouteFulfillOptions

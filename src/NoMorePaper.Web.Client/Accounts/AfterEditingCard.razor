@@ -1,0 +1,82 @@
+@using NoMorePaper.Contracts.Editing
+@using NoMorePaper.Web.Client.Editing
+@inject IStringLocalizer<Strings> L
+@inject EditingApi Api
+@inject ILogger<AfterEditingCard> Logger
+
+@* The account's default for edited documents (Stitch 09). It applies to documents edited from now on;
+   each document has its own choice in "Fassungen". The choice is saved with the button, not at once:
+   keeping only one version moves the other to the trash later, so it should be a deliberate step. *@
+<section class="account-card account-after-editing" aria-labelledby="after-editing-heading">
+    <MudText Typo="Typo.h3" HtmlTag="h2" id="after-editing-heading">@L["VerAfterHeading"]</MudText>
+    <LiveRegion @ref="_status" />
+    <LiveRegion @ref="_error" Assertive="true" Class="form-error" />
+    @if (_loadError is not null)
+    {
+        <NoticeBox Kind="NoticeKind.Error" Announce="true" Message="@L["VerAfterLoadError", _loadError]">
+            <button type="button" id="after-editing-retry" class="nmp-button" @onclick="LoadAsync">@L["Retry"]</button>
+        </NoticeBox>
+    }
+    else if (_policy is null)
+    {
+        <p role="status">@L["VerAfterLoading"]</p>
+    }
+    else
+    {
+        <VersionPolicyChoice Prefix="after-editing" Legend="@L["VerAfterLegend"]" Value="_policy.Value" ValueChanged="p => _policy = p" Disabled="_busy" />
+        <p class="form-hint">@L["VerAfterHint"]</p>
+        <div class="account-submit">
+            <button type="button" id="after-editing-save" class="nmp-button nmp-button-primary" disabled="@_busy" @onclick="SaveAsync">@L["VerAfterSave"]</button>
+        </div>
+    }
+</section>
+
+@code {
+    private LiveRegion? _status;
+    private LiveRegion? _error;
+    private VersionPolicyDto? _policy;
+    private string? _loadError;
+    private bool _busy;
+
+    protected override Task OnInitializedAsync() => LoadAsync();
+
+    private async Task LoadAsync()
+    {
+        _loadError = null;
+        var result = await Api.GetAfterEditingAsync();
+        if (!result.IsSuccess || result.Value is null)
+        {
+            _loadError = result.Error ?? L["ErrorUnreachable"];
+            Logger.VersionsCallFailed("load-after-editing");
+            return;
+        }
+
+        _policy = result.Value.Policy;
+    }
+
+    private async Task SaveAsync()
+    {
+        _busy = true;
+        _error?.Clear();
+        _status?.Clear();
+        var result = await Api.SetAfterEditingAsync(_policy!.Value);
+        _busy = false;
+        if (!result.IsSuccess)
+        {
+            Logger.VersionsCallFailed("set-after-editing");
+            if (_error is not null)
+            {
+                await _error.Announce(L["VerAfterSaveError", result.Error ?? L["ErrorUnreachable"]]);
+            }
+
+            return;
+        }
+
+        var chosen = _policy.ToString()!;
+        Logger.VersionPolicySaved(chosen);
+        if (_status is not null)
+        {
+            await _status.Announce(L["VerAfterSaved"]);
+        }
+    }
+}

@@ -1,0 +1,91 @@
+
+@* "Fassungen" in the tab "Angaben": which files the document has, a download for each, and for the
+   owner the choice what to keep. Without an edit there is nothing to choose. While an edit runs the
+   section asks the server every few seconds and reloads the viewer when the new version is there. *@
+<section class="versions" aria-labelledby="versions-heading">
+    <MudText Typo="Typo.h3" HtmlTag="h2" id="versions-heading">@L["VerHeading"]</MudText>
+    <LiveRegion @ref="_status" />
+    @if (_saveError is not null)
+    {
+        <NoticeBox Kind="NoticeKind.Error" Announce="true" Message="@_saveError" />
+    }
+
+    <ul class="versions-list" aria-labelledby="versions-heading">
+        @if (Detail.Original is not null)
+        {
+            <li @key="@("original")">
+                <div class="versions-kind">
+                    <MudIcon Icon="@Icons.Material.Outlined.Description" aria-hidden="true" />
+                    <span>@L["VerOriginal"]</span>
+                    <span class="versions-date">@At(Detail.ReceivedAt)</span>
+                </div>
+                @if (!HasEdited)
+                {
+                    @ActiveMark
+                }
+                <a class="versions-download" href="@DocumentLinks.Original(Detail.Id)" download>@L["VerDownloadOriginal"]</a>
+            </li>
+        }
+        @if (HasEdited)
+        {
+            <li @key="@("edited")">
+                <div class="versions-kind">
+                    <MudIcon Icon="@Icons.Material.Outlined.EditNote" aria-hidden="true" />
+                    <span>@L["VerEdited"]</span>
+                    <span class="versions-date">@(Detail.EditedAt is { } edited ? At(edited) : string.Empty)</span>
+                </div>
+                @ActiveMark
+                <a class="versions-download" href="@DocumentLinks.Edited(Detail.Id)" download>@L["VerDownloadEdited"]</a>
+            </li>
+        }
+    </ul>
+
+    @if (!HasEdited && !Detail.EditPending)
+    {
+        <p class="versions-none">@L["VerNoEdited"] @L["VerNoEditedHint"]</p>
+    }
+
+    @if (Detail.EditPending)
+    {
+        <div class="versions-pending">
+            <MudIcon Icon="@Icons.Material.Outlined.HourglassTop" aria-hidden="true" />
+            <div>
+                <p class="versions-pending-title">@L["VerPending"]</p>
+                <p>@L["VerPendingText"]</p>
+            </div>
+        </div>
+    }
+
+    @if (_gaveUp)
+    {
+        <NoticeBox Kind="NoticeKind.Error" Announce="true" Message="@L["VerPollGaveUp"]" />
+    }
+
+    @if (Detail.IsMine && HasEdited)
+    {
+        <div class="versions-choice">
+            <VersionPolicyChoice Prefix="versions" Legend="@L["VerKeepLegend"]" Value="_policy" ValueChanged="OnPolicyChanged" Disabled="_busy" />
+            <p class="versions-trash-hint">
+                <MudIcon Icon="@Icons.Material.Outlined.Info" aria-hidden="true" />
+                <span>@L["VerTrashHint"]</span>
+            </p>
+            @if (_asking)
+            {
+                <ConfirmBox @key="_policy" Id="versions-confirm" HeadingLevel="3"
+                            Title="@L[_policy == VersionPolicyDto.EditedOnly ? "VerConfirmEditedTitle" : "VerConfirmOriginalTitle"]"
+                            Text="@L[_policy == VersionPolicyDto.EditedOnly ? "VerConfirmEditedText" : "VerConfirmOriginalText"]"
+                            ConfirmLabel="@L["VerConfirmYes"]" OnConfirm="SaveAsync" OnCancel="CancelAsking" />
+            }
+            <button type="button" id="versions-save" class="nmp-button nmp-button-primary" disabled="@_busy" @onclick="AskOrSaveAsync">@L["VerSave"]</button>
+        </div>
+    }
+
+    @if (CanEditPages)
+    {
+        <a id="versions-edit-pages" class="nmp-button" href="@DocumentLinks.PageEditor(Detail.Id)">@L["VerEditPages"]</a>
+    }
+</section>
+
+@code {
+    private RenderFragment ActiveMark => @<span class="versions-active"><MudIcon Icon="@Icons.Material.Outlined.Visibility" aria-hidden="true" /><span>@L["VerActive"]</span></span>;
+}

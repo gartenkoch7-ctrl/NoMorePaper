@@ -1,0 +1,38 @@
+@inject IStringLocalizer<Strings> L
+
+@* The three choices of "which versions to keep" as one labelled group of radios; every choice has an
+   explanation that a screen reader reads with it. Used for one document and for the account default. *@
+<fieldset class="version-choice" disabled="@Disabled">
+    <legend>@Legend</legend>
+    @foreach (var option in Options)
+    {
+        <div class="version-option" @key="option.Policy">
+            <input type="radio" id="@(Prefix)-@option.Suffix" name="@(Prefix)-policy" checked="@(Value == option.Policy)"
+                   aria-describedby="@(Prefix)-@(option.Suffix)-explain" @onchange="() => Select(option.Policy)" />
+            <label for="@(Prefix)-@option.Suffix">@L[option.Label]</label>
+            <p id="@(Prefix)-@(option.Suffix)-explain" class="form-hint">@L[option.Explain]</p>
+        </div>
+    }
+</fieldset>
+
+@code {
+    private static readonly (VersionPolicyDto Policy, string Suffix, string Label, string Explain)[] Options =
+    [
+        (VersionPolicyDto.KeepBoth, "both", "VerKeepBoth", "VerKeepBothExplain"),
+        (VersionPolicyDto.EditedOnly, "edited", "VerKeepEdited", "VerKeepEditedExplain"),
+        (VersionPolicyDto.OriginalOnly, "original", "VerKeepOriginal", "VerKeepOriginalExplain"),
+    ];
+
+    /// <summary>Unique id prefix on the page; the radios are "{Prefix}-both|edited|original".</summary>
+    [Parameter, EditorRequired] public string Prefix { get; set; } = string.Empty;
+
+    [Parameter, EditorRequired] public string Legend { get; set; } = string.Empty;
+
+    [Parameter] public VersionPolicyDto Value { get; set; }
+
+    [Parameter] public EventCallback<VersionPolicyDto> ValueChanged { get; set; }
+
+    [Parameter] public bool Disabled { get; set; }
+
+    private Task Select(VersionPolicyDto policy) => ValueChanged.InvokeAsync(policy);
+}
