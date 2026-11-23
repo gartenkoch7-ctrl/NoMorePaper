@@ -1,0 +1,88 @@
+@using System.Globalization
+@using NoMorePaper.Web.Client.Start
+@inject IStringLocalizer<Strings> L
+@inject DocumentApi Api
+@inject ILogger<StartRecent> Logger
+
+@* The five documents received last (Stitch screen 05). The table is a plain read-out: no polling, so a document that
+   is still being processed shows that until the page is opened again. A failure is a notice without Announce: the
+   start page must not raise alerts while it loads. *@
+<section class="start-card" aria-labelledby="start-recent-heading">
+    <div class="start-card-head">
+        <MudText Typo="Typo.h3" HtmlTag="h2" id="start-recent-heading">@L["StartRecentHeading"]</MudText>
+        <a href="dokumente" class="start-link">@L["StartRecentAll"]<span aria-hidden="true"> →</span></a>
+    </div>
+    @if (_loading)
+    {
+        <p role="status">@L["DocumentsLoading"]</p>
+    }
+    else if (_error is not null)
+    {
+        <NoticeBox Kind="NoticeKind.Error" Message="@L["StartRecentError", _error]">
+            <button type="button" class="nmp-button" @onclick="LoadAsync">@L["Retry"]</button>
+        </NoticeBox>
+    }
+    else if (_documents.Length == 0)
+    {
+        <p>@L["StartRecentEmpty"]</p>
+    }
+    else
+    {
+        <div class="start-table-scroll" role="region" aria-label="@L["StartRecentCaption"]" tabindex="0">
+            <table class="doc-table">
+                <caption class="nmp-visually-hidden">@L["StartRecentCaption"]</caption>
+                <thead>
+                    <tr>
+                        <th scope="col">@L["ColTitle"]</th>
+                        <th scope="col">@L["ClsFieldCorrespondent"]</th>
+                        <th scope="col">@L["ColReceived"]</th>
+                        <th scope="col">@L["ColStatus"]</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var document in _documents)
+                    {
+                        <tr @key="document.Id">
+                            <th scope="row">
+                                <a class="doc-title-link" href="@DocumentLinks.Viewer(document.Id)">@document.Title</a>
+                                @if (document.IsPrivate)
+                                {
+                                    <PrivateBadge />
+                                }
+                            </th>
+                            <td>@(document.Correspondent?.Name ?? L["ClsNoValue"].Value)</td>
+                            <td>@document.ReceivedAt.ToLocalTime().ToString("g", CultureInfo.CurrentCulture)</td>
+                            <td><StatusText Kind="@DocumentStatus.KindOf(document.State)" /></td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</section>
+
+@code {
+    private DocumentSummaryDto[] _documents = [];
+    private string? _error;
+    private bool _loading = true;
+
+    protected override Task OnInitializedAsync() => LoadAsync();
+
+    private async Task LoadAsync()
+    {
+        _loading = true;
+        _error = null;
+        var result = await Api.ListAsync(1, 5);
+        _loading = false;
+        if (result.IsSuccess)
+        {
+            _documents = result.Value ?? [];
+            Logger.StartPartLoaded("recent", _documents.Length);
+        }
+        else
+        {
+            _error = result.Error;
+            Logger.StartPartFailed("recent");
+        }
+    }
+}

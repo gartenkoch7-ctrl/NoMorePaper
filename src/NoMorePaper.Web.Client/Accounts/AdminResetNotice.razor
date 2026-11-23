@@ -13,7 +13,7 @@
 {
     <section class="reset-notice">
         <div class="reset-notice-text" role="alert" tabindex="-1" @ref="_text">
-            <MudIcon Icon="@Icons.Material.Filled.Warning" />
+            <MudIcon Icon="@Icons.Material.Filled.Warning" aria-hidden="true" />
             @if (resets.Count == 1)
             {
                 <span>@L["AdminResetNotice", resets[0].ToLocalTime().ToString("D", CultureInfo.CurrentCulture)]</span>
@@ -32,7 +32,7 @@
                 </div>
             }
         </div>
-        <MudButton Variant="Variant.Filled" Color="Color.Primary" Disabled="_busy" OnClick="AcknowledgeAsync">@L["AdminResetAcknowledge"]</MudButton>
+        <button type="button" class="nmp-button nmp-button-primary" disabled="@_busy" @onclick="AcknowledgeAsync">@L["AdminResetAcknowledge"]</button>
         <LiveRegion @ref="_error" Assertive="true" Class="form-error" />
     </section>
 }

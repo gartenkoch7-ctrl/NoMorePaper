@@ -1,1 +1,113 @@
 /* Page "Start" (Stitch 05), M4u Spur E. */
+
+.start-cards {
+    display: flex;
+    flex-direction: column;
+    gap: var(--nmp-space-xl);
+    max-width: 64rem;
+    margin-top: var(--nmp-space-xl);
+}
+
+.start-card {
+    padding: var(--nmp-space-lg);
+    background: var(--nmp-paper-low);
+    border: 1px solid var(--nmp-border);
+    border-radius: var(--nmp-radius-lg);
+}
+
+.start-card h2 {
+    margin: 0;
+}
+
+.start-card-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--nmp-space-md);
+    margin-bottom: var(--nmp-space-md);
+}
+
+/* Review card: symbol, text, then the button at the far end; it wraps below on a narrow screen. */
+.start-review {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--nmp-space-md);
+}
+
+.start-review-icon {
+    display: inline-flex;
+    padding: var(--nmp-space-sm);
+    background: var(--nmp-elevated);
+    border-radius: var(--nmp-radius);
+}
+
+.start-review-text p {
+    margin: var(--nmp-space-xs) 0 0;
+}
+
+.start-review .nmp-button {
+    margin-inline-start: auto;
+}
+
+.start-table-scroll {
+    overflow-x: auto;
+}
+
+.start-inputs {
+    display: flex;
+    flex-direction: column;
+    gap: var(--nmp-space-sm);
+    margin: 0 0 var(--nmp-space-md);
+    padding: 0;
+    list-style: none;
+}
+
+.start-input {
+    display: flex;
+    flex-direction: column;
+    gap: var(--nmp-space-xs);
+    padding: var(--nmp-space-md);
+    background: var(--nmp-elevated);
+    border-radius: var(--nmp-radius);
+}
+
+.start-input p {
+    margin: 0;
+}
+
+.start-input-head {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    align-items: center;
+    gap: var(--nmp-space-sm);
+}
+
+.start-input-name {
+    font-weight: 500;
+}
+
+/* A problem may be red; the badge text and the sentence below carry the information. */
+.start-input-problem .nmp-badge {
+    border-color: var(--nmp-error);
+    color: var(--nmp-error);
+}
+
+.start-actions {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--nmp-space-md);
+}
+
+@media (min-width: 48rem) {
+    .start-actions {
+        grid-template-columns: 1fr 1fr;
+    }
+}
+
+.start-action {
+    justify-content: center;
+    min-height: 4rem;
+    font-size: 1rem;
+}
