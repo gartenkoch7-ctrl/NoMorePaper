@@ -64,8 +64,10 @@ Grundsätze (aus den Notizen je Screen):
 ### E. Restliche Seiten angleichen
 - [ ] Neue Stitch-Entwürfe für Start, Hinzufügen (Hochladen + Kamera), Zu prüfen, Suche, Listen, Konto,
       Mitglieder (Prompts in prompts.md §3) – **Nutzer** erzeugt sie in Stitch, Ablage wie 01–04
+      (2026-11-23: 05–13 erzeugt, abgeholt, geprüft; Nachbessern 12/13 und Freigabe offen)
 - [ ] Diese Seiten aufs neue Theme und die Bausteine umstellen (ohne Neuaufbau, wo kein Entwurf da ist)
 - [ ] Entwürfe für M4b vorziehen: „Seiten bearbeiten“, „Papierkorb“, „Fassungen“ (prompts.md §4.1–4.3)
+      (2026-11-23: als 14–16 erzeugt und geprüft; Nachbessern und Freigabe offen)
 - [ ] Rückfragen (Review, Members, ListSection) auf `Design/ConfirmBox` umstellen, mit UI-Test
 
 ### F. Tests und Doku

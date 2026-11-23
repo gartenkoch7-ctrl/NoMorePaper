@@ -33,8 +33,14 @@ Ablauf und Status-Stufen: [KB ui-prozess.md](../../kb/ui-prozess.md). Stitch-Pro
 | 08 | Listen | `/listen` | [08-listen](08-listen/notizen.md) | v2 geprüft – Freigabe offen |
 | 09 | Konto | `/konto` | [09-konto](09-konto/notizen.md) | geprüft – Freigabe offen (Karte „Sprache“ klären) |
 | 10 | Mitglieder | `/mitglieder` | [10-mitglieder](10-mitglieder/notizen.md) | v3 geprüft – Freigabe offen (Entfernen-Knopf neutral, entschieden 2026-11-23) |
+| 11 | Hinzufügen | `/hinzufuegen` | [11-hinzufuegen](11-hinzufuegen/notizen.md) | geprüft – Freigabe offen (Kleinigkeiten) |
+| 12 | Hochladen | `/hochladen` | [12-hochladen](12-hochladen/notizen.md) | geprüft – Nachbessern in Stitch (H1-Größe, Warnbox, App-Texte) |
+| 13 | Kamera (mobil) | `/kamera` | [13-kamera](13-kamera/notizen.md) | geprüft – Nachbessern in Stitch (App-Texte, Seitenliste, Zoom gesperrt) |
+| 14 | Seiten bearbeiten (M4b) | `/dokumente/{id}/seiten` | [14-seiten-bearbeiten](14-seiten-bearbeiten/notizen.md) | geprüft – Nachbessern in Stitch (Farben außerhalb Design-System, „Zuschneiden“ fehlt) |
+| 15 | Papierkorb (M4b) | `/papierkorb` | [15-papierkorb](15-papierkorb/notizen.md) | geprüft – Nachbessern in Stitch (gering) |
+| 16 | Fassungen im Viewer (M4b) | `/dokumente/{id}` | [16-fassungen](16-fassungen/notizen.md) | geprüft – Nachbessern in Stitch (Design-System, Reiter wie Viewer) |
 
-`code.html` von 05–10 wurde aus der Inline-Antwort von `download_file` übertragen (kein Direkt-Download
+`code.html` von 05–16 wurde aus der Inline-Antwort von `download_file` übertragen (kein Direkt-Download
 möglich, siehe KB [ui-prozess.md](../../kb/ui-prozess.md)); Tippfehler sind nicht ganz ausgeschlossen, Bild
 und Stitch bleiben maßgeblich. Start gibt es in Stitch 5×; gewählt `f4ee99bb…`, Gründe in
 [05-startseite/notizen.md](05-startseite/notizen.md). 07 und 08 wurden als „… v2“, 10 als „… v3“ neu erzeugt (alte Screens

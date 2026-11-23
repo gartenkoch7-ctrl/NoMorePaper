@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="de" class="h-full bg-[#0e0e0e] text-[#f5f5f5]">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>nomorepaper – Fassungen (Desktop)</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Geist', 'sans-serif'],
+            mono: ['"JetBrains Mono"', 'monospace'],
+          },
+          colors: {
+            surface: {
+              DEFAULT: '#131313',
+              dim: '#131313',
+              bright: '#393939',
+              lowest: '#0e0e0e',
+              low: '#1c1b1b',
+              container: '#201f1f',
+              high: '#2a2929',
+              highest: '#353434'
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body {
+      font-family: 'Geist', sans-serif;
+    }
+    .font-mono {
+      font-family: 'JetBrains Mono', monospace;
+    }
+    /* Custom scrollbars */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #131313;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #2a2929;
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #393939;
+    }
+  </style>
+</head>
+<body class="h-full flex overflow-hidden bg-[#0e0e0e] text-[#f5f5f5] antialiased selection:bg-neutral-800 selection:text-white">
+
+  <!-- Left Sidebar Navigation (18rem = w-72) -->
+  <aside class="w-72 flex-shrink-0 bg-[#131313] border-r border-[#242424] flex flex-col justify-between select-none z-20">
+    <div class="flex flex-col">
+      <!-- Brand Logo Header -->
+      <div class="h-16 flex items-center px-6 border-b border-[#242424]">
+        <a href="#" class="flex items-center gap-3 focus:outline-none focus-visible:ring-2 focus-visible:ring-white rounded">
+          <svg class="w-6 h-6 text-white flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+            <polyline points="14 2 14 8 20 8"></polyline>
+            <line x1="16" y1="13" x2="8" y2="13"></line>
+            <line x1="16" y1="17" x2="8" y2="17"></line>
+            <line x1="10" y1="9" x2="8" y2="9"></line>
+          </svg>
+          <span class="font-bold text-lg tracking-tight text-white">NoMorePaper</span>
+        </a>
+      </div>
+
+      <!-- Navigation Links -->
+      <nav class="p-3 space-y-1" aria-label="Hauptnavigation">
+        <a href="#" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-neutral-400 hover:text-white hover:bg-[#1c1b1b] transition-colors focus:outline-none focus-visible:ring-1 focus-visible:ring-white">
+          <svg class="w-5 h-5 flex-shrink-0 text-neutral-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+            <polyline points="9 22 9 12 15 12 15 22"></polyline>
+          </svg>
+          <span>Startseite</span>
+        </a>
+
+        <a href="#" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-neutral-400 hover:text-white hover:bg-[#1c1b1b] transition-colors focus:outline-none focus-visible:ring-1 focus-visible:ring-white">
+          <svg class="w-5 h-5 flex-shrink-0 text-neutral-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <circle cx="12" cy="12" r="10"></circle>
+            <line x1="12" y1="8" x2="12" y2="16"></line>
+            <line x1="8" y1="12" x2="16" y2="12"></line>
+          </svg>
+          <span>Hinzufügen</span>
+        </a>
+
+        <!-- Dokumente (Current / Active) -->
+        <a href="#" aria-current="page" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-white bg-[#201f1f] border border-[#2e2d2d] transition-colors focus:outline-none focus-visible:ring-1 focus-visible:ring-white">
+          <svg class="w-5 h-5 flex-shrink-0 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M4 20h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.93a2 2 0 0 1-1.66-.9l-.82-1.2A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13c0 1.1.9 2 2 2Z"></path>
+          </svg>
+          <span>Dokumente</span>
+        </a>
+
+        <a href="#" class="flex items-center justify-between px-3 py-2.5 rounded-lg text-sm font-medium text-neutral-400 hover:text-white hover:bg-[#1c1b1b] transition-colors focus:outline-none focus-visible:ring-1 focus-visible:ring-white">
+          <div class="flex items-center gap-3">
+            <svg class="w-5 h-5 flex-shrink-0 text-neutral-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="m9 11 3 3L22 4"></path>
+              <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path>
+            </svg>
+            <span>Zu prüfen</span>
+          </div>
+          <span class="font-mono text-xs px-2 py-0.5 rounded-full bg-[#201f1f] text-neutral-400 border border-[#2e2d2d]">3</span>
+        </a>
+      </nav>
+    </div>
+
+    <!-- Bottom Settings Link -->
+    <div class="p-3 border-t border-[#242424]">
+      <a href="#" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-neutral-400 hover:text-white hover:bg-[#1c1b1b] transition-colors focus:outline-none focus-visible:ring-1 focus-visible:ring-white">
+        <svg class="w-5 h-5 flex-shrink-0 text-neutral-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <circle cx="12" cy="12" r="3"></circle>
+          <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+        </svg>
+        <span>Einstellungen</span>
+      </a>
+    </div>
+  </aside>
+
+  <!-- Main Application Wrapper -->
+  <div class="flex-1 flex flex-col min-w-0 h-full overflow-hidden">
+
+    <!-- Top Header -->
+    <header class="h-16 flex-shrink-0 bg-[#131313] border-b border-[#242424] px-6 flex items-center justify-between gap-4 z-10">
+      <!-- Search Input -->
+      <div class="relative w-96 max-w-full">
+        <label for="search-documents" class="sr-only">Dokumente durchsuchen</label>
+        <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-neutral-400">
+          <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <circle cx="11" cy="11" r="8"></circle>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+          </svg>
+        </span>
+        <input id="search-documents" type="search" placeholder="Dokumente durchsuchen…" class="w-full bg-[#1c1b1b] border border-[#2a2929] rounded-lg py-2 pl-9 pr-3 text-sm text-neutral-200 placeholder-neutral-500 focus:outline-none focus:border-neutral-400 focus:ring-1 focus:ring-neutral-400">
+      </div>
+
+      <!-- Header Actions -->
+      <div class="flex items-center gap-4">
+        <!-- White Button "Hochladen" -->
+        <button type="button" class="inline-flex items-center gap-2 bg-white text-black hover:bg-neutral-200 px-4 py-2 rounded-lg text-sm font-medium transition-colors shadow-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-white">
+          <svg class="w-4 h-4 text-black" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+            <polyline points="17 8 12 3 7 8"></polyline>
+            <line x1="12" y1="3" x2="12" y2="15"></line>
+          </svg>
+          <span>Hochladen</span>
+        </button>
+
+        <!-- Language Switch Buttons -->
+        <div class="flex items-center rounded-lg bg-[#1c1b1b] border border-[#2a2929] p-0.5 text-xs font-mono">
+          <button type="button" class="px-2.5 py-1 rounded bg-[#2a2929] text-white font-medium focus:outline-none focus-visible:ring-1 focus-visible:ring-white">DE</button>
+          <span class="text-neutral-600 px-0.5" aria-hidden="true">|</span>
+          <button type="button" class="px-2.5 py-1 rounded text-neutral-400 hover:text-white transition-colors focus:outline-none focus-visible:ring-1 focus-visible:ring-white">EN</button>
+        </div>
+
+        <div class="h-5 w-px bg-[#242424]" aria-hidden="true"></div>
+
+        <!-- User info -->
+        <div class="flex items-center gap-2 text-sm text-neutral-300">
+          <div class="w-8 h-8 rounded-full bg-[#201f1f] border border-[#2e2d2d] flex items-center justify-center text-neutral-300 font-mono text-xs">
+            <svg class="w-4 h-4 text-neutral-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"></path>
+              <circle cx="12" cy="7" r="4"></circle>
+            </svg>
+          </div>
+          <span>Angemeldet als <strong class="font-medium text-white">Anna</strong></span>
+        </div>
+
+        <!-- Abmelden Button with visible text -->
+        <button type="button" class="inline-flex items-center gap-2 text-sm text-neutral-400 hover:text-white px-2 py-1.5 rounded transition-colors focus:outline-none focus-visible:ring-1 focus-visible:ring-white">
+          <svg class="w-4 h-4 text-neutral-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+            <polyline points="16 17 21 12 16 7"></polyline>
+            <line x1="21" y1="12" x2="9" y2="12"></line>
+          </svg>
+          <span>Abmelden</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- Subheader with Breadcrumb -->
+    <div class="px-8 py-3.5 bg-[#101010] border-b border-[#242424] flex items-center justify-between flex-shrink-0">
+      <nav aria-label="Breadcrumb" class="flex items-center gap-2 text-sm text-neutral-400">
+        <a href="#" class="hover:text-white transition-colors">Dokumente</a>
+        <span class="text-neutral-600" aria-hidden="true">/</span>
+        <span class="text-white font-medium">Stromrechnung März</span>
+      </nav>
+
+      <div class="flex items-center gap-3">
+        <a href="#" class="inline-flex items-center gap-1.5 text-xs text-neutral-400 hover:text-white transition-colors font-mono">
+          <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="m15 18-6-6 6-6"></path>
+          </svg>
+          <span>Zurück zur Übersicht</span>
+        </a>
+      </div>
+    </div>
+
+    <!-- Main Content Area: Split View (Viewer on Left, Details Panel on Right) -->
+    <main class="flex-1 flex overflow-hidden min-h-0">
+
+      <!-- Left Side: Inverted Document Viewer (dark page, light text) -->
+      <section class="flex-1 flex flex-col bg-[#0a0a0a] border-r border-[#242424] overflow-hidden" aria-label="Dokumentenvorschau">
+
+        <!-- Viewer Toolbar -->
+        <div class="h-12 bg-[#131313] border-b border-[#242424] px-4 flex items-center justify-between select-none">
+          <!-- Page pagination -->
+          <div class="flex items-center gap-2 text-xs font-mono text-neutral-300">
+            <button type="button" class="p-1 rounded text-neutral-400 hover:text-white hover:bg-[#1c1b1b] transition-colors" title="Vorherige Seite">
+              <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="m15 18-6-6 6-6"></path>
+              </svg>
+            </button>
+            <span>Seite 1 von 3</span>
+            <button type="button" class="p-1 rounded text-neutral-400 hover:text-white hover:bg-[#1c1b1b] transition-colors" title="Nächste Seite">
+              <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="m9 18 6-6-6-6"></path>
+              </svg>
+            </button>
+          </div>
+
+          <!-- Document Zoom & Tools (never disabled zoom) -->
+          <div class="flex items-center gap-1">
+            <button type="button" class="p-1.5 rounded text-neutral-400 hover:text-white hover:bg-[#1c1b1b] transition-colors" title="Verkleinern">
+              <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <circle cx="11" cy="11" r="8"></circle>
+                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                <line x1="8" y1="11" x2="14" y2="11"></line>
+              </svg>
+            </button>
+            <span class="font-mono text-xs px-2 text-neutral-300">100%</span>
+            <button type="button" class="p-1.5 rounded text-neutral-400 hover:text-white hover:bg-[#1c1b1b] transition-colors" title="Vergrößern">
+              <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <circle cx="11" cy="11" r="8"></circle>
+                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                <line x1="11" y1="8" x2="11" y2="14"></line>
+                <line x1="8" y1="11" x2="14" y2="11"></line>
+              </svg>
+            </button>
+            <div class="h-4 w-px bg-[#2a2929] mx-1" aria-hidden="true"></div>
+            <button type="button" class="p-1.5 rounded text-neutral-400 hover:text-white hover:bg-[#1c1b1b] transition-colors" title="An Fenster anpassen">
+              <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M8 3H5a2 2 0 0 0-2 2v3"></path>
+                <path d="M21 8V5a2 2 0 0 0-2-2h-3"></path>
+                <path d="M3 16v3a2 2 0 0 0 2 2h3"></path>
+                <path d="M16 21h3a2 2 0 0 0 2-2v-3"></path>
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <!-- Document Viewer Scrollable Canvas -->
+        <div class="flex-1 overflow-auto p-8 flex justify-center items-start">
+          <!-- Inverted Page Container (Dark page, Light text) -->
+          <article class="w-full max-w-2xl bg-[#141414] border border-[#282828] rounded-lg shadow-2xl p-10 font-sans text-neutral-200 min-h-[780px] flex flex-col justify-between select-text">
+            <div>
+              <!-- Invoice Header -->
+              <div class="flex justify-between items-start border-b border-[#282828] pb-6 mb-8">
+                <div>
+                  <h3 class="text-lg font-bold text-white tracking-tight">Stadtwerke Musterstadt GmbH</h3>
+                  <p class="text-xs text-neutral-400 mt-1 leading-relaxed font-mono">
+                    Postfach 10 24 50 · 99024 Musterstadt<br>
+                    Kundenservice: service@stadtwerke-musterstadt.de
+                  </p>
+                </div>
+                <div class="text-right">
+                  <div class="inline-block px-2.5 py-1 rounded bg-[#1c1b1b] border border-[#2e2d2d] font-mono text-xs text-neutral-300">
+                    RE-2024-03
+                  </div>
+                  <div class="text-xs text-neutral-400 font-mono mt-1.5">
+                    Datum: 01.03.2024
+                  </div>
+                </div>
+              </div>
+
+              <!-- Recipient & Subject -->
+              <div class="grid grid-cols-2 gap-6 mb-8 text-sm">
+                <div>
+                  <div class="text-xs font-mono uppercase tracking-wider text-neutral-500 mb-1">Empfänger</div>
+                  <div class="text-white font-medium">Frau Anna Schmidt</div>
+                  <div class="text-neutral-400 text-xs">Lindenallee 14</div>
+                  <div class="text-neutral-400 text-xs">99084 Musterstadt</div>
+                </div>
+                <div>
+                  <div class="text-xs font-mono uppercase tracking-wider text-neutral-500 mb-1">Vertragsdaten</div>
+                  <div class="text-neutral-300 text-xs font-mono">Vertragskonto: 4892 0184 928</div>
+                  <div class="text-neutral-300 text-xs font-mono">Zählernummer: 1EMH001294821</div>
+                  <div class="text-neutral-300 text-xs font-mono">Verbrauchszeitraum: 01.03.2023 - 29.02.2024</div>
+                </div>
+              </div>
+
+              <!-- Document Title -->
+              <div class="mb-6">
+                <h4 class="text-base font-semibold text-white">Jahresabrechnung Strom 2023/2024</h4>
+                <p class="text-xs text-neutral-400 mt-0.5">Ihre persönliche Abrechnung für die Verbrauchsstelle Lindenallee 14, 99084 Musterstadt.</p>
+              </div>
+
+              <!-- Line Items Table -->
+              <table class="w-full text-xs text-left mb-8 border border-[#282828] rounded overflow-hidden">
+                <thead class="bg-[#1a1919] text-neutral-400 font-mono uppercase text-[10px]">
+                  <tr>
+                    <th scope="col" class="py-2.5 px-3">Position</th>
+                    <th scope="col" class="py-2.5 px-3 text-right">Menge</th>
+                    <th scope="col" class="py-2.5 px-3 text-right">Einzelpreis</th>
+                    <th scope="col" class="py-2.5 px-3 text-right">Gesamtbetrag</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-[#242424]">
+                  <tr>
+                    <td class="py-2.5 px-3 text-neutral-200">Grundpreis (12 Monate)</td>
+                    <td class="py-2.5 px-3 text-right font-mono text-neutral-400">12 Mon.</td>
+                    <td class="py-2.5 px-3 text-right font-mono text-neutral-400">12,00 €</td>
+                    <td class="py-2.5 px-3 text-right font-mono text-white">144,00 €</td>
+                  </tr>
+                  <tr>
+                    <td class="py-2.5 px-3 text-neutral-200">Arbeitspreis Strom (HT)</td>
+                    <td class="py-2.5 px-3 text-right font-mono text-neutral-400">2.410 kWh</td>
+                    <td class="py-2.5 px-3 text-right font-mono text-neutral-400">0,36 €</td>
+                    <td class="py-2.5 px-3 text-right font-mono text-white">867,60 €</td>
+                  </tr>
+                  <tr class="bg-[#181717]">
+                    <td colspan="3" class="py-2 px-3 text-neutral-400 font-medium">Rechnungsbetrag Netto</td>
+                    <td class="py-2 px-3 text-right font-mono text-neutral-300">1.011,60 €</td>
+                  </tr>
+                  <tr class="bg-[#181717]">
+                    <td colspan="3" class="py-2 px-3 text-neutral-400 font-medium">Umsatzsteuer (19%)</td>
+                    <td class="py-2 px-3 text-right font-mono text-neutral-300">192,20 €</td>
+                  </tr>
+                  <tr class="bg-[#1c1b1b]">
+                    <td colspan="3" class="py-2.5 px-3 text-white font-medium">Gesamtbetrag brutto</td>
+                    <td class="py-2.5 px-3 text-right font-mono font-semibold text-white">1.203,80 €</td>
+                  </tr>
+                  <tr>
+                    <td colspan="3" class="py-2.5 px-3 text-neutral-300">Geleistete monatliche Abschläge (11x)</td>
+                    <td class="py-2.5 px-3 text-right font-mono text-emerald-400">- 960,00 €</td>
+                  </tr>
+                </tbody>
+              </table>
+
+              <!-- Total Card -->
+              <div class="p-4 bg-[#1c1b1b] border border-[#2a2929] rounded-lg flex justify-between items-center mb-6">
+                <div>
+                  <span class="text-xs font-mono uppercase text-neutral-400">Verbleibender Zahlungsbetrag</span>
+                  <div class="text-xs text-neutral-400 mt-0.5">Fällig am 15.04.2024 per SEPA-Lastschrift</div>
+                </div>
+                <div class="text-xl font-bold font-mono text-white">
+                  243,80 €
+                </div>
+              </div>
+            </div>
+
+            <!-- Page Footer Note -->
+            <div class="pt-6 border-t border-[#242424] text-[11px] text-neutral-500 font-mono flex justify-between items-center">
+              <span>Stadtwerke Musterstadt GmbH · IBAN: DE89 3704 0044 0532 0130 00</span>
+              <span>Seite 1 von 3</span>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <!-- Right Side: Details Panel (w-96) -->
+      <aside class="w-96 flex-shrink-0 bg-[#131313] flex flex-col justify-between overflow-y-auto" aria-label="Dokumentdetails und Fassungen">
+        <div class="p-6 space-y-6">
+
+          <!-- Collapsed Heading "Angaben" -->
+          <div class="border-b border-[#242424] pb-4">
+            <button type="button" class="w-full flex items-center justify-between text-left text-neutral-400 hover:text-white transition-colors group focus:outline-none focus-visible:ring-1 focus-visible:ring-white rounded py-1">
+              <span class="text-sm font-semibold text-neutral-300 group-hover:text-white">Angaben</span>
+              <svg class="w-4 h-4 text-neutral-500 group-hover:text-neutral-300 transition-transform" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <polyline points="9 18 15 12 9 6"></polyline>
+              </svg>
+            </button>
+          </div>
+
+          <!-- Section H2 "Fassungen" opened -->
+          <section aria-labelledby="heading-fassungen" class="space-y-6">
+            <div class="flex items-center justify-between">
+              <h2 id="heading-fassungen" class="text-lg font-bold text-white tracking-tight">Fassungen</h2>
+              <span class="font-mono text-xs px-2 py-0.5 rounded bg-[#1c1b1b] text-neutral-400 border border-[#2a2929]">2 Versionen</span>
+            </div>
+
+            <!-- List of two entries -->
+            <div class="space-y-3" role="list">
+
+              <!-- Entry 1: Original – 03.03.2026 -->
+              <div class="p-3.5 rounded-lg bg-[#1a1919] border border-[#2a2929] flex flex-col gap-2" role="listitem">
+                <div class="flex items-center justify-between">
+                  <span class="font-medium text-sm text-neutral-200">Original</span>
+                  <span class="font-mono text-xs text-neutral-400">03.03.2026</span>
+                </div>
+                <div class="flex items-center gap-1.5 text-xs text-neutral-400 font-mono">
+                  <!-- File / Archive icon -->
+                  <svg class="w-3.5 h-3.5 text-neutral-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                    <polyline points="14 2 14 8 20 8"></polyline>
+                  </svg>
+                  <span>Gespeichert</span>
+                </div>
+              </div>
+
+              <!-- Entry 2: Bearbeitet – 05.03.2026 (wird angezeigt) -->
+              <div class="p-3.5 rounded-lg bg-[#201f1f] border border-[#393939] flex flex-col gap-2 relative ring-1 ring-white/10" role="listitem">
+                <div class="flex items-center justify-between">
+                  <div class="flex items-center gap-2">
+                    <span class="font-medium text-sm text-white">Bearbeitet</span>
+                  </div>
+                  <span class="font-mono text-xs text-neutral-300">05.03.2026</span>
+                </div>
+                <div class="flex items-center gap-1.5 text-xs text-emerald-400 font-mono">
+                  <!-- Eye / Active icon -->
+                  <svg class="w-3.5 h-3.5 text-emerald-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <circle cx="12" cy="12" r="3"></circle>
+                    <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"></path>
+                  </svg>
+                  <span class="font-medium">Aktiv (wird angezeigt)</span>
+                </div>
+              </div>
+
+            </div>
+
+            <!-- Radio group with legend "Behalten" -->
+            <fieldset class="pt-2">
+              <legend class="text-xs font-mono uppercase tracking-wider text-neutral-400 mb-3 block">
+                Behalten
+              </legend>
+
+              <div class="space-y-2.5">
+                <!-- Option 1: Beides -->
+                <label class="flex items-center gap-3 p-3 rounded-lg bg-[#1a1919] border border-[#2a2929] hover:border-neutral-500 cursor-pointer transition-colors group">
+                  <input type="radio" name="keep-versions" value="both" checked class="w-4 h-4 text-white bg-[#0e0e0e] border-[#393939] focus:ring-1 focus:ring-white focus:ring-offset-0 accent-white cursor-pointer">
+                  <div class="flex flex-col">
+                    <span class="text-sm font-medium text-white group-hover:text-neutral-100">Beides</span>
+                    <span class="text-xs text-neutral-400">Original und bearbeitete Fassung im Archiv behalten</span>
+                  </div>
+                </label>
+
+                <!-- Option 2: Nur bearbeitete Fassung -->
+                <label class="flex items-center gap-3 p-3 rounded-lg bg-[#1a1919] border border-[#2a2929] hover:border-neutral-500 cursor-pointer transition-colors group">
+                  <input type="radio" name="keep-versions" value="edited-only" class="w-4 h-4 text-white bg-[#0e0e0e] border-[#393939] focus:ring-1 focus:ring-white focus:ring-offset-0 accent-white cursor-pointer">
+                  <div class="flex flex-col">
+                    <span class="text-sm font-medium text-neutral-200 group-hover:text-white">Nur bearbeitete Fassung</span>
+                    <span class="text-xs text-neutral-400">Verwirft das Original nach Bestätigung</span>
+                  </div>
+                </label>
+
+                <!-- Option 3: Nur Original -->
+                <label class="flex items-center gap-3 p-3 rounded-lg bg-[#1a1919] border border-[#2a2929] hover:border-neutral-500 cursor-pointer transition-colors group">
+                  <input type="radio" name="keep-versions" value="original-only" class="w-4 h-4 text-white bg-[#0e0e0e] border-[#393939] focus:ring-1 focus:ring-white focus:ring-offset-0 accent-white cursor-pointer">
+                  <div class="flex flex-col">
+                    <span class="text-sm font-medium text-neutral-200 group-hover:text-white">Nur Original</span>
+                    <span class="text-xs text-neutral-400">Setzt alle bisherigen Bearbeitungen zurück</span>
+                  </div>
+                </label>
+              </div>
+
+              <!-- Button "Auswahl speichern" -->
+              <div class="mt-4">
+                <button type="button" class="w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg bg-white text-black hover:bg-neutral-200 font-medium text-sm transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-white shadow-sm">
+                  <svg class="w-4 h-4 text-black" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <polyline points="20 6 9 17 4 12"></polyline>
+                  </svg>
+                  <span>Auswahl speichern</span>
+                </button>
+              </div>
+            </fieldset>
+
+            <!-- Link "Seiten bearbeiten" -->
+            <div class="pt-2">
+              <a href="#" class="inline-flex items-center gap-2 text-sm text-neutral-300 hover:text-white underline underline-offset-4 decoration-neutral-600 hover:decoration-white transition-colors focus:outline-none focus-visible:ring-1 focus-visible:ring-white rounded">
+                <svg class="w-4 h-4 text-neutral-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M12 20h9"></path>
+                  <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
+                </svg>
+                <span>Seiten bearbeiten</span>
+              </a>
+            </div>
+
+            <!-- Hint text: "Nicht behaltene Fassungen kommen 30 Tage in den Papierkorb." -->
+            <div class="p-3.5 rounded-lg bg-[#181717] border border-[#242424] flex items-start gap-3">
+              <svg class="w-4 h-4 text-neutral-400 flex-shrink-0 mt-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="12" y1="16" x2="12" y2="12"></line>
+                <line x1="12" y1="8" x2="12.01" y2="8"></line>
+              </svg>
+              <p class="text-xs text-neutral-400 leading-relaxed">
+                Nicht behaltene Fassungen kommen 30 Tage in den Papierkorb.
+              </p>
+            </div>
+
+          </section>
+
+        </div>
+      </aside>
+
+    </main>
+
+  </div>
+
+</body>
+</html>
