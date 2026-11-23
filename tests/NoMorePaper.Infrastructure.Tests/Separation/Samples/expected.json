@@ -1,0 +1,17 @@
+{
+  "description": "Known boundaries (pages where a new document starts) per stack; senderOnly are the ones only a change of sender shows, so the page signs alone cannot find them.",
+  "stacks": {
+    "stack-01.json": { "boundaries": [3, 4], "senderOnly": [] },
+    "stack-02.json": { "boundaries": [3, 6], "senderOnly": [] },
+    "stack-03.json": { "boundaries": [5], "senderOnly": [] },
+    "stack-04.json": { "boundaries": [3, 4], "senderOnly": [] },
+    "stack-05.json": { "boundaries": [], "senderOnly": [] },
+    "stack-06.json": { "boundaries": [2], "senderOnly": [2] },
+    "stack-07.json": { "boundaries": [3], "senderOnly": [] },
+    "stack-08.json": { "boundaries": [3], "senderOnly": [] },
+    "stack-09.json": { "boundaries": [3], "senderOnly": [] },
+    "stack-10.json": { "boundaries": [4, 5], "senderOnly": [5] },
+    "stack-11.json": { "boundaries": [3], "senderOnly": [] },
+    "stack-12.json": { "boundaries": [2, 3, 4, 5], "senderOnly": [3, 5] }
+  }
+}

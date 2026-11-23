@@ -65,6 +65,7 @@ internal sealed class ProcessorHarness : IAsyncDisposable
         services.AddScoped<RecognizeDocument>();
         services.AddScoped<FindContentDuplicate>();
         services.AddScoped<EnqueueBacklog>();
+        services.AddSeparation(Separator);
         _services = services.BuildServiceProvider();
 
         Readiness.MarkReady();
@@ -84,6 +85,9 @@ internal sealed class ProcessorHarness : IAsyncDisposable
     public RecordingLogger<ProcessNextDocument> Log { get; } = new();
 
     public FakeRecognizer Recognizer { get; } = new();
+
+    /// <summary>Stands in for the local LLM of the stack separation.</summary>
+    public FakeSeparationAssessor Separator { get; } = new();
 
     public RecordingLogger<RecognizeDocument> RecognitionLog { get; } = new();
 

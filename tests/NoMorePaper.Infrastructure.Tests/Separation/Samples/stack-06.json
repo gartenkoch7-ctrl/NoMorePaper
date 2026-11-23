@@ -1,0 +1,7 @@
+{
+  "description": "Two receipts without salutation or counter; only the sender changes.",
+  "pages": [
+    { "head": "Amazon EU S.à r.l.\nRechnung\nBestellnummer 302-1234567-7654321\nRechnungsdatum 29.10.2026\nLieferadresse Max Mustermann, Lindenstraße 5, 80331 München\n1 x USB-C Ladekabel 2 m 9,99 EUR", "blank": false },
+    { "head": "Marien-Apotheke · Inh. Dr. Weber · Sendlinger Straße 4 · 80331 München\nQuittung\n04.11.2026 10:42\nIbuprofen 400 mg 20 Stück 4,95 EUR\nZuzahlung 5,00 EUR\nSumme 9,95 EUR bar", "blank": false }
+  ]
+}

@@ -2,6 +2,7 @@ using NoMorePaper.Server.Accounts;
 using NoMorePaper.Server.Classification;
 using NoMorePaper.Server.Composition;
 using NoMorePaper.Server.Documents;
+using NoMorePaper.Server.Editing;
 using NoMorePaper.Server.Inputs;
 using NoMorePaper.Server.Search;
 using NoMorePaper.Server.Security;
@@ -37,6 +38,7 @@ api.MapPreferencesEndpoints();
 api.MapOwnerCheckEndpoints();
 api.MapInputStatusEndpoints();
 api.MapMailSettingsEndpoints();
+api.MapSplitSuggestionEndpoints();
 app.MapFallbackToFile("index.html");
 
 await app.RunAsync();

@@ -20,5 +20,7 @@
     <None Include="Inputs\Samples\*.jpg" CopyToOutputDirectory="PreserveNewest" />
     <!-- Synthetic mails for the mail input (M4, track C), with the expected verdicts. -->
     <None Include="Inputs\Mail\Samples\*" CopyToOutputDirectory="PreserveNewest" />
+    <!-- Self-made scanned stacks as page starts, with their known boundaries (M4b, track D). -->
+    <None Include="Separation\Samples\*" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 </Project>

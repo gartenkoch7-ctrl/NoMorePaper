@@ -3,6 +3,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using NoMorePaper.Application.Inputs.Mail;
 using NoMorePaper.Application.Recognition;
+using NoMorePaper.Application.Separation;
+using NoMorePaper.Infrastructure.Processing;
 using NoMorePaper.Infrastructure.Recognition;
 
 namespace NoMorePaper.Infrastructure.Composition;
@@ -55,6 +57,24 @@ public static class RecognitionRegistration
         });
         services.AddScoped<IRecognitionExamples, EfRecognitionExamples>();
         services.AddScoped<IDuplicateFinder, PostgresDuplicateFinder>();
+
+        // Stack separation (M4b): the same Ollama behind the same gate, and its end in the queue.
+        services.AddSingleton<ISeparationAssessor>(provider =>
+        {
+            var settings = provider.GetRequiredService<OllamaSettings>();
+            var http = new HttpClient(new SocketsHttpHandler { PooledConnectionLifetime = s_connectionLifetime })
+            {
+                BaseAddress = settings.Endpoint,
+                Timeout = Timeout.InfiniteTimeSpan,
+            };
+            return new OllamaSeparationAssessor(
+                http,
+                settings,
+                provider.GetRequiredService<LlmGate>(),
+                provider.GetRequiredService<TimeProvider>(),
+                provider.GetRequiredService<ILogger<OllamaSeparationAssessor>>());
+        });
+        services.AddScoped<ISeparationQueue, JobQueue>();
         return services;
     }
 }

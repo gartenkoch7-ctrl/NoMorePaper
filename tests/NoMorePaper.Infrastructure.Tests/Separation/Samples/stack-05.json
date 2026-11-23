@@ -1,0 +1,8 @@
+{
+  "description": "One contract of three pages; nothing to split.",
+  "pages": [
+    { "head": "Mietvertrag über Wohnraum\nSeite 1/3\nZwischen Frau Anna Berger, Schillerstraße 12, 80336 München (Vermieterin)\nund Herrn Max Mustermann (Mieter)\nwird folgender Mietvertrag geschlossen:\n§ 1 Mietsache", "blank": false },
+    { "head": "Seite 2/3\n§ 4 Miete und Nebenkosten\nDie monatliche Grundmiete beträgt 980,00 EUR. Daneben trägt der Mieter die Betriebskosten im Sinne der Betriebskostenverordnung.", "blank": false },
+    { "head": "Seite 3/3\n§ 9 Schönheitsreparaturen\n§ 10 Sonstige Vereinbarungen\nMünchen, den 01.03.2024\nUnterschrift Vermieterin Unterschrift Mieter", "blank": false }
+  ]
+}

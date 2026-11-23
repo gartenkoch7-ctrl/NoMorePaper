@@ -1,0 +1,10 @@
+{
+  "description": "A policy over two pages, a separator sheet, a tax notice and a craftsman's invoice without salutation.",
+  "pages": [
+    { "head": "HUK-COBURG Versicherung\nVersicherungsschein Nr. 445-778-12\nWohngebäudeversicherung\nVersicherungsnehmer: Max Mustermann\nVersicherungsort: Lindenstraße 5, 80331 München\nBeginn 01.01.2027 Ablauf 01.01.2028", "blank": false },
+    { "head": "Fortsetzung Versicherungsschein Nr. 445-778-12\nVersicherte Gefahren: Feuer, Leitungswasser, Sturm, Hagel\nSelbstbeteiligung 250 EUR je Schadenfall\nJahresbeitrag 386,00 EUR", "blank": false },
+    { "head": "", "blank": true },
+    { "head": "Hauptzollamt München · Sachgebiet Kraftfahrzeugsteuer\nSteuernummer 4711/KFZ/2026\nBescheid über Kraftfahrzeugsteuer\nFahrzeug M-MM 1234\nFestgesetzte Steuer jährlich 124,00 EUR\nFälligkeit 15.12.2026", "blank": false },
+    { "head": "Malerbetrieb Seidl GmbH · Wasserburger Landstraße 70 · 81825 München\nRechnung Nr. 1187\nDatum 12.11.2026\nObjekt: Lindenstraße 5, Treppenhaus\nStreichen der Wände inkl. Material 1.480,00 EUR netto", "blank": false }
+  ]
+}

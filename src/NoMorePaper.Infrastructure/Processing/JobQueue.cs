@@ -6,6 +6,7 @@ using Microsoft.Extensions.Logging.Abstractions;
 using NoMorePaper.Application.Documents;
 using NoMorePaper.Application.Editing;
 using NoMorePaper.Application.Processing;
+using NoMorePaper.Application.Separation;
 using NoMorePaper.Domain.Documents;
 using NoMorePaper.Infrastructure.Persistence;
 
@@ -17,7 +18,7 @@ namespace NoMorePaper.Infrastructure.Processing;
 /// never get the same job, and hold it until <c>locked_until</c>; a crashed Worker's job becomes due
 /// again once that has passed. Failures are in <c>JobQueue.Failure.cs</c>, the recognition stage in
 /// <c>JobQueue.Recognition.cs</c>, queuing edits and dropping jobs in <c>JobQueue.Enqueue.cs</c>, the page
-/// information in <c>JobQueue.Pages.cs</c>.
+/// information in <c>JobQueue.Pages.cs</c>, the stack separation in <c>JobQueue.Separation.cs</c>.
 /// </summary>
 /// <remarks>
 /// Every claim gets a new <see cref="JobClaim.ClaimId"/>, and every later call acts only while the
@@ -120,27 +121,31 @@ public sealed partial class JobQueue(AppDbContext db, TimeProvider time, ILogger
             document.Complete(text);
             await ReplacePagesAsync(claim.DocumentId, pages, cancellationToken).ConfigureAwait(false);
 
-            // Recognition follows at once, with attempts of its own and the job's priority, unless there
-            // is nothing to recognize: no text, no owner whose lists it could use (M1, before setup), or
-            // fields somebody confirmed already while OCR ran.
-            if (document.OwnerId is null || string.IsNullOrWhiteSpace(text) || document.Recognition == RecognitionState.Confirmed)
-            {
-                db.ProcessingJobs.Remove(job);
-            }
-            else
-            {
-                job.Stage = JobStage.Recognition;
-                job.Attempt = 0;
-                job.NextAttemptAt = time.GetUtcNow();
-                job.ClaimId = null;
-                job.LockedUntil = null;
-                job.LastError = null;
-            }
-
+            // A scanned stack may hold several documents: separation looks first, recognition follows it.
+            MoveOn(job, document, SeparationHeuristics.IsScannedStack(pages) ? JobStage.Separation : JobStage.Recognition);
             await db.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
             await transaction.CommitAsync(cancellationToken).ConfigureAwait(false);
             return true;
         }
+    }
+
+    // The next stage follows at once, with attempts of its own and the job's priority, unless there is
+    // nothing to recognize: no text, no owner whose lists it could use (M1, before setup), or fields
+    // somebody confirmed already while OCR ran. Separation only prepares recognition, so the same holds.
+    private void MoveOn(ProcessingJob job, Document document, JobStage next)
+    {
+        if (document.OwnerId is null || string.IsNullOrWhiteSpace(document.ContentText) || document.Recognition == RecognitionState.Confirmed)
+        {
+            db.ProcessingJobs.Remove(job);
+            return;
+        }
+
+        job.Stage = next;
+        job.Attempt = 0;
+        job.NextAttemptAt = time.GetUtcNow();
+        job.ClaimId = null;
+        job.LockedUntil = null;
+        job.LastError = null;
     }
 
     // The document first, then the job: moving a document to the trash and deleting it lock them in this

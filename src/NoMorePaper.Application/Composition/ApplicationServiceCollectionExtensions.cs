@@ -8,6 +8,7 @@ using NoMorePaper.Application.Inputs.Mail;
 using NoMorePaper.Application.Processing;
 using NoMorePaper.Application.Recognition;
 using NoMorePaper.Application.Search;
+using NoMorePaper.Application.Separation;
 using NoMorePaper.Application.Trash;
 
 namespace NoMorePaper.Application.Composition;
@@ -54,6 +55,7 @@ public static class ApplicationServiceCollectionExtensions
         services.AddScoped<MergeEntries>();
         services.AddScoped<ConfirmOwnerCheck>();
         services.AddScoped<HandOverDocument>();
+        services.AddScoped<AnswerSplitSuggestion>();
     }
 
     private static void AddAccounts(this IServiceCollection services)
@@ -114,6 +116,7 @@ public static class ApplicationServiceCollectionExtensions
     {
         services.AddKeyedScoped<IStageRunner, OcrStageRunner>(JobStage.Ocr);
         services.AddKeyedScoped<IStageRunner, RecognitionStageRunner>(JobStage.Recognition);
+        services.AddKeyedScoped<IStageRunner, SeparationStageRunner>(JobStage.Separation);
         return services;
     }
 }
