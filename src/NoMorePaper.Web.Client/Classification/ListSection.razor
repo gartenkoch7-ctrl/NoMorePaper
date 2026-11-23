@@ -58,7 +58,7 @@
 
     @if (_renaming is not null)
     {
-        <ConfirmBox Id="@(Prefix + "-rename")" HeadingLevel="3" Title="@L["ListsRenameHeading", _renaming.Name]"
+        <ConfirmBox @key="_renaming.Id" Id="@(Prefix + "-rename")" HeadingLevel="3" Title="@L["ListsRenameHeading", _renaming.Name]"
                     ConfirmLabel="@L["ListsRenameConfirm"]" PrimaryConfirm="true" InitialFocusId="@(Prefix + "-rename-input")"
                     OnConfirm="RenameAsync" OnCancel="CancelRename">
             <div class="form-field">
@@ -71,7 +71,7 @@
 
     @if (_merging)
     {
-        <ConfirmBox Id="@(Prefix + "-merge-box")" HeadingLevel="3" Title="@L["ListsMergeQuestion", _selected.Count]"
+        <ConfirmBox @key="_mergeRound" Id="@(Prefix + "-merge-box")" HeadingLevel="3" Title="@L["ListsMergeQuestion", _selected.Count]"
                     Text="@L["ListsMergeExplain"]" ConfirmLabel="@L["ListsMergeConfirm"]"
                     OnConfirm="MergeAsync" OnCancel="CancelMerge">
             <div class="form-field">

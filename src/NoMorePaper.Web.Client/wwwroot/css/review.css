@@ -75,3 +75,8 @@
     align-items: center;
     gap: var(--nmp-space-sm);
 }
+
+/* Date and amount read as figures: mono, as in the design. */
+.review-field-mono dd {
+    font-family: var(--nmp-font-mono);
+}

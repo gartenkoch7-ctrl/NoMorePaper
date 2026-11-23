@@ -46,9 +46,9 @@ else
                         <dd>@(item.Fields.Correspondent?.Name ?? L["ClsNoValue"])</dd></div>
                         <div class="review-field"><dt>@L["ClsFieldType"]</dt>
                         <dd>@(item.Fields.DocumentType?.Name ?? L["ClsNoValue"])</dd></div>
-                        <div class="review-field"><dt>@L["ClsFieldDate"]</dt>
+                        <div class="review-field review-field-mono"><dt>@L["ClsFieldDate"]</dt>
                         <dd>@(item.Fields.DocumentDate is { } date ? FieldFormat.Date(date, CultureInfo.CurrentCulture) : L["ClsNoValue"])</dd></div>
-                        <div class="review-field"><dt>@L["ClsFieldAmount"]</dt>
+                        <div class="review-field review-field-mono"><dt>@L["ClsFieldAmount"]</dt>
                         <dd>@(item.Fields.Amount is { } amount ? FieldFormat.Amount(amount, CultureInfo.CurrentCulture) : L["ClsNoValue"])</dd></div>
                         <div class="review-field"><dt>@L["ClsFieldTags"]</dt>
                         <dd>

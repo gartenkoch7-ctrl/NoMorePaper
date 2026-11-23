@@ -17,6 +17,8 @@ public sealed partial class ListSection
     private LiveRegion? _error;
     private EntryDto[] _entries = [];
     private EntryDto? _renaming;
+    // New key per ask, so a re-ask re-creates the box and it takes focus again.
+    private int _mergeRound;
     private string _newName = string.Empty;
     private string _target = string.Empty;
     private string? _loadError;
@@ -136,6 +138,7 @@ public sealed partial class ListSection
         }
 
         (_merging, _renaming) = (true, null);
+        _mergeRound++;
         _target = _entries.First(entry => _selected.Contains(entry.Id)).Id.ToString();
     }
 
