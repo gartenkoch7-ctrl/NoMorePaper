@@ -1,9 +1,15 @@
-# 06 – Zu prüfen (Stitch-Entwurf, Vorschlag)
+# 06 – Zu prüfen (Stitch-Entwurf)
 
-- **Stitch-Screen:** Projekt `17713397687229704853`, Screen `a4769d0a4c704207a371768f10d2bcf2`
-  (HTML-Datei `projects/17713397687229704853/files/d2cdbbd212bd4d748152a8a75970f607`)
-- **Dateien:** [code.html](code.html) (unverändert aus Stitch), [screen.png](screen.png)
-- **Ziel im Code:** `src/NoMorePaper.Web.Client/Pages/Review.razor` + `Review.razor.cs` (`/zu-pruefen`)
+- **Stitch-Screen:** Projekt `17713397687229704853`, Screen `5296868046944013a737fdf5418a98c6` (v2,
+  M4b-Nachtrag; ersetzt v1 `a4769d0a4c704207a371768f10d2bcf2`),
+  HTML-Datei `projects/17713397687229704853/files/468572fd45f84767a04ce5f1435b44d6`
+  (v1: `projects/17713397687229704853/files/d2cdbbd212bd4d748152a8a75970f607`)
+- **Dateien:** [code.html](code.html) (v2, unverändert aus Stitch), [screen.png](screen.png) (v2)
+- **Ziel im Code:** `src/NoMorePaper.Web.Client/Pages/Review.razor` + `Review.razor.cs` (`/zu-pruefen`); ab M4b
+  dazu `Classification/SplitSuggestionSection.razor` (P4d)
+- Die Abschnitte „Übernehmen“ bis „Nachbessern in Stitch?“ beschreiben den **bestehenden Teil** (Prüfung v1,
+  in M4u umgesetzt). v2 zeigt Duplikat-Abschnitt und Rückfrage „Wirklich löschen?“ nicht mehr – dafür gilt
+  weiter v1 bzw. die Umsetzung. Der neue Teil steht unter „M4b-Nachtrag“.
 - **Prompt:** [prompts-spur-e.md](../prompts-spur-e.md) „06 – Zu prüfen“, Beschreibung prompts.md §3.6
 
 ## Übernehmen (passt zur App)
@@ -61,4 +67,71 @@
   an den echten Text angleichen; optional eine Karte mit „Wem gehört das?“ ergänzen, damit der Entwurf
   die echte Seite zeigt (Regel „Mockups zeigen die echte App“).
 
-Status: freigegeben durch den Nutzer (2026-11-23); Restpunkte werden beim Umsetzen behoben
+Status (bestehender Teil): umgesetzt (M4u)
+
+## M4b-Nachtrag (Trennvorschlag)
+
+Gebraucht von P4d (`SplitSuggestionSection`). S0-Vorgabe: Abschnitt „Trennvorschlag“ in einer Prüfkarte (Satz,
+Liste der Teile, Knöpfe „Teilen“, „Anpassen“, „Nicht teilen“).
+
+### S0-Vorgabe – erfüllt
+
+- Karte 1 „Scan vom 05.03.2026“ (Stapelscan, 6 Seiten) mit innerer Fläche „Trennvorschlag“ (H3 + Symbol
+  `content_cut` mit `aria-hidden`) zwischen Angaben und Kartenknöpfen. ✔
+- Satz „Trennvorschlag: 3 Dokumente (Seiten 1–2, 3, 4–6), Seite 5 vermutlich leer.“ – wörtlich wie P4d. ✔
+- Liste der Teile: „Dokument 1: Seiten 1–2 – beginnt mit „Sehr geehrte Frau …““ usw. – Teil, Seiten und
+  Textanfang als Text. ✔
+- Knöpfe „Teilen“ (weiß), „Anpassen“, „Nicht teilen“ (dunkel). ✔
+- Rückfrage in der Seite (kein Modal): H4 „In 3 Dokumente teilen?“, „Es entstehen 3 neue Dokumente. Das
+  ursprüngliche Dokument kommt 30 Tage in den Papierkorb.“, „Abbrechen“ zuerst, dann „Ja, teilen“. Inhalt passt
+  zum Plan (SplitStep: Ausgang erst nach allen Teilen in den Papierkorb). ✔
+- Karte 2 ohne Vorschlag zeigt, dass der Abschnitt nur bei Stapeln erscheint. ✔
+- Design-System: Fläche `surface-container-lowest` in der Karte, Rückfrage `surface-container`, keine Rahmen, kein
+  Rot. Schrift: `fontFamily` korrekt (Geist / JetBrains Mono), `screen.png` ohne Serifen. ✔
+
+### Übernehmen
+
+- Aufbau Überschrift → Satz → Liste → Knopfzeile → (nach „Teilen“) Rückfrage darunter.
+- Wortlaut von Satz, Listeneinträgen und Rückfrage.
+
+### Abgleich mit der App
+
+| Im Entwurf | In NoMorePaper (P4d) |
+|---|---|
+| „Anpassen“ als `button` | **Link** `DocumentLinks.PageEditor(id, split: true)` mit Knopf-Optik (`nmp-button`) |
+| „Ja, teilen“ weiß (`primary`) | P4d: `ConfirmBox … neutral` (Standard, kein `PrimaryConfirm`); Rot nie |
+| Rückfrage dauerhaft sichtbar | nur nach „Teilen“; `ConfirmBox Id="review-split-{key}" @key`, Fokus auf die Überschrift, Escape bricht ab |
+| Rückfrage als H4 | `ConfirmBox HeadingLevel` passend unter H3 „Trennvorschlag“ (H4) |
+| fehlt | nach „Teilen“/„Nicht teilen“ Ansage + Karte verschwindet (`OnAnswered` → `DoneAsync`); Fehler als `NoticeBox` |
+| Karte „Scan vom …“ mit Art „Rechnung & Korrespondenz“ | nur Beispieldaten; Angaben wie bei jeder Karte |
+
+### Beim Übernehmen nicht mitnehmen (§2.5)
+
+- Fläche als `section` ohne Namen – in der App `section aria-labelledby` auf die H3.
+- Aufzählungspunkte „•“ als eigene `span` ohne `aria-hidden` (Screenreader liest „Aufzählungszeichen“ doppelt) –
+  echte `ul` mit CSS-Punkten.
+- Knöpfe ohne Bezug zum Dokument („Teilen“, „Nicht teilen“) – `aria-label` bzw. `aria-describedby` mit Titel,
+  wie „Bestätigen“ heute.
+- Rückfrage als `div` ohne `role="group"`/`aria-labelledby` – kommt aus `ConfirmBox`.
+- Knöpfe der Fläche in `font-label-md` 11 px (Mono) – in der App normale Knopfschrift (`nmp-button`).
+
+### Bestehender Teil in v2 – nicht übernehmen (bestehende Umsetzung gilt)
+
+- Abzeichen „Automatisch erkannt“ rechts oben in beiden Karten, eckig – App: unter der Zusammenfassung
+  (`fields-recognition`, `Badge`).
+- Knopfreihenfolge „Bearbeiten“ → „Bestätigen“ – App: „Bestätigen“ zuerst (nur bei `Automatic`), dann
+  „Bearbeiten“.
+- Angaben im 5-Spalten-Raster mit `truncate` an Absender/Art („Stadtwerke Mustersta…“) – App: Raster der
+  Umsetzung, nichts abschneiden.
+- Karten `surface-container-low` (v1/App: `surface-container`); Knopftexte der Karte in JetBrains Mono.
+- Brotkrume „Posteingang / Prüfliste“ – gibt es in der App nicht; Rahmen (Seitenleiste „Server Archive“,
+  „DE | EN“, `title=` an „Abmelden“) – App-Rahmen aus `MainLayout` gilt.
+- `focus:outline-none` am Suchfeld, Symbole im Rahmen ohne `aria-hidden`, CDN/Google Fonts – wie oben.
+
+### Nachbessern in Stitch?
+
+Nein. S0-Vorgabe vollständig gezeigt. „Ja, teilen“ weiß statt neutral ist eine kleine Abweichung zum Plan;
+in der App neutral umsetzen (oder der Nutzer entscheidet bei der Freigabe, ob „Ja, teilen“ weiß sein darf –
+im Papierkorb ist „Ja, leeren“ weiß freigegeben).
+
+Status (M4b-Nachtrag): Vorschlag – Freigabe durch den Nutzer offen

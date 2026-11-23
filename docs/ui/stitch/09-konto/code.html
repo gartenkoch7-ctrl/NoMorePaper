@@ -12,10 +12,7 @@
 </nav>
 <div class="flex flex-col md:flex-row md:items-end justify-between gap-space-md">
 <h1 class="font-headline-xl text-headline-xl text-primary tracking-tight">Konto</h1>
-<p class="font-body-md text-body-md text-on-surface-variant flex items-center gap-space-xs">
-<span aria-hidden="true" class="material-symbols-outlined text-[18px] text-primary">person</span>
-<span>Angemeldet als <strong class="text-primary font-medium">Anna (anna)</strong> – Administrator</span>
-</p>
+<p class="font-body-md text-body-md text-on-surface-variant flex items-center gap-space-xs"><span aria-hidden="true" class="material-symbols-outlined text-[18px] text-primary">person</span><span>Angemeldet als <strong class="text-primary font-medium">Anna (anna)</strong> – Verwalter</span></p>
 </div>
 </header>
 <div class="grid grid-cols-1 lg:grid-cols-12 gap-gutter-desktop items-start">
@@ -25,7 +22,6 @@
 <span aria-hidden="true" class="material-symbols-outlined text-[20px] text-primary">lock</span>
 <h2 class="font-headline-md text-headline-md text-primary" id="heading-password">Passwort ändern</h2>
 </div>
-<span class="font-label-sm text-label-sm text-outline uppercase">01</span>
 </div>
 <form class="flex flex-col gap-space-md" id="password-form" onsubmit="event.preventDefault();">
 <div class="flex flex-col gap-space-xs">
@@ -66,30 +62,12 @@
 </form>
 </section>
 <div class="lg:col-span-5 flex flex-col gap-gutter-desktop">
-<section aria-labelledby="heading-language" class="bg-surface-container rounded-xl p-space-lg shadow-md flex flex-col gap-space-md">
-<div class="flex items-center justify-between gap-space-md">
-<div class="flex items-center gap-space-sm">
-<span aria-hidden="true" class="material-symbols-outlined text-[20px] text-primary">translate</span>
-<h2 class="font-headline-md text-headline-md text-primary" id="heading-language">Sprache</h2>
-</div>
-<span class="font-label-sm text-label-sm text-outline uppercase">03</span>
-</div>
-<div class="flex items-center justify-between bg-surface-container-lowest rounded-lg p-space-sm px-space-md">
-<span class="font-body-sm text-body-sm text-on-surface-variant">Oberfläche</span>
-<div aria-label="Sprache wählen" class="flex items-center gap-space-sm font-label-lg text-label-lg" role="group">
-<button aria-pressed="true" class="text-primary font-medium hover:text-primary transition-colors" id="lang-de" type="button">Deutsch</button>
-<span aria-hidden="true" class="text-outline">|</span>
-<button aria-pressed="false" class="text-outline hover:text-on-surface transition-colors" id="lang-en" type="button">English</button>
-</div>
-</div>
-</section>
 <section aria-labelledby="heading-logout" class="bg-surface-container rounded-xl p-space-lg shadow-md flex flex-col gap-space-md">
 <div class="flex items-center justify-between gap-space-md">
 <div class="flex items-center gap-space-sm">
 <span aria-hidden="true" class="material-symbols-outlined text-[20px] text-primary">logout</span>
 <h2 class="font-headline-md text-headline-md text-primary" id="heading-logout">Abmelden</h2>
 </div>
-<span class="font-label-sm text-label-sm text-outline uppercase">04</span>
 </div>
 <p class="font-body-sm text-body-sm text-on-surface-variant">
             Melde dich in diesem Browser ab oder beende alle aktiven Sitzungen auf dem Heimserver.
@@ -105,13 +83,7 @@
 </section>
 </div>
 <section aria-labelledby="heading-inbox" class="lg:col-span-12 bg-surface-container rounded-xl p-space-lg shadow-md flex flex-col gap-space-lg">
-<div class="flex items-center justify-between gap-space-md">
-<div class="flex items-center gap-space-sm">
-<span aria-hidden="true" class="material-symbols-outlined text-[20px] text-primary">inbox</span>
-<h2 class="font-headline-md text-headline-md text-primary" id="heading-inbox">Eingänge</h2>
-</div>
-<span class="font-label-sm text-label-sm text-outline uppercase">02</span>
-</div>
+<div class="flex items-center justify-between gap-space-md"><div class="flex items-center gap-space-sm"><span aria-hidden="true" class="material-symbols-outlined text-[20px] text-primary">inbox</span><h2 class="font-headline-md text-headline-md text-primary" id="heading-inbox">Eingänge und neue Dokumente</h2></div></div>
 <div class="bg-surface-container-low rounded-lg p-space-md flex flex-col sm:flex-row sm:items-center justify-between gap-space-md">
 <div class="flex flex-col gap-space-xs">
 <label class="flex items-center gap-space-sm cursor-pointer" for="private-docs">
@@ -159,7 +131,7 @@
             </button>
 </form>
 </div>
-</section>
+</section><section aria-labelledby="heading-edited-docs" class="lg:col-span-12 bg-surface-container rounded-xl p-space-lg shadow-md flex flex-col gap-space-lg"><div class="flex items-center gap-space-sm"><span aria-hidden="true" class="material-symbols-outlined text-[20px] text-primary">auto_fix_high</span><h2 class="font-headline-md text-headline-md text-primary" id="heading-edited-docs">Bearbeitete Dokumente</h2></div><form class="flex flex-col gap-space-md" onsubmit="event.preventDefault();"><fieldset class="border-0 p-0 m-0 flex flex-col gap-space-md"><legend class="font-body-md text-body-md text-primary font-medium mb-space-xs">Nach dem Bearbeiten behalten</legend><div class="flex flex-col gap-space-sm"><label class="flex items-start gap-space-sm cursor-pointer p-space-sm rounded-lg bg-surface-container-low hover:bg-surface-container-high transition-colors"><input checked="checked" class="mt-1 w-[18px] h-[18px] accent-primary cursor-pointer" name="edit_retention" type="radio" value="both"/><div class="flex flex-col"><span class="font-body-md text-body-md text-primary font-medium">Beides</span><span class="font-body-sm text-body-sm text-on-surface-variant">Original und bearbeitete Fassung bleiben.</span></div></label><label class="flex items-start gap-space-sm cursor-pointer p-space-sm rounded-lg bg-surface-container-low hover:bg-surface-container-high transition-colors"><input class="mt-1 w-[18px] h-[18px] accent-primary cursor-pointer" name="edit_retention" type="radio" value="edited_only"/><div class="flex flex-col"><span class="font-body-md text-body-md text-primary font-medium">Nur bearbeitete Fassung</span><span class="font-body-sm text-body-sm text-on-surface-variant">Das Original kommt 30 Tage in den Papierkorb.</span></div></label><label class="flex items-start gap-space-sm cursor-pointer p-space-sm rounded-lg bg-surface-container-low hover:bg-surface-container-high transition-colors"><input class="mt-1 w-[18px] h-[18px] accent-primary cursor-pointer" name="edit_retention" type="radio" value="original_only"/><div class="flex flex-col"><span class="font-body-md text-body-md text-primary font-medium">Nur Original</span><span class="font-body-sm text-body-sm text-on-surface-variant">Die bearbeitete Fassung kommt 30 Tage in den Papierkorb.</span></div></label></div></fieldset><p class="font-body-sm text-body-sm text-on-surface-variant">Gilt für Dokumente, die du ab jetzt bearbeitest. Je Dokument kannst du es im Bereich „Fassungen“ ändern.</p><div class="pt-space-xs flex items-center justify-start"><button class="h-[38px] px-space-md bg-primary hover:bg-primary-container text-on-primary font-headline-sm text-headline-sm rounded-lg transition-colors" type="submit">Speichern</button></div></form></section>
 </div>
 </div>
 </div>

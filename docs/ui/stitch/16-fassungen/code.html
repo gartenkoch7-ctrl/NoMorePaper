@@ -1,316 +1,295 @@
 <!DOCTYPE html>
 
-<html class="dark" lang="de"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="web_dashboard" name="shell-type"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/><link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap" rel="stylesheet"/>
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config={darkMode:"class",theme:{extend:{colors:{"on-tertiary-fixed":"#1a1b22","on-primary":"#2f3131","surface-container":"#201f1f","inverse-on-surface":"#313030","on-background":"#e5e2e1","inverse-surface":"#e5e2e1","error-container":"#93000a","outline-variant":"#444748","on-secondary":"#2f3037","error":"#ffb4ab","tertiary-fixed-dim":"#c6c5cf","on-secondary-fixed-variant":"#45464e","primary-container":"#e2e2e2","surface-container-highest":"#353534","on-primary-container":"#636565","on-secondary-container":"#b4b4bd","secondary-fixed-dim":"#c6c6cf","on-tertiary-fixed-variant":"#46464e","on-surface-variant":"#c4c7c8","on-tertiary-container":"#63646c","surface-tint":"#c6c6c7","secondary-container":"#45464e","tertiary":"#ffffff","on-primary-fixed-variant":"#454747","on-surface":"#e5e2e1","surface-container-lowest":"#0e0e0e","tertiary-fixed":"#e3e1ec","surface":"#131313","outline":"#8e9192","surface-container-high":"#2a2a2a","surface-bright":"#393939","on-tertiary":"#2f3038","surface-dim":"#131313","secondary-fixed":"#e2e1eb","tertiary-container":"#e3e1ec","secondary":"#c6c6cf","primary-fixed":"#e2e2e2","on-secondary-fixed":"#1a1b22","background":"#131313","primary-fixed-dim":"#c6c6c7","inverse-primary":"#5d5f5f","primary":"#ffffff","on-error":"#690005","surface-variant":"#353534","on-error-container":"#ffdad6","surface-container-low":"#1c1b1b","on-primary-fixed":"#1a1c1c"},borderRadius:{"DEFAULT":"0.25rem","lg":"0.5rem","xl":"0.75rem","full":"9999px"},spacing:{"margin":"1rem","space-xl":"2.5rem","space-xs":"0.25rem","gutter-desktop":"1.5rem","gutter":"1rem","space-lg":"1.5rem","space-sm":"0.5rem","margin-desktop":"2rem","space-md":"1rem"},fontFamily:{"label-lg":["JetBrains Mono"],"headline-xl-mobile":["Geist"],"body-sm":["Geist"],"headline-lg":["Geist"],"headline-sm":["Geist"],"headline-xl":["Geist"],"label-sm":["JetBrains Mono"],"label-md":["JetBrains Mono"],"body-lg":["Geist"],"body-md":["Geist"],"headline-md":["Geist"],"headline-lg-mobile":["Geist"]},fontSize:{"label-lg":["13px",{"lineHeight":"18px","letterSpacing":"0.02em","fontWeight":"500"}],"headline-xl-mobile":["30px",{"lineHeight":"38px","letterSpacing":"-0.02em","fontWeight":"600"}],"body-sm":["12px",{"lineHeight":"18px","letterSpacing":"0em","fontWeight":"400"}],"headline-lg":["28px",{"lineHeight":"36px","letterSpacing":"-0.02em","fontWeight":"600"}],"headline-sm":["16px",{"lineHeight":"24px","letterSpacing":"-0.005em","fontWeight":"500"}],"headline-xl":["40px",{"lineHeight":"48px","letterSpacing":"-0.03em","fontWeight":"600"}],"label-sm":["10px",{"lineHeight":"14px","letterSpacing":"0.05em","fontWeight":"400"}],"label-md":["11px",{"lineHeight":"16px","letterSpacing":"0.04em","fontWeight":"500"}],"body-lg":["16px",{"lineHeight":"26px","letterSpacing":"-0.005em","fontWeight":"400"}],"body-md":["14px",{"lineHeight":"22px","letterSpacing":"0em","fontWeight":"400"}],"headline-md":["20px",{"lineHeight":"28px","letterSpacing":"-0.01em","fontWeight":"500"}],"headline-lg-mobile":["22px",{"lineHeight":"28px","letterSpacing":"-0.015em","fontWeight":"600"}]}}}};</script></head><body class="bg-background text-on-surface antialiased selection:bg-surface-container-highest selection:text-primary"><aside class="fixed left-0 top-0 h-screen w-72 bg-surface-container-low shadow-[0_1px_8px_rgba(0,0,0,0.04)] z-50 flex flex-col justify-between p-space-md"><div class="flex flex-col gap-space-lg"><div class="flex items-center gap-space-sm px-space-sm py-space-xs"><div class="w-8 h-8 rounded-lg bg-surface-container-highest flex items-center justify-center"><span class="material-symbols-outlined text-primary text-[20px]">folder_special</span></div><div class="flex flex-col"><span class="font-headline-sm text-headline-sm text-primary tracking-tight font-semibold">NoMorePaper</span><span class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">Lokal-Archiv</span></div></div><nav class="flex flex-col gap-space-xs" data-active-classes="bg-surface-container-high text-primary font-medium rounded-lg"><a class="flex items-center gap-space-sm px-space-md py-space-sm rounded-lg text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors font-body-md text-body-md" data-path="startseite" href="#"><span class="material-symbols-outlined text-[20px]">home</span><span>Startseite</span></a><a class="flex items-center gap-space-sm px-space-md py-space-sm rounded-lg text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors font-body-md text-body-md" data-path="hinzufuegen" href="#"><span class="material-symbols-outlined text-[20px]">post_add</span><span>Hinzufügen</span></a><a class="flex items-center gap-space-sm px-space-md py-space-sm rounded-lg text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors font-body-md text-body-md" data-path="dokumente" href="#"><span class="material-symbols-outlined text-[20px]">description</span><span>Dokumente</span></a><a class="flex items-center justify-between px-space-md py-space-sm rounded-lg text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors font-body-md text-body-md" data-path="zu-pruefen" href="#"><div class="flex items-center gap-space-sm"><span class="material-symbols-outlined text-[20px]">fact_check</span><span>Zu prüfen</span></div><span class="px-space-xs py-0.5 rounded-full bg-surface-container-highest text-primary font-label-sm text-label-sm">3</span></a></nav></div><div class="pt-space-md"><nav class="flex flex-col" data-active-classes="bg-surface-container-high text-primary font-medium rounded-lg"><a class="flex items-center gap-space-sm px-space-md py-space-sm transition-colors text-on-surface-variant" data-path="einstellungen" href="#"><span class="material-symbols-outlined text-[20px]">settings</span><span>Einstellungen</span></a></nav></div></aside><div class="pl-72 flex flex-col min-h-screen"><header class="fixed top-0 left-72 right-0 h-16 bg-surface/80 backdrop-blur-xl shadow-[0_1px_8px_rgba(0,0,0,0.04)] z-40 px-space-lg flex items-center justify-between gap-space-md"><div class="flex items-center gap-space-lg flex-1 max-w-2xl"><div class="flex items-center gap-space-xs font-label-md text-label-md text-on-surface-variant"><span class="hover:text-on-surface transition-colors cursor-pointer">Einstellungen</span><span class="text-outline">/</span><span class="text-primary font-medium">Papierkorb</span></div><div class="relative flex-1 max-w-md"><span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline text-[18px]">search</span><input class="w-full h-10 bg-surface-container-lowest text-on-surface placeholder:text-outline pl-9 pr-4 rounded-lg font-body-md text-body-md focus:outline-none focus:ring-1 focus:ring-primary transition-all" placeholder="Dokumente durchsuchen..." type="text"/></div></div><div class="flex items-center gap-space-md"><button class="h-10 px-space-md bg-primary text-on-primary font-label-md text-label-md font-medium rounded-lg hover:bg-primary-container transition-colors flex items-center gap-space-xs shadow-sm" type="button"><span class="material-symbols-outlined text-[18px]">upload_file</span><span>Hochladen</span></button><div class="flex items-center bg-surface-container-low p-1 rounded-lg font-label-sm text-label-sm"><button class="px-space-xs py-1 rounded bg-surface-container-highest text-primary font-medium" type="button">Deutsch</button><span class="px-1 text-outline">|</span><button class="px-space-xs py-1 rounded text-on-surface-variant hover:text-on-surface transition-colors" type="button">English</button></div><div class="flex items-center gap-space-sm px-space-sm py-1 rounded-lg bg-surface-container-low"><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div><div class="flex flex-col text-left"><span class="font-label-sm text-label-sm text-on-surface-variant leading-none">Angemeldet als</span><span class="font-body-sm text-body-sm text-on-surface font-medium leading-tight">Anna</span></div></div><button class="h-10 px-space-sm text-on-surface-variant hover:text-error hover:bg-surface-container transition-colors rounded-lg flex items-center gap-space-xs font-body-sm text-body-sm" type="button"><span class="material-symbols-outlined text-[18px]">logout</span><span>Abmelden</span></button></div></header><main class="relative pt-16 bg-surface min-h-[calc(100vh-4rem)] p-space-lg w-full"><div class="flex flex-col w-full">
-<!-- Page Header: Title, Visibility & Primary Actions -->
-<header class="flex flex-col md:flex-row md:items-center justify-between gap-space-md mb-space-lg">
+<html class="dark" lang="de"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="web_dashboard" name="shell-type"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@100..900&family=JetBrains+Mono:wght@100..900&display=swap" rel="stylesheet"/><style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config = { darkMode: "class", theme: { extend: { "colors": { "on-tertiary-fixed-variant": "#46464e", "tertiary-container": "#e3e1ec", "on-secondary": "#2f3037", "primary": "#ffffff", "secondary-fixed-dim": "#c6c6cf", "on-primary-container": "#636565", "error": "#ffb4ab", "on-secondary-container": "#b4b4bd", "on-secondary-fixed": "#1a1b22", "on-primary": "#2f3131", "on-error-container": "#ffdad6", "inverse-on-surface": "#313030", "on-tertiary-container": "#63646c", "secondary-container": "#45464e", "on-tertiary-fixed": "#1a1b22", "surface-variant": "#353534", "surface-container-lowest": "#0e0e0e", "outline-variant": "#444748", "tertiary-fixed": "#e3e1ec", "tertiary-fixed-dim": "#c6c5cf", "surface-container-low": "#1c1b1b", "background": "#131313", "on-background": "#e5e2e1", "primary-container": "#e2e2e2", "primary-fixed-dim": "#c6c6c7", "on-surface-variant": "#c4c7c8", "inverse-primary": "#5d5f5f", "on-surface": "#e5e2e1", "on-error": "#690005", "error-container": "#93000a", "on-primary-fixed-variant": "#454747", "inverse-surface": "#e5e2e1", "surface-container-high": "#2a2a2a", "secondary": "#c6c6cf", "surface": "#131313", "primary-fixed": "#e2e2e2", "surface-container-highest": "#353534", "surface-tint": "#c6c6c7", "tertiary": "#ffffff", "on-primary-fixed": "#1a1c1c", "surface-dim": "#131313", "on-tertiary": "#2f3038", "surface-bright": "#393939", "secondary-fixed": "#e2e1eb", "on-secondary-fixed-variant": "#45464e", "outline": "#8e9192", "surface-container": "#201f1f" }, "borderRadius": { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" }, "spacing": { "margin-desktop": "2rem", "space-xs": "0.25rem", "gutter": "1rem", "space-xl": "2.5rem", "space-sm": "0.5rem", "space-md": "1rem", "space-lg": "1.5rem", "margin": "1rem", "gutter-desktop": "1.5rem" }, "fontFamily": { "headline-xl-mobile": ["Geist"], "label-sm": ["JetBrains Mono"], "label-md": ["JetBrains Mono"], "label-lg": ["JetBrains Mono"], "headline-xl": ["Geist"], "headline-sm": ["Geist"], "headline-lg-mobile": ["Geist"], "headline-md": ["Geist"], "headline-lg": ["Geist"], "body-lg": ["Geist"], "body-md": ["Geist"], "body-sm": ["Geist"] }, "fontSize": { "headline-xl-mobile": ["30px", { "lineHeight": "38px", "letterSpacing": "-0.02em", "fontWeight": "600" }], "label-sm": ["10px", { "lineHeight": "14px", "letterSpacing": "0.05em", "fontWeight": "400" }], "label-md": ["11px", { "lineHeight": "16px", "letterSpacing": "0.04em", "fontWeight": "500" }], "label-lg": ["13px", { "lineHeight": "18px", "letterSpacing": "0.02em", "fontWeight": "500" }], "headline-xl": ["40px", { "lineHeight": "48px", "letterSpacing": "-0.03em", "fontWeight": "600" }], "headline-sm": ["16px", { "lineHeight": "24px", "letterSpacing": "-0.005em", "fontWeight": "500" }], "headline-lg-mobile": ["22px", { "lineHeight": "28px", "letterSpacing": "-0.015em", "fontWeight": "600" }], "headline-md": ["20px", { "lineHeight": "28px", "letterSpacing": "-0.01em", "fontWeight": "500" }], "headline-lg": ["28px", { "lineHeight": "36px", "letterSpacing": "-0.02em", "fontWeight": "600" }], "body-lg": ["16px", { "lineHeight": "26px", "letterSpacing": "-0.005em", "fontWeight": "400" }], "body-md": ["14px", { "lineHeight": "22px", "letterSpacing": "0em", "fontWeight": "400" }], "body-sm": ["12px", { "lineHeight": "18px", "letterSpacing": "0em", "fontWeight": "400" }] } } } };</script></head><body class="bg-surface font-body-md text-body-md text-on-surface antialiased"><aside class="fixed left-0 top-0 h-full w-72 bg-surface-container-lowest z-50 flex flex-col justify-between py-space-lg px-space-md shadow-[0_1px_8px_rgba(0,0,0,0.04)]"><div class="flex flex-col gap-space-xl"><div class="flex items-center gap-space-sm px-space-sm"><div class="w-7 h-7 rounded bg-primary flex items-center justify-center"><span class="material-symbols-outlined text-on-primary text-[18px]">description</span></div><span class="font-headline-sm text-headline-sm tracking-tight text-primary font-semibold">NoMorePaper</span></div><nav class="flex flex-col gap-space-xs" data-active-classes="bg-surface-container-high text-primary font-medium rounded-lg"><a class="flex items-center gap-space-sm px-space-md py-space-sm rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors font-body-md text-body-md" data-path="startseite" href="#"><span class="material-symbols-outlined text-[20px]">home</span><span>Startseite</span></a><a class="flex items-center gap-space-sm px-space-md py-space-sm rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors font-body-md text-body-md" data-path="hinzufuegen" href="#"><span class="material-symbols-outlined text-[20px]">add_box</span><span>Hinzufügen</span></a><a aria-current="page" class="flex items-center justify-between px-space-md py-space-sm transition-colors bg-surface-container-high text-primary font-medium rounded-lg" data-path="dokumente" href="#"><div class="flex items-center gap-space-sm"><span class="material-symbols-outlined text-[20px]">folder_open</span><span>Dokumente</span></div></a><a class="flex items-center justify-between px-space-md py-space-sm rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors font-body-md text-body-md" data-path="zu-pruefen" href="#"><div class="flex items-center gap-space-sm"><span class="material-symbols-outlined text-[20px]">rule</span><span>Zu prüfen</span></div><span class="px-space-xs py-0.5 rounded-full bg-surface-container-high text-on-surface text-[10px] font-label-sm">3</span></a></nav></div><div class="pt-space-md"><nav class="flex flex-col" data-active-classes="bg-surface-container-high text-primary font-medium rounded-lg"><a class="flex items-center gap-space-sm px-space-md py-space-sm rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors font-body-md text-body-md" data-path="einstellungen" href="#"><span class="material-symbols-outlined text-[20px]">settings</span><span>Einstellungen</span></a></nav></div></aside><div class="pl-72"><header class="fixed top-0 left-72 right-0 h-16 bg-surface/80 backdrop-blur-xl z-40 shadow-[0_1px_8px_rgba(0,0,0,0.04)]"><div class="h-16 w-full px-space-lg flex items-center justify-between gap-space-md"><div class="flex items-center flex-1 max-w-md"><div class="relative w-full"><span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-[18px]">search</span><input class="w-full h-10 pl-10 pr-4 bg-surface-container-low text-on-surface placeholder:text-outline font-body-md text-body-md rounded-lg focus:outline-none focus:ring-1 focus:ring-primary transition-all" placeholder="Dokumente durchsuchen..." type="text"/></div></div><div class="flex items-center gap-space-lg"><button class="h-10 px-space-md bg-primary text-on-primary rounded-lg flex items-center gap-space-xs font-label-md text-label-md uppercase tracking-wider font-medium hover:bg-primary-container transition-colors" type="button"><span class="material-symbols-outlined text-[18px]">upload_file</span><span>Hochladen</span></button><div class="flex items-center rounded-lg bg-surface-container-low p-0.5 font-label-md text-label-md"><button class="px-space-sm py-1 rounded bg-surface-container text-on-surface font-medium" type="button">Deutsch</button><span class="text-outline px-1">|</span><button class="px-space-sm py-1 rounded text-on-surface-variant hover:text-on-surface transition-colors" type="button">English</button></div><div class="flex items-center gap-space-sm font-body-sm text-body-sm text-on-surface-variant"><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div><span class="hidden xl:inline">Angemeldet als <strong class="text-on-surface font-medium">Anna</strong></span></div><button class="flex items-center gap-space-xs text-on-surface-variant hover:text-on-surface font-label-md text-label-md transition-colors" type="button"><span class="material-symbols-outlined text-[18px]">logout</span><span>Abmelden</span></button></div></div></header><main class="relative w-full pt-16 bg-surface min-h-screen"><div class="flex flex-col w-full">
+<div class="px-space-md lg:px-space-xl py-space-lg flex flex-col gap-space-lg">
+<!-- Top Breadcrumb & Header Controls -->
+<div class="flex flex-col gap-space-sm">
+<nav aria-label="Brotkrümelnavigation" class="flex items-center gap-space-xs font-label-md text-label-md text-outline">
+<a class="text-on-surface-variant hover:text-primary transition-colors" href="#">Dokumente</a>
+<span aria-hidden="true" class="text-outline">/</span>
+<span aria-current="page" class="text-on-surface font-medium">Stromrechnung März</span>
+</nav>
+<div class="flex flex-col md:flex-row md:items-center justify-between gap-space-md pt-space-xs">
 <div class="flex items-center gap-space-md flex-wrap">
-<h1 class="font-headline-lg text-headline-lg text-primary tracking-tight font-semibold">
-        Stromrechnung März
-      </h1>
-<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded bg-surface-container-highest text-on-surface font-label-sm text-label-sm tracking-wide">
-<span aria-hidden="true" class="material-symbols-outlined text-[14px]">lock</span>
-<span>Privat</span>
-</span>
-<span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded bg-surface-container-high text-on-surface-variant font-label-sm text-label-sm">
-<span>Fassung 2 von 2</span>
-</span>
-</div>
-<div class="flex items-center gap-space-sm self-start md:self-auto">
-<button class="h-10 px-space-md bg-surface-container-highest hover:bg-surface-bright text-primary font-headline-sm text-headline-sm font-medium rounded-lg transition-colors flex items-center gap-space-xs shadow-sm" type="button">
-<span aria-hidden="true" class="material-symbols-outlined text-[18px]">download</span>
-<span>Herunterladen</span>
-</button>
-<button aria-label="Weitere Aktionen" class="h-10 px-3 bg-surface-container-high hover:bg-surface-container-highest text-on-surface-variant hover:text-primary rounded-lg transition-colors flex items-center justify-center" title="Weitere Aktionen" type="button">
-<span aria-hidden="true" class="material-symbols-outlined text-[20px]">more_vert</span>
-</button>
-</div>
-</header>
-<!-- Dual Column Layout: Left Inverted Document Canvas, Right Technical Inspector -->
-<div class="grid grid-cols-1 lg:grid-cols-12 gap-space-lg items-start">
-<!-- LEFT: Document Viewer (lg:col-span-8) -->
-<section aria-label="Dokumentenansicht" class="lg:col-span-8 flex flex-col bg-surface-container-low rounded-xl p-space-md shadow-sm">
-<!-- Viewer Controls Toolbar -->
-<div class="flex flex-wrap items-center justify-between gap-space-sm pb-space-md mb-space-md bg-surface-container-low">
-<div class="flex items-center gap-space-xs bg-surface-container rounded-lg p-1">
-<button aria-label="Vorherige Seite" class="w-8 h-8 rounded flex items-center justify-center text-on-surface-variant hover:text-primary hover:bg-surface-container-high transition-colors" title="Vorherige Seite" type="button">
-<span aria-hidden="true" class="material-symbols-outlined text-[18px]">navigate_before</span>
-</button>
-<span class="px-space-xs font-label-md text-label-md text-on-surface font-medium select-none">
-            Seite 1 von 3
+<h1 class="font-headline-lg text-headline-lg text-primary tracking-tight">Stromrechnung März</h1>
+<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded bg-surface-container-high text-on-surface font-label-sm text-label-sm uppercase tracking-wider">
+<span aria-hidden="true" class="material-symbols-outlined text-[13px] text-on-surface-variant">lock</span>
+            Privat
           </span>
-<button aria-label="Nächste Seite" class="w-8 h-8 rounded flex items-center justify-center text-on-surface-variant hover:text-primary hover:bg-surface-container-high transition-colors" title="Nächste Seite" type="button">
-<span aria-hidden="true" class="material-symbols-outlined text-[18px]">navigate_next</span>
+</div>
+<!-- Top Actions -->
+<div class="flex items-center gap-space-sm flex-wrap">
+<button class="h-9 px-3 rounded-lg bg-surface-container text-on-surface hover:bg-surface-container-high hover:text-primary transition-colors flex items-center gap-1.5 font-label-md text-label-md" type="button">
+<span aria-hidden="true" class="material-symbols-outlined text-[16px]">download</span>
+            Original
+          </button>
+<button class="h-9 px-3 rounded-lg bg-surface-container text-on-surface hover:bg-surface-container-high hover:text-primary transition-colors flex items-center gap-1.5 font-label-md text-label-md" type="button">
+<span aria-hidden="true" class="material-symbols-outlined text-[16px]">download</span>
+            Archiv-PDF
+          </button>
+<button class="h-9 px-3 rounded-lg bg-surface-container text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-colors flex items-center gap-1.5 font-label-md text-label-md" id="btn-toggle-trash" type="button">
+<span aria-hidden="true" class="material-symbols-outlined text-[16px]">delete</span>
+            In den Papierkorb
+          </button>
+</div>
+</div>
+</div>
+<!-- Inline Confirmation Box (Papierkorb) -->
+<section aria-labelledby="dialog-title" class="p-space-lg rounded-xl bg-surface-container-low shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-space-md" id="trash-dialog">
+<div class="flex flex-col gap-1">
+<h2 class="font-headline-sm text-headline-sm text-primary" id="dialog-title">Dokument in den Papierkorb legen?</h2>
+<p class="font-body-md text-body-md text-on-surface-variant">Es bleibt 30 Tage im Papierkorb und kann bis dahin wiederhergestellt werden.</p>
+</div>
+<div class="flex items-center gap-space-sm self-start md:self-auto shrink-0">
+<button class="h-9 px-4 rounded-lg bg-surface-container-high text-on-surface hover:bg-surface-container-highest transition-colors font-body-md text-body-md" id="btn-cancel-trash" type="button">
+          Abbrechen
+        </button>
+<button class="h-9 px-4 rounded-lg bg-surface-bright text-primary hover:bg-surface-container-highest transition-colors font-body-md text-body-md" type="button">
+          Ja, in den Papierkorb
+        </button>
+</div>
+</section>
+<!-- Main Workspace Two-Column Grid -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-space-lg items-start">
+<!-- Left Column: Document Viewer (7 cols) -->
+<section aria-label="Dokumentenanzeige" class="lg:col-span-7 flex flex-col rounded-xl bg-surface-container-low p-space-md gap-space-md shadow-sm">
+<!-- Viewer Control Bar -->
+<div class="flex items-center justify-between bg-surface-container px-space-md py-2 rounded-lg">
+<div class="flex items-center gap-space-xs font-label-md text-label-md text-on-surface-variant">
+<button aria-label="Vorherige Seite" class="p-1 rounded hover:bg-surface-container-high hover:text-primary transition-colors" type="button">
+<span aria-hidden="true" class="material-symbols-outlined text-[18px]">chevron_left</span>
+</button>
+<span class="text-on-surface px-1">Seite 1 von 3</span>
+<button aria-label="Nächste Seite" class="p-1 rounded hover:bg-surface-container-high hover:text-primary transition-colors" type="button">
+<span aria-hidden="true" class="material-symbols-outlined text-[18px]">chevron_right</span>
 </button>
 </div>
-<div class="flex items-center gap-space-xs">
-<!-- Zoom cluster -->
-<div class="flex items-center bg-surface-container rounded-lg p-1">
-<button aria-label="Verkleinern" class="w-8 h-8 rounded flex items-center justify-center text-on-surface-variant hover:text-primary hover:bg-surface-container-high transition-colors" title="Verkleinern" type="button">
+<div class="flex items-center gap-space-xs font-label-md text-label-md text-on-surface-variant">
+<button aria-label="Verkleinern" class="p-1 rounded hover:bg-surface-container-high hover:text-primary transition-colors" type="button">
 <span aria-hidden="true" class="material-symbols-outlined text-[18px]">remove</span>
 </button>
-<span class="px-2 font-label-md text-label-md text-on-surface font-medium select-none">
-              100%
-            </span>
-<button aria-label="Vergrößern" class="w-8 h-8 rounded flex items-center justify-center text-on-surface-variant hover:text-primary hover:bg-surface-container-high transition-colors" title="Vergrößern" type="button">
+<span class="text-on-surface px-1">100%</span>
+<button aria-label="Vergrößern" class="p-1 rounded hover:bg-surface-container-high hover:text-primary transition-colors" type="button">
 <span aria-hidden="true" class="material-symbols-outlined text-[18px]">add</span>
 </button>
 </div>
-<button aria-label="Vollbild umschalten" class="w-10 h-10 rounded-lg bg-surface-container text-on-surface-variant hover:text-primary hover:bg-surface-container-high flex items-center justify-center transition-colors" title="Vollbild umschalten" type="button">
-<span aria-hidden="true" class="material-symbols-outlined text-[20px]">fullscreen</span>
-</button>
 </div>
-</div>
-<!-- Inverted Paper Sheet Container -->
-<div class="w-full flex justify-center overflow-x-auto py-space-sm bg-surface-container-lowest rounded-lg p-space-md">
-<article aria-label="Digitalisiertes Dokument" class="w-full max-w-[720px] min-h-[920px] bg-surface p-space-lg md:p-space-xl rounded-lg text-on-surface flex flex-col justify-between shadow-2xl relative select-text">
-<!-- Top Metadata / Letterhead -->
+<!-- Inverted Document Mockup / Working Canvas -->
+<div class="bg-surface-container-lowest rounded-lg p-space-lg sm:p-space-xl flex flex-col gap-space-lg min-h-[580px] shadow-inner select-none">
+<div class="flex justify-between items-start pb-space-md bg-surface-container-low/40 p-space-md rounded">
 <div>
-<div class="flex flex-col sm:flex-row justify-between items-start gap-space-md pb-space-lg mb-space-lg">
-<div>
-<div class="flex items-center gap-space-xs text-primary mb-1">
-<span aria-hidden="true" class="material-symbols-outlined text-[20px]">bolt</span>
-<span class="font-headline-sm text-headline-sm font-semibold tracking-tight">Stadtwerke Musterstadt</span>
+<p class="font-headline-sm text-headline-sm text-primary tracking-wide">Stadtwerke Musterstadt GmbH</p>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-1">Versorgungsbereich Nord · 10115 Berlin</p>
 </div>
-<p class="font-body-sm text-body-sm text-on-surface-variant">
-                  Stadtwerke Musterstadt GmbH • Kundenservice Energie
-                </p>
-<p class="font-body-sm text-body-sm text-on-surface-variant">
-                  Postfach 10 24 50 • 99024 Musterstadt
-                </p>
-</div>
-<div class="bg-surface-container-low p-space-md rounded-lg text-left sm:text-right min-w-[200px]">
-<div class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider mb-1">Beleg-Information</div>
-<div class="font-label-md text-label-md text-primary font-medium">RE-2024-03-9941</div>
-<div class="font-label-md text-label-md text-on-surface-variant mt-1">Datum: 01.03.2024</div>
-<div class="font-label-md text-label-md text-on-surface-variant">Konto-Nr: 409 118 201</div>
+<div class="text-right font-label-md text-label-md text-on-surface-variant">
+<p>Rechnungsnr.: RE-2024-8842</p>
+<p class="text-on-surface">Datum: 01.03.2024</p>
 </div>
 </div>
-<!-- Recipient Block -->
-<div class="mb-space-xl">
-<span class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider block mb-1">Empfängerin</span>
-<address class="not-italic font-body-md text-body-md text-on-surface leading-relaxed">
-                Frau Anna Schmidt<br/>
-                Lindenallee 14<br/>
-                99084 Musterstadt
-              </address>
+<div class="flex flex-col gap-1 pt-space-xs">
+<span class="font-label-sm text-label-sm text-outline uppercase tracking-wider">Abrechnungsdokument</span>
+<h3 class="font-headline-md text-headline-md text-primary font-medium">Jahresabrechnung Strom 2023/2024</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Verbrauchszeitraum: 01.01.2023 bis 31.12.2023 · Zählernummer: 1EMH001239845</p>
 </div>
-<!-- Document Subject Title -->
-<div class="mb-space-lg">
-<span class="font-label-sm text-label-sm text-on-surface-variant tracking-wider uppercase block">Stromabrechnung</span>
-<h2 class="font-headline-md text-headline-md font-semibold text-primary mt-1">
-                Jahresabrechnung Strom 2023/2024
-              </h2>
-<p class="font-body-sm text-body-sm text-on-surface-variant mt-1">
-                Abrechnungszeitraum: 01.03.2023 bis 29.02.2024 • Zählernummer: 1EMH0019284201
-              </p>
+<!-- Document Table -->
+<div class="flex flex-col mt-space-sm bg-surface-container-low rounded-lg overflow-hidden">
+<div class="grid grid-cols-12 px-space-md py-2.5 bg-surface-container-high text-on-surface-variant font-label-sm text-label-sm uppercase tracking-wider">
+<span class="col-span-6">Position</span>
+<span class="col-span-2 text-right">Menge</span>
+<span class="col-span-2 text-right">Einheit</span>
+<span class="col-span-2 text-right">Betrag</span>
 </div>
-<!-- Position Table -->
-<div class="w-full overflow-x-auto mb-space-lg">
-<table class="w-full text-left font-body-sm text-body-sm">
-<thead>
-<tr class="bg-surface-container-high text-on-surface-variant font-label-sm text-label-sm uppercase tracking-wider">
-<th class="py-2.5 px-3 rounded-l" scope="col">Position</th>
-<th class="py-2.5 px-3 text-right" scope="col">Menge</th>
-<th class="py-2.5 px-3 text-right" scope="col">Einzelpreis</th>
-<th class="py-2.5 px-3 text-right rounded-r" scope="col">Betrag (brutto)</th>
-</tr>
-</thead>
-<tbody class="text-on-surface">
-<tr class="hover:bg-surface-container-low transition-colors">
-<td class="py-3 px-3 font-medium">Grundpreis ÖkoStrom Aktiv (12 Monate)</td>
-<td class="py-3 px-3 text-right font-label-md text-label-md">12 Mt.</td>
-<td class="py-3 px-3 text-right font-label-md text-label-md">12,50 €</td>
-<td class="py-3 px-3 text-right font-label-md text-label-md">150,00 €</td>
-</tr>
-<tr class="hover:bg-surface-container-low transition-colors bg-surface-container-lowest/40">
-<td class="py-3 px-3 font-medium">Arbeitspreis Eintarif</td>
-<td class="py-3 px-3 text-right font-label-md text-label-md">2.410 kWh</td>
-<td class="py-3 px-3 text-right font-label-md text-label-md">0,4372 €</td>
-<td class="py-3 px-3 text-right font-label-md text-label-md">1.053,80 €</td>
-</tr>
-<tr class="hover:bg-surface-container-low transition-colors">
-<td class="py-3 px-3 font-medium text-on-surface-variant" colspan="3">Gesamtbetrag Stromverbrauch (inkl. 19% MwSt.)</td>
-<td class="py-3 px-3 text-right font-label-md text-label-md text-primary font-medium">1.203,80 €</td>
-</tr>
-<tr class="hover:bg-surface-container-low transition-colors bg-surface-container-lowest/40">
-<td class="py-3 px-3 text-on-surface-variant" colspan="3">Geleistete monatliche Abschläge (12 × 80,00 €)</td>
-<td class="py-3 px-3 text-right font-label-md text-label-md text-on-surface">-960,00 €</td>
-</tr>
-</tbody>
-</table>
+<div class="grid grid-cols-12 px-space-md py-3 text-on-surface font-body-sm text-body-sm items-center">
+<span class="col-span-6 font-medium text-primary">Grundpreis Strom (12 Monate)</span>
+<span class="col-span-2 text-right font-label-md text-label-md">1</span>
+<span class="col-span-2 text-right font-label-md text-label-md">Jahr</span>
+<span class="col-span-2 text-right font-label-md text-label-md">120,00 €</span>
 </div>
-<!-- Prominent Final Amount Box -->
-<div class="bg-surface-container-highest p-space-md rounded-lg flex flex-col sm:flex-row items-start sm:items-center justify-between gap-space-sm my-space-md">
-<div class="flex items-center gap-space-sm">
-<span aria-hidden="true" class="material-symbols-outlined text-primary text-[22px]">account_balance_wallet</span>
-<span class="font-headline-sm text-headline-sm text-primary font-semibold tracking-wide">
-                  VERBLEIBENDER ZAHLUNGSBETRAG
-                </span>
+<div class="grid grid-cols-12 px-space-md py-3 text-on-surface font-body-sm text-body-sm items-center bg-surface-container-lowest/40">
+<span class="col-span-6 font-medium text-primary">Arbeitspreis Eintarif</span>
+<span class="col-span-2 text-right font-label-md text-label-md">2.450</span>
+<span class="col-span-2 text-right font-label-md text-label-md">kWh</span>
+<span class="col-span-2 text-right font-label-md text-label-md">833,00 €</span>
 </div>
-<div class="font-headline-lg text-headline-lg font-semibold text-primary font-label-lg tracking-tight">
-                243,80 €
-              </div>
+<div class="grid grid-cols-12 px-space-md py-3 text-on-surface font-body-sm text-body-sm items-center">
+<span class="col-span-6 text-on-surface-variant">Geleistete Abschlagszahlungen</span>
+<span class="col-span-2 text-right font-label-md text-label-md">11</span>
+<span class="col-span-2 text-right font-label-md text-label-md">Monate</span>
+<span class="col-span-2 text-right font-label-md text-label-md">-709,20 €</span>
 </div>
-<p class="font-body-sm text-body-sm text-on-surface-variant">
-              Der Betrag wird zum 15.03.2024 von Ihrem hinterlegten Konto per SEPA-Basislastschrift eingezogen.
-            </p>
 </div>
-<!-- Document Footer -->
-<footer class="pt-space-lg mt-space-xl flex flex-col sm:flex-row justify-between items-center text-on-surface-variant font-label-sm text-label-sm gap-2">
-<div>Stadtwerke Musterstadt GmbH • IBAN: DE44 8009 0000 0192 8492 00 • BIC: GENODEF1ERF</div>
-<div class="font-medium text-on-surface">Seite 1 von 3</div>
-</footer>
-</article>
+<div class="flex justify-end pt-space-md">
+<div class="bg-surface-container px-space-lg py-space-md rounded-lg flex items-baseline gap-space-lg">
+<span class="font-body-md text-body-md text-on-surface">Gesamtbetrag</span>
+<span class="font-headline-md text-headline-md text-primary font-semibold">243,80 €</span>
+</div>
+</div>
+<div class="mt-auto pt-space-lg text-outline font-label-sm text-label-sm flex justify-between">
+<span>USt-IdNr.: DE 123456789</span>
+<span>Steuer-Nr.: 27/123/45678</span>
+<span>Seite 1 von 3</span>
+</div>
 </div>
 </section>
-<!-- RIGHT: Inspector & Version Management Panel (lg:col-span-4) -->
-<aside aria-label="Metadaten und Fassungen" class="lg:col-span-4 flex flex-col bg-surface-container-low rounded-xl p-space-md shadow-sm">
-<!-- Tab Navigation -->
-<nav aria-label="Inspektor-Tabs" class="flex items-center gap-space-xs bg-surface-container p-1 rounded-lg mb-space-lg">
-<button class="flex-1 py-1.5 px-space-xs rounded bg-surface-container-highest text-primary font-headline-sm text-headline-sm font-medium text-center transition-all shadow-sm" type="button">
-          Angaben
-        </button>
-<button class="flex-1 py-1.5 px-space-xs rounded text-on-surface-variant hover:text-on-surface font-headline-sm text-headline-sm font-medium text-center transition-colors" type="button">
-          Erkannter Text
-        </button>
-<button class="flex-1 py-1.5 px-space-xs rounded text-on-surface-variant hover:text-on-surface font-headline-sm text-headline-sm font-medium text-center transition-colors" type="button">
-          Verlauf
-        </button>
-</nav>
+<!-- Right Column: Details Panel & Version Management (5 cols) -->
+<section class="lg:col-span-5 flex flex-col gap-space-lg">
+<div class="p-space-lg rounded-xl bg-surface-container-low shadow-sm flex flex-col gap-space-lg">
+<!-- Tab Bar -->
+<div aria-label="Metadaten und Verlauf" class="flex p-1 bg-surface-container-lowest rounded-lg" role="tablist">
+<button aria-selected="true" class="flex-1 py-1.5 px-3 rounded-md bg-surface-container-high text-primary font-body-md text-body-md font-medium transition-all shadow-sm" role="tab">
+              Angaben
+            </button>
+<button aria-selected="false" class="flex-1 py-1.5 px-3 rounded-md text-on-surface-variant hover:text-on-surface font-body-md text-body-md transition-colors" role="tab">
+              Erkannter Text
+            </button>
+<button aria-selected="false" class="flex-1 py-1.5 px-3 rounded-md text-on-surface-variant hover:text-on-surface font-body-md text-body-md transition-colors" role="tab">
+              Verlauf
+            </button>
+</div>
 <!-- Tab Content: Angaben -->
-<div class="flex flex-col gap-space-lg">
-<!-- Short Definition List -->
-<section aria-labelledby="heading-stammdaten">
-<h2 class="sr-only" id="heading-stammdaten">Dokumentenangaben</h2>
-<dl class="flex flex-col gap-space-xs bg-surface-container rounded-lg p-space-md">
+<div class="flex flex-col gap-space-md">
+<dl class="flex flex-col gap-space-sm bg-surface-container p-space-md rounded-lg">
 <div class="flex justify-between items-center py-1">
 <dt class="font-body-sm text-body-sm text-on-surface-variant">Absender</dt>
-<dd class="font-body-md text-body-md text-primary font-medium text-right">Stadtwerke Musterstadt</dd>
+<dd class="font-body-md text-body-md text-primary font-medium">Stadtwerke Musterstadt</dd>
 </div>
 <div class="flex justify-between items-center py-1">
 <dt class="font-body-sm text-body-sm text-on-surface-variant">Art</dt>
-<dd class="font-body-md text-body-md text-primary font-medium text-right">Rechnung</dd>
+<dd class="font-body-md text-body-md text-primary">Rechnung</dd>
 </div>
 <div class="flex justify-between items-center py-1">
 <dt class="font-body-sm text-body-sm text-on-surface-variant">Datum</dt>
-<dd class="font-label-md text-label-md text-primary font-medium text-right">01.03.2024</dd>
+<dd class="font-label-md text-label-md text-primary">01.03.2024</dd>
 </div>
 <div class="flex justify-between items-center py-1">
 <dt class="font-body-sm text-body-sm text-on-surface-variant">Betrag</dt>
-<dd class="font-label-lg text-label-lg text-primary font-semibold text-right">243,80 €</dd>
+<dd class="font-label-md text-label-md text-primary font-semibold">243,80 €</dd>
 </div>
 </dl>
-</section>
-<!-- Fassungen Section -->
-<section aria-labelledby="heading-fassungen" class="flex flex-col gap-space-md">
-<div class="flex items-center justify-between">
-<h2 class="font-headline-sm text-headline-sm text-primary font-semibold" id="heading-fassungen">
-              Fassungen
-            </h2>
-<a class="inline-flex items-center gap-1 font-body-sm text-body-sm text-on-surface-variant hover:text-primary transition-colors" href="#">
-<span aria-hidden="true" class="material-symbols-outlined text-[16px]">edit</span>
+<!-- Edit Action Link / Button -->
+<div>
+<button class="w-full h-10 px-space-md rounded-lg bg-surface-container hover:bg-surface-container-high text-on-surface hover:text-primary transition-colors flex items-center justify-center gap-space-xs font-body-md text-body-md" type="button">
+<span aria-hidden="true" class="material-symbols-outlined text-[18px]">edit</span>
 <span>Seiten bearbeiten</span>
-</a>
+</button>
 </div>
-<!-- Version Entries List -->
-<div class="flex flex-col gap-space-xs">
-<!-- Version 1: Original -->
-<div class="flex items-center justify-between p-space-sm rounded-lg bg-surface-container hover:bg-surface-container-high transition-colors">
-<div class="flex items-center gap-space-sm">
-<div class="w-8 h-8 rounded bg-surface-container-highest flex items-center justify-center text-on-surface-variant">
-<span aria-hidden="true" class="material-symbols-outlined text-[18px]">description</span>
 </div>
+<!-- Fassungen Section -->
+<div class="flex flex-col gap-space-md pt-space-xs">
+<h2 class="font-headline-sm text-headline-sm text-primary">Fassungen</h2>
+<ul class="flex flex-col gap-space-xs">
+<!-- Item 1: Original -->
+<li class="p-space-md rounded-lg bg-surface-container flex items-center justify-between gap-space-xs">
+<div class="flex items-center gap-space-sm min-w-0">
+<span aria-hidden="true" class="material-symbols-outlined text-[20px] text-on-surface-variant shrink-0">description</span>
+<div class="flex flex-wrap items-center gap-x-2 gap-y-0.5 text-body-sm font-body-sm text-on-surface-variant min-w-0">
+<span class="text-primary font-medium">Original</span>
+<span aria-hidden="true" class="text-outline">–</span>
+<span class="font-label-md text-label-md">03.03.2026</span>
+</div>
+</div>
+<button class="font-body-sm text-body-sm text-on-surface hover:text-primary shrink-0 py-1 px-2 rounded hover:bg-surface-container-high transition-colors" type="button">
+                  Herunterladen
+                </button>
+</li>
+<!-- Item 2: Bearbeitet -->
+<li class="p-space-md rounded-lg bg-surface-container flex items-center justify-between gap-space-xs">
+<div class="flex items-center gap-space-sm min-w-0">
+<span aria-hidden="true" class="material-symbols-outlined text-[20px] text-on-surface-variant shrink-0">visibility</span>
+<div class="flex flex-wrap items-center gap-x-2 gap-y-0.5 text-body-sm font-body-sm text-on-surface-variant min-w-0">
+<span class="text-primary font-medium">Bearbeitet</span>
+<span aria-hidden="true" class="text-outline">–</span>
+<span class="font-label-md text-label-md">05.03.2026</span>
+<span aria-hidden="true" class="text-outline">–</span>
+<span class="inline-flex items-center gap-1 text-primary">
+<span aria-hidden="true" class="material-symbols-outlined text-[14px]">visibility</span>
+                      wird angezeigt
+                    </span>
+</div>
+</div>
+<button class="font-body-sm text-body-sm text-on-surface hover:text-primary shrink-0 py-1 px-2 rounded hover:bg-surface-container-high transition-colors" type="button">
+                  Herunterladen
+                </button>
+</li>
+</ul>
+<!-- Radio Options: Behalten -->
+<fieldset class="mt-space-xs flex flex-col gap-space-sm">
+<legend class="font-body-md text-body-md font-medium text-primary mb-space-xs">Behalten</legend>
+<label class="flex items-start gap-space-sm p-space-sm rounded-lg hover:bg-surface-container cursor-pointer transition-colors">
+<input checked="" class="mt-1 w-4 h-4 accent-primary bg-surface-container-lowest text-on-surface focus:ring-0 cursor-pointer" name="keep_version" type="radio" value="both"/>
 <div class="flex flex-col">
-<span class="font-body-md text-body-md text-primary font-medium">Original</span>
-<span class="font-label-sm text-label-sm text-on-surface-variant font-mono">03.03.2026</span>
+<span class="font-body-md text-body-md text-primary font-medium">Beides</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">Original und bearbeitete Fassung bleiben.</span>
 </div>
-</div>
-<button class="px-2 py-1 rounded bg-surface-container-high hover:bg-surface-container-highest text-on-surface-variant hover:text-primary font-label-sm text-label-sm transition-colors" type="button">
-                Ansehen
-              </button>
-</div>
-<!-- Version 2: Bearbeitet (Active) -->
-<div class="flex items-center justify-between p-space-sm rounded-lg bg-surface-container-highest">
-<div class="flex items-center gap-space-sm">
-<div class="w-8 h-8 rounded bg-surface-bright flex items-center justify-center text-primary">
-<span aria-hidden="true" class="material-symbols-outlined text-[18px]">visibility</span>
-</div>
+</label>
+<label class="flex items-start gap-space-sm p-space-sm rounded-lg hover:bg-surface-container cursor-pointer transition-colors">
+<input class="mt-1 w-4 h-4 accent-primary bg-surface-container-lowest text-on-surface focus:ring-0 cursor-pointer" name="keep_version" type="radio" value="edited"/>
 <div class="flex flex-col">
-<div class="flex items-center gap-1.5">
-<span class="font-body-md text-body-md text-primary font-medium">Bearbeitet</span>
-<span class="font-label-sm text-label-sm px-1.5 py-0.2 rounded bg-surface-container text-on-surface font-mono">Aktiv</span>
+<span class="font-body-md text-body-md text-on-surface">Nur bearbeitete Fassung</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">Das Original kommt 30 Tage in den Papierkorb.</span>
 </div>
-<span class="font-label-sm text-label-sm text-on-surface-variant font-mono">05.03.2026 • wird angezeigt</span>
-</div>
-</div>
-<span aria-label="Derzeit in Anzeige" class="material-symbols-outlined text-primary text-[20px]" title="Derzeit in Anzeige">check_circle</span>
-</div>
-</div>
-<!-- Radio Form / Fieldset -->
-<form class="flex flex-col gap-space-md mt-space-xs" onsubmit="event.preventDefault();">
-<fieldset class="flex flex-col gap-space-xs">
-<legend class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider mb-space-xs font-semibold">
-                Behalten
-              </legend>
-<!-- Option 1: Beides -->
-<label class="flex items-center gap-space-sm p-space-sm rounded-lg bg-surface-container hover:bg-surface-container-high cursor-pointer transition-colors">
-<input class="w-4 h-4 text-primary bg-surface-container-lowest focus:ring-1 focus:ring-primary accent-primary" name="retention_mode" type="radio" value="both"/>
-<span class="font-body-md text-body-md text-on-surface font-medium select-none">
-                  Beides
-                </span>
 </label>
-<!-- Option 2: Nur bearbeitete Fassung (Checked) -->
-<label class="flex items-center gap-space-sm p-space-sm rounded-lg bg-surface-container-highest cursor-pointer transition-colors">
-<input checked="" class="w-4 h-4 text-primary bg-surface-container-lowest focus:ring-1 focus:ring-primary accent-primary" name="retention_mode" type="radio" value="edited_only"/>
-<span class="font-body-md text-body-md text-primary font-medium select-none">
-                  Nur bearbeitete Fassung
-                </span>
-</label>
-<!-- Option 3: Nur Original -->
-<label class="flex items-center gap-space-sm p-space-sm rounded-lg bg-surface-container hover:bg-surface-container-high cursor-pointer transition-colors">
-<input class="w-4 h-4 text-primary bg-surface-container-lowest focus:ring-1 focus:ring-primary accent-primary" name="retention_mode" type="radio" value="original_only"/>
-<span class="font-body-md text-body-md text-on-surface font-medium select-none">
-                  Nur Original
-                </span>
+<label class="flex items-start gap-space-sm p-space-sm rounded-lg hover:bg-surface-container cursor-pointer transition-colors">
+<input class="mt-1 w-4 h-4 accent-primary bg-surface-container-lowest text-on-surface focus:ring-0 cursor-pointer" name="keep_version" type="radio" value="original"/>
+<div class="flex flex-col">
+<span class="font-body-md text-body-md text-on-surface">Nur Original</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">Die bearbeitete Fassung kommt 30 Tage in den Papierkorb.</span>
+</div>
 </label>
 </fieldset>
-<!-- Save Action Button -->
-<button class="w-full h-10 bg-primary hover:bg-primary-container text-on-primary font-headline-sm text-headline-sm font-semibold rounded-lg transition-colors flex items-center justify-center gap-space-xs shadow-sm" type="submit">
-<span aria-hidden="true" class="material-symbols-outlined text-[18px]">check</span>
-<span>Auswahl speichern</span>
-</button>
-<!-- Info Box Note -->
-<div class="flex items-start gap-space-xs p-space-sm bg-surface-container rounded-lg">
-<span aria-hidden="true" class="material-symbols-outlined text-[18px] text-on-surface-variant flex-shrink-0 mt-0.5">info</span>
-<p class="font-body-sm text-body-sm text-on-surface-variant leading-normal">
-                Nicht behaltene Fassungen kommen 30 Tage in den Papierkorb.
-              </p>
+<!-- Save Button -->
+<div class="pt-space-xs">
+<button class="w-full h-10 px-space-lg rounded-lg bg-primary text-on-primary font-body-md text-body-md font-medium hover:bg-primary-container transition-colors shadow-sm" type="button">
+                Auswahl speichern
+              </button>
 </div>
-<!-- Inline Confirmation Box (Context: "Nur bearbeitete Fassung") -->
-<section aria-labelledby="confirm-box-title" class="mt-space-xs bg-surface-container p-space-md rounded-lg flex flex-col gap-space-sm">
-<div class="flex items-center gap-space-xs text-primary">
-<span aria-hidden="true" class="material-symbols-outlined text-[20px]">delete_sweep</span>
-<h3 class="font-headline-sm text-headline-sm font-semibold text-primary" id="confirm-box-title">
-                  Original in den Papierkorb legen?
-                </h3>
 </div>
-<p class="font-body-sm text-body-sm text-on-surface-variant leading-relaxed">
-                Das Original bleibt 30 Tage im Papierkorb und kann bis dahin wiederhergestellt werden.
-              </p>
-<div class="flex items-center justify-end gap-space-sm pt-space-xs">
-<button class="h-9 px-space-md rounded-lg bg-surface-container-high hover:bg-surface-bright text-on-surface font-headline-sm text-headline-sm font-medium transition-colors" type="button">
-                  Abbrechen
-                </button>
-<button class="h-9 px-space-md rounded-lg bg-primary hover:bg-primary-container text-on-primary font-headline-sm text-headline-sm font-semibold transition-colors" type="button">
-                  Ja, so behalten
-                </button>
+</div>
+<!-- Example State Feedback Boxes -->
+<div class="flex flex-col gap-space-sm">
+<!-- State 1: In Bearbeitung -->
+<div class="p-space-md rounded-lg bg-surface-container flex items-start gap-space-sm">
+<span aria-hidden="true" class="material-symbols-outlined text-[20px] text-on-surface-variant shrink-0 mt-0.5">sync</span>
+<p class="font-body-sm text-body-sm text-on-surface-variant">
+              Wird bearbeitet … Die neue Fassung erscheint, sobald sie fertig ist.
+            </p>
+</div>
+<!-- State 2: Noch keine bearbeitete Fassung -->
+<div class="p-space-md rounded-lg bg-surface-container flex items-start gap-space-sm">
+<span aria-hidden="true" class="material-symbols-outlined text-[20px] text-on-surface-variant shrink-0 mt-0.5">info</span>
+<p class="font-body-sm text-body-sm text-on-surface-variant">
+              Noch keine bearbeitete Fassung. Mit „Seiten bearbeiten“ legst du eine an.
+            </p>
+</div>
 </div>
 </section>
-</form>
-</section>
 </div>
-</aside>
 </div>
-</div></main></div></body></html>
+</div>
+<script>
+  // Simple micro-interaction for inline Papierkorb notification box
+  const btnToggleTrash = document.getElementById('btn-toggle-trash');
+  const btnCancelTrash = document.getElementById('btn-cancel-trash');
+  const trashDialog = document.getElementById('trash-dialog');
+
+  if (btnToggleTrash && trashDialog) {
+    btnToggleTrash.addEventListener('click', () => {
+      trashDialog.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      trashDialog.classList.add('bg-surface-container');
+      setTimeout(() => {
+        trashDialog.classList.remove('bg-surface-container');
+      }, 800);
+    });
+  }
+
+  if (btnCancelTrash && trashDialog) {
+    btnCancelTrash.addEventListener('click', () => {
+      trashDialog.classList.add('opacity-40');
+      setTimeout(() => {
+        trashDialog.classList.remove('opacity-40');
+      }, 300);
+    });
+  }
+</script></main></div></body></html>
