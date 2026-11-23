@@ -1,0 +1,75 @@
+@using NoMorePaper.Contracts.Inputs
+@using NoMorePaper.Web.Client.Inputs
+@using NoMorePaper.Web.Client.Start
+@inject IStringLocalizer<Strings> L
+@inject InputsApi Api
+@inject ILogger<StartInputsCard> Logger
+
+@* One line per input, the one with a problem first (Stitch screen 05). State is symbol and word. Only kinds and
+   account names appear, never paths or addresses. A failure is a notice without Announce, see StartRecent. *@
+<section class="start-card" aria-labelledby="start-inputs-heading">
+    <div class="start-card-head">
+        <MudText Typo="Typo.h3" HtmlTag="h2" id="start-inputs-heading">@L["NavInputs"]</MudText>
+    </div>
+    @if (_loading)
+    {
+        <p role="status">@L["DocumentsLoading"]</p>
+    }
+    else if (_error is not null)
+    {
+        <NoticeBox Kind="NoticeKind.Error" Message="@L["StartInputsError", _error]">
+            <button type="button" class="nmp-button" @onclick="LoadAsync">@L["Retry"]</button>
+        </NoticeBox>
+    }
+    else
+    {
+        <ul class="start-inputs">
+            @foreach (var line in _lines)
+            {
+                var kindName = InputTexts.Kind(L, line.Kind);
+                <li class="start-input @(line.Problems.Count > 0 ? "start-input-problem" : null)">
+                    <span class="start-input-head">
+                        <MudIcon Icon="@InputTabs.KindIcon(line.Kind)" aria-hidden="true" />
+                        <span class="start-input-name">@kindName</span>
+                        <Badge Icon="@InputTabs.BadgeIcon(line.State)" Text="@L[InputTabs.BadgeKey(line.State)]" />
+                    </span>
+                    @foreach (var row in line.Problems)
+                    {
+                        <p>@L["StartInputProblemFor", row.AccountName ?? kindName, InputTexts.Problem(L, row.Problem!)]</p>
+                    }
+                    @if (line.Problems.Count > 0)
+                    {
+                        <a class="start-link" href="eingaenge?quelle=@line.Kind">@L["StartInputOpen", kindName]</a>
+                    }
+                </li>
+            }
+        </ul>
+        <a class="start-link" href="eingaenge">@L["StartInputsAll"]</a>
+    }
+</section>
+
+@code {
+    private IReadOnlyList<StartInputLine> _lines = [];
+    private string? _error;
+    private bool _loading = true;
+
+    protected override Task OnInitializedAsync() => LoadAsync();
+
+    private async Task LoadAsync()
+    {
+        _loading = true;
+        _error = null;
+        var result = await Api.ListAsync();
+        _loading = false;
+        if (result.IsSuccess)
+        {
+            _lines = StartInputs.Lines(result.Value ?? []);
+            Logger.StartPartLoaded("inputs", _lines.Count);
+        }
+        else
+        {
+            _error = result.Error;
+            Logger.StartPartFailed("inputs");
+        }
+    }
+}

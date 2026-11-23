@@ -1,0 +1,37 @@
+@implements IDisposable
+@inject IStringLocalizer<Strings> L
+@inject ReviewCounter Counter
+
+@* The number of documents waiting for the person's check (Stitch screen 05). The symbol is decoration; the sentence
+   says the same as the number in the navigation. *@
+<section class="start-card start-review" aria-labelledby="start-review-heading">
+    <span class="start-review-icon" aria-hidden="true"><MudIcon Icon="@Icons.Material.Outlined.FactCheck" /></span>
+    <div class="start-review-text">
+        <MudText Typo="Typo.h3" HtmlTag="h2" id="start-review-heading">@(Counter.Count > 0 ? L["NavReviewCount", Counter.Count!] : L["NavReview"])</MudText>
+        <p>@Sentence</p>
+    </div>
+    @if (Counter.Count is null or > 0)
+    {
+        <a href="zu-pruefen" class="nmp-button nmp-button-primary">@L["StartReviewOpen"]</a>
+    }
+</section>
+
+@code {
+    private string Sentence => Counter.Count switch
+    {
+        null => L["StartReviewUnknown"],
+        0 => L["ReviewEmpty"],
+        1 => L["ReviewCountOne"],
+        var count => L["ReviewCount", count],
+    };
+
+    protected override async Task OnInitializedAsync()
+    {
+        Counter.Changed += OnChanged;
+        await Counter.RefreshAsync();
+    }
+
+    private void OnChanged() => _ = InvokeAsync(StateHasChanged);
+
+    public void Dispose() => Counter.Changed -= OnChanged;
+}

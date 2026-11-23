@@ -73,9 +73,17 @@
     margin: 0.25rem 0.5rem 0.25rem 0;
 }
 
-/* The notice after an administrator's reset: boxed and bold like an error, it waits for "Got it". */
+/* The notice after an administrator's reset: a boxed surface with an error symbol, it waits for "Got it". */
 .reset-notice {
     margin: 1rem 0;
+    padding: var(--nmp-space-md);
+    background: var(--nmp-paper);
+    border: 1px solid var(--nmp-border-strong);
+    border-radius: var(--nmp-radius-lg);
+}
+
+.reset-notice-text .mud-icon-root {
+    color: var(--nmp-error);
 }
 
 .reset-notice-text {
@@ -83,9 +91,7 @@
     align-items: center;
     gap: 0.75rem;
     margin-bottom: 0.75rem;
-    padding: 1rem;
-    border: 3px solid var(--nmp-text);
-    font-weight: 700;
+    font-weight: 500;
 }
 
 .reset-notice-text p,
