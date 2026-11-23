@@ -6,7 +6,8 @@ namespace NoMorePaper.Application.Trash;
 
 /// <summary>
 /// The owner empties the trash: every entry of the documents the account owns is removed for good, each in
-/// a change of its own, so an entry restored meanwhile stays restored.
+/// a change of its own, so an entry restored meanwhile stays restored. A file whose document has an edit
+/// planned or running stays (<see cref="TrashEraser"/>).
 /// </summary>
 public sealed class EmptyTrash(ITrashStore trash, TrashEraser eraser, ICurrentAccount current, ILogger<EmptyTrash> logger)
 {
@@ -28,7 +29,7 @@ public sealed class EmptyTrash(ITrashStore trash, TrashEraser eraser, ICurrentAc
         var count = 0;
         foreach (var entry in await trash.ListAsync(current.Id, cancellationToken).ConfigureAwait(false))
         {
-            if (await eraser.EraseAsync(entry.Item.Id, current.Id, cancellationToken).ConfigureAwait(false) is not null)
+            if (await eraser.EraseAsync(entry.Item.Id, current.Id, cancellationToken).ConfigureAwait(false) == EraseOutcome.Erased)
             {
                 count++;
             }

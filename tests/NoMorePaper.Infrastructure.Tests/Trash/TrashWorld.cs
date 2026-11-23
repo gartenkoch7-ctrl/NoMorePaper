@@ -48,12 +48,12 @@ internal sealed class TrashWorld : IDisposable
     }
 
     public PurgeTrashItem Purge(AppDbContext db, Guid account) =>
-        new(Eraser(new EfTrashStore(db)), new FakeCurrentAccount(account), NullLogger<PurgeTrashItem>.Instance);
+        new(Eraser(db, new EfTrashStore(db)), new FakeCurrentAccount(account), NullLogger<PurgeTrashItem>.Instance);
 
     public PurgeDueTrash DuePurge(AppDbContext db)
     {
         var trash = new EfTrashStore(db);
-        return new(trash, Eraser(trash), Data.Time, NullLogger<PurgeDueTrash>.Instance);
+        return new(trash, Eraser(db, trash), Data.Time, NullLogger<PurgeDueTrash>.Instance);
     }
 
     public MoveDocumentToTrash Move(AppDbContext db, Guid account) =>
@@ -106,5 +106,5 @@ internal sealed class TrashWorld : IDisposable
             Data.Time,
             NullLogger<RestoreTrashFile>.Instance);
 
-    private TrashEraser Eraser(EfTrashStore trash) => new(trash, Storage, NullLogger<TrashEraser>.Instance);
+    private TrashEraser Eraser(AppDbContext db, EfTrashStore trash) => new(trash, Storage, new EfDocumentEdits(db), NullLogger<TrashEraser>.Instance);
 }

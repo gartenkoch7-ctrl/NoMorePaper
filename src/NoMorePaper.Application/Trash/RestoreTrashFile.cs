@@ -46,6 +46,13 @@ public sealed class RestoreTrashFile(
             return Refuse(item, ChangeOutcome.Conflict, "not-done-or-taken");
         }
 
+        // An edit of the document moves its files after its commit, without the lock: a file put back now
+        // could be moved away under it or left where nothing points to it. The owner tries again afterwards.
+        if (await edits.GetAsync(document.Id, cancellationToken).ConfigureAwait(false) is not null)
+        {
+            return Refuse(item, ChangeOutcome.Conflict, "job-pending");
+        }
+
         var now = time.GetUtcNow();
         if (file.Kind == DocumentFileKind.Edited)
         {

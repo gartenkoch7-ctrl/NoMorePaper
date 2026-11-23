@@ -2,9 +2,11 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging.Abstractions;
 using NoMorePaper.Application.Documents;
+using NoMorePaper.Application.Editing;
 using NoMorePaper.Application.Trash;
 using NoMorePaper.Domain.Documents;
 using NoMorePaper.Infrastructure.Documents;
+using NoMorePaper.Infrastructure.Editing;
 using NoMorePaper.Infrastructure.Persistence;
 using NoMorePaper.Infrastructure.Trash;
 using NoMorePaper.Worker.Tests.Persistence;
@@ -124,6 +126,7 @@ public sealed class TrashPurgerTests(PostgresFixture postgres) : IDisposable
         services.AddSingleton<TimeProvider>(_time);
         services.AddDbContext<AppDbContext>(options => options.UseNpgsql(postgres.ConnectionString(database)));
         services.AddScoped<ITrashStore, EfTrashStore>();
+        services.AddScoped<IDocumentEdits, EfDocumentEdits>();
         services.AddSingleton<IDocumentStorage>(
             new FileSystemDocumentStorage(_dataRoot.FullName, new SkippedDirectorySync(), NullLogger<FileSystemDocumentStorage>.Instance));
         if (withPurge)

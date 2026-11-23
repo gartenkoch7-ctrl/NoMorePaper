@@ -1,3 +1,4 @@
+using NoMorePaper.Application.Editing;
 using NoMorePaper.Application.Tests.Accounts;
 using NoMorePaper.Application.Tests.Classification;
 using NoMorePaper.Application.Trash;
@@ -70,9 +71,17 @@ internal sealed class TrashScenario
         return item;
     }
 
+    /// <summary>Plans an edit of the document, as the edit page does before its job runs.</summary>
+    public DocumentEdit PlanEdit(Document document)
+    {
+        var edit = new DocumentEdit(document.Id, EditKind.Rebuild, "{}", Current.Id, Now.AddMinutes(-5), false);
+        Edits.Edits[document.Id] = edit;
+        return edit;
+    }
+
     public RestoreTrashItem Restore() => new(Trash, RestoreFile(), Queue, Current, RestoreLog);
 
     public RestoreTrashFile RestoreFile() => new(Trash, Documents, Storage, Queue, Edits, Preferences, Current, Clock, FileLog);
 
-    public TrashEraser Eraser() => new(Trash, Storage, EraserLog);
+    public TrashEraser Eraser() => new(Trash, Storage, Edits, EraserLog);
 }

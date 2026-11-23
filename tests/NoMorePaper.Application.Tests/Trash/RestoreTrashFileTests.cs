@@ -87,6 +87,44 @@ public sealed class RestoreTrashFileTests
     }
 
     [Fact]
+    public async Task WhileAnEditOfTheDocumentIsPlanned_TheOriginal_StaysInTheTrash()
+    {
+        var document = Edited();
+        var item = _s.FileTrashed(document, DocumentFileKind.Original);
+        var planned = _s.PlanEdit(document);
+
+        Assert.Equal(ChangeOutcome.Conflict, await _s.Restore().RestoreAsync(item.Id, Ct));
+
+        Assert.Null(document.FindFile(DocumentFileKind.Original));
+        Assert.Null(document.VersionPolicy);
+        Assert.Equal([item], _s.Trash.Items);
+        Assert.Same(planned, _s.Edits.Edits[document.Id]);
+        Assert.Empty(_s.Queue.EditsQueued);
+        Assert.Empty(_s.Storage.Steps);
+        Assert.Equal(0, _s.Trash.Saves);
+        Assert.Equal([5615], _s.FileLog.EventIds);
+    }
+
+    [Fact]
+    public async Task WhileAnEditOfTheDocumentIsPlanned_AnEditedVersion_StaysInTheTrash_AndThePlannedEditIsKept()
+    {
+        var document = Edited("first.pdf");
+        var item = _s.FileTrashed(document, DocumentFileKind.Edited);
+        document.ReplaceFile(TrashScenario.File(DocumentFileKind.Edited, "second.pdf"), TrashScenario.Now.AddHours(-1));
+        var planned = _s.PlanEdit(document);
+
+        Assert.Equal(ChangeOutcome.Conflict, await _s.Restore().RestoreAsync(item.Id, Ct));
+
+        Assert.Equal("second.pdf", document.FindFile(DocumentFileKind.Edited)?.FileName);
+        Assert.Equal([item], _s.Trash.Items);
+        Assert.Same(planned, _s.Edits.Edits[document.Id]);
+        Assert.Empty(_s.Queue.EditsQueued);
+        Assert.Empty(_s.Storage.Steps);
+        Assert.Equal(0, _s.Trash.Saves);
+        Assert.Equal([5615], _s.FileLog.EventIds);
+    }
+
+    [Fact]
     public async Task AFileOfADocumentInTheTrash_CanOnlyComeBackWithItsDocument()
     {
         var document = Edited();

@@ -53,6 +53,22 @@ public sealed class PurgeTrashTests
     }
 
     [Fact]
+    public async Task AFile_WhoseDocumentHasAPlannedEdit_IsAConflict_AndStays()
+    {
+        var document = _s.Done();
+        document.ReplaceFile(TrashScenario.File(DocumentFileKind.Edited), TrashScenario.Now);
+        var item = _s.FileTrashed(document, DocumentFileKind.Original);
+        _s.PlanEdit(document);
+
+        Assert.Equal(ChangeOutcome.Conflict, await Purge().PurgeAsync(item.Id, Ct));
+
+        Assert.Equal([item], _s.Trash.Items);
+        Assert.Empty(_s.Storage.Steps);
+        Assert.Equal([5625], _s.EraserLog.EventIds);
+        Assert.Equal([5615], _purgeLog.EventIds);
+    }
+
+    [Fact]
     public async Task FilesThatCannotBeRemoved_AreLogged_TheEntryIsGoneAnyway()
     {
         var item = _s.Trashed(_s.Done());
@@ -104,6 +120,24 @@ public sealed class PurgeTrashTests
     }
 
     [Fact]
+    public async Task EmptyTrash_SkipsAFile_WhoseDocumentHasAPlannedEdit()
+    {
+        var edited = _s.Done();
+        edited.ReplaceFile(TrashScenario.File(DocumentFileKind.Edited), TrashScenario.Now);
+        var waiting = _s.FileTrashed(edited, DocumentFileKind.Original);
+        _s.PlanEdit(edited);
+        var gone = _s.Trashed(_s.Done());
+
+        var (outcome, count) = await new EmptyTrash(_s.Trash, _s.Eraser(), _s.Current, new RecordingLogger<EmptyTrash>()).EmptyAsync(Ct);
+
+        Assert.Equal((ChangeOutcome.Changed, 1), (outcome, count));
+        Assert.Equal([waiting], _s.Trash.Items);
+        Assert.Equal([gone.DocumentId], _s.Trash.DeletedDocuments);
+        Assert.DoesNotContain($"purge {waiting.Id}", _s.Storage.Steps);
+        Assert.Contains(5625, _s.EraserLog.EventIds);
+    }
+
+    [Fact]
     public async Task EmptyTrash_ByARemovedAccount_ChangesNothing()
     {
         _s.Trashed(_s.Done());
@@ -129,6 +163,27 @@ public sealed class PurgeTrashTests
         Assert.Equal([kept], _s.Trash.Items);
         Assert.Equal([due.DocumentId, bobsDue.DocumentId], _s.Trash.DeletedDocuments);
         Assert.Equal([5623], log.EventIds);
+    }
+
+    [Fact]
+    public async Task TheDailyPurge_SkipsADueFile_WhoseDocumentHasAPlannedEdit_UntilALaterRun()
+    {
+        var edited = _s.Done();
+        edited.ReplaceFile(TrashScenario.File(DocumentFileKind.Edited), TrashScenario.Now);
+        var waiting = _s.FileTrashed(edited, DocumentFileKind.Original, TrashScenario.Now.AddDays(-31));
+        var planned = _s.PlanEdit(edited);
+        var due = _s.Trashed(_s.Done(), TrashScenario.Now.AddDays(-31));
+
+        Assert.Equal(1, await DuePurge(new RecordingLogger<PurgeDueTrash>()).PurgeAsync(Ct));
+        Assert.Equal([waiting], _s.Trash.Items);
+        Assert.Equal([due.DocumentId], _s.Trash.DeletedDocuments);
+        Assert.DoesNotContain($"purge {waiting.Id}", _s.Storage.Steps);
+
+        // Once the edit is done, the next run removes it.
+        _s.Edits.Edits.Remove(planned.DocumentId);
+        Assert.Equal(1, await DuePurge(new RecordingLogger<PurgeDueTrash>()).PurgeAsync(Ct));
+        Assert.Empty(_s.Trash.Items);
+        Assert.Contains($"purge {waiting.Id}", _s.Storage.Steps);
     }
 
     [Fact]

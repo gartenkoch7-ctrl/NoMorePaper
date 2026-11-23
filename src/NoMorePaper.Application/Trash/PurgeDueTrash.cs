@@ -4,7 +4,8 @@ namespace NoMorePaper.Application.Trash;
 
 /// <summary>
 /// The daily purge of the Worker (ADR-0025): every entry whose 30 days are up is removed for good, of every
-/// account, oldest first, like the owner would remove it (<see cref="TrashEraser"/>).
+/// account, oldest first, like the owner would remove it (<see cref="TrashEraser"/>). A file whose document
+/// has an edit planned or running stays until a later run.
 /// </summary>
 public sealed class PurgeDueTrash(ITrashStore trash, TrashEraser eraser, TimeProvider time, ILogger<PurgeDueTrash> logger)
 {
@@ -22,7 +23,7 @@ public sealed class PurgeDueTrash(ITrashStore trash, TrashEraser eraser, TimePro
             var removed = 0;
             foreach (var item in due)
             {
-                if (await eraser.EraseAsync(item.Id, ownerId: null, cancellationToken).ConfigureAwait(false) is not null)
+                if (await eraser.EraseAsync(item.Id, ownerId: null, cancellationToken).ConfigureAwait(false) == EraseOutcome.Erased)
                 {
                     removed++;
                 }

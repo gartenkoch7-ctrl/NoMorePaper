@@ -60,4 +60,7 @@ internal static partial class TrashLog
 
     [LoggerMessage(EventId = 5624, Level = LogLevel.Warning, Message = "Trash entry {TrashItemId} of document {DocumentId} named a document that is not in the trash; only the entry was removed")]
     public static partial void StaleDocumentEntry(this ILogger logger, Guid trashItemId, Guid documentId);
+
+    [LoggerMessage(EventId = 5625, Level = LogLevel.Information, Message = "Trash entry {TrashItemId} of document {DocumentId} is kept for now: an edit of the document is planned or running")]
+    public static partial void EraseDeferred(this ILogger logger, Guid trashItemId, Guid documentId);
 }

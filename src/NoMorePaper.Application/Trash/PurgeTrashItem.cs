@@ -14,7 +14,9 @@ public sealed class PurgeTrashItem(TrashEraser eraser, ICurrentAccount current, 
 
     /// <returns>
     /// <see cref="ChangeOutcome.Changed"/>; <see cref="ChangeOutcome.NotFound"/> if there is no such entry of a
-    /// document the account owns; <see cref="ChangeOutcome.AccountGone"/> if the account was removed.
+    /// document the account owns; <see cref="ChangeOutcome.Conflict"/> if it is a file whose document has an
+    /// edit planned or running (the owner tries again afterwards); <see cref="ChangeOutcome.AccountGone"/> if the
+    /// account was removed.
     /// </returns>
     public async Task<ChangeOutcome> PurgeAsync(Guid id, CancellationToken cancellationToken)
     {
@@ -24,10 +26,14 @@ public sealed class PurgeTrashItem(TrashEraser eraser, ICurrentAccount current, 
             return ChangeOutcome.AccountGone;
         }
 
-        if (await eraser.EraseAsync(id, current.Id, cancellationToken).ConfigureAwait(false) is null)
+        switch (await eraser.EraseAsync(id, current.Id, cancellationToken).ConfigureAwait(false))
         {
-            logger.TrashChangeRefused(current.Id, ChangeOutcome.NotFound, Action, id, "no-entry");
-            return ChangeOutcome.NotFound;
+            case EraseOutcome.NotFound:
+                logger.TrashChangeRefused(current.Id, ChangeOutcome.NotFound, Action, id, "no-entry");
+                return ChangeOutcome.NotFound;
+            case EraseOutcome.EditPending:
+                logger.TrashChangeRefused(current.Id, ChangeOutcome.Conflict, Action, id, "job-pending");
+                return ChangeOutcome.Conflict;
         }
 
         logger.EntryPurged(id, current.Id);
