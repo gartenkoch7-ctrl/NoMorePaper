@@ -1,6 +1,6 @@
 /*
- * Shared pieces used on several pages: search, native inputs, drop zone, live region, notices,
- * document table, search hits. Values after the Stitch design system (docs/kb/oberflaeche.md).
+ * Shared pieces used on several pages: search, native inputs, live region, notices,
+ * document table. Search hits are in search.css, upload and camera in capture.css. Values after the Stitch design system (docs/kb/oberflaeche.md).
  */
 
 .header-search {
@@ -13,8 +13,7 @@
 }
 
 /* Native inputs as MudTextField in the design: dark field, subtle border, white border on focus. */
-.search-input,
-.drop-zone input[type="file"] {
+.search-input {
     box-sizing: border-box;
     min-height: 2.5rem;
     padding: var(--nmp-space-sm) 0.75rem;
@@ -30,8 +29,7 @@
     color: var(--nmp-outline);
 }
 
-.search-input:focus,
-.drop-zone input[type="file"]:focus {
+.search-input:focus {
     border-color: var(--nmp-primary);
     box-shadow: 0 0 0 1px var(--nmp-primary);
 }
@@ -41,55 +39,10 @@
     min-width: 12rem;
 }
 
-.drop-zone input[type="file"]::file-selector-button {
-    margin-inline-end: var(--nmp-space-md);
-    padding: var(--nmp-space-sm) var(--nmp-space-md);
-    background-color: var(--nmp-primary);
-    color: var(--nmp-on-primary);
-    border: 0;
-    border-radius: var(--nmp-radius);
-    font: inherit;
-    font-weight: 500;
-}
-
-.drop-zone {
-    display: flex;
-    flex-direction: column;
-    gap: var(--nmp-space-sm);
-    margin-bottom: var(--nmp-space-lg);
-    padding: var(--nmp-space-lg);
-    background-color: var(--nmp-paper);
-    border: 1px dashed var(--nmp-border-strong);
-    border-radius: var(--nmp-radius-lg);
-}
-
-.drop-zone-label {
-    font-weight: 500;
-    color: var(--nmp-primary);
-}
-
-.drop-zone-hint {
-    margin: 0;
-    color: var(--nmp-text-secondary);
-}
-
 .live-region {
     min-height: 1.5em;
     margin: var(--nmp-space-md) 0;
     font-weight: 500;
-}
-
-.upload-results {
-    padding: 0;
-    list-style: none;
-}
-
-.upload-results li {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: var(--nmp-space-xs) 0.75rem;
-    margin-bottom: 0.75rem;
 }
 
 .error-box {
@@ -102,11 +55,6 @@
     border: 1px solid var(--nmp-border-strong);
     border-radius: var(--nmp-radius-lg);
     font-weight: 500;
-}
-
-/* A notice with a list of names: the symbol stays next to its first line. */
-.upload-skipped {
-    align-items: flex-start;
 }
 
 /* Lists & data grids of the design: thin dividers, small mono header, row hover. */
@@ -152,16 +100,6 @@
 .doc-table td .mud-icon-root {
     margin-inline-end: var(--nmp-space-sm);
     vertical-align: middle;
-}
-
-.search-hit {
-    margin-bottom: var(--nmp-space-lg);
-    padding-bottom: var(--nmp-space-md);
-    border-bottom: 1px solid var(--nmp-border);
-}
-
-.search-hit p {
-    margin: var(--nmp-space-sm) 0;
 }
 
 /* Large link tiles on the overview pages "Add" and "Settings". */
