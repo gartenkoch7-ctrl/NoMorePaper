@@ -87,7 +87,7 @@ Grundsätze (aus den Notizen je Screen):
 - [x] Keine externen Ressourcen (Fonts, CDN, Bilder) im Build
 - [ ] axe 0 Verstöße DE/EN; NVDA-Prüfung Navigation, Dokumente, Viewer, Eingänge durch den Nutzer
 - [ ] iPhone (PWA): Menü, Viewer und Eingänge bedienbar mit VoiceOver
-- [ ] CI grün
+- [x] CI grün (Lauf #84 für 8842d3a, 2026-11-23)
 
 ## Parallelisierung
 
