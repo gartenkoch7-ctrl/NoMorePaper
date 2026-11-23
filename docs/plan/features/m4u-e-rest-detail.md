@@ -36,13 +36,15 @@ Restpunkte beim Umsetzen nach App-Texten und Theme). Entwürfe **14–16 gehöre
 
 ## Offene Fragen an den Nutzer
 
+Alle beantwortet: **F1 wie empfohlen** (Nutzer, 2026-11-23) – Lesereihenfolge Passwort → Abmelden → Eingänge.
+
 | Nr. | Frage | Empfehlung | Bei der anderen Antwort |
 |---|---|---|---|
 | F1 | Der Konto-Entwurf 09 zeigt „Passwort ändern“ links, „Abmelden“ rechts daneben und „Eingänge und neue Dokumente“ darunter über die ganze Breite. Bisher liest der Screenreader Passwort → Eingänge → Abmelden. Soll die Lesereihenfolge dem Bild folgen (Passwort → Abmelden → Eingänge), oder soll die bisherige Reihenfolge bleiben und nur die Optik per CSS umgestellt werden (dann springt die Tab-Taste von unten nach oben)? | **Bild folgen** (Passwort → Abmelden → Eingänge): Lese-, Tab- und Bildreihenfolge sind gleich, nichts springt. | E3: In `Account.razor` steht `<PreferencesSection />` vor der Abmelden-Karte; `account-page.css` legt Abmelden per `grid-area` nach rechts oben. |
 
 ## Detailplan
 
-**Erstellt von:** Opus (Stufe 3) · **Datum:** 2026-11-23 · **Offene Designfragen:** F1 (Plan für Empfehlung geschrieben)
+**Erstellt von:** Opus (Stufe 3) · **Datum:** 2026-11-23 · **Offene Designfragen:** keine (F1 beantwortet 2026-11-23)
 
 Pfade ohne Präfix liegen unter `src/NoMorePaper.Web.Client/`. Tests: `UI` = `tests/NoMorePaper.UI.Tests/`,
 `WCT` = `tests/NoMorePaper.Web.Client.Tests/`.
