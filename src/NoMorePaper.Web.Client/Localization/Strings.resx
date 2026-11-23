@@ -2283,6 +2283,9 @@
   <data name="VerFinished" xml:space="preserve">
     <value>Die neue Fassung ist fertig.</value>
   </data>
+  <data name="VerRebuildFinished" xml:space="preserve">
+    <value>Das Dokument wird wieder aus dem Original angezeigt.</value>
+  </data>
   <data name="VerPollGaveUp" xml:space="preserve">
     <value>Die Bearbeitung dauert länger als erwartet. Lade die Seite später neu.</value>
   </data>

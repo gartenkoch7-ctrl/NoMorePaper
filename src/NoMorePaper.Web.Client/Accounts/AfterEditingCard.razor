@@ -3,6 +3,7 @@
 @inject IStringLocalizer<Strings> L
 @inject EditingApi Api
 @inject ILogger<AfterEditingCard> Logger
+@inject IJSRuntime Js
 
 @* The account's default for edited documents (Stitch 09). It applies to documents edited from now on;
    each document has its own choice in "Fassungen". The choice is saved with the button, not at once:
@@ -37,8 +38,16 @@
     private VersionPolicyDto? _policy;
     private string? _loadError;
     private bool _busy;
+    private PendingFocus _focus = default!;
 
-    protected override Task OnInitializedAsync() => LoadAsync();
+    protected override Task OnInitializedAsync()
+    {
+        _focus = new PendingFocus(Js);
+        return LoadAsync();
+    }
+
+    // The button is disabled while saving and loses focus; put it back once it is enabled again.
+    protected override Task OnAfterRenderAsync(bool firstRender) => _focus.ApplyAsync();
 
     private async Task LoadAsync()
     {
@@ -61,6 +70,7 @@
         _status?.Clear();
         var result = await Api.SetAfterEditingAsync(_policy!.Value);
         _busy = false;
+        _focus.On("after-editing-save");
         if (!result.IsSuccess)
         {
             Logger.VersionsCallFailed("set-after-editing");

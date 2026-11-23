@@ -2283,6 +2283,9 @@
   <data name="VerFinished" xml:space="preserve">
     <value>The new version is ready.</value>
   </data>
+  <data name="VerRebuildFinished" xml:space="preserve">
+    <value>The document is shown from the original again.</value>
+  </data>
   <data name="VerPollGaveUp" xml:space="preserve">
     <value>The edit takes longer than expected. Reload the page later.</value>
   </data>

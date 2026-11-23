@@ -47,6 +47,19 @@ public sealed class AfterEditingTests(ServerFixture server)
     }
 
     [Fact]
+    public async Task Saving_PutsFocusBackOnTheSaveButton()
+    {
+        await using var session = await OpenAsync(new FakeAccounts());
+        var page = session.Page;
+
+        await page.GetByRole(AriaRole.Radio, new() { Name = "Nur Original" }).CheckAsync();
+        await page.Locator("#after-editing-save").ClickAsync();
+
+        await Assertions.Expect(page.Locator($"{Card} [role=status]")).ToHaveTextAsync("Einstellung gespeichert.");
+        await Assertions.Expect(page.Locator("#after-editing-save")).ToBeFocusedAsync();
+    }
+
+    [Fact]
     public async Task ASaveError_IsAnnounced_AndTheChoiceStays()
     {
         await using var session = await OpenAsync(new FakeAccounts(), putStatus: 500);

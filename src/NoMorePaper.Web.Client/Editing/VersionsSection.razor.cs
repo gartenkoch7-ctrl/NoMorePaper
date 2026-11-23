@@ -33,8 +33,11 @@ public sealed partial class VersionsSection : IDisposable
     /// <summary>The fields of the document; they tell whether the signed-in account may edit it.</summary>
     [Parameter] public DocumentFieldsDto? Fields { get; set; }
 
-    /// <summary>The server reports the edit as done; the page loads the document again.</summary>
-    [Parameter] public EventCallback OnEditFinished { get; set; }
+    /// <summary>
+    /// The server reports the edit as done; the page loads the document again. The argument is true when
+    /// the document has no edited version (the archive was rebuilt from the original), false for a new one.
+    /// </summary>
+    [Parameter] public EventCallback<bool> OnEditFinished { get; set; }
 
     /// <summary>The detail changed without a finished edit (a choice was saved, or polling saw a new state).</summary>
     [Parameter] public EventCallback<DocumentDetailDto> OnDetailChanged { get; set; }
@@ -110,9 +113,9 @@ public sealed partial class VersionsSection : IDisposable
         _status?.Clear();
         var result = await Editing.ChooseVersionsAsync(Detail.Id, _policy);
         _busy = false;
-        _focus.On("versions-save");
         if (!result.IsSuccess)
         {
+            _focus.On("versions-save");
             Logger.VersionsCallFailed("choose");
             _saveError = L["VerSaveFailed", result.Error ?? L["ErrorUnreachable"]];
 
@@ -123,6 +126,10 @@ public sealed partial class VersionsSection : IDisposable
         Logger.VersionPolicySaved(chosen);
         // Fetch the document again: the original may be gone, or a rebuild of the archive may run now.
         var fresh = await DocumentsApi.GetAsync(Detail.Id);
+        // After "Nur Original" the edited version is gone and with it the choice and its button: focus the
+        // heading then. Decided from the fresh detail; the Detail parameter updates only after the parent renders.
+        var stillChoosable = !fresh.IsSuccess || fresh.Value is null || fresh.Value.Edited is not null;
+        _focus.On(stillChoosable ? "versions-save" : "versions-heading");
         if (fresh.IsSuccess && fresh.Value is not null)
         {
             await OnDetailChanged.InvokeAsync(fresh.Value);
@@ -169,7 +176,9 @@ public sealed partial class VersionsSection : IDisposable
 
                 _poll = null;
                 Logger.EditFinishedDetected();
-                await InvokeAsync(() => OnEditFinished.InvokeAsync());
+                // A rebuild after "Nur Original" also runs as a pending edit but yields no new version.
+                var withoutEdited = result.Value.Edited is null;
+                await InvokeAsync(() => OnEditFinished.InvokeAsync(withoutEdited));
                 return;
             }
         }

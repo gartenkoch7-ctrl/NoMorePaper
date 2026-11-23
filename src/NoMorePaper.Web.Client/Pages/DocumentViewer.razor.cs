@@ -51,35 +51,6 @@ public sealed partial class DocumentViewer : IAsyncDisposable
 
     [Inject] private ILogger<DocumentViewer> Logger { get; set; } = default!;
 
-    protected override async Task OnParametersSetAsync()
-    {
-        if (Id == _loadedId)
-        {
-            return;
-        }
-
-        // The same component is reused when the route switches to another document.
-        _loadedId = Id;
-        _tab = FieldsTab;
-        await Viewer.CloseAsync();
-        (_detail, _fields, _error, _source, _state, _opened, _showFailed) = (null, null, null, null, null, false, false);
-        _originalColors = await Preferences.LoadOriginalColorsAsync();
-
-        var result = await Api.GetAsync(Id);
-        if (!result.IsSuccess || result.Value is null)
-        {
-            _error = result.Error;
-            return;
-        }
-
-        _detail = result.Value;
-        _source = SourceOf(_detail);
-        if (_source is null)
-        {
-            Logger.DocumentNotViewable(_detail.State);
-        }
-    }
-
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (_source is null || _opened || _showFailed)
@@ -126,12 +97,6 @@ public sealed partial class DocumentViewer : IAsyncDisposable
     private string ZoomText => _state is null ? string.Empty : L["ViewerZoom", _state.ZoomPercent];
 
     private string PageText => _state is null ? string.Empty : L["ViewerPageOf", _state.Page, _state.PageCount];
-
-    // Shows the archive PDF/A when there is one; a PDF original can be shown before processing.
-    private static string? SourceOf(DocumentDetailDto detail) =>
-        detail.Archive is not null ? DocumentLinks.Archive(detail.Id)
-        : detail.Original?.MediaType == PdfMediaType ? DocumentLinks.Original(detail.Id)
-        : null;
 
     private async Task OnViewChangedAsync(ViewerState state)
     {
@@ -187,16 +152,6 @@ public sealed partial class DocumentViewer : IAsyncDisposable
     private void OnFieldsLoaded(DocumentFieldsDto fields) => _fields = fields;
 
     private void OnDetailChanged(DocumentDetailDto detail) => _detail = detail;
-
-    // A finished edit: load the document again so the viewer shows the new archive. The note is said
-    // with the first view announcement (a newer announcement would replace it).
-    private async Task ReloadAsync()
-    {
-        _finishedNote = L["VerFinished"];
-        _loadedId = Guid.Empty;
-        await OnParametersSetAsync();
-        StateHasChanged();
-    }
 
     private Task ZoomOutAsync() => Viewer.ZoomOutAsync().AsTask();
 

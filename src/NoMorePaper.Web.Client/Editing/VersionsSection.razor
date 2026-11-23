@@ -3,7 +3,7 @@
    owner the choice what to keep. Without an edit there is nothing to choose. While an edit runs the
    section asks the server every few seconds and reloads the viewer when the new version is there. *@
 <section class="versions" aria-labelledby="versions-heading">
-    <MudText Typo="Typo.h3" HtmlTag="h2" id="versions-heading">@L["VerHeading"]</MudText>
+    <MudText Typo="Typo.h3" HtmlTag="h2" id="versions-heading" tabindex="-1">@L["VerHeading"]</MudText>
     <LiveRegion @ref="_status" />
     @if (_saveError is not null)
     {
