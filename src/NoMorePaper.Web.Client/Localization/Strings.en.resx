@@ -393,9 +393,6 @@
   <data name="SignInButton" xml:space="preserve">
     <value>Sign in</value>
   </data>
-  <data name="SignInForgot" xml:space="preserve">
-    <value>Forgot your password? Ask the administrator for a reset link. The administrator uses the emergency code.</value>
-  </data>
   <data name="SignInForgotShort" xml:space="preserve">
     <value>Forgot your password? Ask the administrator.</value>
   </data>

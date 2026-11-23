@@ -393,9 +393,6 @@
   <data name="SignInButton" xml:space="preserve">
     <value>Anmelden</value>
   </data>
-  <data name="SignInForgot" xml:space="preserve">
-    <value>Passwort vergessen? Bitte den Verwalter um einen Rücksetzlink. Der Verwalter selbst braucht seinen Notfall-Code.</value>
-  </data>
   <data name="SignInForgotShort" xml:space="preserve">
     <value>Passwort vergessen? Frag den Verwalter.</value>
   </data>

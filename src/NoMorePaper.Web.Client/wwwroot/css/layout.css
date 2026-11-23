@@ -111,6 +111,8 @@
     margin-inline-start: auto;
 }
 
+/* Two classes on purpose: design.css loads later and gives every .nmp-button display:inline-flex,
+   which would beat a single-class rule (and the hidden attribute). */
 .nmp-button.menu-toggle {
     display: none;
 }

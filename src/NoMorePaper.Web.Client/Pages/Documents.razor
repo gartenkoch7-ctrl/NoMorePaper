@@ -39,7 +39,8 @@
 }
 else if (_error is not null)
 {
-    <div data-ready>
+    @* A new element per failed attempt of the person, so a second failure is inserted (and announced) again. *@
+    <div data-ready @key="_errorAttempt">
         <NoticeBox Kind="NoticeKind.Error" Announce="true" Message="@L["DocumentsLoadError", _error]">
             <button type="button" class="nmp-button" @onclick="ReloadAsync">@L["Retry"]</button>
         </NoticeBox>

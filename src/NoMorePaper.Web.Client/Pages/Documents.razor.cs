@@ -32,6 +32,7 @@ public sealed partial class Documents : IDisposable
     private string? _error;
     private bool _loading = true;
     private int _listVersion;
+    private int _errorAttempt;
     private int _countVersion;
 
     [Inject] private IStringLocalizer<Strings> L { get; set; } = default!;
@@ -82,10 +83,11 @@ public sealed partial class Documents : IDisposable
         var found = _counts?.Total ?? _documents.Length;
         var active = DocumentFilterQuery.ActiveCount(Combined);
         Logger.FilterApplied(active, found);
-        if (_count is not null)
+        // A failure is announced by the error box itself (role=alert); saying it here too would make
+        // screen readers read it twice.
+        if (_count is not null && _error is null)
         {
-            await _count.Announce(_error is not null ? L["DocumentsLoadError", _error]
-                : found == 0 ? L["FilterFoundNone"]
+            await _count.Announce(found == 0 ? L["FilterFoundNone"]
                 : found == 1 ? L["FilterFoundOne"] : L["FilterFound", found]);
         }
 
@@ -139,6 +141,13 @@ public sealed partial class Documents : IDisposable
 
         if (!result.IsSuccess)
         {
+            // A new error box (and with it a new announcement) for each failed attempt of the person,
+            // but not for every poll that fails again while the box is already shown.
+            if (!announceChanges || _error is null)
+            {
+                _errorAttempt++;
+            }
+
             _error = result.Error;
             return;
         }

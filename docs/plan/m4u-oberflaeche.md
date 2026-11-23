@@ -201,3 +201,16 @@ Entschieden (Nutzer, 2026-11-22):
 ### Rückblick (nach Abschluss)
 | Paket | geplante Stufe | passend? | Anmerkung |
 |---|---|---|---|
+| Schritt 0 Theme/CSS/Navigation | 2 (Opus selbst) | passend | 3 Review-Runden; MudBlazor nimmt Links/Knöpfen den Browser-Fokus → `outline: revert` nötig |
+| Schritt 0 Bausteine | 2 (Sonnet) | passend | Reiter-Optik später von Spur D global geändert |
+| Detailpläne A–D | 3 (Opus) | passend | je 4–13 offene Fragen; alle vom Nutzer wie empfohlen entschieden – Pläne mit Empfehlung vorgeschrieben hat Zeit gespart |
+| A Anmelden | 2 (Sonnet) | passend | globale Feldstile wirkten auf viele Seiten; CSS-Dateien wuchsen über 250 Zeilen (in jeder Spur!) – Zeilenschätzung für CSS im Plan zu niedrig |
+| B Dokumente | 2 (Sonnet) | eher zu niedrig | Server-Teil + Rennen (veraltete Antworten) + Pager-Fokus brauchten 3 Review-Runden; nächstes Mal Server- und Rennbedingungs-Teil Stufe 3 |
+| C Viewer | 2 (Sonnet), zwei Läufe | passend | Teilung wegen Abhängigkeit von D hat funktioniert; Vollbild-Fokus (`inert`) erst im Review gefunden |
+| D Eingänge | 2 (Sonnet) | passend | 1 wichtiger Befund (veraltete Zeile nach Einrichten) |
+| Merges | 3 (Opus) | passend | Hotspot `Strings*.resx`: beim Auflösen „beide behalten“ geht das gemeinsame `</data>` verloren – nach jedem resx-Konflikt Build prüfen |
+| Gesamt-Review | 3 (Opus) | passend | fand Uneinheitlichkeit zwischen Spuren (zwei Statuswörter, alte Fehlerboxen, doppeltes Privat-Abzeichen) – lohnt sich immer |
+
+Lehren für spätere Pläne: CSS-Zeilen wie Code schätzen und ab 200 Zeilen im Plan schon zwei Dateien vorsehen;
+Spuren sollten ihre eigene Review-Runde per Subagent machen (Selbstdurchsicht fand fast nie etwas);
+UI-Tests unter paralleler Last mehrerer Worktrees sind langsam und vereinzelt wackelig.

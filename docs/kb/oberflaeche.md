@@ -70,14 +70,14 @@ innen 0,25 rem. Knöpfe 38 px hoch.
 
 | Baustein | Datei | Verhalten |
 |---|---|---|
-| Statuszeile | `StatusText.razor` | Symbol (`aria-hidden`) + Wort: Wartet, Wird verarbeitet, Fertig, Fehlgeschlagen, Erkannt |
+| Statuszeile | `StatusText.razor` | Symbol (`aria-hidden`) + Wort: Wartet, Wird verarbeitet, Fertig, Fehlgeschlagen, Erkannt. Symbol und Wort kommen aus `StatusIcons`/`StatusKeys` (auch Viewer-Abzeichen und Ansagen); `DocumentStatus.KindOf` bildet den Verarbeitungsstand ab |
 | Abzeichen | `Badge.razor` | Chip `#18181b`, Rand `#27272a`, `label-sm`; Text Pflicht |
 | Hinweisbox | `NoticeBox.razor` | Fehler/Erfolg mit Symbol + Satz; `role` nur mit `Announce` |
 | Rückfrage | `ConfirmBox.razor` | in der Seite, Überschrift (Ebene per `HeadingLevel`, Standard H2) bekommt Fokus, „Abbrechen“ zuerst |
 | Reiter | `TabList.razor`, `TabItem` | WAI-ARIA-Muster, Pfeile/Pos1/Ende über `TabNavigation`; JetBrains Mono 11 px wie Entwurf 04 (gewählt: weiß mit weißer Linie, `aria-selected`); optional `Icon` (`aria-hidden`) und `Count` (kurze Angabe, Teil des Namens: „Mail 1 Problem“, Name kommt aus dem sichtbaren Text wegen axe `label-content-name-mismatch`) |
 | Pfad | `Breadcrumb.razor`, `BreadcrumbItem` | `nav` mit `aria-label` „Pfad“, Liste, aktuelle Seite (`Href` `null`) mit `aria-current="page"`, Trenner-Symbol `aria-hidden`; auch für die Zurück-Leiste anderer Seiten (Viewer) gedacht |
 | Nur Screenreader | `.nmp-visually-hidden` | Text ist im Lesebaum, aber optisch weg (z. B. Überschrift „Verlauf“) |
-| Knöpfe | `.nmp-button`, `.nmp-button-primary` | Standard umrandet, Hauptaktion weiß |
+| Knöpfe | `.nmp-button`, `.nmp-button-primary` | Standard umrandet, Hauptaktion weiß; `display:inline-flex` – zum Ausblenden braucht es eine Regel mit höherer Spezifität, das `hidden`-Attribut allein wirkt nicht |
 | Kacheln | `.link-tiles`, `.link-tile` | große Links mit Titel und Erklärung |
 | Anmelderahmen | `Accounts/AccountFrame.razor` | Rahmen der Seiten für Abgemeldete: Logo-Kachel (`aria-hidden`), Überzeile, einzige H1, Unterzeile, Karte |
 

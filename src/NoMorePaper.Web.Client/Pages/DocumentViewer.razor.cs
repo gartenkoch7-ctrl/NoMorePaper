@@ -4,7 +4,6 @@ using Microsoft.Extensions.Logging;
 using NoMorePaper.Contracts.Classification;
 using NoMorePaper.Contracts.Documents;
 using NoMorePaper.Web.Client.Accessibility;
-using MudBlazor;
 using NoMorePaper.Web.Client.Design;
 using NoMorePaper.Web.Client.Documents;
 using NoMorePaper.Web.Client.Localization;

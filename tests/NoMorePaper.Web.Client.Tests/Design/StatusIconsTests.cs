@@ -2,7 +2,7 @@ using MudBlazor;
 using NoMorePaper.Web.Client.Design;
 using Xunit;
 
-namespace NoMorePaper.Web.Client.Tests.Documents;
+namespace NoMorePaper.Web.Client.Tests.Design;
 
 public sealed class StatusIconsTests
 {
