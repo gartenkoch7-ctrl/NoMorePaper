@@ -86,4 +86,4 @@ ab (Logo-Symbol, Seitenleisten-Farbe) – wird nicht übernommen.
 
 Design-System (Farben, Geist/JetBrains Mono, Stufen) eingehalten.
 
-Status: Vorschlag – Freigabe durch den Nutzer offen
+Status: freigegeben durch den Nutzer (2026-11-23); Restpunkte werden beim Umsetzen behoben

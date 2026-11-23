@@ -89,4 +89,4 @@ Ja, kleine Punkte (Regel: jede UI-Änderung zuerst in Stitch):
 Design-System (Farben-Token, Geist/JetBrains Mono, Stufen ohne Rahmen) eingehalten; kein Rot außer
 `hover:text-error` an „Abmelden“ (Rahmen der App, nicht übernehmen).
 
-Status: Vorschlag – Freigabe durch den Nutzer offen
+Status: freigegeben durch den Nutzer (2026-11-23); Restpunkte werden beim Umsetzen behoben

@@ -78,4 +78,4 @@ Ja, kleiner Rest (als „Seiten bearbeiten v3“ oder per Edit):
 Vor der Umsetzung im Detailplan entscheiden: Darstellung gelöschter/geänderter Seiten vor dem Speichern,
 Trennstellen, Zustand „Dokument anhängen“.
 
-Status: Vorschlag – Freigabe durch den Nutzer offen
+Status: freigegeben durch den Nutzer (2026-11-23); Restpunkte werden beim Umsetzen behoben

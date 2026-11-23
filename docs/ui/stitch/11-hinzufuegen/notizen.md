@@ -59,4 +59,4 @@ Kleine Punkte (Regel: jede UI-Änderung zuerst in Stitch):
 
 Design-System (Farben, Geist/JetBrains Mono, Flächenstufen) eingehalten.
 
-Status: Vorschlag – Freigabe durch den Nutzer offen
+Status: freigegeben durch den Nutzer (2026-11-23); Restpunkte werden beim Umsetzen behoben

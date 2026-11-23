@@ -74,4 +74,4 @@ Dateinamen, Hinweis mit „bis 100 MB“ und „sofort hochgeladen“, Status-W�
 entfernt, Brotkrumen entfernt, `onclick`-Knopf durch `label for` ersetzt, Material-Symbols-Font entfernt.
 Navigationspunkt „Startseite“ ist korrekt (`NavHome`), kein Befund mehr.
 
-Status: Vorschlag – Freigabe durch den Nutzer offen
+Status: freigegeben durch den Nutzer (2026-11-23); Restpunkte werden beim Umsetzen behoben

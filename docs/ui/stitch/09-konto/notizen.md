@@ -53,4 +53,4 @@
 - Klein (Nutzer entscheidet): Karte „Sprache“ (vom Spur-E-Prompt verlangt, aber doppelt zur Kopfzeile)
   und die Nummern „01“–„04“ entfernen; Texte an die App angleichen (siehe Abgleich).
 
-Status: Vorschlag – Freigabe durch den Nutzer offen
+Status: freigegeben durch den Nutzer (2026-11-23); Restpunkte werden beim Umsetzen behoben

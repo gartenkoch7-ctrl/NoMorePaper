@@ -69,4 +69,4 @@
   die sichtbare `caption`. Beides kann beim Umsetzen aus der App übernommen werden; ein v4 ist nur
   nötig, wenn der Nutzer das Mockup exakt an die App angleichen will.
 
-Status: Vorschlag – Freigabe durch den Nutzer offen
+Status: freigegeben durch den Nutzer (2026-11-23); Restpunkte werden beim Umsetzen behoben

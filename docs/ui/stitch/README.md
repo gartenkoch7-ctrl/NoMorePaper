@@ -27,18 +27,18 @@ Ablauf und Status-Stufen: [KB ui-prozess.md](../../kb/ui-prozess.md). Stitch-Pro
 | 02 | Dokumente (Übersicht, mit Seitenleiste und Kopf) | `/dokumente` | [02-dokumente](02-dokumente/notizen.md) | umgesetzt (Abnahme offen) |
 | 03 | Dokument ansehen (Viewer + Angaben) | `/dokumente/{id}` | [03-dokument-ansehen](03-dokument-ansehen/notizen.md) | umgesetzt (Abnahme offen; `screen.png` fehlt) |
 | 04 | Eingänge (Scanner-Ordner, Mail, iCloud) | `/eingaenge` | [04-eingaenge](04-eingaenge/notizen.md) | umgesetzt (Abnahme offen) |
-| 05 | Startseite (Übersicht) | `/` | [05-startseite](05-startseite/notizen.md) | geprüft – Nachbessern in Stitch; Übersicht als neue Funktion braucht Entscheidung |
-| 06 | Zu prüfen | `/zu-pruefen` | [06-zu-pruefen](06-zu-pruefen/notizen.md) | geprüft – Freigabe offen (nur Kleinigkeiten) |
-| 07 | Suche | `/suche` | [07-suche](07-suche/notizen.md) | v2 geprüft – Freigabe offen (Kleinigkeiten: „über Mail“, Fettdruck) |
-| 08 | Listen | `/listen` | [08-listen](08-listen/notizen.md) | v2 geprüft – Freigabe offen |
-| 09 | Konto | `/konto` | [09-konto](09-konto/notizen.md) | geprüft – Freigabe offen (Karte „Sprache“ klären) |
-| 10 | Mitglieder | `/mitglieder` | [10-mitglieder](10-mitglieder/notizen.md) | v3 geprüft – Freigabe offen (Entfernen-Knopf neutral, entschieden 2026-11-23) |
-| 11 | Hinzufügen | `/hinzufuegen` | [11-hinzufuegen](11-hinzufuegen/notizen.md) | geprüft – Freigabe offen (Kleinigkeiten) |
-| 12 | Hochladen | `/hochladen` | [12-hochladen](12-hochladen/notizen.md) | v2 geprüft – Freigabe offen (Rest: Farben Warnbox/Symbole, Duplikat-Satz) |
-| 13 | Kamera (mobil) | `/kamera` | [13-kamera](13-kamera/notizen.md) | v2 geprüft – Freigabe offen (Rest: Farben der Boxen, Fehlertext/-ort) |
-| 14 | Seiten bearbeiten (M4b) | `/dokumente/{id}/seiten` | [14-seiten-bearbeiten](14-seiten-bearbeiten/notizen.md) | v2 geprüft – Freigabe offen (Rest: Seite 3, erfundene Fußzeile) |
-| 15 | Papierkorb (M4b) | `/papierkorb` | [15-papierkorb](15-papierkorb/notizen.md) | v2 geprüft – Freigabe offen (Rest: Knopftexte unter `xl` nur Symbol) |
-| 16 | Fassungen im Viewer (M4b) | `/dokumente/{id}` | [16-fassungen](16-fassungen/notizen.md) | v2 geprüft – Freigabe offen (Rest: Brotkrume, Downloads, Zusätze) |
+| 05 | Startseite (Übersicht) | `/` | [05-startseite](05-startseite/notizen.md) | freigegeben 2026-11-23 |
+| 06 | Zu prüfen | `/zu-pruefen` | [06-zu-pruefen](06-zu-pruefen/notizen.md) | freigegeben 2026-11-23 |
+| 07 | Suche | `/suche` | [07-suche](07-suche/notizen.md) | freigegeben 2026-11-23 |
+| 08 | Listen | `/listen` | [08-listen](08-listen/notizen.md) | freigegeben 2026-11-23 |
+| 09 | Konto | `/konto` | [09-konto](09-konto/notizen.md) | freigegeben 2026-11-23 |
+| 10 | Mitglieder | `/mitglieder` | [10-mitglieder](10-mitglieder/notizen.md) | freigegeben 2026-11-23 |
+| 11 | Hinzufügen | `/hinzufuegen` | [11-hinzufuegen](11-hinzufuegen/notizen.md) | freigegeben 2026-11-23 |
+| 12 | Hochladen | `/hochladen` | [12-hochladen](12-hochladen/notizen.md) | freigegeben 2026-11-23 |
+| 13 | Kamera (mobil) | `/kamera` | [13-kamera](13-kamera/notizen.md) | freigegeben 2026-11-23 |
+| 14 | Seiten bearbeiten (M4b) | `/dokumente/{id}/seiten` | [14-seiten-bearbeiten](14-seiten-bearbeiten/notizen.md) | freigegeben 2026-11-23 |
+| 15 | Papierkorb (M4b) | `/papierkorb` | [15-papierkorb](15-papierkorb/notizen.md) | freigegeben 2026-11-23 |
+| 16 | Fassungen im Viewer (M4b) | `/dokumente/{id}` | [16-fassungen](16-fassungen/notizen.md) | freigegeben 2026-11-23 |
 
 `code.html` von 05–16 wurde aus der Inline-Antwort von `download_file` übertragen (kein Direkt-Download
 möglich, siehe KB [ui-prozess.md](../../kb/ui-prozess.md)); Tippfehler sind nicht ganz ausgeschlossen, Bild

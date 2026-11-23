@@ -70,4 +70,4 @@ entfernt, weißer Rahmen ums Kamerabild, Zoom nicht mehr gesperrt, `lang="de"`, 
 `aria-hidden` entfernt (SVG mit `aria-hidden`), Scrollbar-Ausblendung entfernt, Fehlerbox mit „Stattdessen eine
 Datei hochladen“ ergänzt.
 
-Status: Vorschlag – Freigabe durch den Nutzer offen
+Status: freigegeben durch den Nutzer (2026-11-23); Restpunkte werden beim Umsetzen behoben

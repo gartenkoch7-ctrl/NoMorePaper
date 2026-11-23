@@ -74,4 +74,4 @@
 - Eingang mit Problem nach oben sortieren; Titel ohne „.pdf“.
 - Grundsatz vorher klären: Soll die Startseite überhaupt zur Übersicht werden (neue Funktion, nicht im Plan)?
 
-Status: Vorschlag – Freigabe durch den Nutzer offen
+Status: freigegeben durch den Nutzer (2026-11-23); Restpunkte werden beim Umsetzen behoben

@@ -61,4 +61,4 @@
   an den echten Text angleichen; optional eine Karte mit „Wem gehört das?“ ergänzen, damit der Entwurf
   die echte Seite zeigt (Regel „Mockups zeigen die echte App“).
 
-Status: Vorschlag – Freigabe durch den Nutzer offen
+Status: freigegeben durch den Nutzer (2026-11-23); Restpunkte werden beim Umsetzen behoben

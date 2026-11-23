@@ -85,4 +85,4 @@ Ja (Regel: jede UI-Änderung zuerst in Stitch):
 - Erklärzeile je Radio-Option wieder zeigen.
 - Bestätigungsknopf „Ja, so behalten“ ohne Abschneiden.
 
-Status: Vorschlag – Freigabe durch den Nutzer offen
+Status: freigegeben durch den Nutzer (2026-11-23); Restpunkte werden beim Umsetzen behoben
