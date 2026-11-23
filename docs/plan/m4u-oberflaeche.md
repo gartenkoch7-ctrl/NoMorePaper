@@ -37,15 +37,15 @@ Grundsätze (aus den Notizen je Screen):
 - [x] Unterseite „Einstellungen“ bündelt Konto, Eingänge, Listen, Mitglieder (Admin); Routen bleiben gleich
 
 ### A. Anmelden (Screen 01)
-- [ ] `SignIn.razor` nach Entwurf: Logo lokal, Karte, Benutzername statt E-Mail, Link „Mit Notfall-Code
+- [x] `SignIn.razor` nach Entwurf: Logo lokal, Karte, Benutzername statt E-Mail, Link „Mit Notfall-Code
       anmelden“; dieselbe Gestaltung für Ersteinrichtung, Einladung, Passwort zurücksetzen, Notfall
 
 ### B. Dokumente (Screen 02)
-- [ ] `Documents.razor`: Überschrift mit Anzahl, „Zuletzt bearbeitet“ als Karten, Art-Chips mit Anzahl,
+- [x] `Documents.razor`: Überschrift mit Anzahl, „Zuletzt bearbeitet“ als Karten (entfallen, F6-A), Art-Chips mit Anzahl,
       Tabelle (Titel + Textausschnitt, Art/Tags, Absender, Datum + Eingangsweg, Betrag, Status, Erkennung),
       Abzeichen „Privat“, Blättern mit „Zeilen pro Seite“
-- [ ] `DocumentFilterBar.razor`: nur eine Suche (im Kopf); Filter Datum, Betrag, Sichtbarkeit, Absender
-- [ ] Umschalter Tabelle / Kacheln (Kacheln mit invertierter Miniatur) – ⚠️ nur, wenn API Miniaturen liefert,
+- [x] `DocumentFilterBar.razor`: nur eine Suche (im Kopf); Filter Datum, Betrag, Sichtbarkeit, Absender
+- [x] Umschalter Tabelle / Kacheln (Kacheln mit invertierter Miniatur) – ⚠️ nur, wenn API Miniaturen liefert,
       sonst nach M4b verschieben
 
 ### C. Dokument ansehen (Screen 03)
@@ -56,9 +56,9 @@ Grundsätze (aus den Notizen je Screen):
       Chips mit Knopf „entfernen“, Bestätigen, Privat, Bearbeiter, Downloads Original/Archiv getrennt
 
 ### D. Eingänge (Screen 04)
-- [ ] `Inputs.razor`/`InputsEntry.razor`: Reiter je Eingang mit Anzahl, Karte je Quelle (Status als
+- [x] `Inputs.razor`/`InputsEntry.razor`: Reiter je Eingang mit Anzahl, Karte je Quelle (Status als
       Abzeichen mit Text, „Zuletzt gelaufen“ / „Zuletzt erfolgreich“, Knöpfe)
-- [ ] `MailSettings.razor`: Postfach-Karte, Regelliste (Spam-Prüfung, Spam-Ordner, Absender je Konto);
+- [x] `MailSettings.razor`: Postfach-Karte, Regelliste (Spam-Prüfung, Spam-Ordner, Absender je Konto);
       Platz für iCloud-Abschnitt (kommt mit M4 Spur D)
 
 ### E. Restliche Seiten angleichen

@@ -1,0 +1,128 @@
+/* Frame of the pages for signed-out people (Stitch screen 01, "Obsidian Slate"): sign-in, setup,
+   invitation, password reset and emergency reset. Values only from base.css tokens, measures read
+   from the design. No outline rules on purpose: focus is the browser default (ADR-0026). */
+
+.account-frame {
+    max-width: 28rem;
+    margin-inline: auto;
+    padding-block: var(--nmp-space-sm);
+}
+
+.account-frame-brand {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    margin: var(--nmp-space-xs) 0 var(--nmp-space-lg);
+}
+
+.account-frame-logo {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 3rem;
+    height: 3rem;
+    margin-bottom: var(--nmp-space-md);
+    background: var(--nmp-paper-low);
+    border-radius: var(--nmp-radius-lg);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.account-frame-logo .mud-icon-root {
+    font-size: 1.75rem;
+    color: var(--nmp-primary);
+    opacity: 0.95;
+}
+
+.account-frame-overline {
+    margin: 0 0 0.25rem;
+    font-family: var(--nmp-font-mono);
+    font-size: 0.625rem;
+    line-height: 0.875rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--nmp-text-variant);
+}
+
+.account-frame-title {
+    margin: 0;
+    font-size: 1.375rem;
+    line-height: 1.75rem;
+    letter-spacing: -0.015em;
+    font-weight: 600;
+    color: var(--nmp-primary);
+}
+
+.account-frame-intro {
+    margin: 0.25rem 0 0;
+    font-size: 0.875rem;
+    line-height: 1.375rem;
+    color: var(--nmp-text-variant);
+}
+
+.account-frame-card {
+    display: flex;
+    flex-direction: column;
+    gap: var(--nmp-space-md);
+    padding: var(--nmp-space-md);
+    background: var(--nmp-paper-low);
+    border-radius: var(--nmp-radius-lg);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+}
+
+/* The base rule of .account-form (accounts.css) stays for the account and mail pages. */
+.account-frame-card .account-form {
+    gap: var(--nmp-space-md);
+    max-width: none;
+    margin: 0;
+}
+
+.account-frame-card p {
+    margin: 0;
+}
+
+.account-frame-help {
+    padding-top: 0.125rem;
+    font-size: 0.75rem;
+    line-height: 1.125rem;
+    color: var(--nmp-text-variant);
+}
+
+.account-frame-submit {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    width: 100%;
+    min-height: 2.75rem;
+    margin-top: 0.25rem;
+    font-size: 1rem;
+    line-height: 1.5rem;
+    font-weight: 600;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.account-frame-submit .mud-icon-root {
+    font-size: 1.125rem;
+}
+
+.account-frame-secondary {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.625rem;
+    min-height: 2.75rem;
+    background: var(--nmp-surface-container);
+    color: var(--nmp-primary);
+    border-radius: var(--nmp-radius);
+    text-decoration: none;
+    font-size: 0.875rem;
+}
+
+.account-frame-secondary:hover {
+    background: var(--nmp-elevated-high);
+}
+
+.account-frame-secondary .mud-icon-root {
+    font-size: 1.25rem;
+}

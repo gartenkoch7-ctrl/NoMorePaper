@@ -74,9 +74,16 @@ innen 0,25 rem. Knöpfe 38 px hoch.
 | Abzeichen | `Badge.razor` | Chip `#18181b`, Rand `#27272a`, `label-sm`; Text Pflicht |
 | Hinweisbox | `NoticeBox.razor` | Fehler/Erfolg mit Symbol + Satz; `role` nur mit `Announce` |
 | Rückfrage | `ConfirmBox.razor` | in der Seite, Überschrift (Ebene per `HeadingLevel`, Standard H2) bekommt Fokus, „Abbrechen“ zuerst |
-| Reiter | `TabList.razor` | WAI-ARIA-Muster, Pfeile/Pos1/Ende über `TabNavigation` |
+| Reiter | `TabList.razor`, `TabItem` | WAI-ARIA-Muster, Pfeile/Pos1/Ende über `TabNavigation`; JetBrains Mono 11 px wie Entwurf 04 (gewählt: weiß mit weißer Linie, `aria-selected`); optional `Icon` (`aria-hidden`) und `Count` (kurze Angabe, Teil des Namens: „Mail 1 Problem“, Name kommt aus dem sichtbaren Text wegen axe `label-content-name-mismatch`) |
+| Pfad | `Breadcrumb.razor`, `BreadcrumbItem` | `nav` mit `aria-label` „Pfad“, Liste, aktuelle Seite (`Href` `null`) mit `aria-current="page"`, Trenner-Symbol `aria-hidden`; auch für die Zurück-Leiste anderer Seiten (Viewer) gedacht |
 | Knöpfe | `.nmp-button`, `.nmp-button-primary` | Standard umrandet, Hauptaktion weiß |
 | Kacheln | `.link-tiles`, `.link-tile` | große Links mit Titel und Erklärung |
+| Anmelderahmen | `Accounts/AccountFrame.razor` | Rahmen der Seiten für Abgemeldete: Logo-Kachel (`aria-hidden`), Überzeile, einzige H1, Unterzeile, Karte |
+
+**Felder** (`FormField`, `form-fields.css`, vor `accounts.css` geladen): Beschriftung Mono 11 px, Feld 44 px hoch auf `#0a0a0a`, optionales Symbol
+links (`aria-hidden`), bei Passwörtern Augen-Knopf rechts im Feld (Name „Passwort anzeigen: …“, Zustand in
+`aria-pressed`). Im Fokus weißer Rand; ein ungültiges Feld hat einen gestrichelten Rand in `--nmp-error`
+(nicht nur Farbe).
 
 ## Fokus
 
@@ -86,6 +93,24 @@ Browser-Rahmen an Links und Knöpfen (`a:focus-visible`, `button:focus`); `base.
 `outline: revert` zurück. Unter 1024 px ist der Kopf nicht fest (er bricht um und würde den Fokus
 verdecken); „Menü“ setzt den Fokus auf den ersten Link, Escape schließt und kehrt zum Knopf zurück. Die Bildschirmlupe des Nutzers
 hebt Fokus selbst hervor.
+
+## Dokumentliste (`/dokumente`, Screen 02)
+
+- **Spalten:** Titel (mit Privat-Abzeichen und Textausschnitt, 160 Zeichen plus Auslassungszeichen, nur als Text), Art und Tags
+  (`#` ist `aria-hidden`), Absender, Datum (Dokumentdatum; darunter Eingang mit Weg), Betrag, Status, Erkennung.
+  Der Titel ist der Link, die Zeile ist nicht klickbar.
+- **Art-Chips:** Gruppe „Nach Dokumentart filtern“, jeder Chip ein Knopf mit `aria-pressed` und Anzahl, nur Arten mit
+  Dokumenten; die Zahlen beachten die übrigen Filter. Die gewählte Art bleibt auch mit Anzahl 0 sichtbar.
+  Das Auswahlfeld „Dokumentart“ im Filterbereich entfällt; der Tag-Filter bleibt dort.
+- **Blättern:** `nav` „Seiten der Dokumentliste“, aktuelle Seite mit `aria-current="page"`, „Zeilen pro Seite“
+  (10/25/50/100, Standard 50). Wird „Vorherige/Nächste Seite“ durch das Blättern abgeschaltet, springt der Fokus auf die
+  aktuelle Seite (ohne Gesamtzahl auf den anderen Pfeil), sonst fiele er auf `body`. Ohne Gesamtzahl (Zähler-Aufruf
+  schlägt fehl) gibt es nur „Seite n“, „Vorherige“ und „Nächste“ (aktiv, solange eine volle Seite kam).
+- **Tabelle** liegt in einem scrollbaren, benannten Bereich (`role="region"`, `tabindex="0"`), damit die Seite
+  auf dem Handy nicht seitlich scrollt. **Kacheln:** `auto-fill`/`minmax(15rem, 1fr)`, `min-height` statt fester Höhe
+  (Zoom); sie zeigen die Miniatur der ersten Seite, die Tabelle nur einen Symbolkasten.
+- **Nicht übernommen:** „Zuletzt bearbeitet“ (kein Änderungszeitpunkt in der DB), Export, Stapelverarbeitung,
+  Auswahl-Kästchen, Aktionsspalte, Spalten-/Sortierwahl, zweites Suchfeld, Brotkrumen, WORM-/SHA-Hinweise.
 
 ## Nicht aus Stitch übernommen
 

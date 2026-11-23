@@ -9,37 +9,39 @@
 
 <PageTitle>@L["InvitationTitle"]</PageTitle>
 
-<MudText Typo="Typo.h1">@L["InvitationHeading"]</MudText>
-
-@if (_checking)
-{
-    <p role="status">@L["SessionLoading"]</p>
-}
-else if (_invalid is not null)
-{
-    <div role="alert" class="error-box" data-ready>
-        <MudIcon Icon="@Icons.Material.Filled.Error" />
-        <span>@_invalid</span>
-    </div>
-    <p><a href="anmelden">@L["SetupToSignIn"]</a></p>
-}
-else
-{
-    <p data-ready>@L["InvitationIntro", _expires]</p>
-    <form class="account-form" novalidate @onsubmit="SubmitAsync">
-        <FormField Id="invite-display" Label="@L["FieldDisplayName"]" Autocomplete="name"
-                   @bind-Value="_displayName" Invalid='_form.IsInvalid("invite-display")' />
-        <FormField Id="invite-user" Label="@L["FieldUserName"]" Autocomplete="username"
-                   @bind-Value="_userName" Invalid='_form.IsInvalid("invite-user")' />
-        <FormField Id="invite-password" Label="@L["FieldNewPassword"]" Autocomplete="new-password" Password="true"
-                   Hint="@L["HintPasswordLength", FormValidation.MinPasswordLength]"
-                   @bind-Value="_password" Invalid='_form.IsInvalid("invite-password")' />
-        <FormField Id="invite-repeat" Label="@L["FieldRepeatPassword"]" Autocomplete="new-password" Password="true"
-                   @bind-Value="_repeat" Invalid='_form.IsInvalid("invite-repeat")' />
-        <LiveRegion @ref="_error" Assertive="true" Class="form-error" />
-        <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" Color="Color.Primary" Disabled="_busy">@L["InvitationButton"]</MudButton>
-    </form>
-}
+<AccountFrame Heading="@L["InvitationHeading"]" Intro="@(_checking || _invalid is not null ? null : L["InvitationIntro", _expires].Value)">
+    @if (_checking)
+    {
+        <p role="status">@L["SessionLoading"]</p>
+    }
+    else if (_invalid is not null)
+    {
+        <div data-ready>
+            <NoticeBox Kind="NoticeKind.Error" Announce="true" Message="@_invalid" />
+            <p><a href="anmelden">@L["SetupToSignIn"]</a></p>
+        </div>
+    }
+    else
+    {
+        <form class="account-form" novalidate @onsubmit="SubmitAsync" data-ready>
+            <FormField Id="invite-display" Label="@L["FieldDisplayName"]" Autocomplete="name" Icon="@Icons.Material.Outlined.Badge"
+                       @bind-Value="_displayName" Invalid='_form.IsInvalid("invite-display")' />
+            <FormField Id="invite-user" Label="@L["FieldUserName"]" Autocomplete="username" Icon="@Icons.Material.Outlined.Person"
+                       @bind-Value="_userName" Invalid='_form.IsInvalid("invite-user")' />
+            <FormField Id="invite-password" Label="@L["FieldNewPassword"]" Autocomplete="new-password" Password="true"
+                       Icon="@Icons.Material.Outlined.Lock"
+                       Hint="@L["HintPasswordLength", FormValidation.MinPasswordLength]"
+                       @bind-Value="_password" Invalid='_form.IsInvalid("invite-password")' />
+            <FormField Id="invite-repeat" Label="@L["FieldRepeatPassword"]" Autocomplete="new-password" Password="true"
+                       Icon="@Icons.Material.Outlined.Lock"
+                       @bind-Value="_repeat" Invalid='_form.IsInvalid("invite-repeat")' />
+            <LiveRegion @ref="_error" Assertive="true" Class="form-error" />
+            <button type="submit" class="nmp-button nmp-button-primary account-frame-submit" disabled="@_busy">
+                <span>@L["InvitationButton"]</span><MudIcon Icon="@Icons.Material.Filled.ArrowForward" aria-hidden="true" />
+            </button>
+        </form>
+    }
+</AccountFrame>
 
 @code {
     private FormValidation _form = default!;

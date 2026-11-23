@@ -126,30 +126,95 @@
     color: var(--nmp-primary);
 }
 
+/* Tabs look like design 04: mono 11 px, selected = white text and a white line (plus aria-selected). */
 .nmp-tabs {
     display: flex;
     flex-wrap: wrap;
-    gap: 0.25rem;
+    gap: var(--nmp-space-lg);
     border-bottom: 1px solid var(--nmp-border);
 }
 
 .nmp-tab {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--nmp-space-xs);
     min-height: 38px;
-    padding: 0 1rem;
+    padding: 0 0 0.75rem;
     background: transparent;
     border: 0;
     border-bottom: 2px solid transparent;
-    color: var(--nmp-text-secondary);
-    font-family: var(--nmp-font-sans);
-    font-size: 0.875rem;
+    color: var(--nmp-text-variant);
+    font-family: var(--nmp-font-mono);
+    font-size: 0.6875rem;
+    line-height: 1rem;
+    letter-spacing: 0.02em;
+    font-weight: 500;
     cursor: pointer;
 }
 
-/* Selection is shown by weight and underline as well as colour. */
+.nmp-tab:hover {
+    color: var(--nmp-primary);
+}
+
 .nmp-tab-selected {
     border-bottom-color: var(--nmp-primary);
     color: var(--nmp-primary);
-    font-weight: 700;
+}
+
+.nmp-tab .mud-icon-root {
+    font-size: 1.125rem;
+}
+
+.nmp-tab-count {
+    display: inline-block;
+    padding: 0.125rem 0.375rem;
+    border-radius: var(--nmp-radius-sm);
+    background: var(--nmp-paper-low);
+    color: var(--nmp-outline);
+    font-size: 0.625rem;
+    line-height: 0.875rem;
+    letter-spacing: 0.05em;
+}
+
+.nmp-tab-selected .nmp-tab-count {
+    background: var(--nmp-elevated-high);
+    color: var(--nmp-primary);
+}
+
+/* Path above the page title. */
+.nmp-breadcrumb ol {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--nmp-space-xs);
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    font-family: var(--nmp-font-mono);
+    font-size: 0.6875rem;
+    color: var(--nmp-outline);
+}
+
+.nmp-breadcrumb li {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--nmp-space-xs);
+}
+
+.nmp-breadcrumb a {
+    color: var(--nmp-outline);
+}
+
+.nmp-breadcrumb a:hover {
+    color: var(--nmp-text);
+}
+
+.nmp-breadcrumb [aria-current] {
+    color: var(--nmp-primary);
+    font-weight: 500;
+}
+
+.nmp-breadcrumb .mud-icon-root {
+    font-size: 0.875rem;
 }
 
 /* For headings only screen readers need (the visible word is elsewhere): still reachable by heading

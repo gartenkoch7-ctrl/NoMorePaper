@@ -5,6 +5,7 @@ using NoMorePaper.Contracts.Inputs;
 using NoMorePaper.Web.Client.Accessibility;
 using NoMorePaper.Web.Client.Accounts;
 using NoMorePaper.Web.Client.Documents;
+using NoMorePaper.Web.Client.Design;
 using NoMorePaper.Web.Client.Inputs;
 using NoMorePaper.Web.Client.Localization;
 
@@ -25,6 +26,12 @@ public sealed partial class Inputs : IDisposable
     private DateTimeOffset _now;
     private string? _loadError;
     private bool _loading;
+    private string _selected = string.Empty;
+    private IReadOnlyList<TabItem> _tabs = [];
+    private IReadOnlyList<BreadcrumbItem> _path = [];
+
+    /// <summary>The tab to start on (<c>?quelle=mail</c>); the page <c>/eingaenge/mail</c> links back with it.</summary>
+    [SupplyParameterFromQuery(Name = "quelle")] public string? Source { get; set; }
 
     [Inject] private IStringLocalizer<Strings> L { get; set; } = default!;
 
@@ -50,9 +57,20 @@ public sealed partial class Inputs : IDisposable
 
     protected override async Task OnInitializedAsync()
     {
+        _selected = InputTabs.TabId(InputTabs.Initial(Source));
+        _path = [new BreadcrumbItem(L["NavSettings"], "einstellungen"), new BreadcrumbItem(L["InpHeading"], null)];
         await LoadAsync(byHand: false);
         _ = RefreshEveryMinuteAsync(_stop.Token);
     }
+
+    private bool IsSelected(string kind) => _selected == InputTabs.TabId(kind);
+
+    // The statement in each tab is the only overview of all inputs while one panel is shown.
+    private TabItem[] BuildTabs() => InputTabs.Kinds.Select(kind =>
+    {
+        var (key, problems) = InputTabs.Summary(_rows ?? [], kind);
+        return new TabItem(InputTabs.TabId(kind), InputTexts.Kind(L, kind), InputTabs.KindIcon(kind), L[key, problems].Value);
+    }).ToArray();
 
     private IEnumerable<InputStatusDto> RowsOf(string kind) => (_rows ?? []).Where(row => row.Kind == kind);
 
@@ -120,6 +138,7 @@ public sealed partial class Inputs : IDisposable
         _loadError = null;
         _rows = result.Value;
         _now = Clock.GetUtcNow();
+        _tabs = BuildTabs();
         StateHasChanged();
         if (first)
         {

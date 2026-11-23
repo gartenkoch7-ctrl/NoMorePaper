@@ -130,14 +130,26 @@ Stand: Schritt 0 (gemeinsame Bausteine). Die Spuren A–E ergänzen ihre Abschni
 ## Seite „Eingänge“, Einstellungen, Besitzer prüfen (Spur E)
 - `GET /api/inputs` liefert `InputStatusDto[]` aus `ListInputStatus` (Sichtbarkeit siehe oben); Mitglieder
   sehen nie fremde Kontonamen oder iCloud-Zeilen.
-- Seite `/eingaenge` (Navigation „Eingänge“): je Eingang ein Abschnitt (h2) mit Zustand als Satz und Symbol
-  (`Läuft ohne Probleme`, `Noch nicht gelaufen`, `Problem: …` mit „Das braucht deine Aufmerksamkeit“), letzter
-  Abruf und letzter Erfolg relativ und absolut. Die Seite fragt jede Minute neu (`PeriodicTimer`); eine
+- Seite `/eingaenge` (Navigation „Eingänge“): Reiter je Eingang, Aufbau siehe unten. Die Seite fragt jede Minute neu (`PeriodicTimer`); eine
   Änderung von Zustand oder Problem sagt die Live-Region an, „Jetzt aktualisieren“ antwortet immer. Der
   Knopf bleibt aktiv (ein deaktivierter Knopf verliert den Tastaturfokus). Ein Ladefehler ersetzt die Zeilen
   durch eine Fehlermeldung mit „Erneut versuchen“. Scheitert ein Laden von Hand mit demselben Fehler noch einmal,
   bleibt die `alert`-Box gleich und sagt nichts – dann spricht die Status-Live-Region den Fehler. Probleme unbekannter Art (neuerer Server) zeigen
   „Unbekanntes Problem“.
+- **Aufbau seit M4u Spur D:** Pfad (`Breadcrumb`) → H1 → Aktualisieren → `TabList` mit einem Reiter je Eingang
+  (Scanner-Ordner, Mail, iCloud Drive). Der Reitername trägt den Zustand kurz („Mail 1 Problem“, „läuft“, „nicht
+  eingerichtet“, „noch nicht gelaufen“; `InputTabs.Summary`) – bei Reitern die einzige Übersicht über alle drei.
+  Start-Reiter aus `?quelle=mail|scanner-folder|icloud` (sonst Scanner-Ordner); der gewählte Reiter steht nicht in
+  der Adresse. Alle drei Panels (`role="tabpanel"`) sind im DOM, die nicht gewählten `hidden`; die Live-Region meldet
+  Änderungen aller Eingänge. Karte je Zeile (`InputsEntry`/`InputStateFacts`): Abzeichen mit Symbol und Wort,
+  Problem als Satz, Zuletzt gelaufen, Zuletzt erfolgreich, „Angenommen insgesamt“ (`InputStatusDto.ReceivedTotal`,
+  Summe seit Einrichtung – keine Zahl der letzten 24 Stunden, die wird nicht gespeichert). „Über diesen Eingang“
+  nennt den Abruf-Takt als **festen Text** (`InpIntervalScanner/Mail/ICloud`): ändert sich ein Takt im Code
+  (`ScannerFolderSource.RunInterval`, `MailSource.Interval`), die Texte mitziehen. Die Regelliste „So behandelt
+  NoMorePaper Mails“ (`MailRules`, fest, nicht einstellbar) steht im Reiter Mail und auf `/eingaenge/mail`.
+- `/eingaenge/mail`: Pfad Einstellungen → Eingänge (`?quelle=mail`) → Mail; Postfach-Karte (`MailboxCard`) aus dem
+  gespeicherten Stand der Einstellungen plus `GET /api/inputs` (Zeile Mail ohne Konto; Fehler → Satz auf der Karte,
+  Formular bleibt nutzbar, Code `load-mail-status`), Formular unverändert, Regelliste.
 - Links: Mail-Einstellungen (`eingaenge/mail`, nur Verwalter). iCloud (`eingaenge/icloud`, „Code erneuern“
   nur bei der eigenen Zeile mit `code-needed`; die Zeile trägt nur den Anzeigenamen, verglichen wird damit)
   kommt mit Spur D: bis dahin steht dort nur „iCloud folgt – wartet auf den Test mit Apple-ID“ ohne Link

@@ -24,6 +24,7 @@ public static class ApplicationServiceCollectionExtensions
         services.AddScoped<IntakeDocument>();
         services.AddScoped<ReceiveDocument>();
         services.AddScoped<ListDocuments>();
+        services.AddScoped<CountDocuments>();
         services.AddScoped<GetDocument>();
         services.AddScoped<GetDocumentText>();
         services.AddScoped<OpenDocumentFile>();

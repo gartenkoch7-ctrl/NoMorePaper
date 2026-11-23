@@ -8,19 +8,23 @@
 
 <PageTitle>@L["SignInTitle"]</PageTitle>
 
-<MudText Typo="Typo.h1">@L["SignInHeading"]</MudText>
-
-<form class="account-form" novalidate @onsubmit="SubmitAsync" data-ready>
-    <FormField Id="signin-user" Label="@L["FieldUserName"]" Autocomplete="username"
-               @bind-Value="_userName" Invalid='_form.IsInvalid("signin-user")' />
-    <FormField Id="signin-password" Label="@L["FieldPassword"]" Autocomplete="current-password" Password="true"
-               @bind-Value="_password" Invalid='_form.IsInvalid("signin-password")' />
-    <LiveRegion @ref="_error" Assertive="true" Class="form-error" />
-    <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" Color="Color.Primary" Disabled="_busy">@L["SignInButton"]</MudButton>
-</form>
-
-<p class="form-help">@L["SignInForgot"]</p>
-<p><a href="notfall">@L["SignInEmergencyLink"]</a></p>
+<AccountFrame Heading="@L["SignInHeading"]" Intro="@L["SignInIntro"]">
+    <form class="account-form" novalidate @onsubmit="SubmitAsync" data-ready>
+        <FormField Id="signin-user" Label="@L["FieldUserName"]" Autocomplete="username" Icon="@Icons.Material.Outlined.Person"
+                   @bind-Value="_userName" Invalid='_form.IsInvalid("signin-user")' />
+        <FormField Id="signin-password" Label="@L["FieldPassword"]" Autocomplete="current-password" Password="true"
+                   Icon="@Icons.Material.Outlined.Lock"
+                   @bind-Value="_password" Invalid='_form.IsInvalid("signin-password")' />
+        <p class="account-frame-help">@L["SignInForgotShort"]</p>
+        <LiveRegion @ref="_error" Assertive="true" Class="form-error" />
+        <button type="submit" class="nmp-button nmp-button-primary account-frame-submit" disabled="@_busy">
+            <span>@L["SignInButton"]</span><MudIcon Icon="@Icons.Material.Filled.ArrowForward" aria-hidden="true" />
+        </button>
+    </form>
+    <a class="account-frame-secondary" href="notfall">
+        <MudIcon Icon="@Icons.Material.Outlined.Key" aria-hidden="true" /><span>@L["SignInEmergencyLink"]</span>
+    </a>
+</AccountFrame>
 
 @code {
     private FormValidation _form = default!;

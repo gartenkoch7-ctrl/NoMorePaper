@@ -1,15 +1,20 @@
 @page "/eingaenge/mail"
+@using NoMorePaper.Web.Client.Inputs
 @inject IStringLocalizer<Strings> L
 @inject AuthState Auth
 @inject HttpClient Http
 @inject ILoggerFactory Loggers
 @inject IJSRuntime Js
+@inject InputsApi StatusApi
+@inject TimeProvider Clock
 
 @* The household's mailbox, for the administrator. The password is never shown or sent back: the page only
    says whether one is stored, and an empty field keeps it. Every result is said in words in a live region. *@
 <PageTitle>@L["MailTitle"]</PageTitle>
 
-<MudText Typo="Typo.h1">@L["MailHeading"]</MudText>
+<Breadcrumb Items="_path" />
+
+<MudText Typo="Typo.h2" HtmlTag="h1">@L["MailHeading"]</MudText>
 
 @if (!Auth.IsAdmin)
 {
@@ -30,6 +35,12 @@ else if (_loading)
 else
 {
     <p data-ready>@L["MailExplain"]</p>
+    <div class="mail-layout">
+    <div class="mail-layout-card"><MailboxCard Host="@_storedSignIn.Host" Port="@(int.TryParse(_storedSignIn.Port, out var storedPort) ? storedPort : 0)"
+                 Security="@_storedSignIn.Security" UserName="@_storedSignIn.User" Row="_mailRow" StateFailed="_stateFailed"
+                 Now="_now" /></div>
+    <section class="mail-layout-form" aria-labelledby="mail-form-heading">
+    <MudText Typo="Typo.h4" HtmlTag="h2" id="mail-form-heading">@L["MailFormHeading"]</MudText>
     <form class="account-form" novalidate @onsubmit="SaveAsync">
         <FormField Id="mail-host" Label="@L["MailFieldHost"]" Hint="@L["MailHintHost"]" @bind-Value="_host"
                    Invalid='_form.IsInvalid("mail-host")' />
@@ -75,9 +86,7 @@ else
             <MudButton Variant="Variant.Outlined" Color="Color.Primary" OnClick="TestAsync">@L["MailTest"]</MudButton>
         </div>
     </form>
-
-    <section aria-labelledby="mail-folders-heading">
-        <MudText Typo="Typo.h2" id="mail-folders-heading">@L["MailFoldersHeading"]</MudText>
-        <p>@L["MailFoldersExplain"]</p>
     </section>
+    <div class="mail-layout-rules"><MailRules HeadingLevel="2" /></div>
+    </div>
 }

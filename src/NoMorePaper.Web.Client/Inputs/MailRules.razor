@@ -1,0 +1,37 @@
+@inject IStringLocalizer<Strings> L
+
+@* The fixed rules of how mails are read in; they cannot be changed, so each carries the badge "always on".
+   Shown on /eingaenge (tab Mail) and /eingaenge/mail. The heading level fits the page outline (axe heading-order):
+   2 below the H1, 3 inside a panel. *@
+<section class="mail-rules" aria-labelledby="@HeadingId">
+    @if (HeadingLevel == 3)
+    {
+        <MudText Typo="Typo.h4" HtmlTag="h3" id="@HeadingId">@L["MailRulesHeading"]</MudText>
+    }
+    else
+    {
+        <MudText Typo="Typo.h4" HtmlTag="h2" id="@HeadingId">@L["MailRulesHeading"]</MudText>
+    }
+    <ol class="mail-rules-list">
+        @for (var i = 0; i < _rules.Length; i++)
+        {
+            var rule = _rules[i];
+            <li>
+                <span class="mail-rule-number" aria-hidden="true">@(i + 1)</span>
+                <div>
+                    <p class="mail-rule-title">@L["MailRule" + rule + "Title"] <Badge Text="@L["MailRulesAlways"]" /></p>
+                    <p class="mail-rule-text">@L["MailRule" + rule + "Text"]</p>
+                </div>
+            </li>
+        }
+    </ol>
+</section>
+
+@code {
+    private static readonly string[] _rules = ["Senders", "Spam", "NoAttachment", "Attachments", "Folders"];
+
+    /// <summary>Heading level of the title: 2 (default) or 3.</summary>
+    [Parameter] public int HeadingLevel { get; set; } = 2;
+
+    private string HeadingId => "mail-rules-heading-" + HeadingLevel;
+}

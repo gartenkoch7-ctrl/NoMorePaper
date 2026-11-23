@@ -16,8 +16,9 @@ internal static partial class ThumbnailPages
     /// Opens the list; the archive of its one document is <paramref name="pdf"/>.
     /// <paramref name="prepare"/> runs on the start page first.
     /// </summary>
-    public static Task<BrowserSession> OpenListAsync(ServerFixture server, byte[] pdf, Func<IPage, Task>? prepare = null)
-        => ApiMocks.OpenViaNavigationAsync(server, SupportedCultures.German, "Dokumente", async page =>
+    public static async Task<BrowserSession> OpenListAsync(ServerFixture server, byte[] pdf, Func<IPage, Task>? prepare = null)
+    {
+        var session = await ApiMocks.OpenViaNavigationAsync(server, SupportedCultures.German, "Dokumente", async page =>
         {
             if (prepare is not null)
             {
@@ -29,6 +30,18 @@ internal static partial class ThumbnailPages
             await page.RouteAsync(ArchiveUrl(), route => route.FulfillAsync(
                 new RouteFulfillOptions { Status = 200, ContentType = "application/pdf", BodyBytes = pdf }));
         });
+        try
+        {
+            // The table has symbol boxes; the first page is drawn in the tiles.
+            await session.Page.GetByRole(AriaRole.Button, new() { Name = "Kacheln" }).ClickAsync();
+            return session;
+        }
+        catch
+        {
+            await session.DisposeAsync();
+            throw;
+        }
+    }
 
     public static ILocator Canvas(IPage page) => page.Locator($"canvas[data-title=\"{Title}\"]");
 

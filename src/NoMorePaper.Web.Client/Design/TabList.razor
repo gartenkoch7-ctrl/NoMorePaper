@@ -2,7 +2,9 @@
    role="tabpanel", id="{Id}-panel" and aria-labelledby="{Id}-tab" for the item it belongs to.
    Arrow keys move and select (automatic activation); Home/End jump to the first/last tab.
    wwwroot/js/tabs.js stops those keys from scrolling the page. Without a valid SelectedId the
-   first tab counts as selected, so the strip is always reachable with Tab. *@
+   first tab counts as selected, so the strip is always reachable with Tab.
+   Optional Icon is decoration; an optional Count is part of the name ("Mail 1 problem"), so it must read well.
+   The name comes from the visible text, not from an aria-label (axe: label-content-name-mismatch). *@
 <div class="nmp-tabs" role="tablist" aria-label="@AriaLabel">
     @foreach (var item in Items)
     {
@@ -13,7 +15,14 @@
                 class="nmp-tab @(selected ? "nmp-tab-selected" : null)"
                 @ref="_buttons[id]"
                 @onclick="() => SelectAsync(id)"
-                @onkeydown="e => OnKeyDownAsync(e, id)">@item.Label</button>
+                @onkeydown="e => OnKeyDownAsync(e, id)">
+            @if (item.Icon is not null)
+            {
+                <MudIcon Icon="@item.Icon" aria-hidden="true" />
+            }
+            @* One inline wrapper with a real space: the name reads "Mail 1 problem" and contains the visible text. *@
+            <span>@item.Label@if (item.Count is not null) {@(" ")<span class="nmp-tab-count">@item.Count</span>}</span>
+        </button>
     }
 </div>
 

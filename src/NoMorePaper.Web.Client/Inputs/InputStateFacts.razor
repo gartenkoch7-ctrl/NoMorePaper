@@ -1,0 +1,32 @@
+@using NoMorePaper.Contracts.Inputs
+@inject IStringLocalizer<Strings> L
+
+@* State of one input row: a badge with symbol and word (never colour alone), the problem in a sentence, and the
+   times and the number of documents as a definition list. Used by the cards on /eingaenge and the mailbox card. *@
+@{
+    var state = InputTabs.StateOf(Row);
+}
+<div class="input-facts">
+    <Badge Icon="@InputTabs.BadgeIcon(state)" Text="@L[InputTabs.BadgeKey(state)]" />
+    @if (Row.Problem is not null)
+    {
+        <p class="input-problem">@L["InpProblemDetail", InputTexts.Problem(L, Row.Problem)]</p>
+    }
+    @if (Row.LastRunAt is not null)
+    {
+        <dl class="input-facts-list">
+            <dt>@L["InpLastRun"]</dt>
+            <dd>@InputTexts.When(L, Row.LastRunAt.Value, Now)</dd>
+            <dt>@L["InpLastSuccess"]</dt>
+            <dd>@(Row.LastSuccessAt is { } success ? InputTexts.When(L, success, Now) : L["InpNever"])</dd>
+            <dt>@L["InpReceivedTotal"]</dt>
+            <dd>@InputTexts.Documents(L, Row.ReceivedTotal)</dd>
+        </dl>
+    }
+</div>
+
+@code {
+    [Parameter, EditorRequired] public InputStatusDto Row { get; set; } = default!;
+
+    [Parameter] public DateTimeOffset Now { get; set; }
+}

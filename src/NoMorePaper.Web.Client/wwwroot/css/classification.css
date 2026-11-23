@@ -14,10 +14,6 @@
     margin-bottom: 1.25rem;
 }
 
-.combobox > label {
-    font-weight: 700;
-}
-
 .combobox-list {
     box-sizing: border-box;
     max-height: 18rem;
@@ -113,7 +109,9 @@
 }
 
 .form-input-short {
-    flex: 0 1 8rem;
+    flex: none;
+    align-self: flex-start;
+    inline-size: 8rem;
     text-transform: uppercase;
 }
 

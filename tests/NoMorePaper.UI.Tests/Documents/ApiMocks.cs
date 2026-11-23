@@ -24,8 +24,19 @@ internal static partial class ApiMocks
             })
             : route.ContinueAsync());
 
-    public static Task ListAsync(IPage page, object body, int status = 200)
-        => RespondAsync(page, ListUrl(), "GET", body, status);
+    // The UI test server has a real database: an unmocked count would pair real numbers with the mocked
+    // list ("0 documents found"), so the count is switched off first. Tests that need numbers call
+    // CountsAsync afterwards (the later route wins in Playwright).
+    public static async Task ListAsync(IPage page, object body, int status = 200)
+    {
+        await NoCountsAsync(page);
+        await RespondAsync(page, ListUrl(), "GET", body, status);
+    }
+
+    public static Task CountsAsync(IPage page, object body, int status = 200)
+        => RespondAsync(page, CountsUrl(), "GET", body, status);
+
+    public static Task NoCountsAsync(IPage page) => CountsAsync(page, new { }, 404);
 
     public static Task SearchAsync(IPage page, object body, int status = 200)
         => RespondAsync(page, SearchUrl(), "GET", body, status);
@@ -53,6 +64,9 @@ internal static partial class ApiMocks
 
     [GeneratedRegex(@"/api/documents(\?.*)?$")]
     private static partial Regex ListUrl();
+
+    [GeneratedRegex(@"/api/documents/counts(\?.*)?$")]
+    private static partial Regex CountsUrl();
 
     [GeneratedRegex(@"/api/search\?.*$")]
     private static partial Regex SearchUrl();

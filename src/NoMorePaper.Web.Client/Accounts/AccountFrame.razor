@@ -1,0 +1,28 @@
+@* One frame for all five pages of signed-out people (sign-in, setup, invitation, reset, emergency),
+   so they look alike. A native h1 instead of MudText: its level differs from the theme's H1. The
+   logo tile is decoration only; the heading carries the page's name for screen readers. *@
+<div class="account-frame">
+    <div class="account-frame-brand">
+        <span class="account-frame-logo" aria-hidden="true"><MudIcon Icon="@Icons.Material.Outlined.Inventory2" /></span>
+        <p class="account-frame-overline">NoMorePaper</p>
+        <h1 class="account-frame-title">@Heading</h1>
+        @if (Intro is not null)
+        {
+            <p class="account-frame-intro">@Intro</p>
+        }
+    </div>
+    <div class="account-frame-card">@ChildContent</div>
+    @Below
+</div>
+
+@code {
+    [Parameter, EditorRequired] public string Heading { get; set; } = string.Empty;
+
+    [Parameter] public string? Intro { get; set; }
+
+    /// <summary>Content of the card.</summary>
+    [Parameter] public RenderFragment? ChildContent { get; set; }
+
+    /// <summary>Content under the card, outside it.</summary>
+    [Parameter] public RenderFragment? Below { get; set; }
+}

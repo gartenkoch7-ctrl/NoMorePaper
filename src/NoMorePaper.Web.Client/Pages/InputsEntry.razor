@@ -2,26 +2,14 @@
 @using NoMorePaper.Web.Client.Inputs
 @inject IStringLocalizer<Strings> L
 
-@* One input, or one account's part of it, on the page "Inputs". The state is a sentence with a symbol:
-   never colour alone. A problem that needs somebody to act says so in words. *@
-<div class="input-entry">
-    @if (Row.AccountName is not null)
-    {
-        <MudText Typo="Typo.h3">@Row.AccountName</MudText>
-    }
-    <p class="input-state">
-        <MudIcon Icon="@Icon" />
-        <span>@StateText</span>
-    </p>
-    @if (Row.LastRunAt is not null)
-    {
-        <dl class="fields-list">
-            <dt>@L["InpLastRun"]</dt>
-            <dd>@InputTexts.When(L, Row.LastRunAt.Value, Now)</dd>
-            <dt>@L["InpLastSuccess"]</dt>
-            <dd>@(Row.LastSuccessAt is { } success ? InputTexts.When(L, success, Now) : L["InpNever"])</dd>
-        </dl>
-    }
+@* One input, or one account's part of it, as a card on the page "Inputs". The state is a badge with symbol and
+   word plus a sentence: never colour alone. A problem that needs somebody to act says so in words. *@
+<div class="input-card">
+    <div class="input-card-head">
+        <span class="input-card-icon"><MudIcon Icon="@InputTabs.KindIcon(Row.Kind)" aria-hidden="true" /></span>
+        <MudText Typo="Typo.h4" HtmlTag="h3">@Title</MudText>
+    </div>
+    <InputStateFacts Row="Row" Now="Now" />
 </div>
 
 @code {
@@ -29,15 +17,6 @@
 
     [Parameter] public DateTimeOffset Now { get; set; }
 
-    private string Icon => Row.LastRunAt is null
-        ? Icons.Material.Filled.Info
-        : Row.Problem is null ? Icons.Material.Filled.CheckCircle : Icons.Material.Filled.Error;
-
-    private string StateText => Row.LastRunAt is null
-        ? L["InpStateNever"]
-        : Row.Problem is null
-            ? L["InpStateOk"]
-            : Row.NeedsAttention
-                ? L["InpStateProblemAttention", InputTexts.Problem(L, Row.Problem)]
-                : L["InpStateProblem", InputTexts.Problem(L, Row.Problem)];
+    private string Title => Row.AccountName
+        ?? (Row.Kind == "mail" ? L["InpCardMail"].Value : L["InpCardScanner"].Value);
 }

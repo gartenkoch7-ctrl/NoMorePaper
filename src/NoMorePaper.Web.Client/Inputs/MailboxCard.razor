@@ -1,0 +1,51 @@
+@using NoMorePaper.Contracts.Inputs
+@inject IStringLocalizer<Strings> L
+
+@* The household's mailbox at a glance on /eingaenge/mail: stored address and server, how often it is fetched and
+   the state of the last runs. Not a live region and without buttons: the test button belongs to the form. *@
+<section class="mail-card" aria-labelledby="mail-card-heading">
+    <MudText Typo="Typo.h4" HtmlTag="h2" id="mail-card-heading">@L["MailCardHeading"]</MudText>
+    @if (string.IsNullOrWhiteSpace(Host))
+    {
+        <Badge Icon="@Icons.Material.Filled.Info" Text="@L["InpBadgeNotSetUp"]" />
+        <p>@L["MailCardNotSetUp"]</p>
+    }
+    else
+    {
+        <p class="mail-card-address">@UserName</p>
+        <p class="mail-card-meta">@L["MailCardKind", SecurityLabel, Host, Port]</p>
+        <p>@L["InpIntervalMail"]</p>
+        @if (Row is not null)
+        {
+            <InputStateFacts Row="Row" Now="Now" />
+        }
+        else if (!StateFailed)
+        {
+            <Badge Icon="@Icons.Material.Filled.Schedule" Text="@L["InpBadgeNever"]" />
+        }
+        else
+        {
+            <p>@L["MailCardStateUnavailable"]</p>
+        }
+    }
+</section>
+
+@code {
+    [Parameter] public string Host { get; set; } = string.Empty;
+
+    [Parameter] public int Port { get; set; }
+
+    /// <summary><c>ssl</c> or <c>starttls</c>.</summary>
+    [Parameter] public string Security { get; set; } = "ssl";
+
+    [Parameter] public string UserName { get; set; } = string.Empty;
+
+    /// <summary>The state of the mail input, if it could be loaded.</summary>
+    [Parameter] public InputStatusDto? Row { get; set; }
+
+    [Parameter] public bool StateFailed { get; set; }
+
+    [Parameter] public DateTimeOffset Now { get; set; }
+
+    private string SecurityLabel => Security == "starttls" ? L["MailSecurityStartTls"].Value : L["MailSecuritySsl"].Value;
+}

@@ -79,6 +79,13 @@ public sealed class DocumentApi(HttpClient http, IStringLocalizer<Strings> local
         => GetAsync<DocumentSummaryDto[]>(
             $"api/documents?page={page}&pageSize={pageSize}{DocumentFilterQuery.Build(filter)}", "list", ct);
 
+    /// <summary>Counts for the list header and the type chips, with the same filters as <see cref="ListAsync"/>.</summary>
+    public Task<ApiResult<DocumentCountsDto>> CountAsync(DocumentFilterDto? filter, CancellationToken ct = default)
+    {
+        var query = DocumentFilterQuery.Build(filter);
+        return GetAsync<DocumentCountsDto>(query.Length == 0 ? "api/documents/counts" : "api/documents/counts?" + query[1..], "counts", ct);
+    }
+
     public Task<ApiResult<DocumentDetailDto>> GetAsync(Guid id, CancellationToken ct = default)
         => GetAsync<DocumentDetailDto>($"api/documents/{id}", "detail", ct);
 
