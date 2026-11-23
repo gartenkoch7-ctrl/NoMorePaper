@@ -97,7 +97,7 @@ else
 
     @if (_removing is not null)
     {
-        <ConfirmBox Id="members-remove" Title="@L["MembersRemoveQuestion", _removing.DisplayName]" Text="@L["MembersRemoveExplain"]"
+        <ConfirmBox @key="_removing.Id" Id="members-remove" Title="@L["MembersRemoveQuestion", _removing.DisplayName]" Text="@L["MembersRemoveExplain"]"
                     ConfirmLabel="@L["MembersRemoveConfirm"]" OnConfirm="RemoveAsync" OnCancel="CancelRemove" />
     }
 }
