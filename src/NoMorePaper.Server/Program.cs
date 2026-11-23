@@ -5,6 +5,7 @@ using NoMorePaper.Server.Documents;
 using NoMorePaper.Server.Inputs;
 using NoMorePaper.Server.Search;
 using NoMorePaper.Server.Security;
+using NoMorePaper.Server.Trash;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.AddServer();
@@ -37,6 +38,7 @@ api.MapPreferencesEndpoints();
 api.MapOwnerCheckEndpoints();
 api.MapInputStatusEndpoints();
 api.MapMailSettingsEndpoints();
+api.MapTrashEndpoints();
 app.MapFallbackToFile("index.html");
 
 await app.RunAsync();

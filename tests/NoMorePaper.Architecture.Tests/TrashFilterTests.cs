@@ -32,6 +32,7 @@ public sealed partial class TrashFilterTests
     [
         ("EfTrashStore.cs", "FindTrashedDocumentAsync"),
         ("EfTrashStore.cs", "OwnedBy"),
+        ("EfTrashStore.cs", "DeleteDocumentAsync"),
         ("EfDocumentRepository.cs", "ExistsAsync"),
     ];
 

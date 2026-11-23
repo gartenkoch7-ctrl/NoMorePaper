@@ -43,7 +43,7 @@ public sealed class TrashStoreTests(PostgresFixture postgres)
         Assert.False(await read.Documents.AnyAsync(d => d.Id == id, Ct));
         Assert.Null(await data.JobAsync(id));
         Assert.Null(await new EfDocumentEdits(read).GetAsync(id, Ct));
-        var item = Assert.Single(await new EfTrashStore(read).ListAsync(QueueDatabase.Owner, Ct));
+        var item = Assert.Single(await new EfTrashStore(read).ListAsync(QueueDatabase.Owner, Ct)).Item;
         Assert.Equal((TrashItemKind.Document, id, "Scan 1", s_start.AddDays(30)), (item.Kind, item.DocumentId, item.Title, item.PurgeAfter));
     }
 
@@ -74,8 +74,8 @@ public sealed class TrashStoreTests(PostgresFixture postgres)
         await store.AddAsync(newer, Ct);
 
         var listed = await new EfTrashStore(data.Context()).ListAsync(QueueDatabase.Owner, Ct);
-        Assert.Equal([newer.Id, older.Id], listed.Select(item => item.Id));
-        Assert.Equal((DocumentFileKind.Edited, Sha), (listed[0].File?.Kind, listed[0].File?.Sha256));
+        Assert.Equal([newer.Id, older.Id], listed.Select(entry => entry.Item.Id));
+        Assert.Equal((DocumentFileKind.Edited, Sha), (listed[0].Item.File?.Kind, listed[0].Item.File?.Sha256));
         Assert.Empty(await store.ListAsync(s_bob, Ct));
         Assert.Null(await store.FindAsync(newer.Id, s_bob, Ct));
 
