@@ -44,7 +44,8 @@ Ablauf und Status-Stufen: [KB ui-prozess.md](../../kb/ui-prozess.md). Stitch-Pro
 möglich, siehe KB [ui-prozess.md](../../kb/ui-prozess.md)); Tippfehler sind nicht ganz ausgeschlossen, Bild
 und Stitch bleiben maßgeblich. Start gibt es in Stitch 5×; gewählt `f4ee99bb…`, Gründe in
 [05-startseite/notizen.md](05-startseite/notizen.md). 07, 08 und 12–16 wurden als „… v2“, 10 als „… v3“ neu erzeugt (alte Screens
-bleiben in Stitch liegen). In den Stitch-Bildern wirken JetBrains-Mono-Texte serifig – Fehler beim Bildrendern,
+bleiben in Stitch liegen). Entscheidung des Nutzers 2026-11-23: Die Restpunkte der Prüfnotizen (Texte,
+Farben, kleine Zusätze) werden **beim Umsetzen** nach App-Texten und Theme behoben, keine weitere Stitch-Runde. In den Stitch-Bildern wirken JetBrains-Mono-Texte serifig – Fehler beim Bildrendern,
 nicht im Entwurf.
 
 Noch nicht abgelegt (geprüft 2026-11-22):
