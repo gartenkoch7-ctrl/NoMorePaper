@@ -3,6 +3,7 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 using NoMorePaper.Application.Accounts;
 using NoMorePaper.Application.Classification;
 using NoMorePaper.Application.Documents;
+using NoMorePaper.Application.Editing;
 using NoMorePaper.Application.Inputs;
 using NoMorePaper.Application.Inputs.Mail;
 using NoMorePaper.Application.Processing;
@@ -32,11 +33,23 @@ public static class ApplicationServiceCollectionExtensions
         services.AddScoped<SearchDocuments>();
         services.AddScoped<SetDocumentPrivacy>();
         services.AddScoped<MoveDocumentToTrash>();
+        services.AddEditing();
         services.AddScoped<ListInputStatus>();
         services.AddScoped<ConfigureMailbox>();
         services.AddAccounts();
         services.AddClassification();
         return services;
+    }
+
+    // Scan editing (M4b track A): requests of the Server; the Worker carries them out (AddStageRunners).
+    private static void AddEditing(this IServiceCollection services)
+    {
+        services.AddScoped<RequestPageEdit>();
+        services.AddScoped<SplitDocument>();
+        services.AddScoped<ISplitRequester>(provider => provider.GetRequiredService<SplitDocument>());
+        services.AddScoped<AppendDocument>();
+        services.AddScoped<ChooseVersions>();
+        services.AddScoped<GetDocumentPages>();
     }
 
     private static void AddClassification(this IServiceCollection services)
@@ -114,6 +127,14 @@ public static class ApplicationServiceCollectionExtensions
     {
         services.AddKeyedScoped<IStageRunner, OcrStageRunner>(JobStage.Ocr);
         services.AddKeyedScoped<IStageRunner, RecognitionStageRunner>(JobStage.Recognition);
+        services.AddKeyedScoped<IStageRunner, EditStageRunner>(JobStage.Edit);
+        services.AddScoped<EditSources>();
+        services.AddScoped<EditFinisher>();
+        services.AddScoped<VersionStep>();
+        services.AddScoped<SplitStep>();
+        services.AddScoped<PageAnalysis>();
+        services.AddScoped<EnqueuePageBacklog>();
+        services.TryAddScoped<IntakeDocument>();
         return services;
     }
 }

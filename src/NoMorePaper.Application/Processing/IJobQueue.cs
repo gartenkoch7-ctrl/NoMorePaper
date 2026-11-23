@@ -53,8 +53,8 @@ public interface IJobQueue
 
     /// <summary>
     /// Queues the planned edit of a done document (<see cref="IDocumentEdits"/>, saved before) as a job at
-    /// <see cref="JobStage.Edit"/>, due at once with priority 0. A waiting recognition job nobody holds is
-    /// taken over: recognition then follows the edit. Joins the caller's open transaction.
+    /// <see cref="JobStage.Edit"/>, due at once with priority 0. A waiting recognition or separation job nobody
+    /// holds is taken over: recognition then follows the edit (separation is skipped). Joins the caller's open transaction.
     /// </summary>
     /// <param name="recognizeAfter">Recognition follows the edit even without a waiting recognition job.</param>
     /// <returns><c>false</c>, changing nothing, while another job of the document runs or waits (OCR, edit, separation).</returns>
@@ -71,7 +71,8 @@ public interface IJobQueue
     /// Records a failed attempt: schedules the next one after the <see cref="RetryPolicy"/> delay,
     /// or, when all attempts are used up or the failure is permanent, removes the job. A job given up
     /// at <see cref="JobStage.Ocr"/> marks the document as failed; at <see cref="JobStage.Recognition"/>
-    /// the document stays done without fields.
+    /// the document stays done without fields; at <see cref="JobStage.Edit"/> it keeps its previous version,
+    /// the planned edit is removed and a recognition that was to follow it is queued again.
     /// </summary>
     /// <param name="technicalError">Technical reason without document content; cut to <see cref="Document.MaxFailureReasonLength"/>.</param>
     /// <param name="permanent">Another attempt would fail the same way, so the job is given up at once.</param>
@@ -125,4 +126,40 @@ public interface IJobQueue
     /// <param name="now">When the new jobs are due.</param>
     /// <returns>How many jobs were queued.</returns>
     Task<int> EnqueueRecognitionBacklogAsync(int priority, DateTimeOffset now, CancellationToken cancellationToken);
+
+    /// <summary>A document as it is, not in the trash, without lock or claim (e.g. the one an edit appends).</summary>
+    Task<Document?> ReadDocumentAsync(Guid documentId, CancellationToken cancellationToken);
+
+    /// <summary>
+    /// Stores a carried-out edit (<see cref="JobStage.Edit"/>) in one transaction: locks the documents in
+    /// the order of their ids, then the claimed job; lets <see cref="EditCompletion.Apply"/> change them;
+    /// records the trash entries, the text and the pages. A document that went to the trash loses its job
+    /// and planned edit. With <see cref="EditCompletion.Final"/> the edit ends like
+    /// <see cref="FinishEditAsync"/>; otherwise the job stays claimed and its plan becomes <see cref="EditCompletion.Data"/>.
+    /// </summary>
+    Task<EditCommitResult> CompleteEditAsync(JobClaim claim, EditCompletion completion, CancellationToken cancellationToken);
+
+    /// <summary>
+    /// Ends a stored edit once its files are moved: removes the planned edit, and moves the job on to
+    /// <see cref="JobStage.Recognition"/> when recognition follows (and there is something to recognize), else removes it.
+    /// </summary>
+    /// <returns><c>false</c> when the claim is lost and nothing was changed.</returns>
+    Task<bool> FinishEditAsync(JobClaim claim, CancellationToken cancellationToken);
+
+    /// <summary>Stores the page information of a document from before M4b and removes its job (page backlog, F1).</summary>
+    /// <returns><c>false</c> when the claim is lost and nothing was changed.</returns>
+    Task<bool> CompleteAnalysisAsync(JobClaim claim, IReadOnlyList<PageInfo> pages, CancellationToken cancellationToken);
+
+    /// <summary>
+    /// Removes a waiting page analysis of the document that no Worker holds, so an edit asked for now can
+    /// be queued (its OCR writes the pages anyway). Joins the caller's open transaction.
+    /// </summary>
+    Task<bool> DropPendingAnalysisAsync(Guid documentId, CancellationToken cancellationToken);
+
+    /// <summary>
+    /// Queues a page analysis (a job at <see cref="JobStage.Edit"/> without planned edit) for every done
+    /// document without page information and without job, e.g. documents from before M4b.
+    /// </summary>
+    /// <returns>How many jobs were queued.</returns>
+    Task<int> EnqueuePageBacklogAsync(int priority, DateTimeOffset now, CancellationToken cancellationToken);
 }

@@ -18,10 +18,15 @@ internal sealed class FakeOcrEngine : IOcrEngine
     /// <summary>Completed when a call has started.</summary>
     public TaskCompletionSource Started { get; } = new(TaskCreationOptions.RunContinuationsAsynchronously);
 
-    public Task<OcrResult> CreateArchiveAsync(string inputPath, string mediaType, string outputPdfPath, CancellationToken cancellationToken)
+    /// <summary>Media type and page correction of the last call.</summary>
+    public (string MediaType, bool CorrectPages)? LastOptions { get; private set; }
+
+    public Task<OcrResult> CreateArchiveAsync(
+        string inputPath, string mediaType, string outputPdfPath, bool correctPages, CancellationToken cancellationToken)
     {
         Calls++;
         LastInput = (inputPath, File.Exists(inputPath));
+        LastOptions = (mediaType, correctPages);
         Started.TrySetResult();
         return Behavior(inputPath, outputPdfPath, cancellationToken);
     }

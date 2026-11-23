@@ -24,4 +24,15 @@ internal sealed class FakeDocumentEdits : IDocumentEdits
         Edits.Remove(documentId);
         return Task.CompletedTask;
     }
+
+    public Task<bool> UpdateDataAsync(Guid documentId, string data, CancellationToken cancellationToken)
+    {
+        if (!Edits.TryGetValue(documentId, out var edit))
+        {
+            return Task.FromResult(false);
+        }
+
+        Edits[documentId] = edit with { Data = data };
+        return Task.FromResult(true);
+    }
 }

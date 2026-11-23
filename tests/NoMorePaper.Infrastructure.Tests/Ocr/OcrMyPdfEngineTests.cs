@@ -79,7 +79,7 @@ public sealed class OcrMyPdfEngineTests(OcrSamples samples) : IClassFixture<OcrS
         File.Copy(samples.EncryptedPdf, input);
 
         var error = await Assert.ThrowsAsync<ExternalToolException>(
-            () => Engine().CreateArchiveAsync(input, OcrMyPdfEngine.PdfMediaType, Path.Combine(work, "archive.pdf"), Ct));
+            () => Engine().CreateArchiveAsync(input, OcrMyPdfEngine.PdfMediaType, Path.Combine(work, "archive.pdf"), correctPages: true, Ct));
 
         Assert.Equal(("ocrmypdf", 8, true), (error.Tool, error.ExitCode, error.IsPermanent));
         Assert.Equal([input], Directory.GetFileSystemEntries(work));
@@ -131,7 +131,7 @@ public sealed class OcrMyPdfEngineTests(OcrSamples samples) : IClassFixture<OcrS
         await File.WriteAllTextAsync(input, "%PDF-1.7 this is not really a PDF", Ct);
 
         var error = await Assert.ThrowsAsync<ExternalToolException>(
-            () => Engine().CreateArchiveAsync(input, OcrMyPdfEngine.PdfMediaType, Path.Combine(work, "archive.pdf"), Ct));
+            () => Engine().CreateArchiveAsync(input, OcrMyPdfEngine.PdfMediaType, Path.Combine(work, "archive.pdf"), correctPages: true, Ct));
 
         Assert.Equal(("ocrmypdf", 2, true), (error.Tool, error.ExitCode, error.IsPermanent));
         Assert.Equal([input], Directory.GetFileSystemEntries(work));
@@ -147,7 +147,7 @@ public sealed class OcrMyPdfEngineTests(OcrSamples samples) : IClassFixture<OcrS
         try
         {
             await Assert.ThrowsAsync<NotSupportedException>(
-                () => Engine().CreateArchiveAsync(Path.Combine(work.FullName, "original"), mediaType, Path.Combine(work.FullName, "archive.pdf"), Ct));
+                () => Engine().CreateArchiveAsync(Path.Combine(work.FullName, "original"), mediaType, Path.Combine(work.FullName, "archive.pdf"), correctPages: true, Ct));
 
             Assert.Empty(work.GetFileSystemInfos());
         }
@@ -180,7 +180,7 @@ public sealed class OcrMyPdfEngineTests(OcrSamples samples) : IClassFixture<OcrS
         File.Copy(sample, input);
         var output = Path.Combine(work, "archive.pdf");
 
-        var result = await Engine().CreateArchiveAsync(input, mediaType, output, Ct);
+        var result = await Engine().CreateArchiveAsync(input, mediaType, output, correctPages: true, Ct);
 
         Assert.Equal(new[] { input, output }.Order(StringComparer.Ordinal), Directory.GetFileSystemEntries(work).Order(StringComparer.Ordinal));
         return (result, output);

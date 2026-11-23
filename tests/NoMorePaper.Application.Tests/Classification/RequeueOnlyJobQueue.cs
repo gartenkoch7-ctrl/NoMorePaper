@@ -41,7 +41,34 @@ internal sealed class RequeueOnlyJobQueue : IJobQueue
         JobClaim claim, string text, StoredFile archive, IReadOnlyList<PageInfo> pages, CancellationToken cancellationToken) =>
         throw new NotSupportedException();
 
-    public Task<bool> EnqueueEditAsync(Guid documentId, bool recognizeAfter, CancellationToken cancellationToken) =>
+    /// <summary>Documents whose edit <see cref="EnqueueEditAsync"/> was asked to queue.</summary>
+    public List<Guid> EditsQueued { get; } = [];
+
+    /// <summary>What <see cref="EnqueueEditAsync"/> answers (<c>false</c>: another job runs or waits).</summary>
+    public bool EnqueueEditResult { get; set; } = true;
+
+    public Task<bool> EnqueueEditAsync(Guid documentId, bool recognizeAfter, CancellationToken cancellationToken)
+    {
+        EditsQueued.Add(documentId);
+        return Task.FromResult(EnqueueEditResult);
+    }
+
+    /// <summary>What <see cref="DropPendingAnalysisAsync"/> answers.</summary>
+    public bool HadPendingAnalysis { get; set; }
+
+    public Task<bool> DropPendingAnalysisAsync(Guid documentId, CancellationToken cancellationToken) => Task.FromResult(HadPendingAnalysis);
+
+    public Task<Document?> ReadDocumentAsync(Guid documentId, CancellationToken cancellationToken) => throw new NotSupportedException();
+
+    public Task<EditCommitResult> CompleteEditAsync(JobClaim claim, EditCompletion completion, CancellationToken cancellationToken) =>
+        throw new NotSupportedException();
+
+    public Task<bool> FinishEditAsync(JobClaim claim, CancellationToken cancellationToken) => throw new NotSupportedException();
+
+    public Task<bool> CompleteAnalysisAsync(JobClaim claim, IReadOnlyList<PageInfo> pages, CancellationToken cancellationToken) =>
+        throw new NotSupportedException();
+
+    public Task<int> EnqueuePageBacklogAsync(int priority, DateTimeOffset now, CancellationToken cancellationToken) =>
         throw new NotSupportedException();
 
     public Task<RecordedFailure> FailAsync(JobClaim claim, string technicalError, bool permanent, DateTimeOffset now, CancellationToken cancellationToken) =>
