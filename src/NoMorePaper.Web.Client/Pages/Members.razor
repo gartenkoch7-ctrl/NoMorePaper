@@ -8,7 +8,9 @@
 
 <PageTitle>@L["MembersTitle"]</PageTitle>
 
-<MudText Typo="Typo.h1">@L["MembersHeading"]</MudText>
+<Breadcrumb Items="_path" />
+
+<MudText Typo="Typo.h2" HtmlTag="h1">@L["MembersHeading"]</MudText>
 
 @if (!Auth.IsAdmin)
 {
@@ -19,13 +21,17 @@ else
     <LiveRegion @ref="_status" />
     <LiveRegion @ref="_error" Assertive="true" Class="form-error" />
 
-    <section aria-labelledby="invite-heading">
-        <MudText Typo="Typo.h2" id="invite-heading">@L["MembersInviteHeading"]</MudText>
-        <p>@L["MembersInviteExplain"]</p>
-        <button type="button" class="nmp-button" @ref="_inviteButton" @onclick="InviteAsync">@L["MembersInviteButton"]</button>
+    <section class="members-invite" aria-labelledby="invite-heading">
+        <div class="members-invite-head">
+            <div>
+                <MudText Typo="Typo.h2" id="invite-heading">@L["MembersInviteHeading"]</MudText>
+                <p>@L["MembersInviteExplain"]</p>
+            </div>
+            <button type="button" class="nmp-button nmp-button-primary" @ref="_inviteButton" @onclick="InviteAsync">@L["MembersInviteButton"]</button>
+        </div>
         @if (_invitation is not null)
         {
-            <div class="link-result">
+            <div class="members-link">
                 <CopyField @ref="_inviteLink" Id="invite-link" Label="@L["MembersInviteLinkLabel"]" Value="@Absolute(_invitation.Link)" />
                 <p>@L["MembersLinkValid", Expires(_invitation)]</p>
             </div>
@@ -40,10 +46,7 @@ else
         }
         else if (_loadError is not null)
         {
-            <div role="alert" class="error-box" data-ready>
-                <MudIcon Icon="@Icons.Material.Filled.Error" />
-                <span>@L["MembersLoadError", _loadError]</span>
-            </div>
+            <div data-ready><NoticeBox Kind="NoticeKind.Error" Announce="true" Message="@L["MembersLoadError", _loadError]" /></div>
         }
         else
         {
@@ -63,7 +66,10 @@ else
                         <tr @key="member.Id">
                             <th scope="row">@member.DisplayName</th>
                             <td>@member.UserName</td>
-                            <td>@(member.IsAdmin ? L["RoleAdmin"] : L["RoleMember"])</td>
+                            <td>
+                                <Badge Icon="@(member.IsAdmin ? Icons.Material.Filled.AdminPanelSettings : Icons.Material.Filled.Person)"
+                                       Text="@(member.IsAdmin ? L["RoleAdmin"] : L["RoleMember"])" />
+                            </td>
                             <td>
                                 @if (!member.IsAdmin)
                                 {
@@ -82,7 +88,7 @@ else
 
     @if (_resetFor is not null && _resetLink is not null)
     {
-        <section class="link-result" aria-labelledby="reset-heading">
+        <section class="members-link" aria-labelledby="reset-heading">
             <MudText Typo="Typo.h2" id="reset-heading">@L["MembersResetHeading", _resetFor.DisplayName]</MudText>
             <CopyField @ref="_resetField" Id="reset-link" Label="@L["MembersResetLinkLabel"]" Value="@Absolute(_resetLink.Link)" />
             <p>@L["MembersLinkValid", Expires(_resetLink)]</p>
@@ -91,15 +97,7 @@ else
 
     @if (_removing is not null)
     {
-        @* Not a modal dialog: a group in the page that takes focus, with the safe choice first.
-           Escape cancels. *@
-        <section class="confirm-box" role="group" aria-labelledby="confirm-heading" @onkeydown="OnConfirmKey">
-            <MudText Typo="Typo.h2" id="confirm-heading">@L["MembersRemoveQuestion", _removing.DisplayName]</MudText>
-            <p>@L["MembersRemoveExplain"]</p>
-            <div class="button-row">
-                <button type="button" class="nmp-button" @ref="_cancelButton" @onclick="CancelRemove">@L["Cancel"]</button>
-                <button type="button" class="nmp-button" @onclick="RemoveAsync">@L["MembersRemoveConfirm"]</button>
-            </div>
-        </section>
+        <ConfirmBox @key="_removing.Id" Id="members-remove" Title="@L["MembersRemoveQuestion", _removing.DisplayName]" Text="@L["MembersRemoveExplain"]"
+                    ConfirmLabel="@L["MembersRemoveConfirm"]" OnConfirm="RemoveAsync" OnCancel="CancelRemove" />
     }
 }

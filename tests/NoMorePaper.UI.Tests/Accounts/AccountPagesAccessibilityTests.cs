@@ -99,7 +99,7 @@ public sealed class AccountPagesAccessibilityTests(ServerFixture server)
         await page.Locator("table .nmp-button").First.ClickAsync();
         await page.Locator("#reset-link").WaitForAsync();
         await page.Locator("table .nmp-button").Nth(1).ClickAsync();
-        await page.Locator(".confirm-box").WaitForAsync();
+        await page.Locator(".nmp-confirm").WaitForAsync();
 
         await AxeCheck.NoViolationsAsync(page);
     }
