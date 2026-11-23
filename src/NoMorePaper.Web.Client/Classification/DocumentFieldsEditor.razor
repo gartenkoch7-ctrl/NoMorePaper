@@ -2,7 +2,7 @@
    not a <form>: the comboboxes use Enter to pick, which must never submit. Saving counts as
    confirming. Problems are announced and focus goes to the field that has to change. *@
 <div class="fields-editor" role="group" aria-labelledby="@Prefix-heading">
-    <MudText Typo="Typo.h3" id="@(Prefix + "-heading")">@L["ClsEditHeading"]</MudText>
+    <MudText Typo="Typo.h4" HtmlTag="h3" id="@(Prefix + "-heading")">@L["ClsEditHeading"]</MudText>
     @if (_loadError is not null)
     {
         <NoticeBox Kind="NoticeKind.Error" Announce="true" Message="@L["ClsEditLoadError", _loadError]" />

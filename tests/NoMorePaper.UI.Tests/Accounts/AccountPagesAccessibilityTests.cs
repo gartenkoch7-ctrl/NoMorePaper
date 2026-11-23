@@ -1,6 +1,7 @@
 using Microsoft.Playwright;
 using NoMorePaper.Contracts.Accounts;
 using NoMorePaper.UI.Tests.Hosting;
+using NoMorePaper.UI.Tests.Start;
 using NoMorePaper.Web.Client.Localization;
 using Xunit;
 
@@ -113,6 +114,7 @@ public sealed class AccountPagesAccessibilityTests(ServerFixture server)
         await using var session = await server.OpenAsync("/einrichten", culture, signedIn: false, async page =>
         {
             await fake.InstallAsync(page);
+            await StartPageMocks.InstallAsync(page);
             await fake.Mocks.RespondAsync(page, "POST", "/api/setup", 200, new EmergencyCodeDto("ABCDEFGHIJKLMNOPQRST"), onCall: fake.MarkSignedIn);
         });
         await SetupFlow.FillAndSubmitAsync(session.Page);

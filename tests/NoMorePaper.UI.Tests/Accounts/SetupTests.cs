@@ -3,6 +3,7 @@ using Microsoft.Playwright;
 using NoMorePaper.Contracts.Accounts;
 using NoMorePaper.UI.Tests.Documents;
 using NoMorePaper.UI.Tests.Hosting;
+using NoMorePaper.UI.Tests.Start;
 using NoMorePaper.Web.Client.Localization;
 using Xunit;
 
@@ -18,7 +19,7 @@ public sealed class SetupTests(ServerFixture server)
         {
             await fake.InstallAsync(page);
             await fake.Mocks.RespondAsync(page, "POST", "/api/setup", 200, new EmergencyCodeDto(Code), onCall: fake.MarkSignedIn);
-            await ApiMocks.ListAsync(page, Array.Empty<object>());
+            await StartPageMocks.InstallAsync(page);
         });
 
     [Fact]

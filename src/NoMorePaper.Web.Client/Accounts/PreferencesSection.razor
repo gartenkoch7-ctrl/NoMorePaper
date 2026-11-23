@@ -9,7 +9,7 @@
    mails belong to the account. Every change is saved at once and announced, so there is no "save" step
    to forget. Removing and adding keep focus on a control that still exists. *@
 <section class="account-card account-prefs" aria-labelledby="inputs-prefs-heading">
-    <MudText Typo="Typo.h2" id="inputs-prefs-heading">@L["InpPrefsHeading"]</MudText>
+    <MudText Typo="Typo.h3" HtmlTag="h2" id="inputs-prefs-heading">@L["InpPrefsHeading"]</MudText>
     <LiveRegion @ref="_status" />
     <LiveRegion @ref="_error" Assertive="true" Class="form-error" />
     @if (_loadError is not null)
@@ -33,7 +33,7 @@
             <p id="prefs-private-hint" class="form-hint">@L["InpPrefsPrivateHint"]</p>
         </div>
 
-        <MudText Typo="Typo.h3" id="prefs-senders-heading">@L["InpPrefsSendersHeading"]</MudText>
+        <MudText Typo="Typo.h4" HtmlTag="h3" id="prefs-senders-heading">@L["InpPrefsSendersHeading"]</MudText>
         <p>@L["InpPrefsSendersHint", MaxSenders]</p>
         @if (_prefs.MailSenders.Count == 0)
         {

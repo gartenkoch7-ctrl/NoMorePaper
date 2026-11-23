@@ -49,6 +49,9 @@ Blöcke der Eingänge (M4, [Detailplan](../plan/features/m4-eingaenge-detail.md)
 4790–4799 die API-Clients); Application 5300–5399 (neue Ereignisse der Annahme), 5400–5499 (Mail-Prüfung).
 Die Annahme behält 3200/3201 und nennt dort die Quelle.
 
+Block der Startseite (M4u Spur E): Web.Client 4950–4999 (4800–4949 sind für M4b reserviert, siehe
+[Detailplan M4b](../plan/features/m4b-scan-bearbeitung-detail.md)).
+
 ## Katalog
 
 ### Log-Ereignisse
@@ -243,6 +246,8 @@ Die Annahme behält 3200/3201 und nennt dort die Quelle.
 | 4722 | Information | `Web.Client/Pages/MailSettingsLog` | Verbindung getestet: ob die Anmeldung klappte |
 | 4790 | Warning | `Web.Client/Inputs/InputsLog` | Aufruf der Eingangs-/Einstellungs-API fehlgeschlagen: Vorgang (`preferences`, `save-preferences`, `inputs`, `owner-check`, `hand-over`, `mail-settings`, `save-mail-settings`, `test-mail-settings`), HTTP-Status |
 | 4791 | Warning | `Web.Client/Inputs/InputsLog` | Eingangs-/Einstellungs-API nicht erreichbar: Vorgang, Ausnahmetyp |
+| 4950 | Debug | `Web.Client/Start/StartLog` | Teil der Startseite geladen: Teil (`recent`, `inputs`), Anzahl der Einträge |
+| 4951 | Warning | `Web.Client/Start/StartLog` | Teil der Startseite nicht ladbar: Teil (`recent`, `inputs`) |
 | 5100 | Information | `Application/Accounts/AccountsLog` | Haushalt eingerichtet: Verwalter-Id, Anzahl übernommener Dokumente ohne Besitzer (M1) |
 | 5101 | Warning | `Application/Accounts/AccountsLog` | Einrichtung abgelehnt, Haushalt schon eingerichtet |
 | 5102 | Information | `Application/Accounts/AccountsLog` | Einladung erzeugt: Konto-Id des Verwalters, Ablaufzeit (nie der Link) |

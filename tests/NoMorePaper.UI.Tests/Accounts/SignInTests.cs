@@ -3,6 +3,7 @@ using Microsoft.Playwright;
 using NoMorePaper.UI.Tests.Documents;
 using NoMorePaper.UI.Tests.Hosting;
 using NoMorePaper.UI.Tests.Keyboard;
+using NoMorePaper.UI.Tests.Start;
 using NoMorePaper.Web.Client.Localization;
 using Xunit;
 
@@ -16,10 +17,8 @@ public sealed class SignInTests(ServerFixture server)
         => await server.OpenAsync(path, culture, signedIn: false, async page =>
         {
             await fake.InstallAsync(page);
-            await ApiMocks.ListAsync(page, Array.Empty<object>());
-
-            // The start page asks for the inputs too; unmocked, the server would answer 401 and the app would sign out.
-            await ApiMocks.RespondAsync(page, new Regex("/api/inputs$"), "GET", Array.Empty<object>());
+            // The start page asks for documents and inputs; unmocked, the server answers 401 and the app signs out.
+            await StartPageMocks.InstallAsync(page);
         });
 
     [Fact]

@@ -30,7 +30,7 @@ else
             var key = item.Id.ToString("N");
             <li @key="item.Id">
                 <article class="review-item" aria-labelledby="review-h-@key">
-                    <MudText Typo="Typo.h2" id="@("review-h-" + key)" tabindex="-1">
+                    <MudText Typo="Typo.h3" HtmlTag="h2" id="@("review-h-" + key)" tabindex="-1">
                         <a href="@DocumentLinks.Viewer(item.Id)">@item.Title</a>
                     </MudText>
                     <p class="fields-summary">

@@ -2,7 +2,7 @@
    entry, or select several and merge them. Both ask in a ConfirmBox on the page, not in a modal dialog:
    the heading takes focus (rename: the name field), "Abbrechen" comes first, and Escape cancels. *@
 <section class="list-section" aria-labelledby="@Prefix-heading">
-    <MudText Typo="Typo.h2" id="@(Prefix + "-heading")">@Heading</MudText>
+    <MudText Typo="Typo.h4" HtmlTag="h2" id="@(Prefix + "-heading")">@Heading</MudText>
     <LiveRegion @ref="_status" />
     <LiveRegion @ref="_error" Assertive="true" Class="form-error" />
 

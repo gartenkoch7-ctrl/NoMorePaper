@@ -21,7 +21,7 @@
 @* Reading, tab and visual order are the same: password, sign out, then the inputs card across the page. *@
 <div class="account-grid">
     <section class="account-card account-password" aria-labelledby="password-heading">
-        <MudText Typo="Typo.h2" id="password-heading">@L["AccountPasswordHeading"]</MudText>
+        <MudText Typo="Typo.h3" HtmlTag="h2" id="password-heading">@L["AccountPasswordHeading"]</MudText>
         <form class="account-form" novalidate @onsubmit="ChangePasswordAsync">
             <FormField Id="account-current" Label="@L["FieldCurrentPassword"]" Autocomplete="current-password" Password="true"
                        @bind-Value="_current" Invalid='_form.IsInvalid("account-current")' />
@@ -39,7 +39,7 @@
     </section>
 
     <section class="account-card account-signout" aria-labelledby="signout-heading">
-        <MudText Typo="Typo.h2" id="signout-heading">@L["AccountSignOutHeading"]</MudText>
+        <MudText Typo="Typo.h3" HtmlTag="h2" id="signout-heading">@L["AccountSignOutHeading"]</MudText>
         <p>@L["AccountSignOutEverywhereHint"]</p>
         <div class="button-row">
             <button type="button" class="nmp-button" @onclick="() => SignOutAsync(false)">@L["SignOut"]</button>

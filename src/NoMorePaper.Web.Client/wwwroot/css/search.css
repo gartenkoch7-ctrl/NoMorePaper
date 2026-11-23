@@ -20,7 +20,16 @@
     background-color: var(--nmp-paper-low);
     border: 1px solid var(--nmp-border);
     border-radius: var(--nmp-radius-lg);
+    position: relative;
     transition: background-color 150ms ease, border-color 150ms ease;
+}
+
+/* Only the title is a link; stretching it makes the whole card the hover and click target. */
+.search-hit-body h2 a::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: var(--nmp-radius-lg);
 }
 
 .search-hit:hover {

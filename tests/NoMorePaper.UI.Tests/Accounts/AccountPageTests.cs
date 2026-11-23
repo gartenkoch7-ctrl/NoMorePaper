@@ -42,6 +42,15 @@ public sealed class AccountPageTests(ServerFixture server)
     }
 
     [Fact]
+    public async Task SectionHeadings_FollowTheReadingOrder()
+    {
+        await using var session = await OpenAsync(new FakeAccounts());
+        var headings = session.Page.GetByRole(AriaRole.Heading, new() { Level = 2 });
+
+        await Assertions.Expect(headings).ToHaveTextAsync(["Passwort ändern", "Abmelden", "Eingänge und neue Dokumente"]);
+    }
+
+    [Fact]
     public async Task PasswordFields_HaveTheRightAutocomplete()
     {
         await using var session = await OpenAsync(new FakeAccounts());

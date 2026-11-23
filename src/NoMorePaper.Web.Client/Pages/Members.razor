@@ -24,7 +24,7 @@ else
     <section class="members-invite" aria-labelledby="invite-heading">
         <div class="members-invite-head">
             <div>
-                <MudText Typo="Typo.h2" id="invite-heading">@L["MembersInviteHeading"]</MudText>
+                <MudText Typo="Typo.h3" HtmlTag="h2" id="invite-heading">@L["MembersInviteHeading"]</MudText>
                 <p>@L["MembersInviteExplain"]</p>
             </div>
             <button type="button" class="nmp-button nmp-button-primary" @ref="_inviteButton" @onclick="InviteAsync">@L["MembersInviteButton"]</button>
@@ -39,7 +39,7 @@ else
     </section>
 
     <section aria-labelledby="members-heading">
-        <MudText Typo="Typo.h2" id="members-heading">@L["MembersListHeading"]</MudText>
+        <MudText Typo="Typo.h3" HtmlTag="h2" id="members-heading">@L["MembersListHeading"]</MudText>
         @if (_loading)
         {
             <p role="status">@L["MembersLoading"]</p>
@@ -89,7 +89,7 @@ else
     @if (_resetFor is not null && _resetLink is not null)
     {
         <section class="members-link" aria-labelledby="reset-heading">
-            <MudText Typo="Typo.h2" id="reset-heading">@L["MembersResetHeading", _resetFor.DisplayName]</MudText>
+            <MudText Typo="Typo.h3" HtmlTag="h2" id="reset-heading">@L["MembersResetHeading", _resetFor.DisplayName]</MudText>
             <CopyField @ref="_resetField" Id="reset-link" Label="@L["MembersResetLinkLabel"]" Value="@Absolute(_resetLink.Link)" />
             <p>@L["MembersLinkValid", Expires(_resetLink)]</p>
         </section>

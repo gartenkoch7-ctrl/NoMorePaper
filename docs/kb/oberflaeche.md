@@ -72,8 +72,8 @@ innen 0,25 rem. Knöpfe 38 px hoch.
 |---|---|---|
 | Statuszeile | `StatusText.razor` | Symbol (`aria-hidden`) + Wort: Wartet, Wird verarbeitet, Fertig, Fehlgeschlagen, Erkannt. Symbol und Wort kommen aus `StatusIcons`/`StatusKeys` (auch Viewer-Abzeichen und Ansagen); `DocumentStatus.KindOf` bildet den Verarbeitungsstand ab |
 | Abzeichen | `Badge.razor` | Chip `#18181b`, Rand `#27272a`, `label-sm`; Text Pflicht |
-| Hinweisbox | `NoticeBox.razor` | Fehler/Erfolg mit Symbol + Satz; `role` nur mit `Announce` |
-| Rückfrage | `ConfirmBox.razor` | in der Seite, Überschrift (Ebene per `HeadingLevel`, Standard H2) bekommt Fokus, „Abbrechen“ zuerst |
+| Hinweisbox | `NoticeBox.razor` | Fehler/Erfolg mit Symbol + Satz; `role` nur mit `Announce`; optionales `Icon` ersetzt das Standardsymbol (Fehler/Erfolg) |
+| Rückfrage | `ConfirmBox.razor` | benannte Gruppe (`role="group"`, `aria-labelledby` auf die Überschrift, Pflicht-`Id`); Überschrift (Ebene per `HeadingLevel`, Standard H2), optionaler `Text`, `ChildContent` für Felder; „Abbrechen“ zuerst, dann die Aktion; `PrimaryConfirm` (Standard neutral, Rot nie); Escape bricht ab; Fokus beim ersten Rendern auf `InitialFocusId`, sonst auf die Überschrift. Bei einer erneuten Rückfrage `@key` je Eintrag setzen, damit die Box neu entsteht |
 | Reiter | `TabList.razor`, `TabItem` | WAI-ARIA-Muster, Pfeile/Pos1/Ende über `TabNavigation`; JetBrains Mono 11 px wie Entwurf 04 (gewählt: weiß mit weißer Linie, `aria-selected`); optional `Icon` (`aria-hidden`) und `Count` (kurze Angabe, Teil des Namens: „Mail 1 Problem“, Name kommt aus dem sichtbaren Text wegen axe `label-content-name-mismatch`) |
 | Pfad | `Breadcrumb.razor`, `BreadcrumbItem` | `nav` mit `aria-label` „Pfad“, Liste, aktuelle Seite (`Href` `null`) mit `aria-current="page"`, Trenner-Symbol `aria-hidden`; auch für die Zurück-Leiste anderer Seiten (Viewer) gedacht |
 | Nur Screenreader | `.nmp-visually-hidden` | Text ist im Lesebaum, aber optisch weg (z. B. Überschrift „Verlauf“) |
@@ -132,6 +132,27 @@ hebt Fokus selbst hervor.
 - **Seitenbreite im Test:** Bei 100 % ist eine A4-Seite etwa 800 px breit; Pixeltests des Viewers brauchen daher ein Fenster von
   mindestens 1800 px, sonst ist die Seite im schmaleren Viewer seitlich angeschnitten.
 - `.nmp-visually-hidden` (design.css) blendet Überschriften nur optisch aus (Reiter „Verlauf“).
+
+## Startseite (M4u Spur E, Entwurf 05)
+
+- **Karten:** „Zu prüfen“ mit Anzahl (`ReviewCounter`, `api/review/count`), „Zuletzt hinzugefügt“ (`api/documents?page=1&pageSize=5`,
+  Tabelle wie in Dokumente, Link „Alle Dokumente“), „Eingänge“ (`api/inputs`, Problem zuerst; keine Pfade und keine Adressen).
+  Zwei Knöpfe: „Datei hochladen“, „Mit Kamera aufnehmen“.
+- **Laden:** kein Polling. Ein Fehler je Karte zeigt `NoticeBox` mit Knopf „Erneut versuchen“, aber **ohne** `Announce`:
+  beim Laden der Startseite gibt es keine Alarme (`role="alert"`), die Seite bleibt in `/`-Tests ruhig.
+
+## Restliche Seiten (M4u Spur E)
+
+Nach den Entwürfen 06–13 umgesetzt; was nicht übernommen wurde, steht in `docs/ui/stitch/NN-…/notizen.md`.
+Wo die Umsetzung bewusst von einer Notiz abweicht, gilt diese Liste:
+
+- **Rückfragen (06, 08, 10):** Fokus beim Öffnen auf die Überschrift der Rückfrage (Baustein-Vertrag), nicht
+  auf „Abbrechen“; „Abbrechen“ ist einen Tab weiter. Beim Umbenennen (08) Fokus ins Namensfeld. Bestätigen
+  neutral, nur „Neuen Namen speichern“ weiß.
+- **07 Suche:** markiert in der Navigation weiter „Dokumente“ (Suchergebnisse gehören dazu, prompts.md §2).
+- **09 Konto:** Lesereihenfolge Passwort → Abmelden → Eingänge (Nutzer, 2026-11-23); keine Karte „Sprache“.
+- **11 Hinzufügen:** H2 je Kachel wie im freigegebenen Entwurf; die ganze Kachel ist klickbar.
+- **Überschriften:** Seiten-H1 in `headline-lg` (`Typo.h2` mit `HtmlTag="h1"`), Abschnitts-H2 eine Stufe kleiner.
 
 ## Nicht aus Stitch übernommen
 
