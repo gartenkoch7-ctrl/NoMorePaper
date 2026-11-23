@@ -66,6 +66,10 @@ Grundsätze (aus den Notizen je Screen):
       Mitglieder (Prompts in prompts.md §3) – **Nutzer** erzeugt sie in Stitch, Ablage wie 01–04
       (2026-11-23: 05–13 erzeugt, abgeholt, geprüft; Nachbessern 12/13 und Freigabe offen)
 - [ ] Diese Seiten aufs neue Theme und die Bausteine umstellen (ohne Neuaufbau, wo kein Entwurf da ist)
+- [ ] Startseite bekommt die Übersicht aus Entwurf 05 (Entscheidung des Nutzers 2026-11-23): „Zu prüfen“
+      mit Anzahl, „Zuletzt hinzugefügt“, Zustand der Eingänge (Problem zuerst), Knöpfe „Datei hochladen“ /
+      „Mit Kamera aufnehmen“; Daten aus den vorhandenen Endpunkten, Abweichungen laut
+      [05-startseite/notizen.md](../ui/stitch/05-startseite/notizen.md)
 - [ ] Entwürfe für M4b vorziehen: „Seiten bearbeiten“, „Papierkorb“, „Fassungen“ (prompts.md §4.1–4.3)
       (2026-11-23: als 14–16 erzeugt und geprüft; Nachbessern und Freigabe offen)
 - [ ] Rückfragen (Review, Members, ListSection) auf `Design/ConfirmBox` umstellen, mit UI-Test

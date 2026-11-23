@@ -10,6 +10,13 @@
 - **Ziel im Code:** `src/NoMorePaper.Web.Client/Pages/Home.razor` (`/`)
 - **Prompt:** [prompts-spur-e.md](../prompts-spur-e.md) „05 – Startseite“, Beschreibung prompts.md §3.1
 
+## Entschieden
+
+- **2026-11-23, Nutzer:** Die Startseite bekommt die Übersicht (Zu prüfen, Zuletzt hinzugefügt, Eingänge,
+  zwei Knöpfe) – steht als Aufgabe in M4u Spur E.
+- **2026-11-23, Nutzer:** Keine weitere Stitch-Runde; die Punkte unter „Abgleich“ und „Nachbessern in
+  Stitch?“ werden beim Umsetzen nach App-Texten und Theme behoben.
+
 ## Übernehmen (passt zur App)
 
 - **App-Rahmen** wie 02–04: Seitenleiste 18rem, Kopf mit Suche, „Hochladen“, Sprache, „Angemeldet als“,
