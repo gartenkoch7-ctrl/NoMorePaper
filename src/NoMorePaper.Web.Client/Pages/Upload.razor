@@ -5,17 +5,20 @@
 
 <PageTitle>@L["UploadTitle"]</PageTitle>
 
-<MudText Typo="Typo.h1">@L["UploadHeading"]</MudText>
+<MudText Typo="Typo.h2" HtmlTag="h1">@L["UploadHeading"]</MudText>
 
 @* Applies to the files chosen next. It comes before the file input in reading and tab order:
    choosing a file starts the upload at once, so a screen reader user must meet this switch first.
    A native checkbox with a visible label and a hint that says what "private" means; without a change the
    account's setting decides (also when it cannot be loaded: the switch then says so). *@
-<PrivateSwitch @ref="_privacy" Id="upload-private" Hint="@L["UploadPrivateHint"]" />
+<div class="upload-private">
+    <PrivateSwitch @ref="_privacy" Id="upload-private" Hint="@L["UploadPrivateHint"]" />
+</div>
 
 @* Dropping a file on the field is only an extra: the file input itself is the real control and
    works with keyboard and screen reader alone. *@
 <div class="drop-zone">
+    <span class="drop-zone-icon"><MudIcon Icon="@Icons.Material.Filled.CloudUpload" aria-hidden="true" /></span>
     <label for="upload-input" class="drop-zone-label">@L["UploadFileLabel"]</label>
     <InputFile id="upload-input" OnChange="OnFilesChangedAsync" multiple
                accept=".pdf,.jpg,.jpeg,.png,.heic,application/pdf,image/jpeg,image/png,image/heic"
@@ -29,10 +32,9 @@
 {
     @* Stays on the page after the announcement, with a symbol and in words, and names every
        file left out (the announcement names only the first few). *@
-    <div class="error-box upload-skipped">
-        <MudIcon Icon="@Icons.Material.Filled.Warning" />
-        <div>
-            <p>@_skipped.Notice</p>
+    @* No role: the announcement comes from the live region above. *@
+    <div class="upload-skipped">
+        <NoticeBox Kind="NoticeKind.Error" Icon="@Icons.Material.Filled.Warning" Message="@_skipped.Notice">
             <p>@L["UploadSkippedListLabel"]</p>
             <ul class="upload-skipped-names">
                 @foreach (var name in _skipped.Names)
@@ -40,28 +42,28 @@
                     <li>@name</li>
                 }
             </ul>
-        </div>
+        </NoticeBox>
     </div>
 }
 
 @if (_results.Count > 0)
 {
-    <MudText Typo="Typo.h2">@L["UploadResultsHeading"]</MudText>
+    <MudText Typo="Typo.h3" HtmlTag="h2">@L["UploadResultsHeading"]</MudText>
     <ul class="upload-results">
         @foreach (var result in _results)
         {
             <li>
                 @if (result.Id is { } id)
                 {
-                    <MudIcon Icon="@Icons.Material.Filled.CheckCircle" />
-                    <span>@SuccessText(result)</span>
+                    <MudIcon Icon="@Icons.Material.Filled.CheckCircle" Class="upload-ok" aria-hidden="true" />
+                    <span class="upload-result-text">@SuccessText(result)</span>
                     <a href="@DocumentLinks.Of(id)">@L["UploadShowInList", result.FileName]</a>
                 }
                 else if (result.IsDuplicate)
                 {
                     @* Not an error: the file is safe, it was there before. The link leads to it. *@
-                    <MudIcon Icon="@Icons.Material.Filled.Info" />
-                    <span>@L["UploadDuplicateNamed", result.FileName]</span>
+                    <MudIcon Icon="@Icons.Material.Filled.Info" Class="upload-info" aria-hidden="true" />
+                    <span class="upload-result-text">@L["UploadDuplicateNamed", result.FileName]</span>
                     @if (result.ExistingId is { } existing)
                     {
                         <a href="@DocumentLinks.Viewer(existing)">@L["UploadShowExisting", result.FileName]</a>
@@ -69,8 +71,8 @@
                 }
                 else
                 {
-                    <MudIcon Icon="@Icons.Material.Filled.Error" />
-                    <span>@L["UploadFailed", result.FileName, result.Error ?? string.Empty]</span>
+                    <MudIcon Icon="@Icons.Material.Filled.Error" Class="upload-failed" aria-hidden="true" />
+                    <span class="upload-result-text">@L["UploadFailed", result.FileName, result.Error ?? string.Empty]</span>
                 }
             </li>
         }

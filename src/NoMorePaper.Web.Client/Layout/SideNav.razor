@@ -1,0 +1,72 @@
+@implements IDisposable
+@inject IStringLocalizer<Strings> L
+@inject ReviewCounter Review
+
+@* Side navigation after Stitch screen 02: five main items, "Settings" set apart at the bottom.
+   Symbols are decoration; the text is the name. The current item has aria-current="page". *@
+<nav id="@Id" class="side-nav @(Open ? null : "side-nav-closed")" aria-label="@L["MainNavigation"]"
+     @onkeydown="OnKeyDownAsync">
+    <div>
+        <div class="side-nav-brand">
+            <MudIcon Icon="@Icons.Material.Outlined.Inventory2" aria-hidden="true" />
+            <span>NoMorePaper</span>
+        </div>
+        <ul>
+            <li><a @ref="_first" href="" aria-current="@(Current == NavItem.Start ? "page" : null)">
+                <MudIcon Icon="@Icons.Material.Outlined.Home" aria-hidden="true" />
+                <span>@L["NavHome"]</span>
+            </a></li>
+            <li>@Link("hinzufuegen", NavItem.Add, Icons.Material.Outlined.AddCircleOutline, L["NavAdd"])</li>
+            <li>@Link("dokumente", NavItem.Documents, Icons.Material.Outlined.Description, L["NavDocuments"])</li>
+            <li>@Link("zu-pruefen", NavItem.Review, Icons.Material.Outlined.FactCheck, ReviewLabel)</li>
+        </ul>
+    </div>
+    <div class="side-nav-bottom">
+        <ul>
+            <li>@Link("einstellungen", NavItem.Settings, Icons.Material.Outlined.Settings, L["NavSettings"])</li>
+        </ul>
+    </div>
+</nav>
+
+@code {
+    /// <summary>Id for aria-controls of the "Menu" button.</summary>
+    [Parameter, EditorRequired] public string Id { get; set; } = string.Empty;
+
+    /// <summary>Main item of the current page, if any.</summary>
+    [Parameter] public NavItem? Current { get; set; }
+
+    /// <summary>Only matters on narrow screens, where the navigation sits behind the "Menu" button.</summary>
+    [Parameter] public bool Open { get; set; }
+
+    /// <summary>Escape inside the open menu: the layout closes it and returns focus to the button.</summary>
+    [Parameter] public EventCallback Escaped { get; set; }
+
+    private ElementReference _first;
+
+    /// <summary>Focuses the first link, after the menu was opened on a narrow screen.</summary>
+    public ValueTask FocusFirstAsync() => _first.FocusAsync();
+
+    private async Task OnKeyDownAsync(KeyboardEventArgs e)
+    {
+        if (e.Key == "Escape" && Open)
+        {
+            await Escaped.InvokeAsync();
+        }
+    }
+
+    // The count changes while the page stays the same (confirming in "To review"), so the
+    // navigation listens itself instead of waiting for the layout to render again.
+    protected override void OnInitialized() => Review.Changed += OnReviewChanged;
+
+    private void OnReviewChanged() => _ = InvokeAsync(StateHasChanged);
+
+    public void Dispose() => Review.Changed -= OnReviewChanged;
+
+    private string ReviewLabel => Review.Count is > 0 and var waiting ? L["NavReviewCount", waiting] : L["NavReview"];
+
+    private RenderFragment Link(string href, NavItem item, string icon, string text) =>
+        @<a href="@href" aria-current="@(Current == item ? "page" : null)">
+            <MudIcon Icon="@icon" aria-hidden="true" />
+            <span>@text</span>
+        </a>;
+}

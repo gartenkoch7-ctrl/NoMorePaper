@@ -98,10 +98,10 @@ public sealed class PrivacyTests(ServerFixture server)
 
         await box.CheckAsync();
 
-        await Assertions.Expect(page.Locator("main .viewer-announcer")).ToHaveTextAsync("Das Dokument ist jetzt privat.");
+        await Assertions.Expect(page.Locator("main .doc-privacy .live-region")).ToHaveTextAsync("Das Dokument ist jetzt privat.");
         Assert.Equal("""{"isPrivate":true}""", mocks.BodyOf("PATCH", $"/api/documents/{_id}"));
         await box.UncheckAsync();
-        await Assertions.Expect(page.Locator("main .viewer-announcer")).ToHaveTextAsync("Das Dokument ist nicht mehr privat.");
+        await Assertions.Expect(page.Locator("main .doc-privacy .live-region")).ToHaveTextAsync("Das Dokument ist nicht mehr privat.");
     }
 
     [Fact]
@@ -114,7 +114,7 @@ public sealed class PrivacyTests(ServerFixture server)
 
         await box.ClickAsync();
 
-        await Assertions.Expect(page.Locator("main .viewer-announcer")).ToContainTextAsync("Fehler:");
+        await Assertions.Expect(page.Locator("main .doc-privacy .live-region")).ToContainTextAsync("Fehler:");
         await Assertions.Expect(page.GetByLabel("Privat", new() { Exact = true })).Not.ToBeCheckedAsync();
         await Assertions.Expect(page.GetByLabel("Privat", new() { Exact = true })).ToBeFocusedAsync();
     }
@@ -142,9 +142,10 @@ public sealed class PrivacyTests(ServerFixture server)
         var page = session.Page;
 
         var rows = page.Locator("tbody tr");
-        await Assertions.Expect(rows.Nth(0).Locator(".private-badge")).ToHaveTextAsync("Privat");
-        await Assertions.Expect(rows.Nth(0).Locator(".private-badge svg")).ToHaveCountAsync(1);
-        await Assertions.Expect(rows.Nth(1).Locator(".private-badge")).ToHaveCountAsync(0);
+        var badge = rows.Nth(0).Locator(".nmp-badge").Filter(new() { HasText = "Privat" });
+        await Assertions.Expect(badge).ToHaveCountAsync(1);
+        await Assertions.Expect(badge.Locator("svg")).ToHaveCountAsync(1);
+        await Assertions.Expect(rows.Nth(1).Locator(".nmp-badge").Filter(new() { HasText = "Privat" })).ToHaveCountAsync(0);
     }
 
     [Fact]
@@ -162,7 +163,7 @@ public sealed class PrivacyTests(ServerFixture server)
         await page.Locator("#header-search-input").FillAsync("Betrag");
         await page.Keyboard.PressAsync("Enter");
 
-        await Assertions.Expect(page.Locator(".search-hit").Nth(0).Locator(".private-badge")).ToHaveTextAsync("Privat");
-        await Assertions.Expect(page.Locator(".search-hit").Nth(1).Locator(".private-badge")).ToHaveCountAsync(0);
+        await Assertions.Expect(page.Locator(".search-hit").Nth(0).Locator(".nmp-badge")).ToHaveTextAsync("Privat");
+        await Assertions.Expect(page.Locator(".search-hit").Nth(1).Locator(".nmp-badge")).ToHaveCountAsync(0);
     }
 }

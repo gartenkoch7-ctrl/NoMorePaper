@@ -49,6 +49,9 @@ Blöcke der Eingänge (M4, [Detailplan](../plan/features/m4-eingaenge-detail.md)
 4790–4799 die API-Clients); Application 5300–5399 (neue Ereignisse der Annahme), 5400–5499 (Mail-Prüfung).
 Die Annahme behält 3200/3201 und nennt dort die Quelle.
 
+Block der Startseite (M4u Spur E): Web.Client 4950–4999 (4800–4949 sind für M4b reserviert, siehe
+[Detailplan M4b](../plan/features/m4b-scan-bearbeitung-detail.md)).
+
 ## Katalog
 
 ### Log-Ereignisse
@@ -59,6 +62,7 @@ Die Annahme behält 3200/3201 und nennt dort die Quelle.
 | 1001 | Critical | `Server/Startup/StartupLog` | Start-Aufgaben fehlgeschlagen, der Host beendet sich |
 | 1100 | Information | `Server/Documents/DocumentsLog` | Upload angenommen: Dokument-Id, Größe, Medientyp (ohne Dateinamen) |
 | 1101 | Warning | `Server/Documents/DocumentsLog` | Upload abgelehnt: Grund (`too-large`, `empty`, `type-not-allowed`, `not-multipart`, `malformed`, `duplicate`) und Größe |
+| 1102 | Debug | `Server/Documents/DocumentsLog` | Erkannter Text eines Dokuments ausgeliefert: Dokument-Id und Zeichenzahl (nie der Text) |
 | 1200 | Warning | `Server/Security/SecurityLog` | Ändernde API-Anfrage abgelehnt, mögliche fremde Seite: `Sec-Fetch-Site` als festes Wort (`cross-site`, `same-site`, `none`, `absent`, `other`) |
 | 1300 | Information | `Server/Accounts/AccountsLog` | Konto angemeldet (Anmeldung, Einrichtung, Einladung angenommen, Passwort geändert): nur Konto-Id |
 | 1301 | Warning | `Server/Accounts/AccountsLog` | Anmeldung fehlgeschlagen, falsches Passwort: Konto-Id |
@@ -174,6 +178,9 @@ Die Annahme behält 3200/3201 und nennt dort die Quelle.
 | 4107 | Information | `Web.Client/Documents/DocumentsLog` | Suche beendet (Trefferzahl, ohne Suchbegriff) |
 | 4108 | Debug | `Web.Client/Documents/DocumentsLog` | Liste fragt alle 3 s nach, solange Dokumente in Arbeit sind |
 | 4109 | Information | `Web.Client/Documents/DocumentsLog` | Dokument privat gemacht oder wieder freigegeben (`true`/`false`) |
+| 4110 | Debug | `Web.Client/Documents/DocumentsLog` | Zähler der Dokumentliste geladen (Treffer, Anzahl Arten; Fehler: 4103/4104 mit Vorgang `counts`) |
+| 4111 | Debug | `Web.Client/Documents/DocumentsLog` | Dokumentliste blättert (Seite, Zeilen pro Seite) |
+| 4112 | Information | `Web.Client/Documents/DocumentsLog` | Dokumentliste auf Tabelle oder Kacheln umgeschaltet (`table`/`tiles`) |
 | 4200 | Information | `Web.Client/Viewer/ViewerLog` | Viewer hat ein Dokument geöffnet (Seitenzahl, Renderer `webgl2`/`fallback`) |
 | 4201 | Warning | `Web.Client/Viewer/ViewerLog` | WebGL2 nicht nutzbar, Rückfall auf den CSS-Filter (Grund: `no-webgl2`, `shader-error`, `context-lost`, `restore-failed`) |
 | 4202 | Debug | `Web.Client/Viewer/ViewerLog` | sichtbarer Ausschnitt einer Seite gerendert (Dauer in ms, gerundet) |
@@ -186,6 +193,12 @@ Die Annahme behält 3200/3201 und nennt dort die Quelle.
 | 4209 | Warning | `Web.Client/Viewer/ViewerLog` | Vorschaubild konnte nicht gerendert werden (technischer Fehlername oder `interop`) |
 | 4210 | Warning | `Web.Client/Viewer/ViewerLog` | WebGL-Kontext verloren (z. B. GPU-Reset); Viewer versucht den Neuaufbau |
 | 4211 | Information | `Web.Client/Viewer/ViewerLog` | WebGL-Kontext wieder da, Seite neu gezeichnet |
+| 4212 | Debug | `Web.Client/Viewer/ViewerLog` | Reiter der Dokumentseite gewählt: feste Wörter `fields`, `text`, `history` |
+| 4213 | Information | `Web.Client/Viewer/ViewerLog` | Erkannter Text geladen: Zeichenzahl (nie der Text) |
+| 4214 | Information | `Web.Client/Viewer/ViewerLog` | Erkannter Text in die Zwischenablage kopiert |
+| 4215 | Warning | `Web.Client/Viewer/ViewerLog` | Kopieren des erkannten Textes ging nicht: Ausnahmetyp |
+| 4216 | Information | `Web.Client/Viewer/ViewerLog` | Vollbild des Viewers umgeschaltet: `on` oder `off` |
+| 4217 | Warning | `Web.Client/Viewer/ViewerLog` | Vollbild des Viewers fehlgeschlagen: Fehlertyp |
 | 4400 | Information | `Web.Client/Accounts/AccountsLog` | Sitzungszustand geladen (`SignedIn`, `SignedOut`, `SetupNeeded`, `Unavailable`) |
 | 4401 | Information | `Web.Client/Accounts/AccountsLog` | Server antwortete 401, Sitzung vorbei |
 | 4402 | Information | `Web.Client/Accounts/AccountsLog` | angemeldet |
@@ -225,7 +238,7 @@ Die Annahme behält 3200/3201 und nennt dort die Quelle.
 | 4605 | Warning | `Web.Client/Camera/CameraLog` | Browser-Speicher für den Schalter „Töne“ nicht verfügbar |
 | 4700 | Information | `Web.Client/Inputs/InputsLog` | Seite „Eingänge“ geladen: Anzahl der Zeilen (nur der erste Ladevorgang, nicht die Auffrischungen) |
 | 4701 | Information | `Web.Client/Inputs/InputsLog` | Einstellungen gespeichert (Konto-Seite): Anzahl der Absender-Adressen, nie die Adressen |
-| 4702 | Warning | `Web.Client/Inputs/InputsLog` | Aktion der Seiten „Eingänge“, Konto, Besitzer prüfen fehlgeschlagen: Code (`load-inputs`, `load-preferences`, `save-preferences`, `load-household`, `owner-check`, `hand-over`) |
+| 4702 | Warning | `Web.Client/Inputs/InputsLog` | Aktion der Seiten „Eingänge“, „Mail-Eingang“ (`load-mail-status`), Konto, Besitzer prüfen fehlgeschlagen: Code (`load-inputs`, `load-mail-status`, `load-preferences`, `save-preferences`, `load-household`, `owner-check`, `hand-over`) |
 | 4703 | Information | `Web.Client/Inputs/InputsLog` | Dokument unklarer Herkunft weitergegeben (ohne Dokument- und Kontoname) |
 | 4704 | Information | `Web.Client/Inputs/InputsLog` | Dokument unklarer Herkunft behalten („Passt so“) |
 | 4720 | Information | `Web.Client/Pages/MailSettingsLog` | Seite „Mail-Eingang“ geladen: ob ein Passwort gespeichert ist |
@@ -233,6 +246,8 @@ Die Annahme behält 3200/3201 und nennt dort die Quelle.
 | 4722 | Information | `Web.Client/Pages/MailSettingsLog` | Verbindung getestet: ob die Anmeldung klappte |
 | 4790 | Warning | `Web.Client/Inputs/InputsLog` | Aufruf der Eingangs-/Einstellungs-API fehlgeschlagen: Vorgang (`preferences`, `save-preferences`, `inputs`, `owner-check`, `hand-over`, `mail-settings`, `save-mail-settings`, `test-mail-settings`), HTTP-Status |
 | 4791 | Warning | `Web.Client/Inputs/InputsLog` | Eingangs-/Einstellungs-API nicht erreichbar: Vorgang, Ausnahmetyp |
+| 4950 | Debug | `Web.Client/Start/StartLog` | Teil der Startseite geladen: Teil (`recent`, `inputs`), Anzahl der Einträge |
+| 4951 | Warning | `Web.Client/Start/StartLog` | Teil der Startseite nicht ladbar: Teil (`recent`, `inputs`) |
 | 5100 | Information | `Application/Accounts/AccountsLog` | Haushalt eingerichtet: Verwalter-Id, Anzahl übernommener Dokumente ohne Besitzer (M1) |
 | 5101 | Warning | `Application/Accounts/AccountsLog` | Einrichtung abgelehnt, Haushalt schon eingerichtet |
 | 5102 | Information | `Application/Accounts/AccountsLog` | Einladung erzeugt: Konto-Id des Verwalters, Ablaufzeit (nie der Link) |

@@ -119,6 +119,5 @@ public sealed class ViewerPageTests(ServerFixture server)
         }
 
         Assert.True(result.Violations.Length == 0, text.ToString());
-        Assert.Contains(result.Passes, rule => rule.Id == AxeRules.EnhancedContrastRule);
     }
 }

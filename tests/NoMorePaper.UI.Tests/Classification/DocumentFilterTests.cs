@@ -42,6 +42,7 @@ public sealed class DocumentFilterTests(ServerFixture server)
         var mocks = new AccountMocks();
         return await ApiMocks.OpenViaNavigationAsync(server, culture, culture == SupportedCultures.German ? "Dokumente" : "Documents", async page =>
         {
+            await ApiMocks.NoCountsAsync(page);
             await ListAsync(page, urls);
             await ClassificationMocks.ListsAsync(mocks, page);
         });

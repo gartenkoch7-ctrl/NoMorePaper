@@ -3,6 +3,7 @@ using Microsoft.Playwright;
 using NoMorePaper.UI.Tests.Documents;
 using NoMorePaper.UI.Tests.Hosting;
 using NoMorePaper.UI.Tests.Keyboard;
+using NoMorePaper.UI.Tests.Start;
 using NoMorePaper.Web.Client.Localization;
 using Xunit;
 
@@ -16,7 +17,8 @@ public sealed class SignInTests(ServerFixture server)
         => await server.OpenAsync(path, culture, signedIn: false, async page =>
         {
             await fake.InstallAsync(page);
-            await ApiMocks.ListAsync(page, Array.Empty<object>());
+            // The start page asks for documents and inputs; unmocked, the server answers 401 and the app signs out.
+            await StartPageMocks.InstallAsync(page);
         });
 
     [Fact]
@@ -60,7 +62,7 @@ public sealed class SignInTests(ServerFixture server)
         await page.Keyboard.TypeAsync("geheimes-passwort");
         await page.Keyboard.PressAsync("Enter");
 
-        await Assertions.Expect(page.Locator("h1")).ToHaveTextAsync("NoMorePaper");
+        await Assertions.Expect(page.Locator("h1")).ToHaveTextAsync(new Regex("^Guten Tag, "));
         await Assertions.Expect(page.Locator(".account-name")).ToContainTextAsync("Anna Beispiel");
         Assert.Contains("\"userName\":\"anna\"", fake.Mocks.BodyOf("POST", "/api/auth/login"), StringComparison.Ordinal);
 
@@ -117,7 +119,7 @@ public sealed class SignInTests(ServerFixture server)
             page => fake.InstallAsync(page, signedIn: true));
         var page = session.Page;
 
-        await Assertions.Expect(page.Locator("h1")).ToHaveTextAsync("NoMorePaper");
+        await Assertions.Expect(page.Locator("h1")).ToHaveTextAsync(new Regex("^Guten Tag, "));
         Assert.Equal(new Uri(server.BaseAddress, "/"), new Uri(page.Url.Split('?')[0]));
     }
 

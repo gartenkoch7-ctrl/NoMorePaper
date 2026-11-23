@@ -30,6 +30,7 @@ app.MapHealthChecks("/health");
 var api = app.MapGroup("/api").RequireAuthorization();
 api.MapAccountEndpoints();
 api.MapDocumentEndpoints();
+api.MapDocumentTextEndpoints();
 api.MapSearchEndpoints();
 api.MapClassificationEndpoints();
 api.MapPreferencesEndpoints();

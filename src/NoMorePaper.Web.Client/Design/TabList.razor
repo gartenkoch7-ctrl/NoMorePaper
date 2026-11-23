@@ -1,0 +1,69 @@
+@* Tab strip following the WAI-ARIA tabs pattern. The caller renders the panels itself; each panel needs
+   role="tabpanel", id="{Id}-panel" and aria-labelledby="{Id}-tab" for the item it belongs to.
+   Arrow keys move and select (automatic activation); Home/End jump to the first/last tab.
+   wwwroot/js/tabs.js stops those keys from scrolling the page. Without a valid SelectedId the
+   first tab counts as selected, so the strip is always reachable with Tab.
+   Optional Icon is decoration; an optional Count is part of the name ("Mail 1 problem"), so it must read well.
+   The name comes from the visible text, not from an aria-label (axe: label-content-name-mismatch). *@
+<div class="nmp-tabs" role="tablist" aria-label="@AriaLabel">
+    @foreach (var item in Items)
+    {
+        var selected = item.Id == EffectiveSelectedId;
+        var id = item.Id;
+        <button @key="item.Id" type="button" role="tab" id="@(id)-tab" aria-controls="@(id)-panel"
+                aria-selected="@(selected ? "true" : "false")" tabindex="@(selected ? 0 : -1)"
+                class="nmp-tab @(selected ? "nmp-tab-selected" : null)"
+                @ref="_buttons[id]"
+                @onclick="() => SelectAsync(id)"
+                @onkeydown="e => OnKeyDownAsync(e, id)">
+            @if (item.Icon is not null)
+            {
+                <MudIcon Icon="@item.Icon" aria-hidden="true" />
+            }
+            @* One inline wrapper with a real space: the name reads "Mail 1 problem" and contains the visible text. *@
+            <span>@item.Label@if (item.Count is not null) {@(" ")<span class="nmp-tab-count">@item.Count</span>}</span>
+        </button>
+    }
+</div>
+
+@code {
+    private readonly Dictionary<string, ElementReference> _buttons = new();
+
+    [Parameter, EditorRequired] public IReadOnlyList<TabItem> Items { get; set; } = [];
+
+    [Parameter] public string? SelectedId { get; set; }
+
+    [Parameter] public EventCallback<string> SelectedIdChanged { get; set; }
+
+    [Parameter, EditorRequired] public string AriaLabel { get; set; } = string.Empty;
+
+    private string? EffectiveSelectedId =>
+        Items.Any(item => item.Id == SelectedId) ? SelectedId : Items.FirstOrDefault()?.Id;
+
+    private Task SelectAsync(string id) => SelectedIdChanged.InvokeAsync(id);
+
+    private async Task OnKeyDownAsync(KeyboardEventArgs e, string id)
+    {
+        var current = -1;
+        for (var i = 0; i < Items.Count; i++)
+        {
+            if (Items[i].Id == id)
+            {
+                current = i;
+            }
+        }
+
+        var next = TabNavigation.Next(current, Items.Count, e.Key);
+        if (current < 0 || next == current)
+        {
+            return;
+        }
+
+        var target = Items[next].Id;
+        await SelectAsync(target);
+        if (_buttons.TryGetValue(target, out var button))
+        {
+            await button.FocusAsync();
+        }
+    }
+}

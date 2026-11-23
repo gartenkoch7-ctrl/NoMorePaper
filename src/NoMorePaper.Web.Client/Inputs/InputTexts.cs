@@ -59,6 +59,12 @@ internal static class InputTexts
         return days == 1 ? localizer["InpAgeDay"].Value : localizer["InpAgeDays", days].Value;
     }
 
+    /// <summary>"1 Dokument" / "128 Dokumente": the number formatted for the current culture.</summary>
+    public static string Documents(IStringLocalizer<Strings> localizer, long count) =>
+        count == 1
+            ? localizer["InpDocumentsOne"].Value
+            : localizer["InpDocumentsMany", count.ToString("N0", CultureInfo.CurrentCulture)].Value;
+
     /// <summary>"vor 5 Minuten (19.11.2026 14:03)": the age for a quick sense, the exact time for the record.</summary>
     public static string When(IStringLocalizer<Strings> localizer, DateTimeOffset at, DateTimeOffset now) =>
         localizer["InpWhen", Age(localizer, now - at), at.ToLocalTime().ToString("g", CultureInfo.CurrentCulture)].Value;

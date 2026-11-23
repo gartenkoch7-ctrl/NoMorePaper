@@ -1,3 +1,5 @@
+using NoMorePaper.Domain.Documents;
+
 namespace NoMorePaper.Infrastructure.Documents;
 
 /// <summary>Shape of a document list row; property names equal the column aliases in <see cref="EfDocumentRepository"/>.</summary>
@@ -14,4 +16,8 @@ internal sealed class DocumentListRow : LabelRow
     public bool IsPrivate { get; set; }
 
     public bool IsMine { get; set; }
+
+    public string Source { get; set; } = nameof(DocumentSource.Upload);
+
+    public string? Excerpt { get; set; }
 }

@@ -1,0 +1,72 @@
+/* Page "Suche" (Stitch 07), M4u Spur E. */
+
+.search-summary {
+    margin: var(--nmp-space-sm) 0 var(--nmp-space-lg);
+    color: var(--nmp-text-variant);
+}
+
+.search-results {
+    display: flex;
+    flex-direction: column;
+    gap: var(--nmp-space-md);
+}
+
+/* One card per hit: thumbnail left, title, badge, snippet and date right. */
+.search-hit {
+    display: grid;
+    grid-template-columns: 5rem 1fr;
+    gap: var(--nmp-space-md);
+    padding: var(--nmp-space-md);
+    background-color: var(--nmp-paper-low);
+    border: 1px solid var(--nmp-border);
+    border-radius: var(--nmp-radius-lg);
+    position: relative;
+    transition: background-color 150ms ease, border-color 150ms ease;
+}
+
+/* Only the title is a link; stretching it makes the whole card the hover and click target. */
+.search-hit-body h2 a::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: var(--nmp-radius-lg);
+}
+
+.search-hit:hover {
+    background-color: var(--nmp-elevated-high);
+    border-color: var(--nmp-border-strong);
+}
+
+.search-hit-body {
+    min-width: 0;
+}
+
+.search-hit-body h2 {
+    margin: 0 0 var(--nmp-space-xs);
+}
+
+.search-hit-body p {
+    margin: var(--nmp-space-sm) 0;
+    overflow-wrap: anywhere;
+}
+
+.search-hit-date {
+    margin-bottom: 0;
+    font-family: var(--nmp-font-mono);
+    font-size: 0.6875rem;
+    letter-spacing: 0.05em;
+    color: var(--nmp-outline);
+}
+
+@media (max-width: 30rem) {
+    .search-hit {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Below this width the card needs the room; the thumbnail is only a hint. */
+@media (max-width: 30rem) {
+    .search-hit .thumbnail {
+        display: none;
+    }
+}

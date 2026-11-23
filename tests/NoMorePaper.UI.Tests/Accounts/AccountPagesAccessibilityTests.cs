@@ -1,6 +1,7 @@
 using Microsoft.Playwright;
 using NoMorePaper.Contracts.Accounts;
 using NoMorePaper.UI.Tests.Hosting;
+using NoMorePaper.UI.Tests.Start;
 using NoMorePaper.Web.Client.Localization;
 using Xunit;
 
@@ -99,7 +100,7 @@ public sealed class AccountPagesAccessibilityTests(ServerFixture server)
         await page.Locator("table .nmp-button").First.ClickAsync();
         await page.Locator("#reset-link").WaitForAsync();
         await page.Locator("table .nmp-button").Nth(1).ClickAsync();
-        await page.Locator(".confirm-box").WaitForAsync();
+        await page.Locator(".nmp-confirm").WaitForAsync();
 
         await AxeCheck.NoViolationsAsync(page);
     }
@@ -113,10 +114,69 @@ public sealed class AccountPagesAccessibilityTests(ServerFixture server)
         await using var session = await server.OpenAsync("/einrichten", culture, signedIn: false, async page =>
         {
             await fake.InstallAsync(page);
+            await StartPageMocks.InstallAsync(page);
             await fake.Mocks.RespondAsync(page, "POST", "/api/setup", 200, new EmergencyCodeDto("ABCDEFGHIJKLMNOPQRST"), onCall: fake.MarkSignedIn);
         });
         await SetupFlow.FillAndSubmitAsync(session.Page);
         await session.Page.Locator("#emergency-code").WaitForAsync();
+
+        await AxeCheck.NoViolationsAsync(session.Page);
+    }
+
+    [Theory]
+    [InlineData(SupportedCultures.German)]
+    [InlineData(SupportedCultures.English)]
+    public async Task ResetDone_HasNoAxeViolations(string culture)
+    {
+        var fake = new FakeAccounts();
+        await using var session = await server.OpenAsync("/passwort/abc", culture, signedIn: false, async page =>
+        {
+            await fake.InstallAsync(page);
+            await fake.Mocks.RespondAsync(page, "POST", "/api/password-reset/abc", 204);
+        });
+        var page = session.Page;
+        await page.Locator("#reset-password").FillAsync("Ein-neues-Passwort");
+        await page.Locator("#reset-repeat").FillAsync("Ein-neues-Passwort");
+        await page.Keyboard.PressAsync("Enter");
+        await page.Locator("main [role=status]").WaitForAsync();
+
+        await AxeCheck.NoViolationsAsync(page);
+    }
+
+    [Theory]
+    [InlineData(SupportedCultures.German)]
+    [InlineData(SupportedCultures.English)]
+    public async Task EmergencyResetNewCode_HasNoAxeViolations(string culture)
+    {
+        var fake = new FakeAccounts();
+        await using var session = await server.OpenAsync("/notfall", culture, signedIn: false, async page =>
+        {
+            await fake.InstallAsync(page);
+            await fake.Mocks.RespondAsync(page, "POST", "/api/emergency-reset", 200, new EmergencyCodeDto("NEUERCODE1234567890A"));
+        });
+        var page = session.Page;
+        await page.Locator("#emergency-user").FillAsync("anna");
+        await page.Locator("#emergency-input").FillAsync("ABCDEFGHIJKLMNOPQRST");
+        await page.Locator("#emergency-password").FillAsync("Ein-neues-Passwort");
+        await page.Locator("#emergency-repeat").FillAsync("Ein-neues-Passwort");
+        await page.Keyboard.PressAsync("Enter");
+        await page.Locator("#emergency-code").WaitForAsync();
+
+        await AxeCheck.NoViolationsAsync(page);
+    }
+
+    [Theory]
+    [InlineData(SupportedCultures.German)]
+    [InlineData(SupportedCultures.English)]
+    public async Task SignInOnAPhone_HasNoAxeViolations(string culture)
+    {
+        var fake = new FakeAccounts();
+        await using var session = await server.OpenAsync("/anmelden", culture, signedIn: false, async page =>
+        {
+            await page.SetViewportSizeAsync(390, 844);
+            await fake.InstallAsync(page);
+        });
+        await session.Page.Locator("main [data-ready]").First.WaitForAsync();
 
         await AxeCheck.NoViolationsAsync(session.Page);
     }

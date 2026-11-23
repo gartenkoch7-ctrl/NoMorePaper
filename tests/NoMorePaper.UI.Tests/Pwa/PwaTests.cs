@@ -8,7 +8,7 @@ namespace NoMorePaper.UI.Tests.Pwa;
 public sealed class PwaTests(ServerFixture server)
 {
     [Fact]
-    public async Task Manifest_IsServed_WithBlackThemeAndReachableIcons()
+    public async Task Manifest_IsServed_WithTheDesignBackgroundAndReachableIcons()
     {
         using var client = new HttpClient { BaseAddress = server.BaseAddress };
 
@@ -16,8 +16,8 @@ public sealed class PwaTests(ServerFixture server)
             await client.GetStringAsync(new Uri("manifest.webmanifest", UriKind.Relative), TestContext.Current.CancellationToken));
         var root = manifest.RootElement;
 
-        Assert.Equal("#000000", root.GetProperty("theme_color").GetString());
-        Assert.Equal("#000000", root.GetProperty("background_color").GetString());
+        Assert.Equal("#131313", root.GetProperty("theme_color").GetString());
+        Assert.Equal("#131313", root.GetProperty("background_color").GetString());
         foreach (var icon in root.GetProperty("icons").EnumerateArray())
         {
             var src = icon.GetProperty("src").GetString()!;

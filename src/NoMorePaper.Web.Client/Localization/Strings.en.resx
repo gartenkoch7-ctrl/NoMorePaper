@@ -48,9 +48,6 @@
   <data name="NavDocuments" xml:space="preserve">
     <value>Documents</value>
   </data>
-  <data name="NavSearch" xml:space="preserve">
-    <value>Search</value>
-  </data>
   <data name="SearchLabel" xml:space="preserve">
     <value>Search documents</value>
   </data>
@@ -134,18 +131,6 @@
   </data>
   <data name="ColStatus" xml:space="preserve">
     <value>Status</value>
-  </data>
-  <data name="StateQueued" xml:space="preserve">
-    <value>Queued</value>
-  </data>
-  <data name="StateProcessing" xml:space="preserve">
-    <value>Processing</value>
-  </data>
-  <data name="StateDone" xml:space="preserve">
-    <value>Done</value>
-  </data>
-  <data name="StateFailed" xml:space="preserve">
-    <value>Failed</value>
   </data>
   <data name="StateChanged" xml:space="preserve">
     <value>{0}: status {1}</value>
@@ -408,8 +393,11 @@
   <data name="SignInButton" xml:space="preserve">
     <value>Sign in</value>
   </data>
-  <data name="SignInForgot" xml:space="preserve">
-    <value>Forgot your password? Ask the administrator for a reset link. The administrator uses the emergency code.</value>
+  <data name="SignInForgotShort" xml:space="preserve">
+    <value>Forgot your password? Ask the administrator.</value>
+  </data>
+  <data name="SignInIntro" xml:space="preserve">
+    <value>Sign in to go paperless.</value>
   </data>
   <data name="SignInEmergencyLink" xml:space="preserve">
     <value>Set a new password with the emergency code</value>
@@ -762,9 +750,6 @@
   <data name="ClsChosenTags" xml:space="preserve">
     <value>Chosen tags</value>
   </data>
-  <data name="ClsRemoveTag" xml:space="preserve">
-    <value>Remove</value>
-  </data>
   <data name="ClsRemoveTagFor" xml:space="preserve">
     <value>Remove tag: {0}</value>
   </data>
@@ -1113,9 +1098,6 @@
   <data name="InpMailText" xml:space="preserve">
     <value>Documents that arrive as mail at the household's address.</value>
   </data>
-  <data name="InpMailSpamFolder" xml:space="preserve">
-    <value>Mails recognized as spam are in the mailbox folder "NoMorePaper-Spam". If you move a mail from there back to the inbox, it is read in without the spam check.</value>
-  </data>
   <data name="InpMailSetUp" xml:space="preserve">
     <value>Set up mail</value>
   </data>
@@ -1149,14 +1131,11 @@
   <data name="InpStateProblem" xml:space="preserve">
     <value>Problem: {0}.</value>
   </data>
-  <data name="InpStateProblemAttention" xml:space="preserve">
-    <value>Problem: {0}. This needs your attention.</value>
-  </data>
   <data name="InpLastRun" xml:space="preserve">
-    <value>Last check</value>
+    <value>Last run</value>
   </data>
   <data name="InpLastSuccess" xml:space="preserve">
-    <value>Last success</value>
+    <value>Last successful run</value>
   </data>
   <data name="InpNever" xml:space="preserve">
     <value>never</value>
@@ -1324,7 +1303,7 @@
     <value>Loading the mailbox settings …</value>
   </data>
   <data name="MailExplain" xml:space="preserve">
-    <value>NoMorePaper fetches the mails of this mailbox every 5 minutes. Attachments become documents, important mails without attachment are kept as PDF, advertising and fraud go to the folder "NoMorePaper-Spam". The password is stored encrypted and never shown again.</value>
+    <value>Set up the household's mailbox here. The password is stored encrypted and never shown again.</value>
   </data>
   <data name="MailFieldHost" xml:space="preserve">
     <value>Mail server (IMAP)</value>
@@ -1370,12 +1349,6 @@
   </data>
   <data name="MailTest" xml:space="preserve">
     <value>Test connection</value>
-  </data>
-  <data name="MailFoldersHeading" xml:space="preserve">
-    <value>Folders in the mailbox</value>
-  </data>
-  <data name="MailFoldersExplain" xml:space="preserve">
-    <value>NoMorePaper creates three folders: "Verarbeitet" for mails taken in, "NoMorePaper-Spam" for advertising and fraud, "NoMorePaper-Fehler" for mails that failed three times. Move a mail from "NoMorePaper-Spam" back into the inbox and it is taken in without spam check.</value>
   </data>
   <data name="MailSaved" xml:space="preserve">
     <value>Mailbox settings saved.</value>
@@ -1574,5 +1547,377 @@
   </data>
   <data name="InpProblemStuckItems" xml:space="preserve">
     <value>Some mails or files are stuck – see the mailbox folder “NoMorePaper-Fehler” or the inbox</value>
+  </data>
+  <data name="StatusWaiting" xml:space="preserve">
+    <value>Waiting</value>
+  </data>
+  <data name="StatusProcessing" xml:space="preserve">
+    <value>Processing</value>
+  </data>
+  <data name="StatusDone" xml:space="preserve">
+    <value>Done</value>
+  </data>
+  <data name="StatusFailed" xml:space="preserve">
+    <value>Failed</value>
+  </data>
+  <data name="StatusRecognized" xml:space="preserve">
+    <value>Recognized</value>
+  </data>
+  <data name="NavAdd" xml:space="preserve">
+    <value>Add</value>
+  </data>
+  <data name="NavSettings" xml:space="preserve">
+    <value>Settings</value>
+  </data>
+  <data name="Menu" xml:space="preserve">
+    <value>Menu</value>
+  </data>
+  <data name="AddTitle" xml:space="preserve">
+    <value>Add</value>
+  </data>
+  <data name="AddIntro" xml:space="preserve">
+    <value>How should the document come in? Scanner folder and mail run on their own.</value>
+  </data>
+  <data name="AddUploadText" xml:space="preserve">
+    <value>Choose files from this device or drag them in.</value>
+  </data>
+  <data name="AddCameraText" xml:space="preserve">
+    <value>Take a sheet with the camera, with spoken hints on its position.</value>
+  </data>
+  <data name="SettingsTitle" xml:space="preserve">
+    <value>Settings</value>
+  </data>
+  <data name="SettingsIntro" xml:space="preserve">
+    <value>Account, inputs and lists of the household.</value>
+  </data>
+  <data name="SettingsAccountText" xml:space="preserve">
+    <value>Name, password, language and defaults.</value>
+  </data>
+  <data name="SettingsInputsText" xml:space="preserve">
+    <value>Scanner folder, mailbox and iCloud.</value>
+  </data>
+  <data name="SettingsListsText" xml:space="preserve">
+    <value>Manage senders, types and tags.</value>
+  </data>
+  <data name="SettingsMembersText" xml:space="preserve">
+    <value>Invite and manage the household accounts.</value>
+  </data>
+  <data name="ViewerTabText" xml:space="preserve">
+    <value>Recognized text</value>
+  </data>
+  <data name="ViewerTabHistory" xml:space="preserve">
+    <value>History</value>
+  </data>
+  <data name="TextLoading" xml:space="preserve">
+    <value>Loading the text …</value>
+  </data>
+  <data name="TextLoadError" xml:space="preserve">
+    <value>The text could not be loaded: {0}</value>
+  </data>
+  <data name="TextNotYet" xml:space="preserve">
+    <value>The text is ready once the document has been processed.</value>
+  </data>
+  <data name="TextFailed" xml:space="preserve">
+    <value>Processing failed, there is no recognized text.</value>
+  </data>
+  <data name="TextEmpty" xml:space="preserve">
+    <value>No text was recognized on this document.</value>
+  </data>
+  <data name="TextCopyLabel" xml:space="preserve">
+    <value>Copy recognized text</value>
+  </data>
+  <data name="TextCopied" xml:space="preserve">
+    <value>The recognized text was copied.</value>
+  </data>
+  <data name="TextCopyFailed" xml:space="preserve">
+    <value>Copying did not work. Select the text in the text area by hand.</value>
+  </data>
+  <data name="HistoryReceived" xml:space="preserve">
+    <value>Received</value>
+  </data>
+  <data name="HistoryVia" xml:space="preserve">
+    <value>via {0}</value>
+  </data>
+  <data name="HistorySourceUpload" xml:space="preserve">
+    <value>upload</value>
+  </data>
+  <data name="HistorySourceCamera" xml:space="preserve">
+    <value>camera</value>
+  </data>
+  <data name="HistorySourceScannerFolder" xml:space="preserve">
+    <value>scanner folder</value>
+  </data>
+  <data name="HistorySourceMail" xml:space="preserve">
+    <value>mail</value>
+  </data>
+  <data name="HistorySourceICloud" xml:space="preserve">
+    <value>iCloud Drive</value>
+  </data>
+  <data name="HistoryQueued" xml:space="preserve">
+    <value>Waiting to be processed</value>
+  </data>
+  <data name="HistoryProcessing" xml:space="preserve">
+    <value>Being processed</value>
+  </data>
+  <data name="HistoryTextRecognized" xml:space="preserve">
+    <value>Text recognized</value>
+  </data>
+  <data name="HistoryFailed" xml:space="preserve">
+    <value>Processing failed</value>
+  </data>
+  <data name="HistoryFieldsRecognized" xml:space="preserve">
+    <value>Details recognized automatically</value>
+  </data>
+  <data name="HistoryFieldsConfirmed" xml:space="preserve">
+    <value>Details checked and confirmed</value>
+  </data>
+  <data name="HistoryHint" xml:space="preserve">
+    <value>So far only the time of arrival is recorded.</value>
+  </data>
+  <data name="PathLabel" xml:space="preserve">
+    <value>Breadcrumb</value>
+  </data>
+  <data name="InpTabOk" xml:space="preserve">
+    <value>running</value>
+  </data>
+  <data name="InpTabNever" xml:space="preserve">
+    <value>not run yet</value>
+  </data>
+  <data name="InpTabNotSetUp" xml:space="preserve">
+    <value>not set up</value>
+  </data>
+  <data name="InpTabProblem" xml:space="preserve">
+    <value>1 problem</value>
+  </data>
+  <data name="InpTabProblems" xml:space="preserve">
+    <value>{0} problems</value>
+  </data>
+  <data name="InpBadgeOk" xml:space="preserve">
+    <value>Running</value>
+  </data>
+  <data name="InpBadgeNever" xml:space="preserve">
+    <value>Not run yet</value>
+  </data>
+  <data name="InpBadgeNotSetUp" xml:space="preserve">
+    <value>Not set up</value>
+  </data>
+  <data name="InpBadgeProblem" xml:space="preserve">
+    <value>Problem</value>
+  </data>
+  <data name="InpBadgeAttention" xml:space="preserve">
+    <value>Needs attention</value>
+  </data>
+  <data name="InpProblemDetail" xml:space="preserve">
+    <value>{0}.</value>
+  </data>
+  <data name="InpReceivedTotal" xml:space="preserve">
+    <value>Taken in so far</value>
+  </data>
+  <data name="InpDocumentsOne" xml:space="preserve">
+    <value>1 document</value>
+  </data>
+  <data name="InpDocumentsMany" xml:space="preserve">
+    <value>{0} documents</value>
+  </data>
+  <data name="InpCardScanner" xml:space="preserve">
+    <value>Folder in the home network</value>
+  </data>
+  <data name="InpCardMail" xml:space="preserve">
+    <value>Household mailbox</value>
+  </data>
+  <data name="InpAboutHeading" xml:space="preserve">
+    <value>About this input</value>
+  </data>
+  <data name="InpIntervalScanner" xml:space="preserve">
+    <value>Checks the folder every 30 seconds.</value>
+  </data>
+  <data name="InpIntervalMail" xml:space="preserve">
+    <value>Fetches the mailbox every 5 minutes.</value>
+  </data>
+  <data name="InpIntervalICloud" xml:space="preserve">
+    <value>Fetches every iCloud folder every 15 minutes.</value>
+  </data>
+  <data name="MailRulesHeading" xml:space="preserve">
+    <value>How NoMorePaper handles mail</value>
+  </data>
+  <data name="MailRulesAlways" xml:space="preserve">
+    <value>Always on</value>
+  </data>
+  <data name="MailRuleSendersTitle" xml:space="preserve">
+    <value>Sender per account</value>
+  </data>
+  <data name="MailRuleSendersText" xml:space="preserve">
+    <value>If a mail comes from an address that an account has entered on its account page, the document belongs to that account. This only applies if your own mail server has confirmed the sender (SPF or DMARC). All other mails belong to the administrator, are private and wait in their "To review".</value>
+  </data>
+  <data name="MailRuleSpamTitle" xml:space="preserve">
+    <value>Spam check</value>
+  </data>
+  <data name="MailRuleSpamText" xml:space="preserve">
+    <value>The language model on your own server checks mails from unknown senders for advertising and fraud. Spam is not filed but moved to the folder "NoMorePaper-Spam". If you move a mail from there back to the inbox, it is read in without a check.</value>
+  </data>
+  <data name="MailRuleNoAttachmentTitle" xml:space="preserve">
+    <value>Mails without attachment</value>
+  </data>
+  <data name="MailRuleNoAttachmentText" xml:space="preserve">
+    <value>The language model decides whether the mail itself is a document, for example an invoice in the text. Then it is filed as a PDF.</value>
+  </data>
+  <data name="MailRuleAttachmentsTitle" xml:space="preserve">
+    <value>Attachments</value>
+  </data>
+  <data name="MailRuleAttachmentsText" xml:space="preserve">
+    <value>PDF, JPEG, PNG and HEIC become documents. Images under 30 KB or with a side under 500 pixels, such as logos in a signature, are skipped.</value>
+  </data>
+  <data name="MailRuleFoldersTitle" xml:space="preserve">
+    <value>Folders in the mailbox</value>
+  </data>
+  <data name="MailRuleFoldersText" xml:space="preserve">
+    <value>Mails that were read in move to the folder "Verarbeitet". A mail that could not be read in three times ends up in "NoMorePaper-Fehler".</value>
+  </data>
+  <data name="MailCardHeading" xml:space="preserve">
+    <value>Mailbox</value>
+  </data>
+  <data name="MailCardNotSetUp" xml:space="preserve">
+    <value>No mailbox set up yet. Enter the sign-in details.</value>
+  </data>
+  <data name="MailCardKind" xml:space="preserve">
+    <value>IMAP · {0} · {1}:{2}</value>
+  </data>
+  <data name="MailCardStateUnavailable" xml:space="preserve">
+    <value>The state of the mailbox could not be loaded.</value>
+  </data>
+  <data name="MailFormHeading" xml:space="preserve">
+    <value>Sign-in details</value>
+  </data>
+  <data name="DocListCount" xml:space="preserve">
+    <value>{0} documents</value>
+  </data>
+  <data name="DocListCountOne" xml:space="preserve">
+    <value>1 document</value>
+  </data>
+  <data name="DocListTypeGroup" xml:space="preserve">
+    <value>Filter by document type</value>
+  </data>
+  <data name="ColTypeTags" xml:space="preserve">
+    <value>Type and tags</value>
+  </data>
+  <data name="ColDate" xml:space="preserve">
+    <value>Date</value>
+  </data>
+  <data name="ColRecognition" xml:space="preserve">
+    <value>Recognition</value>
+  </data>
+  <data name="DocListReceived" xml:space="preserve">
+    <value>Received {0}</value>
+  </data>
+  <data name="DocListReceivedVia" xml:space="preserve">
+    <value>Received {0} via {1}</value>
+  </data>
+  <data name="DocListConfirmed" xml:space="preserve">
+    <value>Confirmed</value>
+  </data>
+  <data name="DocListPager" xml:space="preserve">
+    <value>Pages of the document list</value>
+  </data>
+  <data name="DocListPageSize" xml:space="preserve">
+    <value>Rows per page</value>
+  </data>
+  <data name="DocListPrevious" xml:space="preserve">
+    <value>Previous page</value>
+  </data>
+  <data name="DocListNext" xml:space="preserve">
+    <value>Next page</value>
+  </data>
+  <data name="DocListPage" xml:space="preserve">
+    <value>Page {0}</value>
+  </data>
+  <data name="DocListRange" xml:space="preserve">
+    <value>Showing {0}–{1} of {2} documents</value>
+  </data>
+  <data name="DocListViewGroup" xml:space="preserve">
+    <value>View</value>
+  </data>
+  <data name="DocListViewTable" xml:space="preserve">
+    <value>Table</value>
+  </data>
+  <data name="DocListViewTiles" xml:space="preserve">
+    <value>Tiles</value>
+  </data>
+  <data name="ViewerBackToList" xml:space="preserve">
+    <value>Back to the list</value>
+  </data>
+  <data name="ViewerReceivedLabel" xml:space="preserve">
+    <value>Received:</value>
+  </data>
+  <data name="TextLoaded" xml:space="preserve">
+    <value>The recognized text was loaded.</value>
+  </data>
+  <data name="ViewerTabs" xml:space="preserve">
+    <value>Document sections</value>
+  </data>
+  <data name="DownloadOriginalShort" xml:space="preserve">
+    <value>Original</value>
+  </data>
+  <data name="DownloadArchiveShort" xml:space="preserve">
+    <value>Archive PDF</value>
+  </data>
+  <data name="ViewerFullscreen" xml:space="preserve">
+    <value>Full screen</value>
+  </data>
+  <data name="ViewerFullscreenOn" xml:space="preserve">
+    <value>Full screen on. Escape leaves it.</value>
+  </data>
+  <data name="ViewerFullscreenOff" xml:space="preserve">
+    <value>Full screen off.</value>
+  </data>
+  <data name="ViewerFullscreenFailed" xml:space="preserve">
+    <value>Full screen is not possible here.</value>
+  </data>
+  <data name="HomeGreeting" xml:space="preserve">
+    <value>Hello, {0}</value>
+  </data>
+  <data name="StartReviewUnknown" xml:space="preserve">
+    <value>The number of documents waiting could not be loaded.</value>
+  </data>
+  <data name="StartReviewOpen" xml:space="preserve">
+    <value>Review now</value>
+  </data>
+  <data name="StartRecentHeading" xml:space="preserve">
+    <value>Recently added</value>
+  </data>
+  <data name="StartRecentCaption" xml:space="preserve">
+    <value>The five documents received last</value>
+  </data>
+  <data name="StartRecentAll" xml:space="preserve">
+    <value>Show all documents</value>
+  </data>
+  <data name="StartRecentEmpty" xml:space="preserve">
+    <value>No documents yet. Upload a file or take a sheet with the camera.</value>
+  </data>
+  <data name="StartRecentError" xml:space="preserve">
+    <value>The recently added documents could not be loaded: {0}</value>
+  </data>
+  <data name="StartInputsError" xml:space="preserve">
+    <value>The state of the inputs could not be loaded: {0}</value>
+  </data>
+  <data name="StartInputProblemFor" xml:space="preserve">
+    <value>{0}: {1}.</value>
+  </data>
+  <data name="StartInputOpen" xml:space="preserve">
+    <value>Open input {0}</value>
+  </data>
+  <data name="StartInputsAll" xml:space="preserve">
+    <value>Show all inputs</value>
+  </data>
+  <data name="StartActionsHeading" xml:space="preserve">
+    <value>Add a document</value>
+  </data>
+  <data name="StartUpload" xml:space="preserve">
+    <value>Upload a file</value>
+  </data>
+  <data name="StartCamera" xml:space="preserve">
+    <value>Take with the camera</value>
+  </data>
+  <data name="SearchResultsLabel" xml:space="preserve">
+    <value>Search results</value>
   </data>
 </root>

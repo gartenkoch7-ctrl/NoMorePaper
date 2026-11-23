@@ -1,8 +1,26 @@
 @page "/"
+@using NoMorePaper.Web.Client.Start
 @inject IStringLocalizer<Strings> L
+@inject AuthState Auth
 
 <PageTitle>@L["HomeTitle"]</PageTitle>
 
-<MudText Typo="Typo.h1">NoMorePaper</MudText>
+<MudText Typo="Typo.h1">@(Auth.Me is { } me ? L["HomeGreeting", me.DisplayName].Value : "NoMorePaper")</MudText>
 <AdminResetNotice />
 <MudText Typo="Typo.body1">@L["HomeIntro"]</MudText>
+
+@* The overview of Stitch screen 05: what waits for the person, what came in last, how the inputs are doing. *@
+<div class="start-cards">
+    <StartReviewCard />
+    <StartRecent />
+    <StartInputsCard />
+    <section class="start-actions" aria-labelledby="start-actions-heading">
+        <h2 id="start-actions-heading" class="nmp-visually-hidden">@L["StartActionsHeading"]</h2>
+        <a href="hochladen" class="nmp-button nmp-button-primary start-action">
+            <MudIcon Icon="@Icons.Material.Outlined.UploadFile" aria-hidden="true" />@L["StartUpload"]
+        </a>
+        <a href="kamera" class="nmp-button start-action start-action-secondary">
+            <MudIcon Icon="@Icons.Material.Outlined.PhotoCamera" aria-hidden="true" />@L["StartCamera"]
+        </a>
+    </section>
+</div>

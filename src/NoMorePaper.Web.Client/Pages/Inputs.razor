@@ -3,20 +3,29 @@
 
 <PageTitle>@L["InpTitle"]</PageTitle>
 
-<MudText Typo="Typo.h1" id="inputs-heading" tabindex="-1">@L["InpHeading"]</MudText>
-<p>@L["InpIntro"]</p>
+<Breadcrumb Items="_path" />
 
-<div class="button-row">
-    <button type="button" id="inputs-refresh" class="nmp-button" @onclick="RefreshByHandAsync">@L["InpRefresh"]</button>
+<div class="inputs-header">
+    <div>
+        <MudText Typo="Typo.h2" HtmlTag="h1" id="inputs-heading" tabindex="-1">@L["InpHeading"]</MudText>
+        <p class="inputs-intro">@L["InpIntro"]</p>
+    </div>
+    <div class="inputs-refresh">
+        <button type="button" id="inputs-refresh" class="nmp-button" @onclick="RefreshByHandAsync">
+            <MudIcon Icon="@Icons.Material.Filled.Refresh" aria-hidden="true" />
+            <span>@L["InpRefresh"]</span>
+        </button>
+        @if (_rows is not null)
+        {
+            <p data-ready>@L["InpUpdated", _now.ToLocalTime().ToString("T", System.Globalization.CultureInfo.CurrentCulture)]</p>
+        }
+    </div>
 </div>
 <LiveRegion @ref="_status" />
 
 @if (_loadError is not null)
 {
-    <div role="alert" class="error-box" data-ready>
-        <MudIcon Icon="@Icons.Material.Filled.Error" />
-        <span>@L["InpLoadError", _loadError]</span>
-    </div>
+    <div data-ready><NoticeBox Kind="NoticeKind.Error" Announce="true" Message="@L["InpLoadError", _loadError]" /></div>
     <button type="button" id="inputs-retry" class="nmp-button" @onclick="RefreshByHandAsync">@L["Retry"]</button>
 }
 else if (_rows is null)
@@ -25,69 +34,52 @@ else if (_rows is null)
 }
 else
 {
-    <p data-ready>@L["InpUpdated", _now.ToLocalTime().ToString("T", System.Globalization.CultureInfo.CurrentCulture)]</p>
+    <TabList Items="_tabs" @bind-SelectedId="_selected" AriaLabel="@L["InpHeading"]" />
 
-    <section aria-labelledby="inputs-scanner-heading">
-        <MudText Typo="Typo.h2" id="inputs-scanner-heading">@L["InpKindScannerFolder"]</MudText>
-        <p>@L["InpScannerText"]</p>
-        @foreach (var row in RowsOf("scanner-folder"))
-        {
-            <InputsEntry Row="row" Now="_now" />
-        }
-        @if (!HasRows("scanner-folder"))
-        {
-            <p>@L["InpStateNever"]</p>
-        }
-    </section>
+    <InputsPanel Kind="scanner-folder" Selected='IsSelected("scanner-folder")' Rows='RowsOf("scanner-folder")' Now="_now"
+                 EmptyText="@L["InpStateNever"]">
+        <About>
+            <p>@L["InpScannerText"]</p>
+            <p>@L["InpIntervalScanner"]</p>
+        </About>
+    </InputsPanel>
 
-    <section aria-labelledby="inputs-mail-heading">
-        <MudText Typo="Typo.h2" id="inputs-mail-heading">@L["InpKindMail"]</MudText>
-        <p>@L["InpMailText"]</p>
-        <p>@L["InpMailSpamFolder"]</p>
-        @foreach (var row in RowsOf("mail"))
-        {
-            <InputsEntry Row="row" Now="_now" />
-        }
-        @if (!HasRows("mail"))
-        {
-            <p>@L["InpStateNever"]</p>
-        }
-
-        @if (Auth.IsAdmin)
-        {
-            <p><a href="eingaenge/mail">@L[MailNotConfigured ? "InpMailSetUp" : "InpMailSettings"]</a></p>
-        }
-        else
-        {
-            <p>@L["InpMailAdminOnly"]</p>
-        }
-    </section>
-
-    <section aria-labelledby="inputs-icloud-heading">
-        <MudText Typo="Typo.h2" id="inputs-icloud-heading">@L["InpKindICloud"]</MudText>
-        <p>@L["InpICloudText"]</p>
-        @foreach (var row in RowsOf("icloud"))
-        {
-            <InputsEntry Row="row" Now="_now" />
-        }
-        @if (!HasRows("icloud"))
-        {
-            <p>@L["InpICloudNone"]</p>
-        }
-
-        <p id="inputs-icloud-action">
-            @if (!ICloudPageExists)
+    <InputsPanel Kind="mail" Selected='IsSelected("mail")' Rows='RowsOf("mail")' Now="_now" EmptyText="@L["InpStateNever"]">
+        <Below>
+            @if (Auth.IsAdmin)
             {
-                @L["InpICloudPending"]
-            }
-            else if (MyCodeNeeded)
-            {
-                <a href="eingaenge/icloud">@L["InpICloudRenewCode"]</a>
+                <p><a class="nmp-button" href="eingaenge/mail">@L[MailNotConfigured ? "InpMailSetUp" : "InpMailSettings"]</a></p>
             }
             else
             {
-                <a href="eingaenge/icloud">@L[HasRows("icloud") ? "InpICloudSettings" : "InpICloudSetUp"]</a>
+                <p>@L["InpMailAdminOnly"]</p>
             }
-        </p>
-    </section>
+            <MailRules HeadingLevel="3" />
+        </Below>
+        <About>
+            <p>@L["InpMailText"]</p>
+            <p>@L["InpIntervalMail"]</p>
+        </About>
+    </InputsPanel>
+
+    <InputsPanel Kind="icloud" Selected='IsSelected("icloud")' Rows='RowsOf("icloud")' Now="_now" EmptyText="@L["InpICloudNone"]">
+        <About>
+            <p>@L["InpICloudText"]</p>
+            <p>@L["InpIntervalICloud"]</p>
+            <p id="inputs-icloud-action">
+                @if (!ICloudPageExists)
+                {
+                    @L["InpICloudPending"]
+                }
+                else if (MyCodeNeeded)
+                {
+                    <a href="eingaenge/icloud">@L["InpICloudRenewCode"]</a>
+                }
+                else
+                {
+                    <a href="eingaenge/icloud">@L[HasRows("icloud") ? "InpICloudSettings" : "InpICloudSetUp"]</a>
+                }
+            </p>
+        </About>
+    </InputsPanel>
 }

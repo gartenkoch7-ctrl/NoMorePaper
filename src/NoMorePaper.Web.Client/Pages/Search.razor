@@ -7,17 +7,16 @@
 
 <PageTitle>@L["SearchTitle"]</PageTitle>
 
-<MudText Typo="Typo.h1">@L["SearchHeading"]</MudText>
+<MudText Typo="Typo.h2" HtmlTag="h1">@L["SearchHeading"]</MudText>
 
 @* The search field lives in the page header (HeaderSearch), so it is the same on every page and
    the "/" shortcut always finds it. This page shows what came back. *@
-<LiveRegion @ref="_summary" />
+<LiveRegion @ref="_summary" Class="nmp-visually-hidden" />
 
 @if (_error is not null)
 {
-    <div role="alert" class="error-box" data-ready>
-        <MudIcon Icon="@Icons.Material.Filled.Error" />
-        <span>@L["SearchError", _error]</span>
+    <div data-ready>
+        <NoticeBox Kind="NoticeKind.Error" Announce="true" Message="@L["SearchError", _error]" />
     </div>
 }
 else if (string.IsNullOrWhiteSpace(Query))
@@ -29,21 +28,26 @@ else if (_hits is not null)
     <div data-ready>
         @* Visible as well as announced: without it a search with no hits leaves the page empty. *@
         <p class="search-summary">@CountText(_hits.Length, _searched ?? string.Empty)</p>
-        @foreach (var hit in _hits)
-        {
-            <article class="search-hit" @key="hit.Id">
-                <MudText Typo="Typo.h2"><a href="@DocumentLinks.Viewer(hit.Id)">@hit.Title</a></MudText>
-                @if (hit.IsPrivate)
-                {
-                    <PrivateBadge />
-                }
-                @* Hits come from the OCR text, so the document is done and has its PDF/A. *@
-                <Thumbnail Source="@DocumentLinks.Archive(hit.Id)" Title="@hit.Title" />
-                @* The snippet is plain text from the server and is rendered as text, never as HTML. *@
-                <p>@hit.Snippet</p>
-                <p class="search-hit-date">@L["SearchReceived", hit.ReceivedAt.ToLocalTime().ToString("g", CultureInfo.CurrentCulture)]</p>
-            </article>
-        }
+        @* No heading for the list itself: the page's H2s are the hits. *@
+        <section class="search-results" aria-label="@L["SearchResultsLabel"]">
+            @foreach (var hit in _hits)
+            {
+                <article class="search-hit" @key="hit.Id">
+                    @* Hits come from the OCR text, so the document is done and has its PDF/A. *@
+                    <Thumbnail Source="@DocumentLinks.Archive(hit.Id)" Title="@hit.Title" />
+                    <div class="search-hit-body">
+                        <MudText Typo="Typo.h3" HtmlTag="h2"><a href="@DocumentLinks.Viewer(hit.Id)">@hit.Title</a></MudText>
+                        @if (hit.IsPrivate)
+                        {
+                            <PrivateBadge />
+                        }
+                        @* The snippet is plain text from the server and is rendered as text, never as HTML. *@
+                        <p>@hit.Snippet</p>
+                        <p class="search-hit-date">@L["SearchReceived", hit.ReceivedAt.ToLocalTime().ToString("g", CultureInfo.CurrentCulture)]</p>
+                    </div>
+                </article>
+            }
+        </section>
     </div>
 }
 

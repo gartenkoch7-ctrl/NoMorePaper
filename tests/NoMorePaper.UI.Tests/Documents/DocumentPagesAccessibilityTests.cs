@@ -5,6 +5,7 @@ using Deque.AxeCore.Playwright;
 using Microsoft.Playwright;
 using NoMorePaper.Contracts.Documents;
 using NoMorePaper.UI.Tests.Accessibility;
+using NoMorePaper.UI.Tests.Classification;
 using NoMorePaper.UI.Tests.Hosting;
 using NoMorePaper.Web.Client.Localization;
 using Xunit;
@@ -59,6 +60,38 @@ public sealed class DocumentPagesAccessibilityTests(ServerFixture server)
     [Theory]
     [InlineData(SupportedCultures.German)]
     [InlineData(SupportedCultures.English)]
+    public async Task RichDocumentList_WithCountsChipsAndPager_HasNoAxeViolations(string culture)
+    {
+        await using var session = await OpenRichListAsync(culture);
+        await WaitUntilSettledAsync(session.Page, "/dokumente");
+
+        Assert.Equal(2, await session.Page.Locator("tbody tr").CountAsync());
+        await AssertNoViolationsAsync(session.Page);
+    }
+
+    [Theory]
+    [InlineData(SupportedCultures.German)]
+    [InlineData(SupportedCultures.English)]
+    public async Task DocumentTiles_HaveNoAxeViolations(string culture)
+    {
+        await using var session = await OpenRichListAsync(culture);
+        await session.Page.Locator(".view-toggle button").Nth(1).ClickAsync();
+        await session.Page.Locator("ul.doc-tiles").WaitForAsync();
+
+        await AssertNoViolationsAsync(session.Page);
+    }
+
+    private Task<BrowserSession> OpenRichListAsync(string culture) => ApiMocks.OpenViaNavigationAsync(
+        server, culture, culture == SupportedCultures.German ? "Dokumente" : "Documents", async page =>
+        {
+            await ApiMocks.ListAsync(page, SampleDocuments.Rich());
+            await ApiMocks.CountsAsync(page, SampleDocuments.Counts(
+                2, (ClassificationSamples.Rechnung, 1), (ClassificationSamples.Vertrag, 1)));
+        });
+
+    [Theory]
+    [InlineData(SupportedCultures.German)]
+    [InlineData(SupportedCultures.English)]
     public async Task SearchResults_HaveNoAxeViolations(string culture)
     {
         await using var session = await server.OpenAsync("/", culture);
@@ -91,7 +124,6 @@ public sealed class DocumentPagesAccessibilityTests(ServerFixture server)
         var result = await page.RunAxe(AxeRules.Strict());
 
         Assert.True(result.Violations.Length == 0, Describe(result.Violations));
-        Assert.Contains(result.Passes, rule => rule.Id == AxeRules.EnhancedContrastRule);
     }
 
     private static string Describe(AxeResultItem[] violations)

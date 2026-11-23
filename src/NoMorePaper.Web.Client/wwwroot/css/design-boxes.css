@@ -1,0 +1,67 @@
+/* Message and confirmation boxes of the "Obsidian Slate" design (Stitch), moved out of design.css. */
+
+.nmp-notice {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    padding: 1rem;
+    background: var(--nmp-paper);
+    border: 1px solid var(--nmp-border);
+    border-radius: 1rem;
+    color: var(--nmp-primary);
+    font-family: var(--nmp-font-sans);
+}
+
+.nmp-notice-body {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem 1rem;
+}
+
+.nmp-notice-error {
+    border-color: var(--nmp-error);
+}
+
+.nmp-notice-error > .mud-icon-root {
+    color: var(--nmp-error);
+}
+
+.nmp-notice-success > .mud-icon-root {
+    color: var(--nmp-primary);
+}
+
+.nmp-confirm {
+    padding: 1.5rem;
+    background: var(--nmp-surface-container);
+    border: 1px solid var(--nmp-border);
+    border-radius: 1rem;
+    color: var(--nmp-primary);
+    font-family: var(--nmp-font-sans);
+}
+
+.nmp-confirm :is(h2, h3, h4) {
+    margin: 0 0 0.5rem;
+    font-size: 1.125rem;
+    line-height: 1.75rem;
+    font-weight: 500;
+}
+
+.nmp-confirm p {
+    margin: 0 0 1rem;
+    color: var(--nmp-text-secondary);
+}
+
+.nmp-confirm-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+}
+
+.nmp-confirm .form-field {
+    margin-bottom: var(--nmp-space-md);
+}
+
+.nmp-notice-body ul {
+    margin: 0;
+}

@@ -10,7 +10,7 @@ namespace NoMorePaper.Web.Client.Viewer;
 /// </summary>
 public sealed class ThumbnailRenderer(IJSRuntime js, ILogger<ThumbnailRenderer> logger) : IAsyncDisposable
 {
-    /// <summary>Thumbnail width in CSS pixels; app.css uses the same value.</summary>
+    /// <summary>Thumbnail width in CSS pixels; viewer.css (.thumbnail) uses the same value.</summary>
     public const int CssWidth = 80;
 
     private const string ModulePath = "./js/viewer/thumbnails.js";

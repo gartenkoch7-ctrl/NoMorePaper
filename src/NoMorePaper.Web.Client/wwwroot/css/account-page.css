@@ -1,0 +1,156 @@
+/* Pages "Konto", "Mitglieder" (Stitch 09, 10), M4u Spur E. */
+
+/* --- Konto: head, card grid --- */
+.account-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: var(--nmp-space-sm) var(--nmp-space-lg);
+    margin-bottom: var(--nmp-space-lg);
+}
+
+.account-head h1 {
+    margin: 0;
+}
+
+.account-head p {
+    margin: 0;
+}
+
+.account-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--nmp-space-lg);
+    max-width: 72rem;
+}
+
+@media (min-width: 64rem) {
+    .account-grid {
+        grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+        align-items: start;
+    }
+
+    .account-grid .account-prefs {
+        grid-column: 1 / -1;
+    }
+}
+
+.account-card {
+    padding: var(--nmp-space-lg);
+    border-radius: var(--nmp-radius-lg);
+    background: var(--nmp-surface-container);
+}
+
+.account-card > h2 {
+    margin: 0 0 var(--nmp-space-md);
+}
+
+.account-card .account-form {
+    max-width: none;
+    margin-bottom: 0;
+}
+
+.account-submit {
+    display: flex;
+    justify-content: flex-end;
+}
+
+/* --- Konto: inputs card --- */
+.prefs-private {
+    margin: var(--nmp-space-md) 0;
+    padding: var(--nmp-space-md);
+    border-radius: var(--nmp-radius);
+    background: var(--nmp-paper-low);
+}
+
+.prefs-private p {
+    margin: var(--nmp-space-sm) 0 0;
+}
+
+.sender-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--nmp-space-sm);
+    margin: var(--nmp-space-md) 0;
+    padding: 0;
+    list-style: none;
+}
+
+.sender-list li {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--nmp-space-md);
+    padding: var(--nmp-space-sm) var(--nmp-space-md);
+    border-radius: var(--nmp-radius);
+    background: var(--nmp-paper-low);
+}
+
+.sender-list .mud-icon-root {
+    flex: none;
+}
+
+.sender-address {
+    flex: 1 1 auto;
+    min-width: 0;
+    overflow-wrap: anywhere;
+}
+
+.prefs-add {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    gap: var(--nmp-space-md);
+}
+
+.prefs-add .form-field {
+    flex: 1 1 16rem;
+}
+
+/* --- Mitglieder --- */
+.members-invite,
+.members-list {
+    margin: var(--nmp-space-lg) 0;
+    padding: var(--nmp-space-lg);
+    border-radius: var(--nmp-radius-lg);
+    background: var(--nmp-surface-container);
+}
+
+.members-invite-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--nmp-space-md) var(--nmp-space-lg);
+}
+
+.members-invite-head h2,
+.members-invite-head p {
+    margin-top: 0;
+}
+
+/* The result of "invite" or "reset": an inner surface instead of the old thick frame. */
+.members-link {
+    margin: var(--nmp-space-lg) 0;
+    padding: var(--nmp-space-md) var(--nmp-space-lg);
+    border: 1px solid var(--nmp-border-strong);
+    border-radius: var(--nmp-radius);
+    background: var(--nmp-paper-low);
+}
+
+.members-invite .members-link {
+    margin-bottom: 0;
+}
+
+.account-signout .button-row {
+    margin-top: var(--nmp-space-md);
+}
+
+.members-list .doc-table :is(th, td):last-child {
+    text-align: end;
+}
+
+.members-link > h2 {
+    margin: 0 0 var(--nmp-space-md);
+}

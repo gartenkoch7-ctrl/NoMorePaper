@@ -1,0 +1,120 @@
+/* The side of the document page (tabs "Angaben", "Erkannter Text", "Verlauf"), after Stitch screen 03.
+   Tokens from base.css, no outline rules on purpose: focus is drawn by the browser default (ADR-0026). */
+
+/* ---- Angaben (read-only) -------------------------------------------------------------------- */
+
+.doc-view-side .fields-summary {
+    margin: 0;
+    font-size: 0.875rem;
+    line-height: 1.375rem;
+    color: var(--nmp-text);
+}
+
+.doc-view-side .fields-term {
+    font-weight: 600;
+}
+
+.doc-view-side .fields-recognition,
+.doc-view-side .fields-duplicate {
+    display: flex;
+    align-items: center;
+    gap: var(--nmp-space-xs);
+    margin: 0;
+    padding: var(--nmp-space-sm);
+    border: 0;
+    border-radius: var(--nmp-radius-sm);
+    background: var(--nmp-surface-container);
+    color: var(--nmp-primary);
+    font-size: 0.75rem;
+    line-height: 1.125rem;
+    font-weight: 500;
+}
+
+.doc-view-side .fields-recognition .mud-icon-root,
+.doc-view-side .fields-duplicate .mud-icon-root {
+    width: 1.125rem;
+    height: 1.125rem;
+}
+
+.fields-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--nmp-space-sm);
+    margin: 0;
+}
+
+.fields-pair {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    min-width: 0;
+}
+
+.fields-pair dt {
+    color: var(--nmp-outline);
+    font-family: var(--nmp-font-mono);
+    font-size: 0.625rem;
+    line-height: 0.875rem;
+    letter-spacing: 0.05em;
+}
+
+.fields-pair dd {
+    display: flex;
+    align-items: center;
+    min-height: 2.25rem;
+    margin: 0;
+    padding: 0 var(--nmp-space-sm);
+    border-radius: var(--nmp-radius-sm);
+    background: var(--nmp-canvas-lowest);
+    color: var(--nmp-primary);
+    font-size: 0.75rem;
+    line-height: 1.125rem;
+    font-weight: 500;
+    overflow-wrap: anywhere;
+}
+
+.fields-mono {
+    font-family: var(--nmp-font-mono);
+}
+
+.fields-pair-wide {
+    grid-column: 1 / -1;
+}
+
+@media (max-width: 29.98rem) {
+    .fields-grid {
+        grid-template-columns: minmax(0, 1fr);
+    }
+}
+
+.fields-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--nmp-space-xs);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.fields-tags li {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.125rem var(--nmp-space-xs);
+    border-radius: var(--nmp-radius-sm);
+    background: var(--nmp-surface-container);
+    color: var(--nmp-primary);
+    font-family: var(--nmp-font-mono);
+    font-size: 0.625rem;
+    line-height: 0.875rem;
+    letter-spacing: 0.05em;
+}
+
+.doc-privacy {
+    margin: var(--nmp-space-md) 0;
+}
+
+/* An empty live region must not leave a gap in the card. */
+.doc-view-side .live-region:empty {
+    min-height: 0;
+    margin: 0;
+}

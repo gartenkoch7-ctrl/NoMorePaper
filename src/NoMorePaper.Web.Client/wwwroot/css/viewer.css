@@ -1,81 +1,20 @@
 /*
- * Document viewer and thumbnails (M1, ADR-0011). Same contrast theme as app.css; the page itself
+ * Document viewer and thumbnails (M1, ADR-0011). Tokens from base.css; the page itself
  * is drawn by the shader on black, so the stage only needs a visible frame.
  */
 
-/* The viewer uses the full window width; the 60rem reading width is for text pages. */
+/* The viewer uses the full window width; the 80rem reading width (layout.css) is for text pages. */
 .app-main:has(.viewer) {
     max-width: none;
-}
-
-.viewer-state {
-    font-weight: 700;
-}
-
-.viewer-downloads {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.5rem 2rem;
-    margin: 0.5rem 0 0;
-    padding: 0;
-    list-style: none;
-}
-
-.viewer-toolbar {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 0.5rem 0.75rem;
-    margin: 0.75rem 0;
-}
-
-.viewer-toolbar button {
-    min-height: 2.75rem;
-    padding: 0.5rem 1rem;
-    background-color: var(--nmp-background);
-    color: var(--nmp-text);
-    border: 2px solid var(--nmp-text);
-    border-radius: 4px;
-    font: inherit;
-    font-weight: 700;
-    cursor: pointer;
-}
-
-.viewer-toolbar button:hover {
-    background-color: #333333;
-}
-
-/* The pressed switch is filled and carries a check mark: never told apart by colour alone. */
-.viewer-toolbar button[aria-pressed="true"] {
-    background-color: var(--nmp-text);
-    color: var(--nmp-background);
-}
-
-.viewer-toolbar button[aria-pressed="true"]::before {
-    content: "\2713\00a0" / "";
-}
-
-.viewer-zoom,
-.viewer-page {
-    min-width: 8rem;
-    font-weight: 700;
-    font-variant-numeric: tabular-nums;
-}
-
-.viewer-keys,
-.viewer-no-text {
-    margin: 0.5rem 0;
-}
-
-.viewer-no-text {
-    font-weight: 700;
 }
 
 .viewer-stage {
     position: relative;
     height: 75vh;
     min-height: 20rem;
-    border: 2px solid var(--nmp-text);
+    border: 1px solid var(--nmp-border);
+    border-radius: var(--nmp-radius);
+    overflow: hidden;
     background-color: #000000;
 }
 
@@ -174,6 +113,10 @@
 }
 
 /* Until it is drawn: neither an empty box on screen nor an unnamed image for screen readers. */
+.thumbnail:has(canvas[hidden]) {
+    min-height: 0;
+}
+
 .thumbnail canvas[hidden] {
     display: none;
 }
@@ -182,19 +125,4 @@
     display: inline-flex;
     align-items: center;
     gap: 1rem;
-}
-
-.search-hit {
-    display: grid;
-    grid-template-columns: auto 1fr;
-    column-gap: 1rem;
-}
-
-.search-hit > * {
-    grid-column: 2;
-}
-
-.search-hit > .thumbnail {
-    grid-column: 1;
-    grid-row: 1 / span 3;
 }

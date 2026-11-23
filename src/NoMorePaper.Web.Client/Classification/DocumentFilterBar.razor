@@ -6,11 +6,15 @@
 @* The filters of the document list. They hide behind a disclosure button (aria-expanded) so the list
    stays first on a small or magnified screen; the choices load when it is opened for the first time.
    It is a group, not a <form>, because the tag combobox uses Enter to pick. "Filtern" applies; the
-   page then announces how many documents match. *@
+   page then announces how many documents match. The document type is chosen with the chips of the page;
+   the button counts only the filters here. *@
 <section class="filter-bar" aria-labelledby="filter-toggle">
     <h2 class="filter-heading">
         <button type="button" id="filter-toggle" class="nmp-button" aria-expanded="@(_open ? "true" : "false")"
-                aria-controls="filter-body" @onclick="ToggleAsync">@ToggleText</button>
+                aria-controls="filter-body" @onclick="ToggleAsync">
+            <MudIcon Icon="@Icons.Material.Outlined.Tune" aria-hidden="true" />
+            @ToggleText
+        </button>
     </h2>
     @* The content exists only while open: closed, it would add empty live regions and fields to the page. *@
     <div id="filter-body" class="filter-body" role="group" aria-label="@L["FilterGroup"]" hidden="@(!_open)">
@@ -18,11 +22,9 @@
         {
             if (_loadError is not null)
             {
-                <div role="alert" class="error-box">
-                    <MudIcon Icon="@Icons.Material.Filled.Error" />
-                    <span>@L["FilterLoadError", _loadError]</span>
-                </div>
-                <button type="button" class="nmp-button" @onclick="LoadChoicesAsync">@L["Retry"]</button>
+                <NoticeBox Kind="NoticeKind.Error" Announce="true" Message="@L["FilterLoadError", _loadError]">
+                    <button type="button" class="nmp-button" @onclick="LoadChoicesAsync">@L["Retry"]</button>
+                </NoticeBox>
             }
 
             <div class="filter-grid">
@@ -31,16 +33,6 @@
                     <select id="filter-correspondent" class="form-input" @bind="_correspondent">
                         <option value="">@L["FilterAll"]</option>
                         @foreach (var entry in _correspondents)
-                        {
-                            <option value="@entry.Id">@entry.Name</option>
-                        }
-                    </select>
-                </div>
-                <div class="form-field">
-                    <label for="filter-type">@L["ClsFieldType"]</label>
-                    <select id="filter-type" class="form-input" @bind="_type">
-                        <option value="">@L["FilterAll"]</option>
-                        @foreach (var entry in _types)
                         {
                             <option value="@entry.Id">@entry.Name</option>
                         }
@@ -92,13 +84,11 @@
 
 @code {
     private readonly List<EntryDto> _correspondents = [];
-    private readonly List<EntryDto> _types = [];
     private readonly List<EntryDto> _allTags = [];
     private FormValidation _form = default!;
     private LiveRegion? _error;
     private IReadOnlyList<EntryDto> _tags = [];
     private string _correspondent = string.Empty;
-    private string _type = string.Empty;
     private DateOnly? _from;
     private DateOnly? _to;
     private string _amountFrom = string.Empty;
@@ -132,7 +122,7 @@
         _loadError = null;
         foreach (var (kind, target) in new[]
         {
-            (EntryKind.Correspondents, _correspondents), (EntryKind.DocumentTypes, _types), (EntryKind.Tags, _allTags),
+            (EntryKind.Correspondents, _correspondents), (EntryKind.Tags, _allTags),
         })
         {
             var result = await Api.ListEntriesAsync(kind);
@@ -198,7 +188,7 @@
 
         await OnApply.InvokeAsync(new DocumentFilterDto(
             Guid.TryParse(_correspondent, out var correspondent) ? correspondent : null,
-            Guid.TryParse(_type, out var type) ? type : null,
+            null,
             fromDate,
             toDate,
             _tags.Count == 0 ? null : [.. _tags.Select(tag => tag.Id)],
@@ -210,7 +200,7 @@
 
     private async Task ResetAsync()
     {
-        (_correspondent, _type, _amountFrom, _amountTo, _visibility) = (string.Empty, string.Empty, string.Empty, string.Empty, string.Empty);
+        (_correspondent, _amountFrom, _amountTo, _visibility) = (string.Empty, string.Empty, string.Empty, string.Empty);
         (_from, _to) = (null, null);
         (_tags, _allTagsNeeded) = ([], false);
         _form.Reset();

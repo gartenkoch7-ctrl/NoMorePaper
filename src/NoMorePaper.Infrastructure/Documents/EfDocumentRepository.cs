@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using NoMorePaper.Application.Classification;
 using NoMorePaper.Application.Documents;
 using NoMorePaper.Domain.Documents;
 using NoMorePaper.Infrastructure.Persistence;
@@ -43,6 +44,8 @@ public sealed class EfDocumentRepository(AppDbContext db) : IDocumentRepository
         var sql = """
             SELECT d.id AS "Id", d.title AS "Title", d.received_at AS "ReceivedAt", d.state AS "State",
                    d.is_private AS "IsPrivate", d.owner_id IS NOT DISTINCT FROM @viewer AS "IsMine",
+                   d.source AS "Source",
+                   left(regexp_replace(left(coalesce(nullif(btrim(d.summary, E' \t\r\n'), ''), d.content_text), 2000), '\s+', ' ', 'g'), 400) AS "Excerpt",
             """ + DocumentFilterSql.LabelColumns + " FROM documents d " + DocumentFilterSql.LabelJoins
             + " WHERE (d.owner_id = @viewer OR NOT d.is_private)" + DocumentFilterSql.Conditions(filter, parameters)
             + " ORDER BY d.received_at DESC, d.id DESC OFFSET @skip LIMIT @take";
@@ -51,8 +54,30 @@ public sealed class EfDocumentRepository(AppDbContext db) : IDocumentRepository
             .ToListAsync(cancellationToken)
             .ConfigureAwait(false);
 
+        var tags = await LoadTagsAsync([.. rows.Select(row => row.Id)], cancellationToken).ConfigureAwait(false);
         return [.. rows.Select(row => new DocumentSummary(
-            row.Id, row.Title, row.ReceivedAt, Enum.Parse<ProcessingState>(row.State), row.IsPrivate, row.IsMine, row.ToLabels()))];
+            row.Id, row.Title, row.ReceivedAt, Enum.Parse<ProcessingState>(row.State), row.IsPrivate, row.IsMine, row.ToLabels(),
+            Enum.Parse<DocumentSource>(row.Source), DocumentExcerpt.From(row.Excerpt), [.. tags[row.Id]]))];
+    }
+
+    // Only for the documents of the page, which the viewer may see already, so no visibility check is needed here.
+    private async Task<ILookup<Guid, EntrySummary>> LoadTagsAsync(IReadOnlyList<Guid> ids, CancellationToken cancellationToken)
+    {
+        if (ids.Count == 0)
+        {
+            return Enumerable.Empty<EntrySummary>().ToLookup(_ => Guid.Empty);
+        }
+
+        var rows = await db.Database.SqlQueryRaw<DocumentTagRow>(
+                """
+                SELECT dt.document_id AS "DocumentId", tg.id AS "TagId", tg.name AS "TagName"
+                FROM document_tags dt JOIN tags tg ON tg.id = dt.tag_id
+                WHERE dt.document_id = ANY(@ids) ORDER BY tg.name, tg.id
+                """,
+                new NpgsqlParameter("ids", NpgsqlDbType.Array | NpgsqlDbType.Uuid) { Value = ids.ToArray() })
+            .ToListAsync(cancellationToken)
+            .ConfigureAwait(false);
+        return rows.ToLookup(row => row.DocumentId, row => new EntrySummary(row.TagId, row.TagName));
     }
 
     public async Task<Guid?> FindVisibleBySha256Async(Guid viewerId, string sha256, CancellationToken cancellationToken)

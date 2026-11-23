@@ -1,0 +1,80 @@
+/* Tiles of the document list (Stitch screen 02). No outline rules on purpose (ADR-0026). */
+
+/* auto-fill instead of fixed columns, so the tiles wrap at 200-400 % zoom. */
+.doc-tiles {
+    list-style: none;
+    margin: 0;
+    padding: var(--nmp-space-md);
+    display: grid;
+    gap: var(--nmp-space-sm);
+    grid-template-columns: repeat(auto-fill, minmax(15rem, 1fr));
+}
+
+.doc-tile {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: var(--nmp-space-sm);
+    min-height: 10rem;
+    padding: var(--nmp-space-md);
+    background: var(--nmp-canvas-lowest);
+    border: 1px solid var(--nmp-border);
+    border-radius: var(--nmp-radius);
+}
+
+.doc-tile:hover {
+    background: var(--nmp-surface-container);
+    border-color: var(--nmp-border-strong);
+}
+
+.doc-tile-top {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: var(--nmp-space-sm);
+}
+
+.doc-tile-title {
+    margin: 0;
+    font-size: 1rem;
+    line-height: 1.5rem;
+    font-weight: 500;
+    letter-spacing: -0.005em;
+}
+
+.doc-tile-title .doc-title-link {
+    font-size: 1rem;
+    line-height: 1.5rem;
+}
+
+.doc-tile-meta {
+    margin: 0;
+    font-size: 0.75rem;
+    line-height: 1.125rem;
+    color: var(--nmp-text-variant);
+}
+
+.doc-tile-foot {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 0.5rem;
+    padding-top: var(--nmp-space-xs);
+    border-top: 1px solid var(--nmp-border);
+}
+
+.doc-tile-amount-label,
+.doc-tile-amount {
+    display: block;
+}
+
+.doc-tile-amount-label {
+    font: 400 0.625rem/0.875rem var(--nmp-font-mono);
+    color: var(--nmp-outline);
+}
+
+.doc-tile-amount {
+    font: 500 0.8125rem/1.125rem var(--nmp-font-mono);
+    color: var(--nmp-primary);
+}

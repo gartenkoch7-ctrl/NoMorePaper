@@ -1,15 +1,33 @@
 @page "/dokumente"
-@using System.Globalization
 @implements IDisposable
-@inject IStringLocalizer<Strings> L
-@inject DocumentApi Api
-@inject ILogger<Documents> Logger
 
 <PageTitle>@L["DocumentsTitle"]</PageTitle>
 
-<MudText Typo="Typo.h1">@L["DocumentsHeading"]</MudText>
+@* Stitch screen 02. A native h1 because the theme's h1 (40 px) is larger than the design's headline-lg. *@
+<div class="doc-page-head">
+    <div>
+        <h1 class="doc-page-title">@L["DocumentsHeading"]</h1>
+        @if (_counts is not null)
+        {
+            <span class="doc-count">@(_counts.Total == 1 ? L["DocListCountOne"].Value : L["DocListCount", _counts.Total].Value)</span>
+        }
+    </div>
+    <div class="view-toggle" role="group" aria-label="@L["DocListViewGroup"]">
+        <button type="button" aria-pressed="@(_view == DocumentListView.Table ? "true" : "false")" @onclick="() => SetView(DocumentListView.Table)">
+            <MudIcon Icon="@Icons.Material.Outlined.ViewList" aria-hidden="true" />
+            <span>@L["DocListViewTable"]</span>
+        </button>
+        <button type="button" aria-pressed="@(_view == DocumentListView.Tiles ? "true" : "false")" @onclick="() => SetView(DocumentListView.Tiles)">
+            <MudIcon Icon="@Icons.Material.Outlined.GridView" aria-hidden="true" />
+            <span>@L["DocListViewTiles"]</span>
+        </button>
+    </div>
+</div>
 
-<DocumentFilterBar ActiveCount="@DocumentFilterQuery.ActiveCount(_filter)" OnApply="ApplyFilterAsync" />
+<div class="doc-filter-card">
+    <DocumentFilterBar ActiveCount="@DocumentFilterQuery.ActiveCount(_barFilter)" OnApply="ApplyFilterAsync" />
+    <DocumentTypeChips Counts="_counts" SelectedTypeId="_typeId" OnSelect="SelectTypeAsync" />
+</div>
 
 @* Two regions: the state changes of the poll and the number of documents a filter found must not cut each other off. *@
 <LiveRegion @ref="_changes" Class="documents-changes" />
@@ -21,204 +39,29 @@
 }
 else if (_error is not null)
 {
-    <div role="alert" class="error-box" data-ready>
-        <MudIcon Icon="@Icons.Material.Filled.Error" />
-        <span>@L["DocumentsLoadError", _error]</span>
+    @* A new element per failed attempt of the person, so a second failure is inserted (and announced) again. *@
+    <div data-ready @key="_errorAttempt">
+        <NoticeBox Kind="NoticeKind.Error" Announce="true" Message="@L["DocumentsLoadError", _error]">
+            <button type="button" class="nmp-button" @onclick="ReloadAsync">@L["Retry"]</button>
+        </NoticeBox>
     </div>
-    <MudButton Variant="Variant.Outlined" Color="Color.Primary" OnClick="ReloadAsync">@L["Retry"]</MudButton>
 }
-else if (_documents.Length == 0)
+else if (_documents.Length == 0 && _page == 1)
 {
-    <p data-ready>@(DocumentFilterQuery.ActiveCount(_filter) > 0 ? L["DocumentsEmptyFiltered"] : L["DocumentsEmpty"])</p>
+    <p data-ready>@(DocumentFilterQuery.ActiveCount(Combined) > 0 ? L["DocumentsEmptyFiltered"] : L["DocumentsEmpty"])</p>
 }
 else
 {
-    <table class="doc-table" data-ready>
-        <caption>@L["DocumentsCaption"]</caption>
-        <thead>
-            <tr>
-                <th scope="col">@L["ColTitle"]</th>
-                <th scope="col">@L["ClsFieldCorrespondent"]</th>
-                <th scope="col">@L["ClsFieldType"]</th>
-                <th scope="col">@L["ClsFieldDate"]</th>
-                <th scope="col">@L["ClsFieldAmount"]</th>
-                <th scope="col">@L["ColReceived"]</th>
-                <th scope="col">@L["ColStatus"]</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var document in _documents)
-            {
-                <tr id="@DocumentLinks.RowId(document.Id)" @key="document.Id">
-                    <th scope="row">
-                        <span class="doc-title">
-                            @* Only a finished document has its PDF/A; that is what the thumbnail shows. *@
-                            @if (document.State == DocumentProcessingState.Done)
-                            {
-                                <Thumbnail Source="@DocumentLinks.Archive(document.Id)" Title="@document.Title" />
-                            }
-                            <a href="@DocumentLinks.Viewer(document.Id)">@document.Title</a>
-                            @if (document.IsPrivate)
-                            {
-                                <PrivateBadge />
-                            }
-                            @if (document.Recognition == DocumentRecognitionState.Automatic)
-                            {
-                                <span class="private-badge">
-                                    <MudIcon Icon="@Icons.Material.Filled.AutoAwesome" />
-                                    <span>@L["ClsRecognitionBadge"]</span>
-                                </span>
-                            }
-                        </span>
-                    </th>
-                    <td>@(document.Correspondent?.Name ?? L["ClsNoValue"].Value)</td>
-                    <td>@(document.DocumentType?.Name ?? L["ClsNoValue"].Value)</td>
-                    <td>@(document.DocumentDate is { } date ? FieldFormat.Date(date, CultureInfo.CurrentCulture) : L["ClsNoValue"].Value)</td>
-                    <td>@(document.Amount is { } amount ? FieldFormat.Amount(amount, CultureInfo.CurrentCulture) : L["ClsNoValue"].Value)</td>
-                    <td><time datetime="@document.ReceivedAt.ToString("o", CultureInfo.InvariantCulture)">@document.ReceivedAt.ToLocalTime().ToString("g", CultureInfo.CurrentCulture)</time></td>
-                    <td>
-                        @* Symbol and text together: the state is never conveyed by an icon or colour alone. *@
-                        <MudIcon Icon="@IconFor(document.State)" />
-                        <span>@StateText(document.State)</span>
-                    </td>
-                </tr>
-            }
-        </tbody>
-    </table>
-}
-
-@code {
-    private static readonly TimeSpan _pollInterval = TimeSpan.FromSeconds(3);
-
-    private readonly CancellationTokenSource _cts = new();
-    private DocumentSummaryDto[] _documents = [];
-    private Dictionary<Guid, DocumentProcessingState> _lastStates = [];
-    private LiveRegion? _changes;
-    private LiveRegion? _count;
-    private DocumentFilterDto? _filter;
-    private string? _error;
-    private bool _loading = true;
-    private bool _polling;
-
-    protected override async Task OnInitializedAsync()
-    {
-        await LoadAsync(announceChanges: false);
-        _loading = false;
-        _ = PollAsync();
-    }
-
-    private async Task ReloadAsync()
-    {
-        _loading = true;
-        await LoadAsync(announceChanges: false);
-        _loading = false;
-        _ = PollAsync();
-    }
-
-    // A new filter replaces the list, so the old state changes are not "changes" any more; the number of
-    // documents found is announced, because the list changes silently for a screen reader.
-    private async Task ApplyFilterAsync(DocumentFilterDto filter)
-    {
-        _filter = DocumentFilterQuery.ActiveCount(filter) == 0 ? null : filter;
-        _lastStates = [];
-        await LoadAsync(announceChanges: false);
-        var active = DocumentFilterQuery.ActiveCount(_filter);
-        Logger.FilterApplied(active, _documents.Length);
-        if (_count is not null)
+    <div class="doc-list-frame" data-ready>
+        @if (_view == DocumentListView.Table)
         {
-            await _count.Announce(_error is not null ? L["DocumentsLoadError", _error]
-                : _documents.Length == 0 ? L["FilterFoundNone"]
-                : _documents.Length == 1 ? L["FilterFoundOne"] : L["FilterFound", _documents.Length]);
+            <DocumentTable Documents="_documents" />
         }
-
-        _ = PollAsync();
-    }
-
-    private bool InProgress => _documents.Any(d => d.State is DocumentProcessingState.Queued or DocumentProcessingState.Processing);
-
-    private async Task LoadAsync(bool announceChanges)
-    {
-        var result = await Api.ListAsync(filter: _filter, ct: _cts.Token);
-        if (!result.IsSuccess)
+        else
         {
-            _error = result.Error;
-            return;
+            <DocumentTiles Documents="_documents" />
         }
-
-        _error = null;
-        _documents = result.Value ?? [];
-        Logger.DocumentListLoaded(_documents.Length);
-        if (announceChanges)
-        {
-            await AnnounceChangesAsync();
-        }
-
-        _lastStates = _documents.ToDictionary(d => d.Id, d => d.State);
-    }
-
-    // Polls only while something is queued or processing; ends on its own when all is settled.
-    private async Task PollAsync()
-    {
-        // A filter change starts polling again; one loop is enough.
-        if (_polling || !InProgress)
-        {
-            return;
-        }
-
-        _polling = true;
-        Logger.ListPollingStarted();
-        using var timer = new PeriodicTimer(_pollInterval);
-        try
-        {
-            while (InProgress && await timer.WaitForNextTickAsync(_cts.Token))
-            {
-                await LoadAsync(announceChanges: true);
-                StateHasChanged();
-            }
-        }
-        catch (OperationCanceledException)
-        {
-            // The page was left.
-        }
-        finally
-        {
-            _polling = false;
-        }
-    }
-
-    // All changes of one poll in one message: one announcement per document would cut off the one
-    // before it, so only the last change would be heard.
-    private async Task AnnounceChangesAsync()
-    {
-        var changes = new List<string>();
-        foreach (var document in _documents)
-        {
-            if (_lastStates.TryGetValue(document.Id, out var before) && before != document.State)
-            {
-                Logger.DocumentStateChanged(document.State.ToString());
-                changes.Add(L["StateChanged", document.Title, StateText(document.State)]);
-            }
-        }
-
-        if (changes.Count > 0 && _changes is not null)
-        {
-            await _changes.Announce(string.Join(". ", changes));
-        }
-    }
-
-    private string StateText(DocumentProcessingState state) => L["State" + state];
-
-    private static string IconFor(DocumentProcessingState state) => state switch
-    {
-        DocumentProcessingState.Queued => Icons.Material.Filled.HourglassEmpty,
-        DocumentProcessingState.Processing => Icons.Material.Filled.Sync,
-        DocumentProcessingState.Done => Icons.Material.Filled.CheckCircle,
-        _ => Icons.Material.Filled.Error,
-    };
-
-    public void Dispose()
-    {
-        // Not disposed: a poll loop may still read the token while the page is being torn down.
-        _cts.Cancel();
-    }
+        <DocumentPager Page="_page" PageSize="_pageSize" Total="_counts?.Total" Shown="_documents.Length" PageSizes="PageSizes"
+                       PageChanged="ChangePageAsync" PageSizeChanged="ChangePageSizeAsync" />
+    </div>
 }

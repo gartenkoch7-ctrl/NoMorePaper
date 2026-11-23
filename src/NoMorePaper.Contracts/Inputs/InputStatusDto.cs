@@ -10,6 +10,7 @@ namespace NoMorePaper.Contracts.Inputs;
 /// <c>stuck-items</c>, <c>failed</c>); <c>null</c> without problem.
 /// </param>
 /// <param name="NeedsAttention">Somebody has to act; waiting does not help.</param>
+/// <param name="ReceivedTotal">Documents taken in since the row exists.</param>
 public sealed record InputStatusDto(
     string Kind,
     string? AccountName,
@@ -17,4 +18,5 @@ public sealed record InputStatusDto(
     DateTimeOffset? LastRunAt,
     DateTimeOffset? LastSuccessAt,
     string? Problem,
-    bool NeedsAttention);
+    bool NeedsAttention,
+    long ReceivedTotal = 0);

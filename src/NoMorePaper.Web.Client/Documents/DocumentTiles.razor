@@ -1,0 +1,72 @@
+@using System.Globalization
+@inject IStringLocalizer<Strings> L
+
+@* The list as tiles (Stitch screen 02, "Zuletzt bearbeitet"). A finished document shows its first page
+   (the same thumbnail as the search); others show the symbol box. Symbols are decoration, the words
+   carry state and privacy. *@
+<ul class="doc-tiles">
+    @foreach (var document in Documents)
+    {
+        <li class="doc-tile" id="@DocumentLinks.RowId(document.Id)" @key="document.Id">
+            <div class="doc-tile-top">
+                @if (document.State == DocumentProcessingState.Done)
+                {
+                    <Thumbnail Source="@DocumentLinks.Archive(document.Id)" Title="@document.Title" />
+                }
+                else
+                {
+                    <span class="doc-icon" aria-hidden="true"><MudIcon Icon="@Icons.Material.Outlined.Description" /></span>
+                }
+                @if (document.IsPrivate)
+                {
+                    <PrivateBadge />
+                }
+            </div>
+            <h2 class="doc-tile-title"><a class="doc-title-link" href="@DocumentLinks.Viewer(document.Id)">@document.Title</a></h2>
+            @if (document.DocumentType is not null || document.DocumentDate is not null)
+            {
+                <p class="doc-tile-meta">@Meta(document)</p>
+            }
+            <div class="doc-tile-foot">
+                @if (document.Amount is { } amount)
+                {
+                    <div>
+                        <span class="doc-tile-amount-label">@L["ClsFieldAmount"]</span>
+                        <span class="doc-tile-amount">@FieldFormat.Amount(amount, CultureInfo.CurrentCulture)</span>
+                    </div>
+                }
+                <StatusText Kind="@DocumentStatus.KindOf(document.State)" />
+                @if (document.Recognition == DocumentRecognitionState.Automatic)
+                {
+                    <Badge Text="@L["ClsRecognitionBadge"]" Icon="@Icons.Material.Filled.AutoAwesome" />
+                }
+                else if (document.Recognition == DocumentRecognitionState.Confirmed)
+                {
+                    <Badge Text="@L["DocListConfirmed"]" Icon="@Icons.Material.Filled.Verified" />
+                }
+            </div>
+        </li>
+    }
+</ul>
+
+@code {
+    [Parameter, EditorRequired] public IReadOnlyList<DocumentSummaryDto> Documents { get; set; } = [];
+
+    // Missing values are left out; the dot between type and date is decoration, the space stays outside it.
+    private RenderFragment Meta(DocumentSummaryDto document) => builder =>
+    {
+        var date = document.DocumentDate is { } value ? FieldFormat.Date(value, CultureInfo.CurrentCulture) : null;
+        builder.AddContent(0, document.DocumentType?.Name);
+        if (document.DocumentType is not null && date is not null)
+        {
+            builder.AddContent(1, " ");
+            builder.OpenElement(2, "span");
+            builder.AddAttribute(3, "aria-hidden", "true");
+            builder.AddContent(4, "•");
+            builder.CloseElement();
+            builder.AddContent(5, " ");
+        }
+
+        builder.AddContent(6, date);
+    };
+}

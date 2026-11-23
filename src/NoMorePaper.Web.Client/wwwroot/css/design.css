@@ -1,0 +1,185 @@
+/* Building blocks of the "Obsidian Slate" design (Stitch). No outline rules on purpose:
+   focus is drawn by the browser default (ADR-0026, base.css). Fonts come from base.css variables. */
+
+.nmp-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    font-family: var(--nmp-font-sans);
+    color: var(--nmp-primary);
+}
+
+.nmp-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0.125rem 0.5rem;
+    background: var(--nmp-elevated);
+    border: 1px solid var(--nmp-border);
+    border-radius: 0.5rem;
+    color: var(--nmp-text-secondary);
+    font-family: var(--nmp-font-mono);
+    font-size: 0.625rem;
+    line-height: 0.875rem;
+    letter-spacing: 0.05em;
+}
+
+.nmp-badge .mud-icon-root {
+    font-size: 0.875rem;
+}
+
+/* Default is the outlined button of the design; .nmp-button-primary is the white main action. */
+.nmp-button {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--nmp-space-xs);
+    min-height: 38px;
+    padding: 0 1rem;
+    border-radius: 0.5rem;
+    font-family: var(--nmp-font-sans);
+    font-size: 0.875rem;
+    cursor: pointer;
+    background: transparent;
+    border: 1px solid var(--nmp-border);
+    color: var(--nmp-primary);
+    font-weight: 500;
+    transition: background-color 150ms ease, border-color 150ms ease;
+}
+
+.nmp-button .mud-icon-root {
+    font-size: 1.125rem;
+}
+
+.nmp-button:hover:not(:disabled) {
+    background: var(--nmp-elevated);
+    border-color: var(--nmp-border-strong);
+}
+
+.nmp-button-primary,
+.nmp-button-primary:hover:not(:disabled) {
+    background: var(--nmp-primary);
+    border: 1px solid var(--nmp-primary);
+    color: var(--nmp-on-primary);
+}
+
+.nmp-button:disabled {
+    color: var(--nmp-text-muted);
+    cursor: not-allowed;
+}
+
+.nmp-button-primary:disabled {
+    background: var(--nmp-elevated-high);
+    border-color: var(--nmp-elevated-high);
+}
+
+.nmp-button-outlined {
+    background: transparent;
+    border: 1px solid var(--nmp-border);
+    color: var(--nmp-primary);
+}
+
+/* Tabs look like design 04: mono 11 px, selected = white text and a white line (plus aria-selected). */
+.nmp-tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--nmp-space-lg);
+    border-bottom: 1px solid var(--nmp-border);
+}
+
+.nmp-tab {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--nmp-space-xs);
+    min-height: 38px;
+    padding: 0 0 0.75rem;
+    background: transparent;
+    border: 0;
+    border-bottom: 2px solid transparent;
+    color: var(--nmp-text-variant);
+    font-family: var(--nmp-font-mono);
+    font-size: 0.6875rem;
+    line-height: 1rem;
+    letter-spacing: 0.02em;
+    font-weight: 500;
+    cursor: pointer;
+}
+
+.nmp-tab:hover {
+    color: var(--nmp-primary);
+}
+
+.nmp-tab-selected {
+    border-bottom-color: var(--nmp-primary);
+    color: var(--nmp-primary);
+}
+
+.nmp-tab .mud-icon-root {
+    font-size: 1.125rem;
+}
+
+.nmp-tab-count {
+    display: inline-block;
+    padding: 0.125rem 0.375rem;
+    border-radius: var(--nmp-radius-sm);
+    background: var(--nmp-paper-low);
+    color: var(--nmp-outline);
+    font-size: 0.625rem;
+    line-height: 0.875rem;
+    letter-spacing: 0.05em;
+}
+
+.nmp-tab-selected .nmp-tab-count {
+    background: var(--nmp-elevated-high);
+    color: var(--nmp-primary);
+}
+
+/* Path above the page title. */
+.nmp-breadcrumb ol {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--nmp-space-xs);
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    font-family: var(--nmp-font-mono);
+    font-size: 0.6875rem;
+    color: var(--nmp-outline);
+}
+
+.nmp-breadcrumb li {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--nmp-space-xs);
+}
+
+.nmp-breadcrumb a {
+    color: var(--nmp-outline);
+}
+
+.nmp-breadcrumb a:hover {
+    color: var(--nmp-text);
+}
+
+.nmp-breadcrumb [aria-current] {
+    color: var(--nmp-primary);
+    font-weight: 500;
+}
+
+.nmp-breadcrumb .mud-icon-root {
+    font-size: 0.875rem;
+}
+
+/* For headings only screen readers need (the visible word is elsewhere): still reachable by heading
+   navigation, but not seen. */
+.nmp-visually-hidden {
+    position: absolute !important;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    clip-path: inset(50%);
+    white-space: nowrap;
+    border: 0;
+}

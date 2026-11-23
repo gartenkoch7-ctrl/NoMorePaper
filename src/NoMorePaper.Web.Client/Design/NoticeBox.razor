@@ -1,0 +1,30 @@
+@* Message box with symbol and sentence; the symbol is decoration, the kind is carried by the text.
+   Announce makes an error box role="alert", which screen readers announce when it is inserted.
+   A success is not given role="status" here: a live region inserted together with its text is
+   often not announced. Say successes through a LiveRegion (Announce()) and show the box as content. *@
+<div class="nmp-notice nmp-notice-@Kind.ToString().ToLowerInvariant()" role="@Role">
+    <MudIcon Icon="@Symbol" aria-hidden="true" />
+    <div class="nmp-notice-body">
+        <span>@Message</span>
+        @ChildContent
+    </div>
+</div>
+
+@code {
+    [Parameter] public NoticeKind Kind { get; set; } = NoticeKind.Error;
+
+    [Parameter, EditorRequired] public string Message { get; set; } = string.Empty;
+
+    /// <summary>For an error: have the screen reader announce the box when it appears.</summary>
+    [Parameter] public bool Announce { get; set; }
+
+    /// <summary>Replaces the default symbol (error or check mark).</summary>
+    [Parameter] public string? Icon { get; set; }
+
+    /// <summary>A button or link next to the message.</summary>
+    [Parameter] public RenderFragment? ChildContent { get; set; }
+
+    private string? Role => Announce && Kind == NoticeKind.Error ? "alert" : null;
+
+    private string Symbol => Icon ?? (Kind == NoticeKind.Error ? Icons.Material.Filled.Error : Icons.Material.Filled.CheckCircle);
+}

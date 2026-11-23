@@ -22,6 +22,8 @@ public sealed partial class ThumbnailTests(ServerFixture server)
             await ServeArchiveAsync(page);
         });
         var page = session.Page;
+        // The table has symbol boxes; the first page is shown in the tiles.
+        await page.GetByRole(AriaRole.Button, new() { Name = "Kacheln" }).ClickAsync();
 
         await Assertions.Expect(page.Locator("canvas[data-title=\"Steuerbescheid\"][aria-hidden=true]")).ToBeVisibleAsync();
         // Only a finished document has a PDF/A to show.

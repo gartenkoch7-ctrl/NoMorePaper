@@ -2,6 +2,7 @@ using System.Text.RegularExpressions;
 using Microsoft.Playwright;
 using NoMorePaper.Contracts.Accounts;
 using NoMorePaper.UI.Tests.Hosting;
+using NoMorePaper.UI.Tests.Start;
 using NoMorePaper.Web.Client.Localization;
 using Xunit;
 
@@ -16,6 +17,7 @@ public sealed class LinkPagesTests(ServerFixture server)
         => server.OpenAsync(path, SupportedCultures.German, signedIn: false, async page =>
         {
             await fake.InstallAsync(page);
+            await StartPageMocks.InstallAsync(page);
             await mocks(page);
         });
 

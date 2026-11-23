@@ -14,50 +14,60 @@
     @L["SkipToContent"]
 </a>
 
+<div class="app-shell @(Auth.IsSignedIn ? null : "app-shell-signed-out")">
 <header class="app-header">
-    <span class="app-name">NoMorePaper</span>
-    @* Navigation, search and account only exist for a signed-in person. *@
     @if (Auth.IsSignedIn)
     {
-        <nav class="app-nav" aria-label="@L["MainNavigation"]">
-            <ul>
-                <li><a href="" aria-current="@(IsCurrent("") ? "page" : null)">@L["NavHome"]</a></li>
-                <li><a href="hochladen" aria-current="@(IsCurrent("hochladen") ? "page" : null)">@L["NavUpload"]</a></li>
-                <li><a href="kamera" aria-current="@(IsCurrent("kamera") ? "page" : null)">@L["NavCamera"]</a></li>
-                <li><a href="dokumente" aria-current="@(IsCurrent("dokumente") ? "page" : null)">@L["NavDocuments"]</a></li>
-                <li><a href="zu-pruefen" aria-current="@(IsCurrent("zu-pruefen") ? "page" : null)">@(Review.Count is > 0 and var waiting ? L["NavReviewCount", waiting] : L["NavReview"])</a></li>
-                <li><a href="suche" aria-current="@(IsCurrent("suche") ? "page" : null)">@L["NavSearch"]</a></li>
-                <li><a href="listen" aria-current="@(IsCurrent("listen") ? "page" : null)">@L["NavLists"]</a></li>
-                <li><a href="eingaenge" aria-current="@(IsCurrent("eingaenge") ? "page" : null)">@L["NavInputs"]</a></li>
-                <li><a href="konto" aria-current="@(IsCurrent("konto") ? "page" : null)">@L["NavAccount"]</a></li>
-                @if (Auth.IsAdmin)
-                {
-                    <li><a href="mitglieder" aria-current="@(IsCurrent("mitglieder") ? "page" : null)">@L["NavMembers"]</a></li>
-                }
-            </ul>
-        </nav>
+        @* Text on the button, not only a symbol (prompts.md §2). Hidden on wide screens by CSS. *@
+        <button type="button" class="nmp-button menu-toggle" aria-expanded="@(_menuOpen ? "true" : "false")"
+                aria-controls="side-nav" @onclick="ToggleMenu" @ref="_menuButton">
+            <MudIcon Icon="@(_menuOpen ? Icons.Material.Filled.Close : Icons.Material.Filled.Menu)" aria-hidden="true" />
+            <span>@L["Menu"]</span>
+        </button>
         <HeaderSearch />
-        <AccountMenu />
+        <div class="header-end">
+            <a href="hochladen" class="nmp-button nmp-button-primary header-upload">
+                <MudIcon Icon="@Icons.Material.Filled.Add" aria-hidden="true" />
+                <span>@L["NavUpload"]</span>
+            </a>
+            <AccountMenu />
+            <LanguageSwitch />
+        </div>
     }
-
-    <LanguageSwitch />
+    else
+    {
+        <span class="app-name">NoMorePaper</span>
+        <div class="header-end">
+            <LanguageSwitch />
+        </div>
+    }
 </header>
+
+@if (Auth.IsSignedIn)
+{
+    <SideNav @ref="_sideNav" Id="side-nav" Current="@NavSection.For(Navigation.ToBaseRelativePath(Navigation.Uri))"
+             Open="_menuOpen" Escaped="CloseMenuAndReturnFocusAsync" />
+}
 
 <main id="main-content" class="app-main" tabindex="-1" @ref="_main">
     <RequireSignIn>
         @Body
     </RequireSignIn>
 </main>
+</div>
 
 @code {
     private readonly MudTheme _theme = ContrastTheme.Create();
     private ElementReference _main;
+    private ElementReference _menuButton;
+    private SideNav? _sideNav;
+    private bool _menuOpen;
+    private bool _focusMenu;
 
     protected override void OnInitialized()
     {
         Auth.Changed += OnAuthChanged;
         Navigation.LocationChanged += OnLocationChanged;
-        Review.Changed += OnReviewChanged;
     }
 
     private void OnAuthChanged()
@@ -66,13 +76,13 @@
         RefreshReviewCount();
     }
 
-    private void OnReviewChanged() => _ = InvokeAsync(StateHasChanged);
-
-    // The current page is marked in the navigation, so the layout renders again on navigation.
+    // The current page is marked in the navigation, so the layout renders again on navigation;
+    // any navigation (side navigation, header, tiles, back key) closes the menu on a phone.
     // The number of documents to review is asked again then too: uploads and the recognition
     // add to it while the person is elsewhere.
     private void OnLocationChanged(object? sender, LocationChangedEventArgs e)
     {
+        _menuOpen = false;
         _ = InvokeAsync(StateHasChanged);
         RefreshReviewCount();
     }
@@ -89,8 +99,29 @@
         }
     }
 
-    private bool IsCurrent(string path) =>
-        Navigation.ToBaseRelativePath(Navigation.Uri).Split('?', '#')[0] == path;
+    // Opening moves focus to the first link: otherwise the header (search, upload, account,
+    // language) would come between the button and the navigation it opened.
+    private void ToggleMenu()
+    {
+        _menuOpen = !_menuOpen;
+        _focusMenu = _menuOpen;
+    }
+
+    private async Task CloseMenuAndReturnFocusAsync()
+    {
+        _menuOpen = false;
+        StateHasChanged();
+        await _menuButton.FocusAsync();
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (_focusMenu && _sideNav is not null)
+        {
+            _focusMenu = false;
+            await _sideNav.FocusFirstAsync();
+        }
+    }
 
     private async Task SkipToContentAsync() => await _main.FocusAsync();
 
@@ -98,6 +129,5 @@
     {
         Auth.Changed -= OnAuthChanged;
         Navigation.LocationChanged -= OnLocationChanged;
-        Review.Changed -= OnReviewChanged;
     }
 }

@@ -36,7 +36,7 @@ An jeden Seiten-Prompt anhängen; das Design-System des Projekts mitgeben (`desi
 Keep the project's design system exactly (colors, fonts, sizes, spacing, radius).
 Household app, runs only on a home server. No business, compliance, cloud or AI-score terms
 (no GoBD, WORM, DATEV, ZUGFeRD, S3, Office 365, SSO, sign-up, workflows, confidence %).
-Never remove focus outlines; never disable zoom. Every status = icon + word, no animation.
+Never disable zoom. Every status = icon + word, no animation.
 Native elements only: a, button, input with label, select, table. Icons aria-hidden.
 ```
 
@@ -74,7 +74,7 @@ nur, was „freigegeben“ ist.
 
 Automatisch per Textsuche im `code.html` (Treffer = Eintrag in „Nicht mitnehmen“):
 - `user-scalable=no`, `maximum-scale` – Zoom gesperrt
-- `outline-none` – Fokusrahmen entfernt
+- `outline-none` ohne sichtbaren Ersatz im Entwurf (z. B. weißer Rand) – Fokus unsichtbar; eigener Rahmen kommt nicht dazu (ADR-0026)
 - `animate-ping`, `animate-pulse` – Bewegung als Status
 - `onclick=` an `div`/`span`, `cursor-pointer` an `tr`/`div`
 - `title=` ohne `aria-label` an Knöpfen mit nur Symbol; `material-symbols` ohne `aria-hidden`
@@ -90,6 +90,22 @@ Von Hand:
 
 ## Regeln
 
+- **Jede Änderung an der Oberfläche geht zuerst über Stitch** (Entscheidung des Nutzers 2026-11-23): auch
+  kleine Änderungen (Element dazu, weg, verschoben) werden erst im Stitch-Screen gemacht
+  (`edit_screens` bzw. `generate_screen_from_text` über den Stitch-MCP), dann abgeholt und erst danach im Code
+  umgesetzt. So zeigen die Mockups immer die echte App. Den Stand in Stitch prüft der Agent selbst per MCP.
+  Screens **einzeln nacheinander** erzeugen – gleichzeitige Aufträge hingen sich auf (2026-11-23).
+- **Stitch-MCP-Eigenheiten (2026-11-23):** `generate_screen_from_text` meldet nach ~1 Min. „timed out“,
+  der Screen entsteht trotzdem (2–5 Min.). **Nicht neu starten** – sonst entstehen Duplikate (Start gab es
+  danach 5×). `list_screens` zeigt neue Screens oft nicht; maßgeblich ist `get_project`
+  (`screenInstances`). `download_file` legt Bilder als JSON-Datei mit Base64 ab (mit PowerShell
+  dekodieren); HTML kommt nur inline zurück und lässt sich nicht direkt auf die Platte schreiben. Die
+  `downloadUrl` braucht OAuth und geht weder per Browser noch per API-Schlüssel.
+- **Stitch im Browser offen halten:** Aufträge per MCP werden erst gespeichert, wenn das Projekt in
+  stitch.withgoogle.com geöffnet ist (Seite nach dem Auftrag neu laden). Ohne offenen Tab bleibt der
+  Auftrag auf „In progress“. `edit_screens` meldet Erfolg, speichert aber weder HTML noch Bild
+  (2026-11-23 bei 07, 08, 10) – Nachbessern daher als **neuen Screen** („… v2“) mit
+  `generate_screen_from_text` und vollständigem, korrigiertem Prompt.
 - Stitch-HTML ist **Vorlage, nie Produktcode**: übernommen werden Aufbau, Abstände, Radien,
   Knopf-Hierarchie. Tailwind, CDN, Google Fonts und externe Bilder kommen nie in den Build.
 - **Keine neuen Funktionen aus Entwürfen**, außer sie stehen in `notizen.md` unter „Übernehmen“ **und**

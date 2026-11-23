@@ -1,0 +1,196 @@
+/* Pages "Hinzufügen, Hochladen, Kamera" (Stitch 11-13), M4u Spur E. */
+
+/* Large tiles on "Add": symbol on its own surface, title as link with an arrow. */
+.link-tiles-large {
+    gap: var(--nmp-space-lg);
+}
+
+.link-tiles-large .link-tile {
+    gap: var(--nmp-space-md);
+    padding: var(--nmp-space-lg);
+    background-color: var(--nmp-paper-low);
+}
+
+.link-tiles-large .link-tile h2 {
+    margin: 0;
+}
+
+.link-tiles-large .link-tile-title {
+    font-size: inherit;
+    font-weight: inherit;
+    line-height: inherit;
+}
+
+.link-tile-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 3rem;
+    height: 3rem;
+    background-color: var(--nmp-elevated-high);
+    border-radius: var(--nmp-radius);
+    color: var(--nmp-primary);
+}
+
+@media (min-width: 48rem) {
+    .link-tiles-large {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+/* Upload: private switch and camera options on their own surface. */
+.upload-private,
+.capture-options {
+    box-sizing: border-box;
+    margin: var(--nmp-space-md) 0;
+    padding: 1.25rem;
+    background-color: var(--nmp-paper-low);
+    border-radius: var(--nmp-radius-lg);
+}
+
+.capture-options {
+    max-width: 48rem;
+    border: 1px solid var(--nmp-border);
+}
+
+.upload-private > *,
+.capture-options > * {
+    margin-top: 0;
+}
+
+.upload-private > :last-child,
+.capture-options > :last-child {
+    margin-bottom: 0;
+}
+
+.capture-options .form-hint {
+    margin-bottom: var(--nmp-space-md);
+}
+
+/* The file input is the real control; the circle and the dashed frame are decoration. */
+.drop-zone {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: var(--nmp-space-sm);
+    margin-bottom: var(--nmp-space-lg);
+    padding: var(--nmp-space-lg);
+    background-color: var(--nmp-paper);
+    border: 2px dashed var(--nmp-border-strong);
+    border-radius: var(--nmp-radius-lg);
+}
+
+.drop-zone-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 3rem;
+    height: 3rem;
+    background-color: var(--nmp-elevated-high);
+    border-radius: 50%;
+    color: var(--nmp-primary);
+}
+
+.drop-zone input[type="file"] {
+    box-sizing: border-box;
+    max-width: 100%;
+    min-height: 2.5rem;
+    padding: var(--nmp-space-sm) 0.75rem;
+    background-color: var(--nmp-canvas-lowest);
+    color: var(--nmp-primary);
+    border: 1px solid var(--nmp-border);
+    border-radius: var(--nmp-radius);
+    font: inherit;
+    transition: border-color 150ms ease;
+}
+
+.drop-zone input[type="file"]:focus {
+    border-color: var(--nmp-primary);
+    box-shadow: 0 0 0 1px var(--nmp-primary);
+}
+
+.drop-zone input[type="file"]::file-selector-button {
+    margin-inline-end: var(--nmp-space-md);
+    padding: var(--nmp-space-sm) var(--nmp-space-md);
+    background-color: var(--nmp-primary);
+    color: var(--nmp-on-primary);
+    border: 0;
+    border-radius: var(--nmp-radius);
+    font: inherit;
+    font-weight: 500;
+}
+
+.drop-zone-label {
+    font-weight: 500;
+    color: var(--nmp-primary);
+}
+
+.drop-zone-hint {
+    margin: 0;
+    color: var(--nmp-text-secondary);
+}
+
+/* Results as one bordered list; the sentence takes the free width so the symbol stays next to it at 400 %. */
+.upload-results {
+    margin: var(--nmp-space-md) 0;
+    padding: 0;
+    list-style: none;
+    background: var(--nmp-paper-low);
+    border: 1px solid var(--nmp-border);
+    border-radius: var(--nmp-radius-lg);
+}
+
+.upload-results li {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--nmp-space-sm);
+    margin: 0;
+    padding: var(--nmp-space-md);
+    border-bottom: 1px solid var(--nmp-border);
+}
+
+.upload-results li:last-child {
+    border-bottom: 0;
+}
+
+.upload-result-text {
+    flex: 1 1 auto;
+    min-width: 0;
+    overflow-wrap: anywhere;
+}
+
+.upload-results li > a {
+    margin-inline-start: auto;
+}
+
+.upload-private label {
+    font-size: 1rem;
+    font-weight: 500;
+}
+
+.upload-ok,
+.upload-info {
+    color: var(--nmp-primary);
+}
+
+.upload-failed {
+    color: var(--nmp-error);
+}
+
+/* Skipped files: the symbol stays at the top, message, label and names stack. */
+.upload-skipped .nmp-notice-body {
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+.upload-skipped-names {
+    margin: 0;
+    padding-inline-start: 1.25rem;
+    font-family: var(--nmp-font-mono);
+}
+
+.add-intro {
+    margin: var(--nmp-space-xs) 0 var(--nmp-space-lg);
+    color: var(--nmp-text-variant);
+}

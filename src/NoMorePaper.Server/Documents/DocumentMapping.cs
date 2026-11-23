@@ -3,6 +3,7 @@ using NoMorePaper.Application.Search;
 using NoMorePaper.Contracts.Documents;
 using NoMorePaper.Domain.Documents;
 using NoMorePaper.Server.Classification;
+using NoMorePaper.Server.Inputs;
 
 namespace NoMorePaper.Server.Documents;
 
@@ -14,8 +15,12 @@ internal static class DocumentMapping
         var labels = summary.Labels.ToDto();
         return new(
             summary.Id, summary.Title, summary.ReceivedAt, summary.State.ToDto(), summary.IsPrivate, summary.IsMine,
-            labels.Correspondent, labels.DocumentType, labels.DocumentDate, labels.Amount, labels.Recognition);
+            labels.Correspondent, labels.DocumentType, labels.DocumentDate, labels.Amount, labels.Recognition,
+            summary.Source.ToWord(), summary.Excerpt, [.. summary.Tags.Select(tag => tag.ToDto())]);
     }
+
+    public static DocumentCountsDto ToDto(this DocumentCounts counts) =>
+        new(counts.Total, counts.AllTypes, [.. counts.ByType.Select(item => new DocumentTypeCountDto(item.Type.ToDto(), item.Count))]);
 
     public static DocumentDetailDto ToDto(this DocumentDetail detail) =>
         new(

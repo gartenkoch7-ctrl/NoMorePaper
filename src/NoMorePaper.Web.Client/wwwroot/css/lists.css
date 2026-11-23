@@ -1,0 +1,45 @@
+/* Page "Listen" (Stitch 08), M4u Spur E. */
+
+.list-section {
+    max-width: 56rem;
+    margin-bottom: var(--nmp-space-lg);
+    padding: var(--nmp-space-lg);
+    background: var(--nmp-surface-container);
+    border-radius: var(--nmp-radius-lg);
+}
+
+.list-select {
+    width: 1.125rem;
+    height: 1.125rem;
+    accent-color: var(--nmp-accent);
+}
+
+.list-footer {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--nmp-space-md);
+    margin-top: var(--nmp-space-md);
+}
+
+.list-selected {
+    margin: 0;
+}
+
+p + .list-section {
+    margin-top: var(--nmp-space-lg);
+}
+
+/* Name left, merge checkbox centred, actions at the end. nowrap on the last column keeps the buttons in one row;
+   at 400 % the table-scroll region takes the overflow. */
+.list-section .doc-table :is(th, td):nth-child(2) {
+    width: 12rem;
+    text-align: center;
+}
+
+.list-section .doc-table :is(th, td):last-child {
+    width: 1%;
+    text-align: end;
+    white-space: nowrap;
+}

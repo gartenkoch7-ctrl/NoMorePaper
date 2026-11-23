@@ -1,0 +1,32 @@
+@using System.Globalization
+@inject IStringLocalizer<Strings> L
+
+@* The history tab. The API only knows when the document arrived, so the other steps are listed without a
+   time, and the hint says so. Dot and line are drawn by CSS only: nothing of them is read out. *@
+<h2 class="nmp-visually-hidden" id="doc-history-heading">@L["ViewerTabHistory"]</h2>
+<ol class="doc-history" aria-labelledby="doc-history-heading">
+    @foreach (var entry in HistoryTimeline.Build(Detail.ReceivedAt, Detail.State, Fields?.Recognition, Fields?.Source))
+    {
+        <li @key="entry.Kind">
+            <div class="doc-history-row">
+                <span class="doc-history-title">@L[HistoryTimeline.TitleKey(entry.Kind)]</span>
+                @if (entry.At is { } at)
+                {
+                    <time class="doc-history-time" datetime="@at.ToString("o", CultureInfo.InvariantCulture)">@at.ToLocalTime().ToString("g", CultureInfo.CurrentCulture)</time>
+                }
+            </div>
+            @if (entry.SourceKey is { } key)
+            {
+                <p class="doc-history-detail">@L["HistoryVia", L[key]]</p>
+            }
+        </li>
+    }
+</ol>
+<p class="doc-history-hint">@L["HistoryHint"]</p>
+
+@code {
+    [Parameter, EditorRequired] public DocumentDetailDto Detail { get; set; } = default!;
+
+    /// <summary>The loaded fields (recognition and source); <c>null</c> while they are not there.</summary>
+    [Parameter] public DocumentFieldsDto? Fields { get; set; }
+}

@@ -12,7 +12,9 @@
         <label for="emergency-kept">@L["EmergencyKept"]</label>
     </div>
     <LiveRegion @ref="_error" Assertive="true" Class="form-error" />
-    <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="ContinueAsync">@L["Continue"]</MudButton>
+    <button type="button" class="nmp-button nmp-button-primary account-frame-submit" @onclick="ContinueAsync">
+        <span>@L["Continue"]</span><MudIcon Icon="@Icons.Material.Filled.ArrowForward" aria-hidden="true" />
+    </button>
 </section>
 
 @code {

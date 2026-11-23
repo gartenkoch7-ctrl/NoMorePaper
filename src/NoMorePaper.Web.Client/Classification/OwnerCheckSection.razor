@@ -13,7 +13,7 @@
 @if (NeedsCheck)
 {
     <section class="owner-check" aria-labelledby="@(Prefix)-heading">
-        <MudText Typo="Typo.h3" id="@(Prefix + "-heading")">@L["InpOwnerCheckHeading"]</MudText>
+        <MudText Typo="Typo.h4" HtmlTag="h3" id="@(Prefix + "-heading")">@L["InpOwnerCheckHeading"]</MudText>
         <p>
             <MudIcon Icon="@Icons.Material.Filled.Lock" />
             <span>@L["InpOwnerCheckText"]</span>
@@ -25,10 +25,7 @@
         </div>
         @if (_loadError is not null)
         {
-            <div role="alert" class="error-box">
-                <MudIcon Icon="@Icons.Material.Filled.Error" />
-                <span>@L["InpOwnerCheckLoadError", _loadError]</span>
-            </div>
+            <NoticeBox Kind="NoticeKind.Error" Announce="true" Message="@L["InpOwnerCheckLoadError", _loadError]" />
         }
         else if (_others is not null && _others.Length == 0)
         {

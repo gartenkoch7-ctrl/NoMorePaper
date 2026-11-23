@@ -6,7 +6,7 @@ using NoMorePaper.Server.Accounts;
 namespace NoMorePaper.Server.Documents;
 
 /// <summary>
-/// Routes under <c>/api/documents</c>, signed in only: upload, list, detail, file download and privacy.
+/// Routes under <c>/api/documents</c>, signed in only: upload, list, counts, detail, file download and privacy.
 /// A private document of another account answers 404 everywhere, like one that does not exist.
 /// </summary>
 internal static class DocumentEndpoints
@@ -23,6 +23,7 @@ internal static class DocumentEndpoints
             upload.HandleAsync(request, cancellationToken));
         group.MapPageUpload();
         group.MapGet("/", ListAsync);
+        group.MapGet("/counts", CountAsync);
         group.MapGet("/{id:guid}", GetAsync);
         group.MapGet("/{id:guid}/files/{kind}", DownloadAsync);
         group.MapPatch("/{id:guid}", SetPrivacyAsync);
@@ -40,6 +41,18 @@ internal static class DocumentEndpoints
 
         var documents = await list.ListAsync(page, pageSize, filter, cancellationToken).ConfigureAwait(false);
         return Results.Ok(documents.Select(document => document.ToDto()));
+    }
+
+    // Same filters as the list; the counts feed the header and the type chips of the list page.
+    private static async Task<IResult> CountAsync(CountDocuments count, DocumentFilterQuery query, CancellationToken cancellationToken)
+    {
+        if (query.Filter is not { } filter)
+        {
+            return Results.Problem(title: query.Error, statusCode: StatusCodes.Status400BadRequest);
+        }
+
+        var counts = await count.CountAsync(filter, cancellationToken).ConfigureAwait(false);
+        return Results.Ok(counts.ToDto());
     }
 
     private static async Task<IResult> GetAsync(Guid id, GetDocument get, CancellationToken cancellationToken)

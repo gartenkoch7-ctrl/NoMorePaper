@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="de" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>nomorepaper – Kamera v2 (Mobil)</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Geist', 'sans-serif'],
+            mono: ['"JetBrains Mono"', 'monospace'],
+          },
+          colors: {
+            surface: {
+              DEFAULT: '#131313',
+              dim: '#131313',
+              bright: '#393939',
+              lowest: '#0e0e0e',
+              low: '#1c1b1b',
+              container: '#201f1f',
+              high: '#2a2a2a',
+              highest: '#353434'
+            },
+            outline: {
+              DEFAULT: '#444444',
+              variant: '#2e2e2e',
+            },
+            error: {
+              DEFAULT: '#cf6679',
+              container: '#2c1517',
+              border: '#5c2225'
+            },
+            success: {
+              DEFAULT: '#81c784',
+              container: '#132415',
+              border: '#1b431e'
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body {
+      font-family: 'Geist', sans-serif;
+      background-color: #131313;
+      color: #e6e6e6;
+      -webkit-font-smoothing: antialiased;
+    }
+    .font-mono {
+      font-family: 'JetBrains Mono', monospace;
+    }
+  </style>
+</head>
+<body class="min-h-screen bg-surface text-[#e6e6e6] flex flex-col justify-start items-center">
+
+  <!-- Mobile Device Outer Container (max-w-md matching mobile layout standard ~390px-430px) -->
+  <div class="w-full max-w-[430px] min-h-screen bg-surface flex flex-col border-x border-outline-variant/40 shadow-2xl">
+
+    <!-- Top App Bar -->
+    <header class="w-full px-5 py-4 flex items-center justify-between border-b border-outline-variant bg-surface sticky top-0 z-20">
+      <!-- Brand Logo & Name -->
+      <a href="#" class="flex items-center gap-2.5 text-white no-underline focus:outline-none focus:ring-1 focus:ring-white/40 rounded p-0.5">
+        <svg class="w-5 h-5 text-white flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+          <polyline points="14 2 14 8 20 8"></polyline>
+          <line x1="16" y1="13" x2="8" y2="13"></line>
+          <line x1="16" y1="17" x2="8" y2="17"></line>
+          <line x1="10" y1="9" x2="8" y2="9"></line>
+        </svg>
+        <span class="font-semibold text-lg tracking-tight text-white">NoMorePaper</span>
+      </a>
+
+      <!-- Menü Button -->
+      <button type="button" class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-lg bg-surface-high border border-outline/50 hover:bg-surface-highest active:bg-surface-high text-white text-sm font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-white/40">
+        <svg class="w-4 h-4 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <line x1="3" y1="12" x2="21" y2="12"></line>
+          <line x1="3" y1="6" x2="21" y2="6"></line>
+          <line x1="3" y1="18" x2="21" y2="18"></line>
+        </svg>
+        <span>Menü</span>
+      </button>
+    </header>
+
+    <!-- Main Content Area -->
+    <main class="flex-1 px-5 py-6 flex flex-col gap-6">
+
+      <!-- Title & Intro -->
+      <div class="flex flex-col gap-2.5">
+        <h1 class="text-2xl font-bold tracking-tight text-white">Mit der Kamera aufnehmen</h1>
+        <p class="text-sm text-[#b0b0b0] leading-relaxed">
+          Lege das Blatt auf eine dunkle Fläche und halte das Handy darüber. Die App sagt dir, wohin du das Handy bewegen sollst, und nimmt die Seite selbst auf, sobald sie ganz zu sehen ist und das Bild ruhig ist. Mehrere Seiten werden ein Dokument.
+        </p>
+      </div>
+
+      <!-- Checkboxes with explanations -->
+      <div class="flex flex-col gap-4 bg-surface-low border border-outline-variant rounded-xl p-4">
+        <!-- Checkbox Töne -->
+        <div class="flex flex-col gap-1">
+          <label class="inline-flex items-center gap-3 cursor-pointer text-sm font-medium text-white select-none">
+            <input type="checkbox" checked class="w-4 h-4 rounded border-outline bg-surface-high text-white accent-white focus:ring-2 focus:ring-white/40 cursor-pointer">
+            <span class="text-base text-white">Töne</span>
+          </label>
+          <p class="text-xs text-[#a0a0a0] leading-normal pl-7">
+            Wie eine Einparkhilfe: Je höher und schneller die Töne, desto besser liegt das Blatt im Bild. Gilt nur für dieses Gerät.
+          </p>
+        </div>
+
+        <div class="w-full h-px bg-outline-variant"></div>
+
+        <!-- Checkbox Privat -->
+        <div class="flex flex-col gap-1">
+          <label class="inline-flex items-center gap-3 cursor-pointer text-sm font-medium text-white select-none">
+            <input type="checkbox" class="w-4 h-4 rounded border-outline bg-surface-high text-white accent-white focus:ring-2 focus:ring-white/40 cursor-pointer">
+            <span class="text-base text-white">Privat</span>
+          </label>
+          <p class="text-xs text-[#a0a0a0] leading-normal pl-7">
+            Private Dokumente sieht nur du. Das gilt für das Dokument, das mit „Fertig“ entsteht.
+          </p>
+        </div>
+      </div>
+
+      <!-- Running State: Camera Preview Area (3px solid white border) -->
+      <div class="flex flex-col gap-3">
+        <div class="relative w-full aspect-[3/4] bg-surface-lowest rounded-xl border-[3px] border-white overflow-hidden flex items-center justify-center p-6 shadow-inner">
+          <!-- Dark background surface with subtle natural texture / grid lines -->
+          <div class="absolute inset-0 bg-[#0d0d0d] flex items-center justify-center">
+            <!-- Drawn White Sheet of Paper on Dark Surface -->
+            <div class="w-48 h-64 bg-[#f8f9fa] rounded-sm shadow-2xl relative p-4 flex flex-col justify-between border border-[#e0e0e0]">
+              <!-- Mock Header Lines on Sheet -->
+              <div class="flex flex-col gap-2">
+                <div class="w-16 h-2.5 bg-[#404040] rounded-sm"></div>
+                <div class="w-32 h-1.5 bg-[#b0b0b0] rounded-sm"></div>
+                <div class="w-24 h-1.5 bg-[#d0d0d0] rounded-sm"></div>
+              </div>
+              <!-- Mock Text Paragraphs on Sheet -->
+              <div class="flex flex-col gap-1.5 py-4">
+                <div class="w-full h-1 bg-[#c8c8c8] rounded-sm"></div>
+                <div class="w-full h-1 bg-[#d8d8d8] rounded-sm"></div>
+                <div class="w-5/6 h-1 bg-[#d8d8d8] rounded-sm"></div>
+                <div class="w-full h-1 bg-[#d8d8d8] rounded-sm"></div>
+                <div class="w-4/6 h-1 bg-[#d8d8d8] rounded-sm"></div>
+              </div>
+              <!-- Mock Total / Signature Area -->
+              <div class="flex justify-between items-end border-t border-[#e2e2e2] pt-2">
+                <div class="w-12 h-1.5 bg-[#999999] rounded-sm"></div>
+                <div class="w-14 h-2 bg-[#222222] rounded-sm"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Large text line with icon below preview -->
+        <div class="flex items-center justify-center gap-2.5 py-2.5 px-4 rounded-lg bg-surface-high border border-outline-variant text-white">
+          <svg class="w-5 h-5 text-white flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <circle cx="11" cy="11" r="8"></circle>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+            <line x1="11" y1="8" x2="11" y2="14"></line>
+            <line x1="8" y1="11" x2="14" y2="11"></line>
+          </svg>
+          <span class="text-base font-semibold tracking-wide">Hinweis: Näher ran.</span>
+        </div>
+      </div>
+
+      <!-- Action Buttons (Three large full-width buttons) -->
+      <div class="flex flex-col gap-3">
+        <!-- Auslösen (white primary) -->
+        <button type="button" class="w-full py-3.5 px-4 rounded-xl bg-white text-black font-semibold text-base hover:bg-neutral-200 active:bg-neutral-300 transition-colors shadow-sm focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-surface">
+          Auslösen
+        </button>
+
+        <!-- Letzte Seite verwerfen -->
+        <button type="button" class="w-full py-3 px-4 rounded-xl bg-surface-high border border-outline hover:bg-surface-highest active:bg-surface-high text-white font-medium text-base transition-colors focus:outline-none focus:ring-2 focus:ring-white/40">
+          Letzte Seite verwerfen
+        </button>
+
+        <!-- Fertig -->
+        <button type="button" class="w-full py-3 px-4 rounded-xl bg-surface-high border border-outline hover:bg-surface-highest active:bg-surface-high text-white font-medium text-base transition-colors focus:outline-none focus:ring-2 focus:ring-white/40">
+          Fertig
+        </button>
+      </div>
+
+      <!-- Aufgenommene Seiten (H2 + plain numbered list ol) -->
+      <div class="flex flex-col gap-2 pt-2 border-t border-outline-variant">
+        <h2 class="text-lg font-bold text-white">Aufgenommene Seiten</h2>
+        <ol class="list-decimal list-inside space-y-1.5 text-base text-[#dcdcdc] font-mono pl-1">
+          <li>Seite 1</li>
+          <li>Seite 2</li>
+        </ol>
+      </div>
+
+      <!-- Success Box -->
+      <div class="rounded-xl border border-success-border bg-success-container p-4 flex flex-col gap-2">
+        <div class="flex items-start gap-2.5">
+          <svg class="w-5 h-5 text-success flex-shrink-0 mt-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <polyline points="20 6 9 17 4 12"></polyline>
+          </svg>
+          <p class="text-sm text-[#e6f4ea] leading-snug">
+            Das Dokument wurde geteilt gespeichert und wartet auf die Verarbeitung. Seiten: 2.
+          </p>
+        </div>
+        <div class="pl-7">
+          <a href="#" class="text-sm font-medium text-white underline hover:text-[#c8e6c9] focus:outline-none focus:ring-1 focus:ring-white rounded">
+            Neues Dokument in der Dokumentenliste zeigen
+          </a>
+        </div>
+      </div>
+
+      <!-- Error Box (Second example state) -->
+      <div class="rounded-xl border border-error-border bg-error-container p-4 flex flex-col gap-2 mb-4">
+        <div class="flex items-start gap-2.5">
+          <svg class="w-5 h-5 text-error flex-shrink-0 mt-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+            <line x1="12" y1="9" x2="12" y2="13"></line>
+            <line x1="12" y1="17" x2="12.01" y2="17"></line>
+          </svg>
+          <p class="text-sm text-[#fce8e6] leading-snug">
+            Die Kamera ist nicht verfügbar.
+          </p>
+        </div>
+        <div class="pl-7">
+          <a href="#" class="text-sm font-medium text-white underline hover:text-[#f8d7da] focus:outline-none focus:ring-1 focus:ring-white rounded">
+            Stattdessen eine Datei hochladen
+          </a>
+        </div>
+      </div>
+
+    </main>
+
+  </div>
+
+</body>
+</html>
