@@ -22,6 +22,8 @@ Beschreibt, wie ein Dokument im Worker verarbeitet wird. Entscheidung und Begrü
    5. Der Arbeitsordner wird gelöscht, auch nach einem Fehler.
    6. Prüfung auf inhaltliche Duplikate (Trigramme), danach die Erkennung als eigene Stufe mit
       eigenen Wiederholungen: [erkennung.md](erkennung.md), Abschnitt „Umsetzung im Worker“.
+   Der erkannte Text ist über `GET /api/documents/{id}/text` lesbar (`null` vor „Done“, leer ohne Text;
+   Sichtbarkeit wie das Dokument, fremde private Dokumente liefern 404).
 4. **Fehler:** Der Job wird nach 1, 5 und 30 Minuten erneut versucht. Nach 4 Versuchen steht er
    auf „Failed“. Gespeichert wird nur der technische Grund, ohne Dokumentinhalt.
 5. **Dauerhafte Fehler:** Kann die Eingabe selbst nicht verarbeitet werden, steht das Dokument

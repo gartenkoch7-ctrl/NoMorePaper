@@ -49,10 +49,10 @@ Grundsätze (aus den Notizen je Screen):
       sonst nach M4b verschieben
 
 ### C. Dokument ansehen (Screen 03)
-- [ ] `DocumentViewer.razor`: Zurück-Leiste mit Pfad, Kopf mit Titel und Aktionen, zwei Spalten (7/12 · 5/12),
+- [x] `DocumentViewer.razor`: Zurück-Leiste mit Pfad, Kopf mit Titel und Aktionen, zwei Spalten (7/12 · 5/12),
       Viewer-Werkzeugleiste mit Text oder zugänglichem Namen je Knopf
-- [ ] Reiter „Angaben“, **„Erkannter Text“** (OCR-Text lesbar, kopierbar), „Verlauf“ (Zeitleiste)
-- [ ] `DocumentFieldsPanel/Editor.razor`: Zusammenfassung zuerst, Hinweis „Automatisch erkannt“, Tags als
+- [x] Reiter „Angaben“, **„Erkannter Text“** (OCR-Text lesbar, kopierbar), „Verlauf“ (Zeitleiste)
+- [x] `DocumentFieldsPanel/Editor.razor`: Zusammenfassung zuerst, Hinweis „Automatisch erkannt“, Tags als
       Chips mit Knopf „entfernen“, Bestätigen, Privat, Bearbeiter, Downloads Original/Archiv getrennt
 
 ### D. Eingänge (Screen 04)

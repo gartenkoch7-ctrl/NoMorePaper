@@ -1,0 +1,158 @@
+@inject IStringLocalizer<Strings> L
+@inject DocumentApi Api
+@inject IJSRuntime Js
+@inject ILogger<RecognizedTextPanel> Logger
+
+@* The tab "Erkannter Text". The text is only fetched when the tab is opened (it can be long, and most visits
+   never look at it). It is real, selectable text in a focusable area, so a screen reader can read it and a
+   person can copy it; the button copies it all at once. *@
+<div class="doc-text-head">
+    <h2 class="doc-label" id="doc-text-heading">@L["ViewerTabText"]</h2>
+    @if (ShowsText)
+    {
+        <button type="button" class="doc-text-copy" aria-label="@L["TextCopyLabel"]" @onclick="CopyAsync">
+            <MudIcon Icon="@Icons.Material.Filled.ContentCopy" aria-hidden="true" />
+            <span>@L["Copy"]</span>
+        </button>
+    }
+</div>
+@if (State is DocumentProcessingState.Queued or DocumentProcessingState.Processing)
+{
+    <p>@L["TextNotYet"]</p>
+}
+else if (State == DocumentProcessingState.Failed)
+{
+    <p>@L["TextFailed"]</p>
+}
+else if (_error is not null)
+{
+    <NoticeBox Kind="NoticeKind.Error" Announce="true" Message="@L["TextLoadError", _error]">
+        <button type="button" id="doc-text-retry" class="nmp-button" @onclick="RetryAsync">@L["Retry"]</button>
+    </NoticeBox>
+}
+else if (_loading || !_requested)
+{
+    <p role="status">@L["TextLoading"]</p>
+}
+else if (_text is null)
+{
+    <p id="doc-text-note" tabindex="-1">@L["TextNotYet"]</p>
+}
+else if (_text.Length == 0)
+{
+    <p id="doc-text-note" tabindex="-1">@L["TextEmpty"]</p>
+}
+else if (ShowsText)
+{
+    <section @ref="_box" id="doc-text-box" class="doc-text" tabindex="0" aria-labelledby="doc-text-heading">@_text</section>
+}
+<LiveRegion @ref="_status" />
+
+@code {
+    private Guid _loadedId;
+    private bool _requested;
+    private bool _loading;
+    private string? _text;
+    private string? _error;
+    private ElementReference _box;
+    private LiveRegion? _status;
+    private PendingFocus _focus = default!;
+
+    // The copy button and the text box exist only in this state; the box is what gets focused.
+    private bool ShowsText => State == DocumentProcessingState.Done && _error is null && !_loading && !string.IsNullOrEmpty(_text);
+
+    [Parameter, EditorRequired] public Guid DocumentId { get; set; }
+
+    [Parameter, EditorRequired] public DocumentProcessingState State { get; set; }
+
+    /// <summary>The tab is open; the text is loaded the first time this is true.</summary>
+    [Parameter] public bool Active { get; set; }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (DocumentId != _loadedId)
+        {
+            // The same component is reused when the route switches to another document.
+            _loadedId = DocumentId;
+            (_requested, _loading, _text, _error) = (false, false, null, null);
+        }
+
+        if (Active && !_requested && State == DocumentProcessingState.Done)
+        {
+            await LoadAsync();
+        }
+    }
+
+    private async Task LoadAsync()
+    {
+        (_requested, _loading, _error) = (true, true, null);
+        var id = DocumentId;
+        var result = await Api.GetTextAsync(id);
+        if (id != DocumentId)
+        {
+            return;
+        }
+
+        _loading = false;
+        if (!result.IsSuccess || result.Value is null)
+        {
+            _error = result.Error;
+            return;
+        }
+
+        _text = result.Value.Text;
+        Logger.RecognizedTextLoaded(_text?.Length ?? 0);
+    }
+
+    // After "Erneut versuchen" the button is gone (the box is replaced by the loading line): focus goes to the
+    // text, or to the new retry button when it failed again, and the result is said aloud.
+    private async Task RetryAsync()
+    {
+        await LoadAsync();
+        if (ShowsText)
+        {
+            _focus.On("doc-text-box");
+            if (_status is not null)
+            {
+                await _status.Announce(L["TextLoaded"]);
+            }
+        }
+        else
+        {
+            // Failure: the alert box is read once when it appears, and the focused retry button is read as well,
+            // so nothing is announced on top. An empty or not-yet text lands on its note (focusable, tabindex -1).
+            _focus.On(_error is not null ? "doc-text-retry" : "doc-text-note");
+        }
+    }
+
+    protected override void OnInitialized() => _focus = new PendingFocus(Js);
+
+    protected override Task OnAfterRenderAsync(bool firstRender) => _focus.ApplyAsync();
+
+    private async Task CopyAsync()
+    {
+        string message;
+        try
+        {
+            await Js.InvokeVoidAsync("navigator.clipboard.writeText", _text);
+            Logger.RecognizedTextCopied();
+            message = L["TextCopied"];
+        }
+        catch (Exception ex) when (ex is JSException or InvalidOperationException)
+        {
+            // Clipboard access is refused outside secure contexts and by some browsers.
+            Logger.RecognizedTextCopyFailed(ex.GetType().Name);
+            if (ShowsText)
+            {
+                await _box.FocusAsync();
+            }
+
+            message = L["TextCopyFailed"];
+        }
+
+        if (_status is not null)
+        {
+            await _status.Announce(message);
+        }
+    }
+}

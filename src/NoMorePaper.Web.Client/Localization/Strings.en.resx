@@ -768,9 +768,6 @@
   <data name="ClsChosenTags" xml:space="preserve">
     <value>Chosen tags</value>
   </data>
-  <data name="ClsRemoveTag" xml:space="preserve">
-    <value>Remove</value>
-  </data>
   <data name="ClsRemoveTagFor" xml:space="preserve">
     <value>Remove tag: {0}</value>
   </data>
@@ -1623,6 +1620,78 @@
   <data name="SettingsMembersText" xml:space="preserve">
     <value>Invite and manage the household accounts.</value>
   </data>
+  <data name="ViewerTabText" xml:space="preserve">
+    <value>Recognized text</value>
+  </data>
+  <data name="ViewerTabHistory" xml:space="preserve">
+    <value>History</value>
+  </data>
+  <data name="TextLoading" xml:space="preserve">
+    <value>Loading the text …</value>
+  </data>
+  <data name="TextLoadError" xml:space="preserve">
+    <value>The text could not be loaded: {0}</value>
+  </data>
+  <data name="TextNotYet" xml:space="preserve">
+    <value>The text is ready once the document has been processed.</value>
+  </data>
+  <data name="TextFailed" xml:space="preserve">
+    <value>Processing failed, there is no recognized text.</value>
+  </data>
+  <data name="TextEmpty" xml:space="preserve">
+    <value>No text was recognized on this document.</value>
+  </data>
+  <data name="TextCopyLabel" xml:space="preserve">
+    <value>Copy recognized text</value>
+  </data>
+  <data name="TextCopied" xml:space="preserve">
+    <value>The recognized text was copied.</value>
+  </data>
+  <data name="TextCopyFailed" xml:space="preserve">
+    <value>Copying did not work. Select the text in the text area by hand.</value>
+  </data>
+  <data name="HistoryReceived" xml:space="preserve">
+    <value>Received</value>
+  </data>
+  <data name="HistoryVia" xml:space="preserve">
+    <value>via {0}</value>
+  </data>
+  <data name="HistorySourceUpload" xml:space="preserve">
+    <value>upload</value>
+  </data>
+  <data name="HistorySourceCamera" xml:space="preserve">
+    <value>camera</value>
+  </data>
+  <data name="HistorySourceScannerFolder" xml:space="preserve">
+    <value>scanner folder</value>
+  </data>
+  <data name="HistorySourceMail" xml:space="preserve">
+    <value>mail</value>
+  </data>
+  <data name="HistorySourceICloud" xml:space="preserve">
+    <value>iCloud Drive</value>
+  </data>
+  <data name="HistoryQueued" xml:space="preserve">
+    <value>Waiting to be processed</value>
+  </data>
+  <data name="HistoryProcessing" xml:space="preserve">
+    <value>Being processed</value>
+  </data>
+  <data name="HistoryTextRecognized" xml:space="preserve">
+    <value>Text recognized</value>
+  </data>
+  <data name="HistoryFailed" xml:space="preserve">
+    <value>Processing failed</value>
+  </data>
+  <data name="HistoryFieldsRecognized" xml:space="preserve">
+    <value>Details recognized automatically</value>
+  </data>
+  <data name="HistoryFieldsConfirmed" xml:space="preserve">
+    <value>Details checked and confirmed</value>
+  </data>
+  <data name="HistoryHint" xml:space="preserve">
+    <value>So far only the time of arrival is recorded.</value>
+  </data>
   <data name="PathLabel" xml:space="preserve">
     <value>Breadcrumb</value>
   </data>
@@ -1790,5 +1859,35 @@
   </data>
   <data name="DocListViewTiles" xml:space="preserve">
     <value>Tiles</value>
+  </data>
+  <data name="ViewerBackToList" xml:space="preserve">
+    <value>Back to the list</value>
+  </data>
+  <data name="ViewerReceivedLabel" xml:space="preserve">
+    <value>Received:</value>
+  </data>
+  <data name="TextLoaded" xml:space="preserve">
+    <value>The recognized text was loaded.</value>
+  </data>
+  <data name="ViewerTabs" xml:space="preserve">
+    <value>Document sections</value>
+  </data>
+  <data name="DownloadOriginalShort" xml:space="preserve">
+    <value>Original</value>
+  </data>
+  <data name="DownloadArchiveShort" xml:space="preserve">
+    <value>Archive PDF</value>
+  </data>
+  <data name="ViewerFullscreen" xml:space="preserve">
+    <value>Full screen</value>
+  </data>
+  <data name="ViewerFullscreenOn" xml:space="preserve">
+    <value>Full screen on. Escape leaves it.</value>
+  </data>
+  <data name="ViewerFullscreenOff" xml:space="preserve">
+    <value>Full screen off.</value>
+  </data>
+  <data name="ViewerFullscreenFailed" xml:space="preserve">
+    <value>Full screen is not possible here.</value>
   </data>
 </root>

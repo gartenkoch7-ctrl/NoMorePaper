@@ -216,3 +216,18 @@
 .nmp-breadcrumb .mud-icon-root {
     font-size: 0.875rem;
 }
+
+/* For headings only screen readers need (the visible word is elsewhere): still reachable by heading
+   navigation, but not seen. */
+.nmp-visually-hidden {
+    position: absolute !important;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    clip-path: inset(50%);
+    white-space: nowrap;
+    border: 0;
+}

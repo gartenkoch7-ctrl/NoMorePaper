@@ -65,20 +65,47 @@
 .tag-list {
     display: flex;
     flex-wrap: wrap;
-    gap: 0.75rem;
+    gap: var(--nmp-space-xs);
     margin: 0 0 1rem;
     padding: 0;
     list-style: none;
 }
 
+/* Chip: text and remove button; the button is 1.5rem, the minimum target size (WCAG 2.5.8). */
 .tag-list li {
     display: inline-flex;
     align-items: center;
-    gap: 0.5rem;
-    padding-inline-start: 0.75rem;
-    border: 2px solid var(--nmp-text);
-    border-radius: 4px;
-    font-weight: 700;
+    gap: 0.25rem;
+    padding: 0.125rem var(--nmp-space-xs);
+    border-radius: var(--nmp-radius-sm);
+    background: var(--nmp-surface-container);
+    color: var(--nmp-primary);
+    font-family: var(--nmp-font-mono);
+    font-size: 0.625rem;
+    line-height: 0.875rem;
+    letter-spacing: 0.05em;
+}
+
+.tag-remove {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.5rem;
+    height: 1.5rem;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: var(--nmp-outline);
+    cursor: pointer;
+}
+
+.tag-remove:hover {
+    color: var(--nmp-primary);
+}
+
+.tag-remove .mud-icon-root {
+    width: 0.8125rem;
+    height: 0.8125rem;
 }
 
 .form-input-short {

@@ -57,9 +57,10 @@ public sealed class ShaderPixelTests(ServerFixture server, ITestOutputHelper out
 
     private async Task<ViewerSession> OpenAsync(string sample)
     {
-        // Tall enough that the whole stage, and with it the photo, is inside the screenshot.
+        // Tall enough that the whole stage is inside the screenshot, and wide enough for the page: the viewer column is
+        // only ~530 px wide next to the tabs, but A4 at 100 % is ~800 px, so at 1280 px the sample points lie outside it.
         var viewer = await ViewerPages.OpenAsync(server, SupportedCultures.German, ViewerPdfs.Sample(sample),
-            prepare: page => page.SetViewportSizeAsync(1280, 1600));
+            prepare: page => page.SetViewportSizeAsync(1800, 1600));
         await ViewerPages.WaitUntilShownAsync(viewer.Page);
         return viewer;
     }

@@ -89,6 +89,9 @@ public sealed class DocumentApi(HttpClient http, IStringLocalizer<Strings> local
     public Task<ApiResult<DocumentDetailDto>> GetAsync(Guid id, CancellationToken ct = default)
         => GetAsync<DocumentDetailDto>($"api/documents/{id}", "detail", ct);
 
+    public Task<ApiResult<DocumentTextDto>> GetTextAsync(Guid id, CancellationToken ct = default)
+        => GetAsync<DocumentTextDto>($"api/documents/{id}/text", "text", ct);
+
     public Task<ApiResult<SearchHitDto[]>> SearchAsync(string query, int limit = 20, CancellationToken ct = default)
         => GetAsync<SearchHitDto[]>($"api/search?q={Uri.EscapeDataString(query)}&limit={limit}", "search", ct);
 

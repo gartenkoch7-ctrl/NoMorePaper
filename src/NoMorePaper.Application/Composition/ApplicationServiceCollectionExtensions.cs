@@ -26,6 +26,7 @@ public static class ApplicationServiceCollectionExtensions
         services.AddScoped<ListDocuments>();
         services.AddScoped<CountDocuments>();
         services.AddScoped<GetDocument>();
+        services.AddScoped<GetDocumentText>();
         services.AddScoped<OpenDocumentFile>();
         services.AddScoped<SearchDocuments>();
         services.AddScoped<SetDocumentPrivacy>();

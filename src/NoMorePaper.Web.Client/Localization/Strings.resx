@@ -768,9 +768,6 @@
   <data name="ClsChosenTags" xml:space="preserve">
     <value>Gewählte Tags</value>
   </data>
-  <data name="ClsRemoveTag" xml:space="preserve">
-    <value>Entfernen</value>
-  </data>
   <data name="ClsRemoveTagFor" xml:space="preserve">
     <value>Tag entfernen: {0}</value>
   </data>
@@ -1623,6 +1620,78 @@
   <data name="SettingsMembersText" xml:space="preserve">
     <value>Konten des Haushalts einladen und verwalten.</value>
   </data>
+  <data name="ViewerTabText" xml:space="preserve">
+    <value>Erkannter Text</value>
+  </data>
+  <data name="ViewerTabHistory" xml:space="preserve">
+    <value>Verlauf</value>
+  </data>
+  <data name="TextLoading" xml:space="preserve">
+    <value>Text wird geladen …</value>
+  </data>
+  <data name="TextLoadError" xml:space="preserve">
+    <value>Der Text konnte nicht geladen werden: {0}</value>
+  </data>
+  <data name="TextNotYet" xml:space="preserve">
+    <value>Der Text steht bereit, sobald das Dokument verarbeitet ist.</value>
+  </data>
+  <data name="TextFailed" xml:space="preserve">
+    <value>Die Verarbeitung ist fehlgeschlagen, es gibt keinen erkannten Text.</value>
+  </data>
+  <data name="TextEmpty" xml:space="preserve">
+    <value>Auf diesem Dokument wurde kein Text erkannt.</value>
+  </data>
+  <data name="TextCopyLabel" xml:space="preserve">
+    <value>Erkannten Text kopieren</value>
+  </data>
+  <data name="TextCopied" xml:space="preserve">
+    <value>Der erkannte Text wurde kopiert.</value>
+  </data>
+  <data name="TextCopyFailed" xml:space="preserve">
+    <value>Kopieren ging nicht. Markiere den Text in der Textfläche von Hand.</value>
+  </data>
+  <data name="HistoryReceived" xml:space="preserve">
+    <value>Eingegangen</value>
+  </data>
+  <data name="HistoryVia" xml:space="preserve">
+    <value>über {0}</value>
+  </data>
+  <data name="HistorySourceUpload" xml:space="preserve">
+    <value>Hochladen</value>
+  </data>
+  <data name="HistorySourceCamera" xml:space="preserve">
+    <value>Kamera</value>
+  </data>
+  <data name="HistorySourceScannerFolder" xml:space="preserve">
+    <value>Scanner-Ordner</value>
+  </data>
+  <data name="HistorySourceMail" xml:space="preserve">
+    <value>Mail</value>
+  </data>
+  <data name="HistorySourceICloud" xml:space="preserve">
+    <value>iCloud Drive</value>
+  </data>
+  <data name="HistoryQueued" xml:space="preserve">
+    <value>Wartet auf die Verarbeitung</value>
+  </data>
+  <data name="HistoryProcessing" xml:space="preserve">
+    <value>Wird verarbeitet</value>
+  </data>
+  <data name="HistoryTextRecognized" xml:space="preserve">
+    <value>Text erkannt</value>
+  </data>
+  <data name="HistoryFailed" xml:space="preserve">
+    <value>Verarbeitung fehlgeschlagen</value>
+  </data>
+  <data name="HistoryFieldsRecognized" xml:space="preserve">
+    <value>Angaben automatisch erkannt</value>
+  </data>
+  <data name="HistoryFieldsConfirmed" xml:space="preserve">
+    <value>Angaben geprüft und bestätigt</value>
+  </data>
+  <data name="HistoryHint" xml:space="preserve">
+    <value>Zeitpunkte gibt es bisher nur für den Eingang.</value>
+  </data>
   <data name="PathLabel" xml:space="preserve">
     <value>Pfad</value>
   </data>
@@ -1790,5 +1859,35 @@
   </data>
   <data name="DocListViewTiles" xml:space="preserve">
     <value>Kacheln</value>
+  </data>
+  <data name="ViewerBackToList" xml:space="preserve">
+    <value>Zurück zur Liste</value>
+  </data>
+  <data name="ViewerReceivedLabel" xml:space="preserve">
+    <value>Eingang:</value>
+  </data>
+  <data name="TextLoaded" xml:space="preserve">
+    <value>Der erkannte Text wurde geladen.</value>
+  </data>
+  <data name="ViewerTabs" xml:space="preserve">
+    <value>Bereiche des Dokuments</value>
+  </data>
+  <data name="DownloadOriginalShort" xml:space="preserve">
+    <value>Original</value>
+  </data>
+  <data name="DownloadArchiveShort" xml:space="preserve">
+    <value>Archiv-PDF</value>
+  </data>
+  <data name="ViewerFullscreen" xml:space="preserve">
+    <value>Vollbild</value>
+  </data>
+  <data name="ViewerFullscreenOn" xml:space="preserve">
+    <value>Vollbild an. Escape beendet es.</value>
+  </data>
+  <data name="ViewerFullscreenOff" xml:space="preserve">
+    <value>Vollbild aus.</value>
+  </data>
+  <data name="ViewerFullscreenFailed" xml:space="preserve">
+    <value>Vollbild ist hier nicht möglich.</value>
   </data>
 </root>

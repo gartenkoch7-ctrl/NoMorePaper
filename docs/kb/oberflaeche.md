@@ -76,6 +76,7 @@ innen 0,25 rem. Knöpfe 38 px hoch.
 | Rückfrage | `ConfirmBox.razor` | in der Seite, Überschrift (Ebene per `HeadingLevel`, Standard H2) bekommt Fokus, „Abbrechen“ zuerst |
 | Reiter | `TabList.razor`, `TabItem` | WAI-ARIA-Muster, Pfeile/Pos1/Ende über `TabNavigation`; JetBrains Mono 11 px wie Entwurf 04 (gewählt: weiß mit weißer Linie, `aria-selected`); optional `Icon` (`aria-hidden`) und `Count` (kurze Angabe, Teil des Namens: „Mail 1 Problem“, Name kommt aus dem sichtbaren Text wegen axe `label-content-name-mismatch`) |
 | Pfad | `Breadcrumb.razor`, `BreadcrumbItem` | `nav` mit `aria-label` „Pfad“, Liste, aktuelle Seite (`Href` `null`) mit `aria-current="page"`, Trenner-Symbol `aria-hidden`; auch für die Zurück-Leiste anderer Seiten (Viewer) gedacht |
+| Nur Screenreader | `.nmp-visually-hidden` | Text ist im Lesebaum, aber optisch weg (z. B. Überschrift „Verlauf“) |
 | Knöpfe | `.nmp-button`, `.nmp-button-primary` | Standard umrandet, Hauptaktion weiß |
 | Kacheln | `.link-tiles`, `.link-tile` | große Links mit Titel und Erklärung |
 | Anmelderahmen | `Accounts/AccountFrame.razor` | Rahmen der Seiten für Abgemeldete: Logo-Kachel (`aria-hidden`), Überzeile, einzige H1, Unterzeile, Karte |
@@ -111,6 +112,26 @@ hebt Fokus selbst hervor.
   (Zoom); sie zeigen die Miniatur der ersten Seite, die Tabelle nur einen Symbolkasten.
 - **Nicht übernommen:** „Zuletzt bearbeitet“ (kein Änderungszeitpunkt in der DB), Export, Stapelverarbeitung,
   Auswahl-Kästchen, Aktionsspalte, Spalten-/Sortierwahl, zweites Suchfeld, Brotkrumen, WORM-/SHA-Hinweise.
+
+## Seite „Dokument ansehen“ (`/dokumente/{id}`, Screen 03)
+
+- **Aufbau:** Zurück-Leiste (Link „Zurück zur Liste“, `Breadcrumb` „Dokumente › Titel“, Eingang mit `time`), Kopf (Symbolkachel,
+  einzige H1, Abzeichen Status und Privat, Downloads „Original“ und „Archiv-PDF“ mit langem zugänglichem Namen), darunter zwei
+  Spalten. Spalten erst ab 80 rem Fensterbreite (7/12 Viewer, 5/12 Reiterkarte), darunter eine Spalte.
+- **Reihenfolge (F2-B):** Im Seitenaufbau steht die Reiterkarte vor dem Viewer, damit der Screenreader die Zusammenfassung vor dem
+  ganzen Dokumenttext liest. Per CSS (`grid-column`) liegt sie rechts vom Viewer; die Tab-Taste springt daher von rechts nach links.
+- **Reiter:** „Angaben“, „Erkannter Text“, „Verlauf“; alle drei Panels bleiben im DOM (inaktive mit `hidden`), ein offenes
+  Formular in „Angaben“ überlebt den Wechsel. Das Aussehen kommt von `TabList` (design.css), nicht vom Entwurf 03.
+- **Erkannter Text:** lädt erst beim ersten Öffnen des Reiters (`GET /api/documents/{id}/text`), fokussierbarer Bereich
+  (`tabindex="0"`) mit echtem Text, Knopf „Kopieren“ mit Ansage. Vor „Fertig“ kommt keine Anfrage.
+- **Verlauf:** nur der Eingang hat eine Zeit (F4-A); Verarbeitungsstand und Angaben ohne Zeit, darunter ein Hinweis-Satz.
+  Punkte und Linie sind reines CSS (`content: ""`), nichts davon wird vorgelesen.
+- **Werkzeugleiste:** Symbolknöpfe mit `aria-label`, Zoom und Seite als Text; „Originalfarben“ und „Vollbild“ als Textknöpfe mit
+  `aria-pressed`. Vollbild (`wwwroot/js/fullscreen.js`) nur, wo der Browser Elemente ins Vollbild setzen kann (iPhone: kein Knopf);
+  die Spalte `#doc-view-viewer` geht ins Vollbild (alles drumherum ist dabei `inert`, damit Tab nicht hinausläuft), die Ansage „Vollbild an“ kommt aus ihr.
+- **Seitenbreite im Test:** Bei 100 % ist eine A4-Seite etwa 800 px breit; Pixeltests des Viewers brauchen daher ein Fenster von
+  mindestens 1800 px, sonst ist die Seite im schmaleren Viewer seitlich angeschnitten.
+- `.nmp-visually-hidden` (design.css) blendet Überschriften nur optisch aus (Reiter „Verlauf“).
 
 ## Nicht aus Stitch übernommen
 

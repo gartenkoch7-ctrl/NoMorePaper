@@ -117,7 +117,7 @@ public sealed class ViewerKeyboardTests(ServerFixture server)
         await ViewerPages.WaitUntilShownAsync(page);
 
         FocusState focus = new();
-        for (var i = 0; i < 30 && !focus.ClassName.Contains("viewer-scroller", StringComparison.Ordinal); i++)
+        for (var i = 0; i < 60 && !focus.ClassName.Contains("viewer-scroller", StringComparison.Ordinal); i++)
         {
             await page.Keyboard.PressAsync("Tab");
             focus = await FocusState.ReadAsync(page);
