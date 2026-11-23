@@ -1,0 +1,23 @@
+@using System.Globalization
+@inject IStringLocalizer<Strings> L
+
+@* Top band of the document page: back to the list, the path (the shared Breadcrumb) and the day it arrived. *@
+<div class="doc-view-back">
+    <div class="doc-view-back-start">
+        <a class="doc-view-back-link" href="dokumente">
+            <MudIcon Icon="@Icons.Material.Filled.ArrowBack" aria-hidden="true" />
+            <span>@L["ViewerBackToList"]</span>
+        </a>
+        <Breadcrumb Items="_path" />
+    </div>
+    <span class="doc-view-received">@L["ViewerReceived", string.Empty]<time datetime="@Detail.ReceivedAt.ToString("o", CultureInfo.InvariantCulture)">@Detail.ReceivedAt.ToLocalTime().ToString("g", CultureInfo.CurrentCulture)</time></span>
+</div>
+
+@code {
+    private IReadOnlyList<Design.BreadcrumbItem> _path = [];
+
+    [Parameter, EditorRequired] public DocumentDetailDto Detail { get; set; } = default!;
+
+    protected override void OnParametersSet() =>
+        _path = [new Design.BreadcrumbItem(L["NavDocuments"], "dokumente"), new Design.BreadcrumbItem(Detail.Title, null)];
+}

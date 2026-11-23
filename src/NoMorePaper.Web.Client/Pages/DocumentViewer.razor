@@ -12,67 +12,126 @@
     }
     else
     {
-        <div role="alert" class="error-box" data-ready>
-            <MudIcon Icon="@Icons.Material.Filled.Error" />
-            <span>@L["ViewerLoadError", _error]</span>
+        <div data-ready>
+            <NoticeBox Kind="NoticeKind.Error" Announce="true" Message="@L["ViewerLoadError", _error]" />
         </div>
     }
 }
 else
 {
-    <div class="viewer">
-        <MudText Typo="Typo.h1">@_detail.Title</MudText>
-        <p class="viewer-state">@L["ViewerStatus", L["State" + _detail.State]]</p>
+    @* The side column (tabs) comes first in the page: a screen reader hears the summary before the whole
+       text of the document. CSS puts it to the right of the viewer on wide screens. *@
+    <div class="viewer doc-view">
+        <DocumentBackBar Detail="_detail" />
 
-        <ul class="viewer-downloads" aria-label="@L["ViewerDownloads"]">
-            <li><a href="@DocumentLinks.Original(Id)" download>@L["DownloadOriginal"]</a></li>
-            @if (_detail.Archive is not null)
-            {
-                <li><a href="@DocumentLinks.Archive(Id)" download>@L["DownloadArchive"]</a></li>
-            }
-        </ul>
-
-        <DocumentFieldsPanel DocumentId="Id" Title="@_detail.Title" IsMine="_detail.IsMine" OnTitleChanged="OnTitleChanged"
-                             IsPrivate="_detail.IsPrivate" OnPrivacyChanged="OnPrivacyChanged" OnFieldsLoaded="OnFieldsLoaded" />
-
-        <LiveRegion @ref="_announcer" Class="viewer-announcer" />
-
-        @if (_source is null)
-        {
-            <p data-ready>@(_detail.State == DocumentProcessingState.Failed ? L["ViewerFailed"] : L["ViewerNotYet"])</p>
-        }
-        else if (_showFailed)
-        {
-            <div role="alert" class="error-box" data-ready>
-                <MudIcon Icon="@Icons.Material.Filled.Error" />
-                <span>@L["ViewerShowError"]</span>
+        <header class="doc-view-head">
+            <div class="doc-view-heading">
+                <div class="doc-view-title-row">
+                    <span class="doc-view-icon" aria-hidden="true"><MudIcon Icon="@Icons.Material.Outlined.Description" /></span>
+                    <h1 class="doc-view-title">@_detail.Title</h1>
+                </div>
+                <div class="doc-view-badges">
+                    <span class="viewer-state"><Badge Text="@L["ViewerStatus", L["State" + _detail.State]]" Icon="@StateIcon(_detail.State)" /></span>
+                    @if (_detail.IsPrivate)
+                    {
+                        <Badge Text="@L["PrivateBadge"]" Icon="@Icons.Material.Filled.Lock" />
+                    }
+                </div>
             </div>
-        }
-        else
-        {
-            <div class="viewer-toolbar" role="group" aria-label="@L["ViewerToolbar"]">
-                <button type="button" @onclick="ZoomOutAsync">@L["ZoomOut"]</button>
-                <button type="button" @onclick="ZoomInAsync">@L["ZoomIn"]</button>
-                <button type="button" @onclick="ResetZoomAsync">@L["ZoomReset"]</button>
-                <button type="button" @onclick="FitWidthAsync">@L["FitWidth"]</button>
-                <button type="button" aria-pressed="@(_originalColors ? "true" : "false")" @onclick="ToggleOriginalColorsAsync">@L["OriginalColors"]</button>
-                <span class="viewer-zoom">@ZoomText</span>
+            <div class="doc-view-actions">
+                <ul class="doc-view-downloads" aria-label="@L["ViewerDownloads"]">
+                    <li>
+                        <a class="doc-view-action" href="@DocumentLinks.Original(Id)" download aria-label="@L["DownloadOriginal"]">
+                            <MudIcon Icon="@Icons.Material.Filled.Download" aria-hidden="true" />
+                            <span>@L["DownloadOriginalShort"]</span>
+                        </a>
+                    </li>
+                    @if (_detail.Archive is not null)
+                    {
+                        <li>
+                            <a class="doc-view-action" href="@DocumentLinks.Archive(Id)" download aria-label="@L["DownloadArchive"]">
+                                <MudIcon Icon="@Icons.Material.Filled.Download" aria-hidden="true" />
+                                <span>@L["DownloadArchiveShort"]</span>
+                            </a>
+                        </li>
+                    }
+                </ul>
             </div>
-            <div class="viewer-toolbar" role="group" aria-label="@L["ViewerPages"]">
-                <button type="button" @onclick="() => GoToPageAsync(-1)">@L["PreviousPage"]</button>
-                <span class="viewer-page">@PageText</span>
-                <button type="button" @onclick="() => GoToPageAsync(1)">@L["NextPage"]</button>
-            </div>
-            <p id="viewer-keys" class="viewer-keys">@L["ViewerKeys"]</p>
-            @if (_state is { HasText: false })
-            {
-                <p class="viewer-no-text">@L["ViewerNoText"]</p>
-            }
+        </header>
 
-            <div class="viewer-stage" @ref="_stage" data-ready="@(_state is null ? null : "true")">
-                <div class="viewer-canvas"></div>
-                <section class="viewer-scroller" tabindex="0" aria-label="@L["ViewerRegion"]" aria-describedby="viewer-keys"></section>
+        <div class="doc-view-columns">
+            <div class="doc-view-side">
+                <div class="doc-view-card">
+                    <TabList Items="Tabs" SelectedId="@_tab" SelectedIdChanged="OnTabChanged" AriaLabel="@L["ViewerTabs"]" />
+                    @* All three panels stay in the page (hidden when not selected) so an open form survives a tab change. *@
+                    <div role="tabpanel" id="doc-fields-panel" aria-labelledby="doc-fields-tab" tabindex="0" hidden="@(_tab != FieldsTab)">
+                        <DocumentFieldsPanel DocumentId="Id" Title="@_detail.Title" IsMine="_detail.IsMine" OnTitleChanged="OnTitleChanged"
+                                             IsPrivate="_detail.IsPrivate" OnPrivacyChanged="OnPrivacyChanged" OnFieldsLoaded="OnFieldsLoaded" />
+                    </div>
+                    <div role="tabpanel" id="doc-text-panel" aria-labelledby="doc-text-tab" tabindex="0" hidden="@(_tab != TextTab)">
+                        <RecognizedTextPanel DocumentId="Id" State="_detail.State" Active="@(_tab == TextTab)" />
+                    </div>
+                    <div role="tabpanel" id="doc-history-panel" aria-labelledby="doc-history-tab" tabindex="0" hidden="@(_tab != HistoryTab)">
+                        <DocumentHistory Detail="_detail" Fields="_fields" />
+                    </div>
+                </div>
             </div>
-        }
+
+            <div class="doc-view-viewer" id="doc-view-viewer">
+                @if (_source is null)
+                {
+                    <p data-ready class="viewer-message">@(_detail.State == DocumentProcessingState.Failed ? L["ViewerFailed"] : L["ViewerNotYet"])</p>
+                }
+                else if (_showFailed)
+                {
+                    <div data-ready>
+                        <NoticeBox Kind="NoticeKind.Error" Announce="true" Message="@L["ViewerShowError"]" />
+                    </div>
+                }
+                else
+                {
+                    <div class="viewer-bar">
+                        <div class="viewer-bar-group" role="group" aria-label="@L["ViewerPages"]">
+                            <button type="button" class="viewer-icon-button" aria-label="@L["PreviousPage"]" @onclick="() => GoToPageAsync(-1)">
+                                <MudIcon Icon="@Icons.Material.Filled.ChevronLeft" aria-hidden="true" />
+                            </button>
+                            <span class="viewer-page">@PageText</span>
+                            <button type="button" class="viewer-icon-button" aria-label="@L["NextPage"]" @onclick="() => GoToPageAsync(1)">
+                                <MudIcon Icon="@Icons.Material.Filled.ChevronRight" aria-hidden="true" />
+                            </button>
+                        </div>
+                        <span class="viewer-bar-separator" aria-hidden="true"></span>
+                        <div class="viewer-bar-group viewer-bar-view" role="group" aria-label="@L["ViewerToolbar"]">
+                            <button type="button" class="viewer-icon-button" aria-label="@L["ZoomOut"]" @onclick="ZoomOutAsync">
+                                <MudIcon Icon="@Icons.Material.Filled.ZoomOut" aria-hidden="true" />
+                            </button>
+                            <span class="viewer-zoom">@ZoomText</span>
+                            <button type="button" class="viewer-icon-button" aria-label="@L["ZoomIn"]" @onclick="ZoomInAsync">
+                                <MudIcon Icon="@Icons.Material.Filled.ZoomIn" aria-hidden="true" />
+                            </button>
+                            <button type="button" class="viewer-text-button" @onclick="ResetZoomAsync">@L["ZoomReset"]</button>
+                            <button type="button" class="viewer-icon-button" aria-label="@L["FitWidth"]" @onclick="FitWidthAsync">
+                                <MudIcon Icon="@Icons.Material.Filled.FitScreen" aria-hidden="true" />
+                            </button>
+                            <span class="viewer-bar-end">
+                                <button type="button" class="viewer-text-button" aria-pressed="@(_originalColors ? "true" : "false")" @onclick="ToggleOriginalColorsAsync">@L["OriginalColors"]</button>
+                                <FullscreenButton TargetId="doc-view-viewer" OnChanged="OnFullscreenChangedAsync" OnFailed="OnFullscreenFailedAsync" />
+                            </span>
+                        </div>
+                    </div>
+                    @if (_state is { HasText: false })
+                    {
+                        <p class="viewer-no-text">@L["ViewerNoText"]</p>
+                    }
+
+                    <div class="viewer-stage" @ref="_stage" data-ready="@(_state is null ? null : "true")">
+                        <div class="viewer-canvas"></div>
+                        <section class="viewer-scroller" tabindex="0" aria-label="@L["ViewerRegion"]" aria-describedby="viewer-keys"></section>
+                    </div>
+                    <p id="viewer-keys" class="viewer-keys">@L["ViewerKeys"]</p>
+                    <LiveRegion @ref="_announcer" Class="viewer-announcer" />
+                }
+            </div>
+        </div>
     </div>
 }

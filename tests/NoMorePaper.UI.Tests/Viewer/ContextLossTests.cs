@@ -148,7 +148,7 @@ public sealed class ContextLossTests(ServerFixture server)
     {
         // Tall enough that the whole page is inside the screenshot.
         var viewer = await ViewerPages.OpenAsync(server, SupportedCultures.German, pdf ?? ViewerPdfs.BlueBox(595, 842),
-            prepare: page => page.SetViewportSizeAsync(1280, 1600));
+            prepare: page => page.SetViewportSizeAsync(1800, 1600));
         await ViewerPages.WaitUntilShownAsync(viewer.Page);
         return viewer;
     }

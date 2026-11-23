@@ -1863,4 +1863,31 @@
   <data name="DocListViewTiles" xml:space="preserve">
     <value>Tiles</value>
   </data>
+  <data name="ViewerBackToList" xml:space="preserve">
+    <value>Back to the list</value>
+  </data>
+  <data name="ViewerReceived" xml:space="preserve">
+    <value>Received: {0}</value>
+  </data>
+  <data name="ViewerTabs" xml:space="preserve">
+    <value>Document sections</value>
+  </data>
+  <data name="DownloadOriginalShort" xml:space="preserve">
+    <value>Original</value>
+  </data>
+  <data name="DownloadArchiveShort" xml:space="preserve">
+    <value>Archive PDF</value>
+  </data>
+  <data name="ViewerFullscreen" xml:space="preserve">
+    <value>Full screen</value>
+  </data>
+  <data name="ViewerFullscreenOn" xml:space="preserve">
+    <value>Full screen on. Escape leaves it.</value>
+  </data>
+  <data name="ViewerFullscreenOff" xml:space="preserve">
+    <value>Full screen off.</value>
+  </data>
+  <data name="ViewerFullscreenFailed" xml:space="preserve">
+    <value>Full screen is not possible here.</value>
+  </data>
 </root>

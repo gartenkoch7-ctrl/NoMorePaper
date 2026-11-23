@@ -59,7 +59,14 @@ public sealed partial class DocumentFieldsPanel
     private async Task LoadAsync()
     {
         _loadError = null;
-        var result = await Api.GetFieldsAsync(DocumentId);
+        var id = DocumentId;
+        var result = await Api.GetFieldsAsync(id);
+        if (id != DocumentId)
+        {
+            // The route switched to another document while loading: stale fields must not reach the page.
+            return;
+        }
+
         if (!result.IsSuccess || result.Value is null)
         {
             _loadError = result.Error;

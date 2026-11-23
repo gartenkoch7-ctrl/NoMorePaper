@@ -1,5 +1,8 @@
+using System.Globalization;
+using System.Resources;
 using NoMorePaper.Contracts.Classification;
 using NoMorePaper.Contracts.Documents;
+using NoMorePaper.Web.Client.Localization;
 using NoMorePaper.Web.Client.Viewer;
 using Xunit;
 
@@ -8,6 +11,7 @@ namespace NoMorePaper.Web.Client.Tests.Viewer;
 /// <summary>The history of a document: newest first, only the arrival has a time and a source.</summary>
 public sealed class HistoryTimelineTests
 {
+    private static readonly string[] _knownSources = ["upload", "camera", "scanner-folder", "mail", "icloud"];
     private static readonly DateTimeOffset _at = new(2026, 11, 2, 9, 30, 0, TimeSpan.Zero);
 
     [Fact]
@@ -90,5 +94,19 @@ public sealed class HistoryTimelineTests
 
         Assert.Equal(keys.Count, keys.Distinct(StringComparer.Ordinal).Count());
         Assert.All(keys, key => Assert.StartsWith("History", key, StringComparison.Ordinal));
+    }
+
+    [Theory]
+    [InlineData("de")]
+    [InlineData("en")]
+    public void EveryTitleAndSourceKey_HasAText(string culture)
+    {
+        var strings = new ResourceManager("NoMorePaper.Web.Client.Localization.Strings", typeof(Strings).Assembly);
+        var info = CultureInfo.GetCultureInfo(culture);
+        var keys = Enum.GetValues<HistoryEntryKind>().Select(HistoryTimeline.TitleKey)
+            .Concat(["HistoryVia", "HistoryHint"])
+            .Concat(_knownSources.Select(source => HistoryTimeline.SourceKey(source)!));
+
+        Assert.All(keys, key => Assert.False(string.IsNullOrWhiteSpace(strings.GetString(key, info)), $"{culture}: {key}"));
     }
 }

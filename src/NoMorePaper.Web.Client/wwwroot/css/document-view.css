@@ -1,0 +1,235 @@
+/* Frame of the document page (/dokumente/{id}) after Stitch screen 03: back bar, head with actions,
+   two columns. Tokens from base.css, no outline rules on purpose: focus is drawn by the browser default
+   (ADR-0026). Reading order: the side column comes first in the page, CSS puts it to the right of the viewer. */
+
+/* ---- Back bar ------------------------------------------------------------------------------- */
+
+.doc-view-back {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--nmp-space-sm);
+    padding: var(--nmp-space-sm) var(--nmp-space-lg);
+    background-color: var(--nmp-canvas-lowest);
+    border-radius: var(--nmp-radius);
+}
+
+.doc-view-back-start {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--nmp-space-sm);
+    min-width: 0;
+}
+
+.doc-view-back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--nmp-space-xs);
+    min-height: 2rem;
+    padding: 0 var(--nmp-space-sm);
+    border-radius: var(--nmp-radius-sm);
+    background-color: var(--nmp-surface-container);
+    color: var(--nmp-text);
+    font-family: var(--nmp-font-mono);
+    font-size: 0.6875rem;
+    line-height: 1rem;
+    letter-spacing: 0.04em;
+    font-weight: 500;
+    text-decoration: none;
+}
+
+.doc-view-back-link:hover {
+    background-color: var(--nmp-elevated-high);
+    color: var(--nmp-primary);
+}
+
+.doc-view-back-link .mud-icon-root {
+    font-size: 1rem;
+}
+
+.doc-view-back .nmp-breadcrumb {
+    min-width: 0;
+    overflow-wrap: anywhere;
+}
+
+.doc-view-received {
+    padding: 0.125rem var(--nmp-space-xs);
+    border-radius: var(--nmp-radius-sm);
+    background-color: var(--nmp-surface-container);
+    color: var(--nmp-text-variant);
+    font-family: var(--nmp-font-mono);
+    font-size: 0.625rem;
+    line-height: 0.875rem;
+    letter-spacing: 0.05em;
+}
+
+/* ---- Head ----------------------------------------------------------------------------------- */
+
+.doc-view-head {
+    display: flex;
+    flex-direction: column;
+    gap: var(--nmp-space-md);
+    margin-top: var(--nmp-space-sm);
+    padding: var(--nmp-space-md) var(--nmp-space-lg);
+    background-color: var(--nmp-paper-low);
+    border-radius: var(--nmp-radius);
+}
+
+.doc-view-heading {
+    display: flex;
+    flex-direction: column;
+    gap: var(--nmp-space-sm);
+    min-width: 0;
+}
+
+.doc-view-title-row {
+    display: flex;
+    align-items: center;
+    gap: var(--nmp-space-sm);
+    min-width: 0;
+}
+
+.doc-view-icon {
+    display: inline-flex;
+    flex: none;
+    align-items: center;
+    justify-content: center;
+    width: 1.75rem;
+    height: 1.75rem;
+    border-radius: var(--nmp-radius-sm);
+    background-color: var(--nmp-elevated-high);
+    color: var(--nmp-primary);
+}
+
+.doc-view-icon .mud-icon-root {
+    font-size: 1.125rem;
+}
+
+.doc-view-title {
+    margin: 0;
+    color: var(--nmp-primary);
+    font-size: 1rem;
+    line-height: 1.5rem;
+    letter-spacing: -0.005em;
+    font-weight: 600;
+    overflow-wrap: anywhere;
+}
+
+.doc-view-badges {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--nmp-space-xs);
+}
+
+.doc-view-downloads {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--nmp-space-sm);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.doc-view-action {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--nmp-space-xs);
+    min-height: 2.25rem;
+    padding: 0 var(--nmp-space-sm);
+    border-radius: var(--nmp-radius-sm);
+    background-color: var(--nmp-surface-container);
+    color: var(--nmp-text);
+    font-family: var(--nmp-font-mono);
+    font-size: 0.6875rem;
+    line-height: 1rem;
+    letter-spacing: 0.04em;
+    font-weight: 500;
+    text-decoration: none;
+}
+
+.doc-view-action:hover {
+    background-color: var(--nmp-elevated-high);
+    color: var(--nmp-primary);
+}
+
+.doc-view-action .mud-icon-root {
+    font-size: 1.125rem;
+}
+
+/* ---- Columns -------------------------------------------------------------------------------- */
+
+.doc-view-columns {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--nmp-space-lg);
+    padding-block: var(--nmp-space-md);
+}
+
+.doc-view-viewer,
+.doc-view-side {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+}
+
+.doc-view-viewer {
+    gap: var(--nmp-space-sm);
+}
+
+.doc-view-side {
+    gap: var(--nmp-space-md);
+}
+
+.doc-view-card {
+    display: flex;
+    flex-direction: column;
+    gap: var(--nmp-space-md);
+    padding: var(--nmp-space-md);
+    background-color: var(--nmp-paper-low);
+    border-radius: var(--nmp-radius);
+}
+
+/* Two columns need room: the side navigation takes 18 rem, so not before 80 rem. */
+@media (min-width: 80rem) {
+    .doc-view-head {
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    .doc-view-columns {
+        grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+    }
+
+    .doc-view-side {
+        grid-column: 2;
+        grid-row: 1;
+    }
+
+    .doc-view-viewer {
+        grid-column: 1;
+        grid-row: 1;
+    }
+}
+
+/* ---- Full screen ---------------------------------------------------------------------------- */
+
+.doc-view-viewer:fullscreen {
+    height: 100vh;
+    box-sizing: border-box;
+    padding: var(--nmp-space-md);
+    background-color: var(--nmp-background);
+}
+
+.doc-view-viewer:fullscreen .viewer-stage {
+    flex: 1 1 auto;
+    height: auto;
+    min-height: 0;
+}
+
+.doc-view-viewer::backdrop {
+    background-color: var(--nmp-background);
+}

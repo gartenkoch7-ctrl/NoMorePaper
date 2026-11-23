@@ -1,0 +1,82 @@
+@implements IAsyncDisposable
+@inject IJSRuntime Js
+@inject IStringLocalizer<Strings> L
+@inject ILogger<FullscreenButton> Logger
+
+@* Switches one element of the page to full screen. The button only exists where the browser can do that
+   (not on the iPhone). The page announces the change; the button only reports it through aria-pressed. *@
+@if (_supported)
+{
+    <button type="button" class="viewer-text-button" aria-pressed="@(_active ? "true" : "false")" @onclick="ToggleAsync">
+        <MudIcon Icon="@(_active ? Icons.Material.Filled.FullscreenExit : Icons.Material.Filled.Fullscreen)" aria-hidden="true" />
+        <span>@L["ViewerFullscreen"]</span>
+    </button>
+}
+
+@code {
+    private DotNetObjectReference<FullscreenButton>? _self;
+    private bool _supported;
+    private bool _active;
+
+    /// <summary>Id of the element that goes to full screen.</summary>
+    [Parameter, EditorRequired] public string TargetId { get; set; } = string.Empty;
+
+    [Parameter] public EventCallback<bool> OnChanged { get; set; }
+
+    [Parameter] public EventCallback OnFailed { get; set; }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender)
+        {
+            return;
+        }
+
+        _self = DotNetObjectReference.Create(this);
+        _supported = await Js.InvokeAsync<bool>("nmpFullscreen.watch", TargetId, _self);
+        if (_supported)
+        {
+            StateHasChanged();
+        }
+    }
+
+    private async Task ToggleAsync()
+    {
+        try
+        {
+            await Js.InvokeVoidAsync("nmpFullscreen.toggle", TargetId);
+        }
+        catch (JSException ex)
+        {
+            Logger.FullscreenFailed(ex.GetType().Name);
+            await OnFailed.InvokeAsync();
+        }
+    }
+
+    [JSInvokable]
+    public async Task OnFullscreenChanged(bool active)
+    {
+        _active = active;
+        Logger.FullscreenChanged(active ? "on" : "off");
+        StateHasChanged();
+        await OnChanged.InvokeAsync(active);
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        try
+        {
+            await Js.InvokeVoidAsync("nmpFullscreen.unwatch", TargetId);
+        }
+        catch (JSDisconnectedException)
+        {
+            // The circuit is gone; nothing left to clean up.
+        }
+        catch (InvalidOperationException)
+        {
+            // The runtime is already torn down on page unload.
+        }
+
+        _self?.Dispose();
+    }
+}

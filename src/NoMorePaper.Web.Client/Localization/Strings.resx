@@ -1863,4 +1863,31 @@
   <data name="DocListViewTiles" xml:space="preserve">
     <value>Kacheln</value>
   </data>
+  <data name="ViewerBackToList" xml:space="preserve">
+    <value>Zurück zur Liste</value>
+  </data>
+  <data name="ViewerReceived" xml:space="preserve">
+    <value>Eingang: {0}</value>
+  </data>
+  <data name="ViewerTabs" xml:space="preserve">
+    <value>Bereiche des Dokuments</value>
+  </data>
+  <data name="DownloadOriginalShort" xml:space="preserve">
+    <value>Original</value>
+  </data>
+  <data name="DownloadArchiveShort" xml:space="preserve">
+    <value>Archiv-PDF</value>
+  </data>
+  <data name="ViewerFullscreen" xml:space="preserve">
+    <value>Vollbild</value>
+  </data>
+  <data name="ViewerFullscreenOn" xml:space="preserve">
+    <value>Vollbild an. Escape beendet es.</value>
+  </data>
+  <data name="ViewerFullscreenOff" xml:space="preserve">
+    <value>Vollbild aus.</value>
+  </data>
+  <data name="ViewerFullscreenFailed" xml:space="preserve">
+    <value>Vollbild ist hier nicht möglich.</value>
+  </data>
 </root>

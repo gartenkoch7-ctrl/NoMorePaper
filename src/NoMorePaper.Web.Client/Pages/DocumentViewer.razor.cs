@@ -4,6 +4,8 @@ using Microsoft.Extensions.Logging;
 using NoMorePaper.Contracts.Classification;
 using NoMorePaper.Contracts.Documents;
 using NoMorePaper.Web.Client.Accessibility;
+using MudBlazor;
+using NoMorePaper.Web.Client.Design;
 using NoMorePaper.Web.Client.Documents;
 using NoMorePaper.Web.Client.Localization;
 using NoMorePaper.Web.Client.Viewer;
@@ -18,6 +20,11 @@ namespace NoMorePaper.Web.Client.Pages;
 public sealed partial class DocumentViewer : IAsyncDisposable
 {
     private const string PdfMediaType = "application/pdf";
+    private const string FieldsTab = "doc-fields";
+    private const string TextTab = "doc-text";
+    private const string HistoryTab = "doc-history";
+
+    private string _tab = FieldsTab;
 
     private DocumentDetailDto? _detail;
     private string? _error;
@@ -53,6 +60,7 @@ public sealed partial class DocumentViewer : IAsyncDisposable
 
         // The same component is reused when the route switches to another document.
         _loadedId = Id;
+        _tab = FieldsTab;
         await Viewer.CloseAsync();
         (_detail, _fields, _error, _source, _state, _opened, _showFailed) = (null, null, null, null, null, false, false);
         _originalColors = await Preferences.LoadOriginalColorsAsync();
@@ -86,6 +94,40 @@ public sealed partial class DocumentViewer : IAsyncDisposable
         {
             _showFailed = true;
             StateHasChanged();
+        }
+    }
+
+    private IReadOnlyList<TabItem> Tabs =>
+    [
+        new(FieldsTab, L["ClsFieldsHeading"]),
+        new(TextTab, L["ViewerTabText"]),
+        new(HistoryTab, L["ViewerTabHistory"]),
+    ];
+
+    private void OnTabChanged(string id)
+    {
+        _tab = id;
+        Logger.ViewerTabSelected(id switch { TextTab => "text", HistoryTab => "history", _ => "fields" });
+    }
+
+    private static string StateIcon(DocumentProcessingState state) => state switch
+    {
+        DocumentProcessingState.Queued => Icons.Material.Filled.Schedule,
+        DocumentProcessingState.Processing => Icons.Material.Filled.Sync,
+        DocumentProcessingState.Done => Icons.Material.Filled.CheckCircle,
+        _ => Icons.Material.Filled.Error,
+    };
+
+    private Task OnFullscreenChangedAsync(bool active) =>
+        AnnounceAsync(L[active ? "ViewerFullscreenOn" : "ViewerFullscreenOff"]);
+
+    private Task OnFullscreenFailedAsync() => AnnounceAsync(L["ViewerFullscreenFailed"]);
+
+    private async Task AnnounceAsync(string message)
+    {
+        if (_announcer is not null)
+        {
+            await _announcer.Announce(message);
         }
     }
 
@@ -129,13 +171,7 @@ public sealed partial class DocumentViewer : IAsyncDisposable
     }
 
     // A blind user cannot see the page go black and come back: say what happened.
-    private async Task OnRendererChangedAsync(RendererChange change)
-    {
-        if (_announcer is not null)
-        {
-            await _announcer.Announce(L["ViewerRenderer" + change]);
-        }
-    }
+    private Task OnRendererChangedAsync(RendererChange change) => AnnounceAsync(L["ViewerRenderer" + change]);
 
     // Editing the fields can change the title: the heading and the tab title follow.
     private void OnTitleChanged(string title)

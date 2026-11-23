@@ -59,7 +59,7 @@ public sealed class ShaderPixelTests(ServerFixture server, ITestOutputHelper out
     {
         // Tall enough that the whole stage, and with it the photo, is inside the screenshot.
         var viewer = await ViewerPages.OpenAsync(server, SupportedCultures.German, ViewerPdfs.Sample(sample),
-            prepare: page => page.SetViewportSizeAsync(1280, 1600));
+            prepare: page => page.SetViewportSizeAsync(1800, 1600));
         await ViewerPages.WaitUntilShownAsync(viewer.Page);
         return viewer;
     }

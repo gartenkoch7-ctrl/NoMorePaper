@@ -8,7 +8,7 @@
    person can copy it; the button copies it all at once. *@
 <div class="doc-text-head">
     <h2 class="doc-label" id="doc-text-heading">@L["ViewerTabText"]</h2>
-    @if (!string.IsNullOrEmpty(_text))
+    @if (ShowsText)
     {
         <button type="button" class="doc-text-copy" aria-label="@L["TextCopyLabel"]" @onclick="CopyAsync">
             <MudIcon Icon="@Icons.Material.Filled.ContentCopy" aria-hidden="true" />
@@ -42,7 +42,7 @@ else if (_text.Length == 0)
 {
     <p>@L["TextEmpty"]</p>
 }
-else
+else if (ShowsText)
 {
     <section @ref="_box" class="doc-text" tabindex="0" aria-labelledby="doc-text-heading">@_text</section>
 }
@@ -56,6 +56,9 @@ else
     private string? _error;
     private ElementReference _box;
     private LiveRegion? _status;
+
+    // The copy button and the text box exist only in this state; the box is what gets focused.
+    private bool ShowsText => State == DocumentProcessingState.Done && _error is null && !_loading && !string.IsNullOrEmpty(_text);
 
     [Parameter, EditorRequired] public Guid DocumentId { get; set; }
 
@@ -113,7 +116,11 @@ else
         {
             // Clipboard access is refused outside secure contexts and by some browsers.
             Logger.RecognizedTextCopyFailed(ex.GetType().Name);
-            await _box.FocusAsync();
+            if (ShowsText)
+            {
+                await _box.FocusAsync();
+            }
+
             message = L["TextCopyFailed"];
         }
 
