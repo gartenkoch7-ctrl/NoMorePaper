@@ -64,16 +64,25 @@ public sealed class PagePlanModel
 
     public void ClearCrop(int index) => Change(index, entry => entry with { ReplacedJpegKey = null, CropText = null });
 
-    /// <summary>Moves the entry up one place; false for the first one.</summary>
-    public bool MoveUp(int index) => Move(index, index - 1);
+    /// <summary>A page that stays lies above this one (deleted pages are skipped, they are not shown as pages).</summary>
+    public bool CanMoveUp(int index) => Neighbour(index, -1) >= 0;
 
-    /// <summary>Moves the entry down one place; false for the last one.</summary>
-    public bool MoveDown(int index) => Move(index, index + 1);
+    /// <summary>A page that stays lies below this one.</summary>
+    public bool CanMoveDown(int index) => Neighbour(index, 1) >= 0;
+
+    /// <summary>A split point may follow the entry: it is not the last one.</summary>
+    public bool CanSplitAfter(int index) => index >= 0 && index < _now.Entries.Count - 1;
+
+    /// <summary>Swaps the entry with the next page above that stays; returns its new index, -1 when there is none.</summary>
+    public int MoveUp(int index) => Move(index, Neighbour(index, -1));
+
+    /// <summary>Swaps the entry with the next page below that stays; returns its new index, -1 when there is none.</summary>
+    public int MoveDown(int index) => Move(index, Neighbour(index, 1));
 
     /// <summary>Sets or removes the split point after entry <paramref name="index"/>; none after the last entry.</summary>
     public bool ToggleSplitAfter(int index)
     {
-        if (index < 0 || index >= _now.Entries.Count - 1)
+        if (!CanSplitAfter(index))
         {
             return false;
         }
@@ -168,17 +177,36 @@ public sealed class PagePlanModel
         Push(new Snapshot(entries, _now.Splits));
     }
 
-    private bool Move(int from, int to)
+    // Index of the nearest entry in the direction that is not deleted, or -1; also -1 when index is out of range.
+    private int Neighbour(int index, int step)
+    {
+        if (index < 0 || index >= _now.Entries.Count)
+        {
+            return -1;
+        }
+
+        for (var i = index + step; i >= 0 && i < _now.Entries.Count; i += step)
+        {
+            if (!_now.Entries[i].Deleted)
+            {
+                return i;
+            }
+        }
+
+        return -1;
+    }
+
+    private int Move(int from, int to)
     {
         if (from < 0 || from >= _now.Entries.Count || to < 0 || to >= _now.Entries.Count)
         {
-            return false;
+            return -1;
         }
 
         var entries = _now.Entries.ToList();
         (entries[from], entries[to]) = (entries[to], entries[from]);
         Push(new Snapshot(entries, _now.Splits));
-        return true;
+        return to;
     }
 
     private void Push(Snapshot next)

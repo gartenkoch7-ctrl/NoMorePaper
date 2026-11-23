@@ -1,0 +1,173 @@
+@inject IStringLocalizer<Strings> L
+
+@* One page of the document: preview, number, start of its text, what was changed and the buttons. The preview is
+   decoration (the heading and "Beginnt mit" name the page). Keys work only while focus is inside the card, so
+   typing elsewhere never changes a page. Symbols are decoration; every button has a visible text. *@
+@if (Entry.Deleted)
+{
+    <li>
+        <article class="pe-card pe-card-deleted" aria-labelledby="@HeadingId" @onkeydown="OnKeyDown">
+            <MudText Typo="Typo.h3" HtmlTag="h2" id="@HeadingId" tabindex="-1">@L["PeDeletedPage", Entry.SourcePage]</MudText>
+            @if (!Readonly)
+            {
+                <div class="pe-buttons" role="group" aria-label="@L["PeGroup", Model.NumberOf(Index)]" aria-describedby="pe-keys">
+                    <button type="button" id="@ButtonId("del")" class="nmp-button" @onclick="() => Raise(PageAction.ToggleDelete)">
+                        <MudIcon Icon="@Icons.Material.Outlined.Undo" aria-hidden="true" />@L["PeUndoDelete"]
+                    </button>
+                </div>
+            }
+        </article>
+    </li>
+}
+else
+{
+    <li>
+        <article class="pe-card" aria-labelledby="@HeadingId" @onkeydown="OnKeyDown">
+            <div class="pe-preview pe-rot-@((int)Entry.Rotation)" aria-hidden="true">
+                <Thumbnail Source="@Source" Page="Entry.SourcePage" CssWidth="240" Title="@L["PePageOf", Model.NumberOf(Index), Model.KeptCount]" />
+            </div>
+            <div class="pe-body">
+                <div class="pe-title-row">
+                    <MudText Typo="Typo.h3" HtmlTag="h2" id="@HeadingId" tabindex="-1">@L["PePageOf", Model.NumberOf(Index), Model.KeptCount]</MudText>
+                    @if (Info?.ProbablyBlank == true)
+                    {
+                        <Badge Icon="@Icons.Material.Outlined.CropFree" Text="@L["PeBlank"]" />
+                    }
+                </div>
+                @if (Info is { ProbablyBlank: false, Head.Length: > 0 })
+                {
+                    <p class="pe-head">@L["PeBeginsWith", Info.Head]</p>
+                }
+                @if (States.Count > 0)
+                {
+                    <ul class="pe-states">
+                        @foreach (var state in States)
+                        {
+                            <li><MudIcon Icon="@Icons.Material.Outlined.Check" aria-hidden="true" /><span>@state</span></li>
+                        }
+                    </ul>
+                }
+                @if (!Readonly)
+                {
+                    <div class="pe-buttons" role="group" aria-label="@L["PeGroup", Model.NumberOf(Index)]" aria-describedby="pe-keys">
+                        <button type="button" id="@ButtonId("rl")" class="nmp-button" @onclick="() => Raise(PageAction.RotateLeft)">
+                            <MudIcon Icon="@Icons.Material.Outlined.RotateLeft" aria-hidden="true" />@L["PeRotateLeft"]
+                        </button>
+                        <button type="button" id="@ButtonId("rr")" class="nmp-button" @onclick="() => Raise(PageAction.RotateRight)">
+                            <MudIcon Icon="@Icons.Material.Outlined.RotateRight" aria-hidden="true" />@L["PeRotateRight"]
+                        </button>
+                        @if (Model.CanMoveUp(Index))
+                        {
+                            <button type="button" id="@ButtonId("up")" class="nmp-button" @onclick="() => Raise(PageAction.MoveUp)">
+                                <MudIcon Icon="@Icons.Material.Outlined.ArrowUpward" aria-hidden="true" />@L["PeMoveUp"]
+                            </button>
+                        }
+                        @if (Model.CanMoveDown(Index))
+                        {
+                            <button type="button" id="@ButtonId("down")" class="nmp-button" @onclick="() => Raise(PageAction.MoveDown)">
+                                <MudIcon Icon="@Icons.Material.Outlined.ArrowDownward" aria-hidden="true" />@L["PeMoveDown"]
+                            </button>
+                        }
+                        <button type="button" id="@ButtonId("crop")" class="nmp-button" disabled="@(!CropEnabled)" @onclick="() => Raise(PageAction.Crop)">
+                            <MudIcon Icon="@Icons.Material.Outlined.Crop" aria-hidden="true" />@L["PeCrop"]
+                        </button>
+                        <button type="button" id="@ButtonId("auto")" class="nmp-button" disabled="@(!CropEnabled)" @onclick="() => Raise(PageAction.AutoCrop)">
+                            <MudIcon Icon="@Icons.Material.Outlined.AutoFixHigh" aria-hidden="true" />@L["PeAuto"]
+                        </button>
+                        <button type="button" id="@ButtonId("del")" class="nmp-button" @onclick="() => Raise(PageAction.ToggleDelete)">
+                            <MudIcon Icon="@Icons.Material.Outlined.Delete" aria-hidden="true" />@L["PeDelete"]
+                        </button>
+                        @if (Model.CanSplitAfter(Index))
+                        {
+                            <button type="button" id="@ButtonId("split")" class="nmp-button" aria-pressed="@(IsSplitAfter ? "true" : "false")" @onclick="() => Raise(PageAction.ToggleSplit)">
+                                <MudIcon Icon="@Icons.Material.Outlined.CallSplit" aria-hidden="true" />@L["PeSplitHere"]
+                            </button>
+                        }
+                    </div>
+                }
+            </div>
+        </article>
+    </li>
+}
+
+@code {
+    [Parameter, EditorRequired] public PagePlanModel Model { get; set; } = default!;
+
+    /// <summary>Position in <see cref="PagePlanModel.Entries"/>.</summary>
+    [Parameter, EditorRequired] public int Index { get; set; }
+
+    /// <summary>What the server knows about the stored page; <c>null</c> when it sent nothing for it.</summary>
+    [Parameter] public PageInfoDto? Info { get; set; }
+
+    /// <summary>URL of the PDF the previews are drawn from.</summary>
+    [Parameter, EditorRequired] public string Source { get; set; } = string.Empty;
+
+    /// <summary>After saving the list only shows the pages.</summary>
+    [Parameter] public bool Readonly { get; set; }
+
+    /// <summary>"Zuschneiden" and the automatic crop work; off until the crop step is built.</summary>
+    [Parameter] public bool CropEnabled { get; set; }
+
+    [Parameter] public EventCallback<PageAction> OnAction { get; set; }
+
+    private PageEntry Entry => Model.Entries[Index];
+
+    private bool IsSplitAfter => Model.SplitsAfter.Contains(Index);
+
+    // Ids follow the stored page, not the position, so focus can find a card again after it moved.
+    private string HeadingId => PageEditorIds.Heading(Entry.SourcePage);
+
+    private string ButtonId(string action) => PageEditorIds.Button(Entry.SourcePage, action);
+
+    private List<string> States
+    {
+        get
+        {
+            var states = new List<string>();
+            switch (Entry.Rotation)
+            {
+                case PageRotationDto.Right: states.Add(L["PeStateRotatedRight"]); break;
+                case PageRotationDto.Left: states.Add(L["PeStateRotatedLeft"]); break;
+                case PageRotationDto.Half: states.Add(L["PeStateRotatedHalf"]); break;
+            }
+
+            if (Entry.ReplacedJpegKey is not null)
+            {
+                states.Add(string.IsNullOrEmpty(Entry.CropText) ? L["PeStateCropped"] : Entry.CropText);
+            }
+
+            if (Model.IsMoved(Index))
+            {
+                states.Add(L["PeStateMoved", Entry.SourcePage]);
+            }
+
+            return states;
+        }
+    }
+
+    private Task Raise(PageAction action) => OnAction.InvokeAsync(action);
+
+    private Task OnKeyDown(KeyboardEventArgs e)
+    {
+        if (Readonly || e.CtrlKey || e.MetaKey)
+        {
+            return Task.CompletedTask;
+        }
+
+        if (Entry.Deleted)
+        {
+            return e.Key == "Delete" ? Raise(PageAction.ToggleDelete) : Task.CompletedTask;
+        }
+
+        return e.Key.ToLowerInvariant() switch
+        {
+            "r" when !e.AltKey => Raise(e.ShiftKey ? PageAction.RotateLeft : PageAction.RotateRight),
+            "delete" => Raise(PageAction.ToggleDelete),
+            "arrowup" when e.AltKey && Model.CanMoveUp(Index) => Raise(PageAction.MoveUp),
+            "arrowdown" when e.AltKey && Model.CanMoveDown(Index) => Raise(PageAction.MoveDown),
+            "t" when !e.AltKey && Model.CanSplitAfter(Index) => Raise(PageAction.ToggleSplit),
+            "z" when !e.AltKey && CropEnabled => Raise(PageAction.Crop),
+            _ => Task.CompletedTask,
+        };
+    }
+}

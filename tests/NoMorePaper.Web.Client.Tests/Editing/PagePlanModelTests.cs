@@ -66,16 +66,33 @@ public sealed class PagePlanModelTests
     {
         var model = new PagePlanModel(3);
 
-        Assert.False(model.MoveUp(0));
-        Assert.False(model.MoveDown(2));
-        Assert.True(model.MoveDown(0));
-        Assert.True(model.MoveUp(2));
+        Assert.Equal(-1, model.MoveUp(0));
+        Assert.Equal(-1, model.MoveDown(2));
+        Assert.Equal(1, model.MoveDown(0));
+        Assert.Equal(1, model.MoveUp(2));
 
         Assert.Equal([2, 3, 1], model.Entries.Select(entry => entry.SourcePage));
         Assert.True(model.IsMoved(0));
         Assert.True(model.IsMoved(2));
         Assert.True(model.IsMoved(1));
         Assert.False(new PagePlanModel(2).IsMoved(1));
+    }
+
+    [Fact]
+    public void Move_SkipsDeletedPages_AndTheEdgesCountOnlyKeptPages()
+    {
+        var model = new PagePlanModel(3);
+        model.ToggleDelete(1);
+
+        Assert.True(model.CanMoveDown(0));
+        Assert.False(model.CanMoveUp(0));
+        Assert.True(model.CanMoveUp(2));
+        Assert.Equal(0, model.MoveUp(2));
+        Assert.Equal([3, 2, 1], model.Entries.Select(entry => entry.SourcePage));
+        Assert.True(model.Entries[1].Deleted);
+        model.ToggleDelete(0);
+        Assert.False(model.CanMoveDown(2));
+        Assert.Equal(-1, model.MoveDown(2));
     }
 
     [Fact]

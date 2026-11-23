@@ -20,16 +20,18 @@ public sealed class ThumbnailRenderer(IJSRuntime js, ILogger<ThumbnailRenderer> 
     /// <summary>
     /// Waits until <paramref name="box"/> is visible, then draws the PDF at <paramref name="url"/>
     /// into <paramref name="canvas"/>. True once drawn; false on error or when cancelled first.
+    /// <paramref name="page"/> (from 1) and <paramref name="cssWidth"/> default to the list's first-page thumbnail.
     /// </summary>
     public async Task<bool> ShowWhenVisibleAsync(
-        ElementReference box, ElementReference canvas, string url, bool originalColors, CancellationToken ct)
+        ElementReference box, ElementReference canvas, string url, bool originalColors, CancellationToken ct,
+        int page = 1, int cssWidth = CssWidth)
     {
         try
         {
             _module ??= js.InvokeAsync<IJSObjectReference>("import", ModulePath).AsTask();
             var module = await _module;
             await using var handle = await module.InvokeAsync<IJSObjectReference>(
-                "observeThumbnail", ct, box, canvas, url, CssWidth, originalColors);
+                "observeThumbnail", ct, box, canvas, url, cssWidth, originalColors, page);
             await using var cancellation = ct.Register(() => _ = StopAsync(handle));
             var result = await handle.InvokeAsync<string?>("result", CancellationToken.None);
             if (result is null or "ok")

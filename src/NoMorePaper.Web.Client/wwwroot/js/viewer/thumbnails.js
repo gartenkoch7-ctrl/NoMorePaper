@@ -39,11 +39,11 @@ function usableRenderer() {
   });
 }
 
-async function draw(target, url, width, mode) {
+async function draw(target, url, width, mode, pageNumber) {
   const loading = openDocument(url);
   try {
     const pdf = await loading.promise;
-    const page = await pdf.getPage(1);
+    const page = await pdf.getPage(pageNumber);
     const analysis = await analyzePage(page, target, true);
     try {
       return target.thumbnail(analysis, width, mode);
@@ -55,13 +55,13 @@ async function draw(target, url, width, mode) {
   }
 }
 
-async function render(url, width, mode) {
-  const key = `${mode}|${width}|${url}`;
+async function render(url, width, mode, pageNumber) {
+  const key = `${mode}|${width}|${pageNumber}|${url}`;
   if (cache.has(key)) return cache.get(key);
   for (let attempt = 1; ; attempt++) {
     const target = await usableRenderer();
     const generation = target.generation;
-    const image = await draw(target, url, width, mode);
+    const image = await draw(target, url, width, mode, pageNumber);
     // Lost during the draw (even if already restored): the pixels are black.
     if (!target.lost && target.generation === generation) {
       if (cache.size >= MAX_CACHED) cache.delete(cache.keys().next().value);
@@ -76,9 +76,9 @@ async function render(url, width, mode) {
   }
 }
 
-// Draws the first page of url into canvas once box is (nearly) visible. The handle's result()
-// resolves to 'ok', to null when disposed first, or to the name of the error.
-export function observeThumbnail(box, canvas, url, cssWidth, originalColors) {
+// Draws page pageNumber (default: the first) of url into canvas once box is (nearly) visible.
+// The handle's result() resolves to 'ok', to null when disposed first, or to the name of the error.
+export function observeThumbnail(box, canvas, url, cssWidth, originalColors, pageNumber = 1) {
   let disposed = false;
   let settle;
   const result = new Promise((resolve) => { settle = resolve; });
@@ -88,7 +88,7 @@ export function observeThumbnail(box, canvas, url, cssWidth, originalColors) {
     const width = Math.max(1, Math.round(cssWidth * (window.devicePixelRatio || 1)));
     const mode = originalColors ? MODE_ORIGINAL : MODE_INTELLIGENT;
     queue = queue
-      .then(() => (disposed ? null : render(url, width, mode)))
+      .then(() => (disposed ? null : render(url, width, mode, pageNumber)))
       .then((image) => {
         if (!image || disposed) {
           settle(null);
