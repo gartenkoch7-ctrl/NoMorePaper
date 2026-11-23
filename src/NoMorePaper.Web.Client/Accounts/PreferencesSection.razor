@@ -8,17 +8,15 @@
 @* The account's choices for the inputs: whether new documents are private, and the mail addresses whose
    mails belong to the account. Every change is saved at once and announced, so there is no "save" step
    to forget. Removing and adding keep focus on a control that still exists. *@
-<section aria-labelledby="inputs-prefs-heading">
+<section class="account-card account-prefs" aria-labelledby="inputs-prefs-heading">
     <MudText Typo="Typo.h2" id="inputs-prefs-heading">@L["InpPrefsHeading"]</MudText>
     <LiveRegion @ref="_status" />
     <LiveRegion @ref="_error" Assertive="true" Class="form-error" />
     @if (_loadError is not null)
     {
-        <div role="alert" class="error-box">
-            <MudIcon Icon="@Icons.Material.Filled.Error" />
-            <span>@L["InpPrefsLoadError", _loadError]</span>
-        </div>
-        <button type="button" id="prefs-retry" class="nmp-button" @onclick="LoadAsync">@L["Retry"]</button>
+        <NoticeBox Kind="NoticeKind.Error" Announce="true" Message="@L["InpPrefsLoadError", _loadError]">
+            <button type="button" id="prefs-retry" class="nmp-button" @onclick="LoadAsync">@L["Retry"]</button>
+        </NoticeBox>
     }
     else if (_prefs is null)
     {
@@ -26,12 +24,14 @@
     }
     else
     {
-        <div class="form-check">
-            <input @key="_version" id="prefs-private" type="checkbox" checked="@_prefs.NewDocumentsPrivate" disabled="@_busy"
-                   aria-describedby="prefs-private-hint" @onchange="args => SetPrivateAsync(args.Value is true)" />
-            <label for="prefs-private">@L["InpPrefsPrivateLabel"]</label>
+        <div class="prefs-private">
+            <div class="form-check">
+                <input @key="_version" id="prefs-private" type="checkbox" checked="@_prefs.NewDocumentsPrivate" disabled="@_busy"
+                       aria-describedby="prefs-private-hint" @onchange="args => SetPrivateAsync(args.Value is true)" />
+                <label for="prefs-private">@L["InpPrefsPrivateLabel"]</label>
+            </div>
+            <p id="prefs-private-hint" class="form-hint">@L["InpPrefsPrivateHint"]</p>
         </div>
-        <p id="prefs-private-hint" class="form-hint">@L["InpPrefsPrivateHint"]</p>
 
         <MudText Typo="Typo.h3" id="prefs-senders-heading">@L["InpPrefsSendersHeading"]</MudText>
         <p>@L["InpPrefsSendersHint", MaxSenders]</p>
@@ -45,7 +45,8 @@
                 @foreach (var sender in _prefs.MailSenders)
                 {
                     <li @key="sender">
-                        <span>@sender</span>
+                        <MudIcon Icon="@Icons.Material.Filled.Mail" aria-hidden="true" />
+                        <span class="sender-address">@sender</span>
                         <button type="button" class="nmp-button" disabled="@_busy" aria-label="@L["InpPrefsRemoveFor", sender]"
                                 @onclick="() => RemoveAsync(sender)">@L["InpPrefsRemove"]</button>
                     </li>
@@ -53,7 +54,7 @@
             </ul>
         }
 
-        <form class="account-form" novalidate @onsubmit="AddAsync">
+        <form class="prefs-add" novalidate @onsubmit="AddAsync">
             <FormField Id="prefs-sender-new" Label="@L["InpPrefsAddLabel"]" Autocomplete="off"
                        @bind-Value="_newSender" Invalid="_invalidAdd" />
             <button type="submit" class="nmp-button" disabled="@_busy">@L["InpPrefsAdd"]</button>

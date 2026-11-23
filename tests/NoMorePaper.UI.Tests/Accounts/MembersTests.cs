@@ -40,7 +40,9 @@ public sealed class MembersTests(ServerFixture server)
 
         await Assertions.Expect(page.Locator("main [data-ready]")).ToHaveTextAsync("Diese Seite ist nur für den Verwalter.");
         await Assertions.Expect(page.GetByRole(AriaRole.Link, new() { Name = "Mitglieder", Exact = true })).ToHaveCountAsync(0);
-        await Assertions.Expect(page.GetByRole(AriaRole.Link, new() { Name = "Einstellungen", Exact = true })).ToHaveAttributeAsync("aria-current", "page");
+        // The path above the heading also links "Einstellungen"; only the navigation entry is the current page.
+        await Assertions.Expect(page.Locator("nav:not(.nmp-breadcrumb)").GetByRole(AriaRole.Link, new() { Name = "Einstellungen", Exact = true }))
+            .ToHaveAttributeAsync("aria-current", "page");
     }
 
     [Fact]
@@ -50,7 +52,7 @@ public sealed class MembersTests(ServerFixture server)
         var page = session.Page;
 
         await Assertions.Expect(page.GetByRole(AriaRole.Columnheader)).ToHaveTextAsync(["Name", "Benutzername", "Rolle", "Aktionen"]);
-        await Assertions.Expect(page.GetByRole(AriaRole.Row, new() { Name = "Anna Beispiel" })).ToContainTextAsync("Verwalter");
+        await Assertions.Expect(page.GetByRole(AriaRole.Row, new() { Name = "Anna Beispiel" }).Locator(".nmp-badge")).ToHaveTextAsync("Verwalter");
         // The administrator cannot be removed or reset here: no buttons in that row.
         await Assertions.Expect(page.GetByRole(AriaRole.Row, new() { Name = "Anna Beispiel" }).GetByRole(AriaRole.Button)).ToHaveCountAsync(0);
         await Assertions.Expect(page.GetByRole(AriaRole.Button, new() { Name = "Entfernen: Ben Beispiel" })).ToBeVisibleAsync();
@@ -70,9 +72,9 @@ public sealed class MembersTests(ServerFixture server)
         await Assertions.Expect(field).ToHaveValueAsync(new Regex("/einladung/token123$"));
         await Assertions.Expect(field).ToBeFocusedAsync();
         await Assertions.Expect(page.Locator("main [role=status]").First).ToContainTextAsync("Einladungslink erstellt");
-        await Assertions.Expect(page.Locator(".link-result")).ToContainTextAsync("kann nur einmal benutzt werden");
+        await Assertions.Expect(page.Locator(".members-link")).ToContainTextAsync("kann nur einmal benutzt werden");
         await page.GetByRole(AriaRole.Button, new() { Name = "Kopieren: Einladungslink" }).ClickAsync();
-        await Assertions.Expect(page.Locator(".link-result .live-region")).ToHaveTextAsync("Einladungslink wurde kopiert.");
+        await Assertions.Expect(page.Locator(".members-link .live-region")).ToHaveTextAsync("Einladungslink wurde kopiert.");
         Assert.Matches("/einladung/token123$", await page.EvaluateAsync<string>("window.__copied"));
     }
 
@@ -101,7 +103,11 @@ public sealed class MembersTests(ServerFixture server)
 
         var box = page.GetByRole(AriaRole.Group, new() { Name = "Ben Beispiel wirklich entfernen?" });
         await Assertions.Expect(box).ToBeVisibleAsync();
+        await Assertions.Expect(box.GetByRole(AriaRole.Heading)).ToBeFocusedAsync();
+        await page.Keyboard.PressAsync("Tab");
         await Assertions.Expect(box.GetByRole(AriaRole.Button, new() { Name = "Abbrechen" })).ToBeFocusedAsync();
+        // Removing is not a main action: neutral button, no white primary.
+        await Assertions.Expect(box.GetByRole(AriaRole.Button, new() { Name = "Ja, entfernen" })).Not.ToHaveClassAsync(new Regex("nmp-button-primary"));
         await page.Keyboard.PressAsync("Escape");
         await Assertions.Expect(box).ToHaveCountAsync(0);
         await Assertions.Expect(page.GetByRole(AriaRole.Button, new() { Name = "Neues Mitglied einladen" })).ToBeFocusedAsync();

@@ -1,9 +1,9 @@
 using System.Globalization;
 using Microsoft.AspNetCore.Components;
-using Microsoft.AspNetCore.Components.Web;
 using NoMorePaper.Contracts.Accounts;
 using NoMorePaper.Web.Client.Accessibility;
 using NoMorePaper.Web.Client.Accounts;
+using NoMorePaper.Web.Client.Design;
 
 namespace NoMorePaper.Web.Client.Pages;
 
@@ -16,7 +16,7 @@ public sealed partial class Members
     private LiveRegion? _status;
     private LiveRegion? _error;
     private ElementReference _inviteButton;
-    private ElementReference _cancelButton;
+    private IReadOnlyList<BreadcrumbItem> _path = [];
     private CopyField? _inviteLink;
     private CopyField? _resetField;
     private AccountDto[] _members = [];
@@ -30,6 +30,7 @@ public sealed partial class Members
 
     protected override async Task OnInitializedAsync()
     {
+        _path = [new BreadcrumbItem(L["NavSettings"], "einstellungen"), new BreadcrumbItem(L["NavMembers"], null)];
         if (Auth.IsAdmin)
         {
             await LoadAsync();
@@ -95,22 +96,14 @@ public sealed partial class Members
 
     private void AskRemove(AccountDto member)
     {
+        // ConfirmBox moves the focus to its heading itself.
         _removing = member;
-        _focusAfterRender = () => _cancelButton.FocusAsync();
     }
 
     private void CancelRemove()
     {
         _removing = null;
         _focusAfterRender = () => _inviteButton.FocusAsync();
-    }
-
-    private void OnConfirmKey(KeyboardEventArgs args)
-    {
-        if (args.Key == "Escape")
-        {
-            CancelRemove();
-        }
     }
 
     private async Task RemoveAsync()

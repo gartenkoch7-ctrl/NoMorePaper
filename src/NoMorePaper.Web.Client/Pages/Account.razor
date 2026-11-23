@@ -8,40 +8,48 @@
 
 <PageTitle>@L["AccountTitle"]</PageTitle>
 
-<MudText Typo="Typo.h1">@L["AccountHeading"]</MudText>
+<Breadcrumb Items="_path" />
 
-@if (Auth.Me is { } me)
-{
-    <p data-ready>@L["AccountSignedInAs", me.DisplayName, me.UserName] @(me.IsAdmin ? L["RoleAdmin"] : L["RoleMember"])</p>
-}
+<div class="account-head">
+    <MudText Typo="Typo.h2" HtmlTag="h1">@L["AccountHeading"]</MudText>
+    @if (Auth.Me is { } me)
+    {
+        <p data-ready>@L["AccountSignedInAs", me.DisplayName, me.UserName] @(me.IsAdmin ? L["RoleAdmin"] : L["RoleMember"])</p>
+    }
+</div>
 
-<section aria-labelledby="password-heading">
-    <MudText Typo="Typo.h2" id="password-heading">@L["AccountPasswordHeading"]</MudText>
-    <form class="account-form" novalidate @onsubmit="ChangePasswordAsync">
-        <FormField Id="account-current" Label="@L["FieldCurrentPassword"]" Autocomplete="current-password" Password="true"
-                   @bind-Value="_current" Invalid='_form.IsInvalid("account-current")' />
-        <FormField Id="account-new" Label="@L["FieldNewPassword"]" Autocomplete="new-password" Password="true"
-                   Hint="@L["HintPasswordLength", FormValidation.MinPasswordLength]"
-                   @bind-Value="_new" Invalid='_form.IsInvalid("account-new")' />
-        <FormField Id="account-repeat" Label="@L["FieldRepeatPassword"]" Autocomplete="new-password" Password="true"
-                   @bind-Value="_repeat" Invalid='_form.IsInvalid("account-repeat")' />
-        <LiveRegion @ref="_error" Assertive="true" Class="form-error" />
-        <LiveRegion @ref="_status" />
-        <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" Color="Color.Primary" Disabled="_busy">@L["AccountPasswordButton"]</MudButton>
-    </form>
-</section>
+@* Reading, tab and visual order are the same: password, sign out, then the inputs card across the page. *@
+<div class="account-grid">
+    <section class="account-card account-password" aria-labelledby="password-heading">
+        <MudText Typo="Typo.h2" id="password-heading">@L["AccountPasswordHeading"]</MudText>
+        <form class="account-form" novalidate @onsubmit="ChangePasswordAsync">
+            <FormField Id="account-current" Label="@L["FieldCurrentPassword"]" Autocomplete="current-password" Password="true"
+                       @bind-Value="_current" Invalid='_form.IsInvalid("account-current")' />
+            <FormField Id="account-new" Label="@L["FieldNewPassword"]" Autocomplete="new-password" Password="true"
+                       Hint="@L["HintPasswordLength", FormValidation.MinPasswordLength]"
+                       @bind-Value="_new" Invalid='_form.IsInvalid("account-new")' />
+            <FormField Id="account-repeat" Label="@L["FieldRepeatPassword"]" Autocomplete="new-password" Password="true"
+                       @bind-Value="_repeat" Invalid='_form.IsInvalid("account-repeat")' />
+            <LiveRegion @ref="_error" Assertive="true" Class="form-error" />
+            <LiveRegion @ref="_status" />
+            <div class="account-submit">
+                <button type="submit" class="nmp-button nmp-button-primary" disabled="@_busy">@L["AccountPasswordButton"]</button>
+            </div>
+        </form>
+    </section>
 
-<PreferencesSection />
+    <section class="account-card account-signout" aria-labelledby="signout-heading">
+        <MudText Typo="Typo.h2" id="signout-heading">@L["AccountSignOutHeading"]</MudText>
+        <p>@L["AccountSignOutEverywhereHint"]</p>
+        <div class="button-row">
+            <button type="button" class="nmp-button" @onclick="() => SignOutAsync(false)">@L["SignOut"]</button>
+            <button type="button" class="nmp-button" @onclick="() => SignOutAsync(true)">@L["SignOutEverywhere"]</button>
+        </div>
+        <LiveRegion @ref="_signOutError" Assertive="true" Class="form-error" />
+    </section>
 
-<section aria-labelledby="signout-heading">
-    <MudText Typo="Typo.h2" id="signout-heading">@L["AccountSignOutHeading"]</MudText>
-    <p>@L["AccountSignOutEverywhereHint"]</p>
-    <div class="button-row">
-        <MudButton Variant="Variant.Outlined" Color="Color.Primary" OnClick="() => SignOutAsync(false)">@L["SignOut"]</MudButton>
-        <MudButton Variant="Variant.Outlined" Color="Color.Primary" OnClick="() => SignOutAsync(true)">@L["SignOutEverywhere"]</MudButton>
-    </div>
-    <LiveRegion @ref="_signOutError" Assertive="true" Class="form-error" />
-</section>
+    <PreferencesSection />
+</div>
 
 @code {
     private FormValidation _form = default!;
@@ -52,8 +60,13 @@
     private string _new = string.Empty;
     private string _repeat = string.Empty;
     private bool _busy;
+    private IReadOnlyList<Design.BreadcrumbItem> _path = [];
 
-    protected override void OnInitialized() => _form = new FormValidation(L, Js);
+    protected override void OnInitialized()
+    {
+        _form = new FormValidation(L, Js);
+        _path = [new Design.BreadcrumbItem(L["NavSettings"], "einstellungen"), new Design.BreadcrumbItem(L["AccountHeading"], null)];
+    }
 
     private async Task ChangePasswordAsync()
     {
