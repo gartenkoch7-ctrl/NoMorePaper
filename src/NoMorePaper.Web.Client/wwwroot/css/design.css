@@ -85,6 +85,9 @@
 
 /* Default is the outlined button of the design; .nmp-button-primary is the white main action. */
 .nmp-button {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--nmp-space-xs);
     min-height: 38px;
     padding: 0 1rem;
     border-radius: 0.5rem;
@@ -96,6 +99,10 @@
     color: var(--nmp-primary);
     font-weight: 500;
     transition: background-color 150ms ease, border-color 150ms ease;
+}
+
+.nmp-button .mud-icon-root {
+    font-size: 1.125rem;
 }
 
 .nmp-button:hover:not(:disabled) {

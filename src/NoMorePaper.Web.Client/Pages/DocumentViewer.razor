@@ -31,10 +31,10 @@ else
                     <h1 class="doc-view-title">@_detail.Title</h1>
                 </div>
                 <div class="doc-view-badges">
-                    <span class="viewer-state"><Badge Text="@L["ViewerStatus", L["State" + _detail.State]]" Icon="@StateIcon(_detail.State)" /></span>
+                    <span class="viewer-state"><Badge Text="@L["ViewerStatus", L[StatusKeys.For(DocumentStatus.KindOf(_detail.State))]]" Icon="@StatusIcons.For(DocumentStatus.KindOf(_detail.State))" /></span>
                     @if (_detail.IsPrivate)
                     {
-                        <Badge Text="@L["PrivateBadge"]" Icon="@Icons.Material.Filled.Lock" />
+                        <PrivateBadge />
                     }
                 </div>
             </div>

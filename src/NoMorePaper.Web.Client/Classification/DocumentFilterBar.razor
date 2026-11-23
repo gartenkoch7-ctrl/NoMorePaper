@@ -22,11 +22,9 @@
         {
             if (_loadError is not null)
             {
-                <div role="alert" class="error-box">
-                    <MudIcon Icon="@Icons.Material.Filled.Error" />
-                    <span>@L["FilterLoadError", _loadError]</span>
-                </div>
-                <button type="button" class="nmp-button" @onclick="LoadChoicesAsync">@L["Retry"]</button>
+                <NoticeBox Kind="NoticeKind.Error" Announce="true" Message="@L["FilterLoadError", _loadError]">
+                    <button type="button" class="nmp-button" @onclick="LoadChoicesAsync">@L["Retry"]</button>
+                </NoticeBox>
             }
 
             <div class="filter-grid">

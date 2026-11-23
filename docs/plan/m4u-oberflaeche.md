@@ -66,18 +66,19 @@ Grundsätze (aus den Notizen je Screen):
       Mitglieder (Prompts in prompts.md §3) – **Nutzer** erzeugt sie in Stitch, Ablage wie 01–04
 - [ ] Diese Seiten aufs neue Theme und die Bausteine umstellen (ohne Neuaufbau, wo kein Entwurf da ist)
 - [ ] Entwürfe für M4b vorziehen: „Seiten bearbeiten“, „Papierkorb“, „Fassungen“ (prompts.md §4.1–4.3)
+- [ ] Rückfragen (Review, Members, ListSection) auf `Design/ConfirmBox` umstellen, mit UI-Test
 
 ### F. Tests und Doku
-- [ ] UI-Tests: axe DE/EN auf allen geänderten Seiten, Tastatur (Seitenleiste, Reiter, Menü mobil),
+- [x] UI-Tests: axe DE/EN auf allen geänderten Seiten, Tastatur (Seitenleiste, Reiter, Menü mobil),
       bestehende Playwright-Tests an neue Struktur anpassen
-- [ ] KB `oberflaeche.md` (Design-Werte, Bausteine, was aus Stitch nicht übernommen wird); Katalog: keine
-      neuen Abläufe, nur Seitenaufrufe prüfen
+- [x] KB `oberflaeche.md` (Design-Werte, Bausteine, was aus Stitch nicht übernommen wird); Katalog: eigene Logs der Spuren im Katalog
+      eingetragen (Abläufe und Meldungen der Spuren)
 
 ## Akzeptanzkriterien
 - [ ] Vier Seiten (01–04) entsprechen im Aufbau dem Entwurf, ohne die Punkte aus „nicht mitnehmen“
 - [ ] Farben, Schrift und Abstände wie im Stitch-Design-System; Fokusrahmen sichtbar, Zoom erlaubt
       (kein `user-scalable=no`)
-- [ ] Keine externen Ressourcen (Fonts, CDN, Bilder) im Build
+- [x] Keine externen Ressourcen (Fonts, CDN, Bilder) im Build
 - [ ] axe 0 Verstöße DE/EN; NVDA-Prüfung Navigation, Dokumente, Viewer, Eingänge durch den Nutzer
 - [ ] iPhone (PWA): Menü, Viewer und Eingänge bedienbar mit VoiceOver
 - [ ] CI grün
@@ -191,11 +192,11 @@ Entschieden (Nutzer, 2026-11-22):
 ## Offene Fragen / Risiken
 - **Screen 03:** `screen.png` und Stitch-Screen-ID fehlen noch (siehe Notizen)
 - **Stitch-Werte:** Schriftgrößen und Farben bleiben wie im Entwurf (Nutzerentscheidung 2026-11-22);
-  nur `outline-none` wird durch einen sichtbaren Fokusrahmen ersetzt; Sichtprüfung durch den Nutzer nach
+  kein eigener Fokusrahmen (ADR-0026); der Browser-Standard bleibt; Sichtprüfung durch den Nutzer nach
   Schritt 0
-- **MudBlazor-Grenzen:** Seitenleiste und Reiter möglichst mit MudBlazor-Komponenten, ARIA prüfen;
+- [x] **MudBlazor-Grenzen (erledigt):** Seitenleiste und Reiter möglichst mit MudBlazor-Komponenten, ARIA prüfen;
   wo MudBlazor nicht reicht, eigene schlanke Komponente
-- **Miniaturen** (Kacheln, Zuletzt bearbeitet) brauchen Vorschaubilder – kommen sonst erst mit M4b
+- [x] **Miniaturen (erledigt)** (Kacheln, Zuletzt bearbeitet) brauchen Vorschaubilder – kommen sonst erst mit M4b
 
 ### Rückblick (nach Abschluss)
 | Paket | geplante Stufe | passend? | Anmerkung |

@@ -48,9 +48,6 @@
   <data name="NavDocuments" xml:space="preserve">
     <value>Dokumente</value>
   </data>
-  <data name="NavSearch" xml:space="preserve">
-    <value>Suche</value>
-  </data>
   <data name="SearchLabel" xml:space="preserve">
     <value>Dokumente durchsuchen</value>
   </data>
@@ -134,18 +131,6 @@
   </data>
   <data name="ColStatus" xml:space="preserve">
     <value>Status</value>
-  </data>
-  <data name="StateQueued" xml:space="preserve">
-    <value>In Warteschlange</value>
-  </data>
-  <data name="StateProcessing" xml:space="preserve">
-    <value>Wird verarbeitet</value>
-  </data>
-  <data name="StateDone" xml:space="preserve">
-    <value>Fertig</value>
-  </data>
-  <data name="StateFailed" xml:space="preserve">
-    <value>Fehlgeschlagen</value>
   </data>
   <data name="StateChanged" xml:space="preserve">
     <value>{0}: Status {1}</value>

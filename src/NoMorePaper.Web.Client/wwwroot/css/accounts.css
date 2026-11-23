@@ -73,17 +73,6 @@
     margin: 0.25rem 0.5rem 0.25rem 0;
 }
 
-.private-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.25rem;
-    margin-inline-start: 0.75rem;
-    padding: 0 0.5rem;
-    border: 2px solid var(--nmp-text);
-    border-radius: 4px;
-    font-weight: 700;
-}
-
 /* The notice after an administrator's reset: boxed and bold like an error, it waits for "Got it". */
 .reset-notice {
     margin: 1rem 0;

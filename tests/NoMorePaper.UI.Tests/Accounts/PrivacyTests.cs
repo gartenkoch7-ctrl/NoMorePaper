@@ -163,7 +163,7 @@ public sealed class PrivacyTests(ServerFixture server)
         await page.Locator("#header-search-input").FillAsync("Betrag");
         await page.Keyboard.PressAsync("Enter");
 
-        await Assertions.Expect(page.Locator(".search-hit").Nth(0).Locator(".private-badge")).ToHaveTextAsync("Privat");
-        await Assertions.Expect(page.Locator(".search-hit").Nth(1).Locator(".private-badge")).ToHaveCountAsync(0);
+        await Assertions.Expect(page.Locator(".search-hit").Nth(0).Locator(".nmp-badge")).ToHaveTextAsync("Privat");
+        await Assertions.Expect(page.Locator(".search-hit").Nth(1).Locator(".nmp-badge")).ToHaveCountAsync(0);
     }
 }
