@@ -163,7 +163,7 @@ public sealed partial class PageEditor
         _saveError = null;
         var split = Model.IsSplit;
         var result = split
-            ? await Api.SplitAsync(Id, Model.ToSplit())
+            ? await Api.SplitAsync(Id, Model.ToSplit(), CropImages())
             : await Api.SaveEditAsync(Id, Model.ToPlan(), CropImages());
         _saving = false;
         if (!result.IsSuccess)
@@ -193,7 +193,7 @@ public sealed partial class PageEditor
     {
         _discarding = false;
         Model.Reset();
-        _crops.Clear();
+        await ResetCropsAsync();
         _focus.On(PageEditorIds.Heading1);
         await Say(L["PeAnnDiscarded"]);
     }

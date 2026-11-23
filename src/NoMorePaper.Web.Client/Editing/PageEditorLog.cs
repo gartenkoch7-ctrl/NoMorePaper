@@ -23,4 +23,12 @@ internal static partial class PageEditorLog
     [LoggerMessage(EventId = 4303, EventName = "PageEditorFailed", Level = LogLevel.Warning,
         Message = "Page editor call failed: {Status}")]
     public static partial void PageEditorFailed(this ILogger logger, string status);
+
+    [LoggerMessage(EventId = 4310, EventName = "PageCropDetected", Level = LogLevel.Information,
+        Message = "Page editor drew a page to crop and looked for the sheet in {ElapsedMs} ms, sheet found: {Found}")]
+    public static partial void PageCropDetected(this ILogger logger, int elapsedMs, bool found);
+
+    [LoggerMessage(EventId = 4311, EventName = "PageCropFailed", Level = LogLevel.Warning,
+        Message = "Page editor could not crop a page: {Reason}")]
+    public static partial void PageCropFailed(this ILogger logger, string reason);
 }

@@ -28,6 +28,31 @@ internal static class EditingPdfs
         return Build(objects);
     }
 
+    /// <summary>
+    /// Page 1 and 2 are a photographed sheet: a white sheet of 450 × 650 pt, turned by 3° about the page centre, on a
+    /// dark background (as a scan with the lid open). Its edges are 2–3 cm from the page edges. Page 3 has text only:
+    /// no sheet edge to find.
+    /// </summary>
+    public static byte[] SkewedSheets()
+    {
+        // cos 3°, sin 3° and the shift that keeps the sheet's centre on the page centre (297.5, 421).
+        const string Sheet = "0.3 g 0 0 595 842 re f q 0.99863 0.05234 -0.05234 0.99863 89.818 84.669 cm "
+            + "1 g 0 0 450 650 re f 0 g BT /F1 20 Tf 40 590 Td (Rechnung) Tj 0 -30 Td (Betrag 42 Euro) Tj ET Q";
+        string[] objects =
+        [
+            "<< /Type /Catalog /Pages 2 0 R >>",
+            "<< /Type /Pages /Kids [3 0 R 4 0 R 5 0 R] /Count 3 >>",
+            Page(7),
+            Page(8),
+            Page(9),
+            "<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>",
+            Stream(Sheet),
+            Stream(Sheet),
+            Stream("BT /F1 24 Tf 72 760 Td (Seite drei) Tj ET"),
+        ];
+        return Build(objects);
+    }
+
     private static string Page(int contents) => string.Create(
         CultureInfo.InvariantCulture,
         $"<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 6 0 R >> >> /Contents {contents} 0 R >>");

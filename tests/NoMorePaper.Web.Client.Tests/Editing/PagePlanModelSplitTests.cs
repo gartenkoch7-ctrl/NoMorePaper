@@ -145,4 +145,24 @@ public sealed class PagePlanModelSplitTests
 
         Assert.Empty(model.SplitsAfter);
     }
+
+    [Fact]
+    public void ToSplit_MarksReplacedPagesInEveryPart_LikeToPlan_AndNotDeletedOnes()
+    {
+        var model = new PagePlanModel(4);
+        model.Replace(0, "a", "t");
+        model.Replace(2, "b", "t");
+        model.Replace(3, "c", "t");
+        model.ToggleDelete(3);
+        model.ToggleSplitAfter(1);
+
+        var steps = model.ToSplit().Parts.SelectMany(part => part.Steps).ToList();
+
+        // Exactly the pages whose image goes with the request (page-<n>): kept and replaced.
+        Assert.Equal([1, 3], steps.Where(step => step.Replaced).Select(step => step.SourcePage));
+        Assert.Equal([1, 2, 3], steps.Select(step => step.SourcePage));
+        Assert.Equal(
+            model.Entries.Where(entry => !entry.Deleted && entry.ReplacedJpegKey is not null).Select(entry => entry.SourcePage),
+            steps.Where(step => step.Replaced).Select(step => step.SourcePage));
+    }
 }

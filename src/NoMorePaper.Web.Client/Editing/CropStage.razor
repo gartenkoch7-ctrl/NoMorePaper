@@ -1,0 +1,106 @@
+@using System.Globalization
+@inject IStringLocalizer<Strings> L
+
+@* The page with its crop frame. The box has the page's shape and is turned with the page, so the frame and the
+   handles are placed on the stored page and still appear where they are seen. The page itself is the shader
+   preview (ADR-0011) and decoration; the frame is drawn, the handles are buttons named with their position.
+   Handles come in the order they are seen (top left, top right, bottom right, bottom left), so Tab goes round. *@
+<div class="pe-crop-page pe-crop-rot-@((int)Rotation)" style="@BoxStyle"
+     role="@(Interactive ? "group" : null)" aria-label="@(Interactive ? L["CropGroup", Number].Value : null)">
+    <Thumbnail Source="@Source" Page="Page" CssWidth="240" Title="@Title" />
+    <svg class="pe-crop-frame" viewBox="0 0 1000 1000" preserveAspectRatio="none" aria-hidden="true" focusable="false">
+        <path class="pe-crop-shade" fill-rule="evenodd" d="@ShadePath" />
+        <polygon class="pe-crop-line" points="@Shape.Quad.ToSvgPoints()" />
+    </svg>
+    @if (Interactive)
+    {
+        @foreach (var corner in Corners)
+        {
+            var at = Shape.Quad[CropGeometry.StoredCorner(corner, Rotation)];
+            <button type="button" id="@PageEditorIds.Corner(Page, corner)" class="pe-crop-handle" data-corner="@((int)corner)"
+                    style="@HandleStyle(at)" aria-label="@(Label?.Invoke(corner))" aria-describedby="@PageEditorIds.CropKeys(Page)"
+                    @onkeydown="e => OnKeyAsync(corner, e)"></button>
+        }
+    }
+</div>
+
+@code {
+    private static readonly CropCorner[] Corners = [CropCorner.TopLeft, CropCorner.TopRight, CropCorner.BottomRight, CropCorner.BottomLeft];
+
+    /// <summary>The frame and the size of the page.</summary>
+    [Parameter, EditorRequired] public CropShape Shape { get; set; } = default!;
+
+    /// <summary>URL of the PDF the preview is drawn from.</summary>
+    [Parameter, EditorRequired] public string Source { get; set; } = string.Empty;
+
+    /// <summary>The stored page (from 1).</summary>
+    [Parameter, EditorRequired] public int Page { get; set; }
+
+    /// <summary>The page's number among those that stay ("Seite x").</summary>
+    [Parameter] public int Number { get; set; }
+
+    /// <summary>Name of the page for the preview ("Seite x von y").</summary>
+    [Parameter] public string Title { get; set; } = string.Empty;
+
+    [Parameter] public PageRotationDto Rotation { get; set; }
+
+    /// <summary>Handles to move the corners; without them only the frame of an applied crop is shown.</summary>
+    [Parameter] public bool Interactive { get; set; }
+
+    /// <summary>A corner was moved by a key: the new frame and the corner as seen.</summary>
+    [Parameter] public EventCallback<(CropQuad Quad, CropCorner Corner)> OnChange { get; set; }
+
+    /// <summary>Enter on a handle applies the crop.</summary>
+    [Parameter] public EventCallback OnApply { get; set; }
+
+    /// <summary>Name of a handle with its position ("Ecke oben links: 3 % von links, 2 % von oben"); the page also says it aloud.</summary>
+    [Parameter] public Func<CropCorner, string>? Label { get; set; }
+
+    private static string Css(double value) => value.ToString("0.###", CultureInfo.InvariantCulture);
+
+    // The page fills the square preview along its longer side; turned by 90° it still fits.
+    private string BoxStyle
+    {
+        get
+        {
+            var wide = Shape.WidthPt >= Shape.HeightPt;
+            var width = wide ? 100 : 100 * Shape.WidthPt / Shape.HeightPt;
+            var height = wide ? 100 * Shape.HeightPt / Shape.WidthPt : 100;
+            return $"--pe-w: {Css(width)}%; --pe-h: {Css(height)}%";
+        }
+    }
+
+    // Everything outside the frame is shaded; even-odd leaves the frame itself clear.
+    private string ShadePath => "M0 0H1000V1000H0Z M" + Shape.Quad.ToSvgPoints().Replace(" ", " L", StringComparison.Ordinal) + "Z";
+
+    private static string HandleStyle(CropPoint at) => $"--x: {Css(at.X / 10.0)}%; --y: {Css(at.Y / 10.0)}%";
+
+    private async Task OnKeyAsync(CropCorner corner, KeyboardEventArgs e)
+    {
+        if (e.CtrlKey || e.AltKey || e.MetaKey)
+        {
+            return;
+        }
+
+        if (e.Key == "Enter")
+        {
+            await OnApply.InvokeAsync();
+            return;
+        }
+
+        // 1 % per press; with Shift 0.2 % for the fine end (the hint says so).
+        var step = e.ShiftKey ? 2 : 10;
+        var (dx, dy) = e.Key switch
+        {
+            "ArrowLeft" => (-step, 0),
+            "ArrowRight" => (step, 0),
+            "ArrowUp" => (0, -step),
+            "ArrowDown" => (0, step),
+            _ => (0, 0),
+        };
+        if (dx != 0 || dy != 0)
+        {
+            await OnChange.InvokeAsync((CropGeometry.MoveBy(Shape.Quad, Rotation, corner, dx, dy), corner));
+        }
+    }
+}

@@ -9,8 +9,8 @@ public sealed partial class PageEditor
     // Cropped images by the key the model holds; filled by the crop step. Sent with "Speichern" as page-<n>.
     private readonly Dictionary<string, byte[]> _crops = [];
 
-    // "Zuschneiden" and the automatic crop are switched on once the crop step exists.
-    private static bool CropEnabled => false;
+    // "Zuschneiden" and the automatic crop (P2c); the cards keep the switch so they can be turned off again.
+    private static bool CropEnabled => true;
 
     private IReadOnlyList<(int Page, byte[] Jpeg)> CropImages() =>
     [
@@ -49,6 +49,21 @@ public sealed partial class PageEditor
             case PageAction.ToggleSplit:
                 await ToggleSplitAsync(index, page);
                 break;
+            case PageAction.Crop or PageAction.CropByHand:
+                await StartCropAsync(page, automatic: false);
+                break;
+            case PageAction.AutoCrop:
+                await StartCropAsync(page, automatic: true);
+                break;
+            case PageAction.CropApply:
+                await ApplyOpenCropAsync();
+                break;
+            case PageAction.CropCancel:
+                await CancelCropAsync();
+                break;
+            case PageAction.ClearCrop:
+                await ClearCropAsync(index, page);
+                break;
         }
     }
 
@@ -73,6 +88,12 @@ public sealed partial class PageEditor
 
     private async Task ToggleDeleteAsync(int index, int page)
     {
+        if (page == _cropPage)
+        {
+            // A deleted page has no frame to set.
+            await CloseCropAsync();
+        }
+
         var number = Model.NumberOf(index);
         var wasDeleted = Model.Entries[index].Deleted;
         Model.ToggleDelete(index);
@@ -112,7 +133,8 @@ public sealed partial class PageEditor
 
     private async Task OnListKeyDown(KeyboardEventArgs e)
     {
-        if (_saved != SavedKind.None || !(e.CtrlKey || e.MetaKey) || e.AltKey || !string.Equals(e.Key, "z", StringComparison.OrdinalIgnoreCase))
+        // While a frame is open its handles have the keys; undo would change the page under it.
+        if (_saved != SavedKind.None || Cropping || !(e.CtrlKey || e.MetaKey) || e.AltKey || !string.Equals(e.Key, "z", StringComparison.OrdinalIgnoreCase))
         {
             return;
         }

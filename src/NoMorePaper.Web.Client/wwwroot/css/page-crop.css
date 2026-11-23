@@ -1,1 +1,117 @@
-/* Zuschnitt und Geraderichten in "Seiten bearbeiten" (Stitch 14), M4b Spur B. */
+/* Zuschnitt und Geraderichten in "Seiten bearbeiten" (Stitch 14 v2), M4b Spur B.
+   The page box has the page's shape (--pe-w, --pe-h set by CropStage) and is turned with the page; frame and
+   handles sit on it in percent of the stored page. Colours only from the design tokens; focus on the handles is
+   the browser's own (ADR-0026), no ring of our own. */
+
+/* Handles on the page edge reach out of the preview; clipped, half a handle and its focus would be missing. */
+.pe-preview-crop {
+    position: relative;
+    overflow: visible;
+}
+
+.pe-crop-page {
+    position: absolute;
+    top: calc((100% - var(--pe-h)) / 2);
+    left: calc((100% - var(--pe-w)) / 2);
+    width: var(--pe-w);
+    height: var(--pe-h);
+    transition: transform 150ms ease;
+}
+
+.pe-crop-rot-90 { transform: rotate(90deg); }
+.pe-crop-rot-180 { transform: rotate(180deg); }
+.pe-crop-rot-270 { transform: rotate(270deg); }
+
+/* The preview fills the page box exactly, so the frame lies on the page. */
+.pe-preview .pe-crop-page .thumbnail,
+.pe-preview .pe-crop-page .thumbnail canvas {
+    display: block;
+    width: 100%;
+    max-width: none;
+    height: 100%;
+}
+
+.pe-crop-frame {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+    pointer-events: none;
+}
+
+.pe-crop-shade {
+    fill: var(--nmp-canvas-lowest);
+    fill-opacity: 0.65;
+}
+
+.pe-crop-line {
+    fill: none;
+    stroke: var(--nmp-primary);
+    stroke-width: 2;
+    stroke-dasharray: 6 4;
+    vector-effect: non-scaling-stroke;
+}
+
+/* Large to hit (2.75 rem); the visible grip is the square in the middle. */
+.pe-crop-handle {
+    position: absolute;
+    top: var(--y);
+    left: var(--x);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.75rem;
+    height: 2.75rem;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    transform: translate(-50%, -50%);
+    cursor: move;
+    touch-action: none;
+}
+
+.pe-crop-handle::after {
+    content: "";
+    width: 1rem;
+    height: 1rem;
+    border: 2px solid var(--nmp-on-primary);
+    border-radius: var(--nmp-radius-sm);
+    background: var(--nmp-primary);
+}
+
+.pe-crop-panel {
+    display: flex;
+    flex-direction: column;
+    gap: var(--nmp-space-sm);
+    padding: var(--nmp-space-md);
+    background: var(--nmp-paper-low);
+    border-radius: var(--nmp-radius);
+}
+
+.pe-crop-explain,
+.pe-crop-keys {
+    margin: 0;
+    color: var(--nmp-text-variant);
+    font-family: var(--nmp-font-mono);
+    font-size: 0.75rem;
+}
+
+.pe-crop-keys {
+    display: flex;
+    align-items: center;
+    gap: var(--nmp-space-sm);
+    color: var(--nmp-text);
+}
+
+.pe-crop-keys .mud-icon-root {
+    flex: none;
+    font-size: 1rem;
+}
+
+/* Buttons wrap instead of keeping a fixed height. */
+.pe-crop-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--nmp-space-sm);
+}

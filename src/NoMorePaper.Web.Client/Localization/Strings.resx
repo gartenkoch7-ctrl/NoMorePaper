@@ -1999,7 +1999,7 @@
     <value>Seite {0} bearbeiten</value>
   </data>
   <data name="PeKeysHint" xml:space="preserve">
-    <value>Tasten auf der Karte: R dreht nach rechts, Umschalt+R nach links, Entf löscht oder macht das Löschen rückgängig, Alt+Pfeil nach oben oder unten verschiebt, T setzt eine Trennstelle. Strg+Z macht die letzte Änderung rückgängig. Mit NVDA zuerst in den Fokusmodus wechseln (NVDA+Leertaste).</value>
+    <value>Tasten auf der Karte: R dreht nach rechts, Umschalt+R nach links, Entf löscht oder macht das Löschen rückgängig, Alt+Pfeil nach oben oder unten verschiebt, T setzt eine Trennstelle, Z öffnet den Zuschnitt. Strg+Z macht die letzte Änderung rückgängig. Mit NVDA zuerst in den Fokusmodus wechseln (NVDA+Leertaste).</value>
   </data>
   <data name="PeRotateLeft" xml:space="preserve">
     <value>Nach links drehen</value>

@@ -35,6 +35,7 @@ builder.Services.AddScoped<PreferencesApi>();
 builder.Services.AddScoped<InputsApi>();
 builder.Services.AddScoped<OwnerCheckApi>();
 builder.Services.AddScoped<EditingApi>();
+builder.Services.AddScoped<CropInterop>();
 builder.Services.AddScoped<TrashApi>();
 builder.Services.AddSingleton(TimeProvider.System);
 builder.Services.AddScoped<ViewerInterop>();

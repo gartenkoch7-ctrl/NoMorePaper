@@ -52,6 +52,9 @@ internal sealed class FakePageEditor
     /// <summary>Split suggestion the review list carries for this document; <c>null</c> without one.</summary>
     public SplitSuggestionDto? Suggestion { get; init; }
 
+    /// <summary>The archive PDF the previews and the crop are drawn from; three pages.</summary>
+    public Func<byte[]> Pdf { get; init; } = EditingPdfs.ThreePages;
+
     public AccountMocks Mocks { get; } = new();
 
     /// <summary>URLs the previews were requested from (the archive PDF), in request order.</summary>
@@ -88,7 +91,7 @@ internal sealed class FakePageEditor
 
     public async Task InstallAsync(IPage page)
     {
-        var pdf = EditingPdfs.ThreePages();
+        var pdf = Pdf();
         var detail = new DocumentDetailDto(
             Id, Title, DateTimeOffset.UtcNow, DocumentProcessingState.Done, null, null,
             new DocumentFileDto("brief.pdf", "application/pdf", pdf.Length, "0"), IsPrivate: IsPrivate, IsMine: true, EditedAt: EditedAt);
@@ -124,8 +127,23 @@ internal sealed class FakePageEditor
         {
             await Mocks.RespondAsync(page, "POST", $"/api/documents/{Id}/{call}", SaveStatus);
         }
+
+        // Registered last, so it sees the calls first: the raw body (JPEG parts are binary), then the answer above.
+        await page.RouteAsync(new Regex($"/api/documents/{Id}/(edit|split)$"), route =>
+        {
+            var request = route.Request;
+            if (request.Method == "POST")
+            {
+                Sent[new Uri(request.Url).Segments[^1]] = (request.Headers.GetValueOrDefault("content-type") ?? "", request.PostDataBuffer ?? []);
+            }
+
+            return route.FallbackAsync();
+        });
     }
 
     /// <summary>The JSON of the plan the page sent (the multipart body carries it as its first part).</summary>
     public string? PlanBody(string call) => Mocks.BodyOf("POST", $"/api/documents/{Id}/{call}");
+
+    /// <summary>The last body of <c>edit</c> or <c>split</c> as sent, by call.</summary>
+    public ConcurrentDictionary<string, (string ContentType, byte[] Body)> Sent { get; } = new();
 }

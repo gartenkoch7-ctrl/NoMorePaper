@@ -86,8 +86,11 @@ else if (_pages is not null)
                 @for (var i = 0; i < Model.Entries.Count; i++)
                 {
                     var index = i;
-                    <PageCard @key="Model.Entries[index].SourcePage" Model="Model" Index="index" Info="InfoOf(Model.Entries[index])"
+                    var entry = Model.Entries[index];
+                    <PageCard @key="entry.SourcePage" Model="Model" Index="index" Info="InfoOf(entry)"
                               Source="@PreviewSource" Readonly="@(_saved != SavedKind.None)" CropEnabled="CropEnabled"
+                              Crop="CropOf(entry)" Applied="AppliedOf(entry)" CropNotice="@CropNoticeOf(entry)" CropNotFound="_cropNotFound"
+                              CropLabel="CornerLabel" OnCropChange="OnCropChangeAsync"
                               OnAction="action => OnCardActionAsync(index, action)" />
                     @if (Model.EffectiveSplitsAfter.Contains(index))
                     {

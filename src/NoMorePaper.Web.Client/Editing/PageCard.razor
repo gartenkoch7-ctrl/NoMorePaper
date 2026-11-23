@@ -23,15 +23,31 @@ else
 {
     <li>
         <article class="pe-card" aria-labelledby="@HeadingId" @onkeydown="OnKeyDown">
-            <div class="pe-preview pe-rot-@((int)Entry.Rotation)" aria-hidden="true">
-                <Thumbnail Source="@Source" Page="Entry.SourcePage" CssWidth="240" Title="@L["PePageOf", Model.NumberOf(Index), Model.KeptCount]" />
-            </div>
+            @if ((Crop ?? Applied) is { } shape)
+            {
+                @* Open: the handles are in here, so only the drawn parts are hidden. Applied: the frame shows what is kept. *@
+                <div class="pe-preview pe-preview-crop" aria-hidden="@(Crop is null ? "true" : null)">
+                    <CropStage Shape="shape" Source="@Source" Page="Entry.SourcePage" Number="Model.NumberOf(Index)" Title="@PageTitle"
+                               Rotation="Entry.Rotation" Interactive="@(Crop is not null)" Label="CropLabel" OnChange="OnCropChange"
+                               OnApply="() => Raise(PageAction.CropApply)" />
+                </div>
+            }
+            else
+            {
+                <div class="pe-preview pe-rot-@((int)Entry.Rotation)" aria-hidden="true">
+                    <Thumbnail Source="@Source" Page="Entry.SourcePage" CssWidth="240" Title="@PageTitle" />
+                </div>
+            }
             <div class="pe-body">
                 <div class="pe-title-row">
-                    <MudText Typo="Typo.h3" HtmlTag="h2" id="@HeadingId" tabindex="-1">@L["PePageOf", Model.NumberOf(Index), Model.KeptCount]</MudText>
+                    <MudText Typo="Typo.h3" HtmlTag="h2" id="@HeadingId" tabindex="-1">@PageTitle</MudText>
                     @if (Info?.ProbablyBlank == true)
                     {
                         <Badge Icon="@Icons.Material.Outlined.CropFree" Text="@L["PeBlank"]" />
+                    }
+                    @if (Crop is not null)
+                    {
+                        <Badge Icon="@Icons.Material.Outlined.Crop" Text="@L["CropActive"]" />
                     }
                 </div>
                 @if (Info is { ProbablyBlank: false, Head.Length: > 0 })
@@ -47,43 +63,24 @@ else
                         }
                     </ul>
                 }
+                @if (Crop is not null)
+                {
+                    <PageCropPanel Page="Entry.SourcePage" OnApply="() => Raise(PageAction.CropApply)" OnCancel="() => Raise(PageAction.CropCancel)" />
+                }
+                else if (CropNotice is not null)
+                {
+                    @* No sheet found: a question with its answer; a failure: an error the screen reader announces. *@
+                    <NoticeBox Kind="@(CropNotFound ? NoticeKind.Success : NoticeKind.Error)" Announce="@(!CropNotFound)" Message="@CropNotice"
+                               Icon="@(CropNotFound ? Icons.Material.Filled.Info : null)">
+                        @if (CropNotFound && !Readonly)
+                        {
+                            <button type="button" id="@ButtonId("crop-hand")" class="nmp-button" @onclick="() => Raise(PageAction.CropByHand)">@L["CropSetByHand"]</button>
+                        }
+                    </NoticeBox>
+                }
                 @if (!Readonly)
                 {
-                    <div class="pe-buttons" role="group" aria-label="@L["PeGroup", Model.NumberOf(Index)]" aria-describedby="pe-keys">
-                        <button type="button" id="@ButtonId("rl")" class="nmp-button" @onclick="() => Raise(PageAction.RotateLeft)">
-                            <MudIcon Icon="@Icons.Material.Outlined.RotateLeft" aria-hidden="true" />@L["PeRotateLeft"]
-                        </button>
-                        <button type="button" id="@ButtonId("rr")" class="nmp-button" @onclick="() => Raise(PageAction.RotateRight)">
-                            <MudIcon Icon="@Icons.Material.Outlined.RotateRight" aria-hidden="true" />@L["PeRotateRight"]
-                        </button>
-                        @if (Model.CanMoveUp(Index))
-                        {
-                            <button type="button" id="@ButtonId("up")" class="nmp-button" @onclick="() => Raise(PageAction.MoveUp)">
-                                <MudIcon Icon="@Icons.Material.Outlined.ArrowUpward" aria-hidden="true" />@L["PeMoveUp"]
-                            </button>
-                        }
-                        @if (Model.CanMoveDown(Index))
-                        {
-                            <button type="button" id="@ButtonId("down")" class="nmp-button" @onclick="() => Raise(PageAction.MoveDown)">
-                                <MudIcon Icon="@Icons.Material.Outlined.ArrowDownward" aria-hidden="true" />@L["PeMoveDown"]
-                            </button>
-                        }
-                        <button type="button" id="@ButtonId("crop")" class="nmp-button" disabled="@(!CropEnabled)" @onclick="() => Raise(PageAction.Crop)">
-                            <MudIcon Icon="@Icons.Material.Outlined.Crop" aria-hidden="true" />@L["PeCrop"]
-                        </button>
-                        <button type="button" id="@ButtonId("auto")" class="nmp-button" disabled="@(!CropEnabled)" @onclick="() => Raise(PageAction.AutoCrop)">
-                            <MudIcon Icon="@Icons.Material.Outlined.AutoFixHigh" aria-hidden="true" />@L["PeAuto"]
-                        </button>
-                        <button type="button" id="@ButtonId("del")" class="nmp-button" @onclick="() => Raise(PageAction.ToggleDelete)">
-                            <MudIcon Icon="@Icons.Material.Outlined.Delete" aria-hidden="true" />@L["PeDelete"]
-                        </button>
-                        @if (Model.CanSplitAfter(Index))
-                        {
-                            <button type="button" id="@ButtonId("split")" class="nmp-button" aria-pressed="@(IsSplitAfter ? "true" : "false")" @onclick="() => Raise(PageAction.ToggleSplit)">
-                                <MudIcon Icon="@Icons.Material.Outlined.CallSplit" aria-hidden="true" />@L["PeSplitHere"]
-                            </button>
-                        }
-                    </div>
+                    <PageCardButtons Model="Model" Index="Index" CropEnabled="CropEnabled" Cropping="@(Crop is not null)" OnAction="OnAction" />
                 }
             </div>
         </article>
@@ -105,14 +102,31 @@ else
     /// <summary>After saving the list only shows the pages.</summary>
     [Parameter] public bool Readonly { get; set; }
 
-    /// <summary>"Zuschneiden" and the automatic crop work; off until the crop step is built.</summary>
+    /// <summary>"Zuschneiden" and the automatic crop work.</summary>
     [Parameter] public bool CropEnabled { get; set; }
+
+    /// <summary>The crop frame being set on this page; <c>null</c> when none is open here.</summary>
+    [Parameter] public CropShape? Crop { get; set; }
+
+    /// <summary>The frame of the crop that replaces this page, shown on the preview; <c>null</c> without one.</summary>
+    [Parameter] public CropShape? Applied { get; set; }
+
+    /// <summary>What the last crop of this page said: no sheet found (<see cref="CropNotFound"/>) or why it failed.</summary>
+    [Parameter] public string? CropNotice { get; set; }
+
+    [Parameter] public bool CropNotFound { get; set; }
 
     [Parameter] public EventCallback<PageAction> OnAction { get; set; }
 
+    /// <summary>Name of a corner handle of the open frame, with its position.</summary>
+    [Parameter] public Func<CropCorner, string>? CropLabel { get; set; }
+
+    /// <summary>A corner handle was moved by a key.</summary>
+    [Parameter] public EventCallback<(CropQuad Quad, CropCorner Corner)> OnCropChange { get; set; }
+
     private PageEntry Entry => Model.Entries[Index];
 
-    private bool IsSplitAfter => Model.SplitsAfter.Contains(Index);
+    private string PageTitle => L["PePageOf", Model.NumberOf(Index), Model.KeptCount];
 
     // Ids follow the stored page, not the position, so focus can find a card again after it moved.
     private string HeadingId => PageEditorIds.Heading(Entry.SourcePage);
@@ -152,6 +166,12 @@ else
         if (Readonly || e.CtrlKey || e.MetaKey)
         {
             return Task.CompletedTask;
+        }
+
+        // While the frame is open the keys belong to its handles; only Escape leaves it.
+        if (Crop is not null)
+        {
+            return e.Key == "Escape" ? Raise(PageAction.CropCancel) : Task.CompletedTask;
         }
 
         if (Entry.Deleted)

@@ -1999,7 +1999,7 @@
     <value>Edit page {0}</value>
   </data>
   <data name="PeKeysHint" xml:space="preserve">
-    <value>Keys on the card: R turns right, Shift+R turns left, Delete deletes or undoes the deletion, Alt+Arrow up or down moves, T sets a split point. Ctrl+Z undoes the last change. With NVDA switch to focus mode first (NVDA+Space).</value>
+    <value>Keys on the card: R turns right, Shift+R turns left, Delete deletes or undoes the deletion, Alt+Arrow up or down moves, T sets a split point, Z opens the crop. Ctrl+Z undoes the last change. With NVDA switch to focus mode first (NVDA+Space).</value>
   </data>
   <data name="PeRotateLeft" xml:space="preserve">
     <value>Rotate left</value>
