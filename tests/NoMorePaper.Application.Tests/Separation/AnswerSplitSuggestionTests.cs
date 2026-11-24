@@ -32,7 +32,6 @@ public sealed class AnswerSplitSuggestionTests
         Assert.Equal(document.Id, id);
         Assert.Equal(["1,2", "3", "4,6"], plan.Parts.Select(part => string.Join(',', part.Steps.Select(step => step.SourcePage))));
         Assert.Null(document.SplitSuggestion);
-        Assert.Equal(1, _documents.Saves);
         Assert.Contains(5710, _log.EventIds);
     }
 
@@ -43,29 +42,29 @@ public sealed class AnswerSplitSuggestionTests
     {
         var document = Stack(_current.Id);
         _splitter.Outcome = refusal;
-        SplitSuggestion? whileAsked = null;
-        _splitter.WhileAsked = () => whileAsked = document.SplitSuggestion;
 
         Assert.Equal(ChangeOutcome.Conflict, await Answer().AcceptAsync(document.Id, Ct));
 
-        Assert.Equal(s_suggestion, whileAsked);
+        // The open change is as it was, so committing it anyway would store nothing.
         Assert.Equal(s_suggestion, document.SplitSuggestion);
         Assert.Equal(0, _documents.Saves);
         Assert.DoesNotContain(5710, _log.EventIds);
     }
 
     [Fact]
-    public async Task Accept_EndsTheSuggestion_OnlyAfterTheSplitIsQueued()
+    public async Task Accept_EndsTheSuggestion_InTheChangeTheSplitCommits()
     {
         var document = Stack(_current.Id);
-        SplitSuggestion? whileAsked = null;
+        SplitSuggestion? whileAsked = s_suggestion;
         _splitter.WhileAsked = () => whileAsked = document.SplitSuggestion;
 
         Assert.Equal(ChangeOutcome.Changed, await Answer().AcceptAsync(document.Id, Ct));
 
-        Assert.Equal(s_suggestion, whileAsked);
+        // Already ended when the split commits, so both are stored together or neither is; the answer
+        // itself commits nothing apart from the split.
+        Assert.Null(whileAsked);
         Assert.Null(document.SplitSuggestion);
-        Assert.Equal(1, _documents.Saves);
+        Assert.Equal(0, _documents.Saves);
     }
 
     [Fact]

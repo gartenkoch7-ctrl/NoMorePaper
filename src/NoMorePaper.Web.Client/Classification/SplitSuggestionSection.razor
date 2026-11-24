@@ -91,6 +91,12 @@
 
     private async Task AcceptAsync()
     {
+        // "Ja, teilen" stays enabled while asking; a second press must not send a second answer.
+        if (_busy)
+        {
+            return;
+        }
+
         _busy = true;
         var result = await Api.AcceptSplitAsync(DocumentId);
         _busy = false;
@@ -101,11 +107,17 @@
         }
 
         Logger.SplitSuggestionAccepted();
+        _asking = false;
         await OnAnswered.InvokeAsync(true);
     }
 
     private async Task DismissAsync()
     {
+        if (_busy)
+        {
+            return;
+        }
+
         _busy = true;
         var result = await Api.DismissSplitAsync(DocumentId);
         _busy = false;

@@ -9,6 +9,8 @@ namespace NoMorePaper.Worker.Tests.Processing;
 [Collection(SharedPostgres.Name)]
 public sealed class ProcessNextDocumentStageTests(PostgresFixture postgres)
 {
+    private const JobStage UnknownStage = (JobStage)99;
+
     private static readonly DateTimeOffset s_start = ProcessorHarness.Start;
 
     private static CancellationToken Ct => TestContext.Current.CancellationToken;
@@ -20,10 +22,10 @@ public sealed class ProcessNextDocumentStageTests(PostgresFixture postgres)
         var waiting = await harness.AddQueuedDocumentAsync();
         await using (var db = harness.OtherWorkerContext())
         {
-            // No runner is registered for the separation yet (M4b track D); the job is due before the next one.
+            // A stage no runner handles (one a newer build queued); the job is due before the next one.
             await db.ProcessingJobs.Where(job => job.DocumentId == waiting)
                 .ExecuteUpdateAsync(
-                    setters => setters.SetProperty(job => job.Stage, JobStage.Separation).SetProperty(job => job.NextAttemptAt, s_start.AddSeconds(-1)),
+                    setters => setters.SetProperty(job => job.Stage, UnknownStage).SetProperty(job => job.NextAttemptAt, s_start.AddSeconds(-1)),
                     Ct);
         }
 
@@ -32,9 +34,9 @@ public sealed class ProcessNextDocumentStageTests(PostgresFixture postgres)
         Assert.True(await harness.Processor.ProcessNextAsync(Ct));
 
         var job = await harness.JobAsync(waiting);
-        Assert.Equal((JobStage.Separation, 1, (Guid?)null), (job!.Stage, job.Attempt, job.ClaimId));
+        Assert.Equal((UnknownStage, 1, (Guid?)null), (job!.Stage, job.Attempt, job.ClaimId));
         Assert.Equal(s_start.AddMinutes(1), job.NextAttemptAt);
-        Assert.Equal("No runner for stage Separation", job.LastError);
+        Assert.Equal("No runner for stage 99", job.LastError);
         Assert.Contains(5000, harness.Log.EventIds);
         Assert.Equal(0, harness.Ocr.Calls);
 

@@ -25,8 +25,8 @@ public sealed class AnswerSplitSuggestion(
     /// </returns>
     public async Task<ChangeOutcome> AcceptAsync(Guid id, CancellationToken cancellationToken)
     {
-        // Loaded under the row lock of FindVisibleAsync; the split loads the same document in the same
-        // transaction and saves both changes together.
+        // Loaded under the row lock of FindVisibleAsync; the split loads the same tracked document in the
+        // same transaction and commits both changes together.
         var (document, outcome) = await DocumentChangeGuard.LoadAsync(
             documents, current, logger, id, AcceptAction, found => found.CanEdit(current.Id), cancellationToken).ConfigureAwait(false);
         if (document is null)
@@ -40,19 +40,21 @@ public sealed class AnswerSplitSuggestion(
             return ChangeOutcome.Conflict;
         }
 
-        // The suggestion is left untouched while the split is asked for: a refused split changes nothing.
+        // The suggestion ends in the change the split commits (same scope, same row lock): the stack leaves
+        // "to review" exactly when its split is queued, never before and never without it.
         var plan = suggestion.ToPlan();
+        document.DismissSplit();
         var split = await splitter.RequestAsync(id, plan, cancellationToken).ConfigureAwait(false);
         if (split != ChangeOutcome.Changed)
         {
+            // A refused split commits nothing; the open change is put back as it was.
+            document.SuggestSplit(suggestion);
+
             // The plan comes from the stored suggestion, not from the request: when it does not fit, the
             // document changed since (pages edited), which is a conflict, not a bad request.
             return split == ChangeOutcome.Invalid ? ChangeOutcome.Conflict : split;
         }
 
-        // Saved in the same transaction as the queued split, so the document leaves "to review" with it.
-        document.DismissSplit();
-        await documents.SaveAsync(cancellationToken).ConfigureAwait(false);
         logger.SplitAccepted(current.Id, id, plan.Parts.Count);
         return ChangeOutcome.Changed;
     }

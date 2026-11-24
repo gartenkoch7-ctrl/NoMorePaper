@@ -1,19 +1,20 @@
 using System.Net;
 using System.Net.Http.Json;
-using Microsoft.AspNetCore.TestHost;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-using NoMorePaper.Application.Classification;
 using NoMorePaper.Application.Editing;
+using NoMorePaper.Application.Processing;
 using NoMorePaper.Contracts.Classification;
 using NoMorePaper.Contracts.Editing;
 using NoMorePaper.Domain.Editing;
 using NoMorePaper.Infrastructure.Persistence;
+using NoMorePaper.Server.Tests.Classification;
 using NoMorePaper.Server.Tests.Hosting;
 using Xunit;
 
 namespace NoMorePaper.Server.Tests.Editing;
 
-/// <summary>A split suggestion in "to review", accepted or dismissed (M4b, stack separation).</summary>
+/// <summary>A split suggestion in "to review", accepted (through the real split of track A) or dismissed.</summary>
 public sealed class SplitSuggestionApiTests(ApiFixture api)
 {
     private static readonly SplitSuggestion s_suggestion = new(
@@ -43,38 +44,39 @@ public sealed class SplitSuggestionApiTests(ApiFixture api)
     }
 
     [Fact]
-    public async Task Accept_QueuesTheSuggestedSplit_Once()
+    public async Task Accept_QueuesTheSuggestedSplit_AndEndsTheSuggestion_Once()
     {
-        var splitter = new RecordingSplitRequester();
-        await using var app = api.WithWebHostBuilder(builder =>
-            builder.ConfigureTestServices(services => services.AddScoped<ISplitRequester>(_ => splitter)));
-        (await api.CreateMemberAsync("split-accept", Ct)).Client.Dispose();
-        var (owner, _) = await app.SignInAsync("split-accept", ApiFixtureExtensions.MemberPassword, Ct);
+        var (owner, _) = await api.CreateMemberAsync("split-accept", Ct);
         var stack = await owner.UploadPdfAsync("stapel.pdf", isPrivate: false, Ct);
+        await ProcessedAsync(stack);
         await SuggestAsync(stack);
 
         Assert.Equal(HttpStatusCode.Accepted, await PostAsync(owner, stack, "accept"));
         Assert.Equal(HttpStatusCode.Conflict, await PostAsync(owner, stack, "accept"));
 
-        var (id, plan) = Assert.Single(splitter.Requests);
-        Assert.Equal(stack, id);
-        Assert.Equal(["1,2", "3", "4,6"], plan.Parts.Select(part => string.Join(',', part.Steps.Select(step => step.SourcePage))));
+        var (edit, job, suggestion) = await StateAsync(stack);
+        Assert.Equal(EditKind.Split, edit?.Kind);
+        var parts = EditDataJson.Parse(edit!.Data, EditKind.Split)?.Parts ?? [];
+        Assert.Equal(["1,2", "3", "4,6"], parts.Select(part => string.Join(',', part.Select(step => step.SourcePage))));
+        Assert.Equal(JobStage.Edit, job);
+        Assert.Null(suggestion);
+        Assert.DoesNotContain(await owner.GetFromJsonAsync<ReviewItemDto[]>("/api/review", Ct) ?? [], found => found.Id == stack);
     }
 
     [Fact]
-    public async Task Accept_IsAConflict_WhileTheSplitCannotBeQueued()
+    public async Task Accept_IsAConflict_WhileTheSplitCannotBeQueued_AndKeepsTheSuggestion()
     {
-        var splitter = new RecordingSplitRequester { Outcome = ChangeOutcome.Conflict };
-        await using var app = api.WithWebHostBuilder(builder =>
-            builder.ConfigureTestServices(services => services.AddScoped<ISplitRequester>(_ => splitter)));
-        (await api.CreateMemberAsync("split-busy", Ct)).Client.Dispose();
-        var (owner, _) = await app.SignInAsync("split-busy", ApiFixtureExtensions.MemberPassword, Ct);
+        // Just uploaded: its OCR job waits, so the document is not done and nothing can be split yet.
+        var (owner, _) = await api.CreateMemberAsync("split-busy", Ct);
         var stack = await owner.UploadPdfAsync("stapel.pdf", isPrivate: false, Ct);
         await SuggestAsync(stack);
 
         Assert.Equal(HttpStatusCode.Conflict, await PostAsync(owner, stack, "accept"));
 
-        // The suggestion stays, so it can be answered later.
+        var (edit, job, suggestion) = await StateAsync(stack);
+        Assert.Null(edit);
+        Assert.Equal(JobStage.Ocr, job);
+        Assert.Equal(s_suggestion.Parts, suggestion?.Parts);
         Assert.Contains(await owner.GetFromJsonAsync<ReviewItemDto[]>("/api/review", Ct) ?? [], found => found.Id == stack && found.Split is not null);
     }
 
@@ -92,5 +94,27 @@ public sealed class SplitSuggestionApiTests(ApiFixture api)
         var document = await db.Documents.FindAsync([id], Ct);
         document!.SuggestSplit(s_suggestion);
         await db.SaveChangesAsync(Ct);
+    }
+
+    // Plays the Worker: processed, and its job gone (OCR and recognition are over).
+    private async Task ProcessedAsync(Guid id)
+    {
+        await api.CompleteAsync(id, "Stadtwerke München");
+        await using var scope = api.Services.CreateAsyncScope();
+        var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+        await db.ProcessingJobs.Where(job => job.DocumentId == id).ExecuteDeleteAsync(Ct);
+    }
+
+    private async Task<(DocumentEdit? Edit, JobStage? Job, SplitSuggestion? Suggestion)> StateAsync(Guid id)
+    {
+        await using var scope = api.Services.CreateAsyncScope();
+        var edit = await scope.ServiceProvider.GetRequiredService<IDocumentEdits>().GetAsync(id, Ct);
+        var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+        var job = await db.ProcessingJobs.AsNoTracking()
+            .Where(found => found.DocumentId == id)
+            .Select(found => (JobStage?)found.Stage)
+            .SingleOrDefaultAsync(Ct);
+        var document = await db.Documents.AsNoTracking().SingleAsync(found => found.Id == id, Ct);
+        return (edit, job, document.SplitSuggestion);
     }
 }
