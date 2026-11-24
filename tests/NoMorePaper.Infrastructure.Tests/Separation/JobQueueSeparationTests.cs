@@ -47,6 +47,23 @@ public sealed class JobQueueSeparationTests(PostgresFixture postgres)
     }
 
     [Fact]
+    public async Task Complete_SendsAPartOfASplit_ToRecognition_EvenWhenItLooksLikeAStack()
+    {
+        var data = await QueueDatabase.CreateAsync(postgres, "queue_separation_split_part");
+        var id = await data.AddQueuedDocumentAsync(s_start);
+        await using var db = data.Context();
+        (await db.Documents.FindAsync([id], Ct))!.MarkSplitPart(Guid.CreateVersion7());
+        await db.SaveChangesAsync(Ct);
+        var queue = data.Queue(db);
+        var claim = (await queue.ClaimNextAsync(QueueDatabase.LockFor, Ct))!;
+        await queue.StartAsync(claim, Ct);
+
+        Assert.True(await queue.CompleteAsync(claim, "Rechnung", s_archive, [Page(1), Page(2), Page(3, blank: true)], Ct));
+
+        Assert.Equal(JobStage.Recognition, (await data.JobAsync(id))!.Stage);
+    }
+
+    [Fact]
     public async Task Complete_RemovesTheJob_OfAScannedStackWithoutText()
     {
         var data = await QueueDatabase.CreateAsync(postgres, "queue_separation_no_text");

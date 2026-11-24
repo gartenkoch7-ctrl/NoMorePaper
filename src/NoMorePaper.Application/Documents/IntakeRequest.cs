@@ -10,10 +10,12 @@ namespace NoMorePaper.Application.Documents;
 /// <param name="FileName">Name the file came with; cleaned by the intake, so callers may pass it unchecked.</param>
 /// <param name="MediaType">The detected type of the content (<see cref="FileSignature"/>), never a claimed one.</param>
 /// <param name="Mail">"From the mail", for documents that came by mail.</param>
+/// <param name="SplitFrom">The split document this file is a part of (<see cref="Document.MarkSplitPart"/>).</param>
 public sealed record IntakeRequest(
     Guid? OwnerId,
     DocumentSource Source,
     string FileName,
     string MediaType,
     Stream Content,
-    MailOrigin? Mail = null);
+    MailOrigin? Mail = null,
+    Guid? SplitFrom = null);

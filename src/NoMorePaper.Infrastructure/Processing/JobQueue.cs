@@ -121,8 +121,10 @@ public sealed partial class JobQueue(AppDbContext db, TimeProvider time, ILogger
             document.Complete(text);
             await ReplacePagesAsync(claim.DocumentId, pages, cancellationToken).ConfigureAwait(false);
 
-            // A scanned stack may hold several documents: separation looks first, recognition follows it.
-            MoveOn(job, document, SeparationHeuristics.IsScannedStack(pages) ? JobStage.Separation : JobStage.Recognition);
+            // A scanned stack may hold several documents: separation looks first, recognition follows it. A part
+            // of a split is not looked at again: the user settled its pages (e.g. kept some together on purpose).
+            var stack = document.SplitFrom is null && SeparationHeuristics.IsScannedStack(pages);
+            MoveOn(job, document, stack ? JobStage.Separation : JobStage.Recognition);
             await db.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
             await transaction.CommitAsync(cancellationToken).ConfigureAwait(false);
             return true;

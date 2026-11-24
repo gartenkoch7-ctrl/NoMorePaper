@@ -75,6 +75,11 @@ public sealed class IntakeDocument(
             document.AttachMailOrigin(mail);
         }
 
+        if (request.SplitFrom is { } splitFrom)
+        {
+            document.MarkSplitPart(splitFrom);
+        }
+
         if (request.OwnerId is null)
         {
             document.MarkOwnerCheck();

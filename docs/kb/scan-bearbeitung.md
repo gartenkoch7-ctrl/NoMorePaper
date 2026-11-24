@@ -65,7 +65,8 @@ und wird neu erkannt.
 
 ## Stapel-Trennung (Stufe `Separation`)
 
-- Läuft nach der OCR, nur bei mehrseitigen Scans ohne eigene Textebene.
+- Läuft nach der OCR, nur bei mehrseitigen Scans ohne eigene Textebene. Teile aus einem Split
+  (`Document.SplitFrom`) überspringen sie: Ihre Seiten hat der Nutzer schon festgelegt.
 - Heuristik (`SeparationHeuristics`): leere Seiten, Seitenzähler „Seite x von y“, Anrede, Absenderwechsel.
 - Ein LLM-Aufruf (`SeparationPrompt`, `SeparationAssessor`) mit den Seitenanfängen: höchstens **15 Seiten**,
   je Seite höchstens **160 Zeichen**. Vom Modell genannte Grenzen außerhalb des Stapels oder doppelt

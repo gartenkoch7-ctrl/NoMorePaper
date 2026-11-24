@@ -39,4 +39,19 @@ public sealed class DocumentEditingTests
         document.DismissSplit();
         Assert.Null(document.SplitSuggestion);
     }
+
+    [Fact]
+    public void MarkSplitPart_NotesTheSplitDocument_NeverItselfOrNothing()
+    {
+        var document = Document.Receive("Teil", DateTimeOffset.UnixEpoch, s_owner, isPrivate: false);
+        var source = Guid.CreateVersion7();
+        Assert.Null(document.SplitFrom);
+
+        Assert.Throws<ArgumentException>(() => document.MarkSplitPart(Guid.Empty));
+        Assert.Throws<ArgumentException>(() => document.MarkSplitPart(document.Id));
+        Assert.Null(document.SplitFrom);
+
+        document.MarkSplitPart(source);
+        Assert.Equal(source, document.SplitFrom);
+    }
 }

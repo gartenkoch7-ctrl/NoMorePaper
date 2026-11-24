@@ -262,6 +262,10 @@ namespace NoMorePaper.Infrastructure.Persistence.Migrations
                         .HasColumnType("character varying(16)")
                         .HasColumnName("source");
 
+                    b.Property<Guid?>("SplitFrom")
+                        .HasColumnType("uuid")
+                        .HasColumnName("split_from_id");
+
                     b.Property<string>("SplitSuggestion")
                         .HasColumnType("jsonb")
                         .HasColumnName("split_suggestion");

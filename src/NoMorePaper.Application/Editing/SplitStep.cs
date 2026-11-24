@@ -92,7 +92,7 @@ internal sealed class SplitStep(
         var content = sources.OpenRead(output);
         await using (content.ConfigureAwait(false))
         {
-            var request = new IntakeRequest(document.OwnerId, document.Source, name, EditSources.PdfMediaType, content);
+            var request = new IntakeRequest(document.OwnerId, document.Source, name, EditSources.PdfMediaType, content, SplitFrom: document.Id);
             result = await intake.AcceptAsync(request, document.IsPrivate, DuplicateScope.Owned, cancellationToken).ConfigureAwait(false);
         }
 

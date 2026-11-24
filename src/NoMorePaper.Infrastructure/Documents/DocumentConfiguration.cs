@@ -85,6 +85,7 @@ internal sealed class DocumentConfiguration : IEntityTypeConfiguration<Document>
             .HasConversion<string>()
             .HasMaxLength(EnumLength);
         builder.Property(document => document.EditedAt).HasColumnName("edited_at");
+        builder.Property(document => document.SplitFrom).HasColumnName("split_from_id");
         builder.Property(document => document.SplitSuggestion)
             .HasColumnName("split_suggestion")
             .HasColumnType("jsonb")

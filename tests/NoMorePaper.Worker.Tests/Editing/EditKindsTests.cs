@@ -71,7 +71,7 @@ public sealed class EditKindsTests(PostgresFixture postgres)
         Assert.Equal(2, parts.Count);
         Assert.All(parts, part =>
         {
-            Assert.Equal((ProcessorHarness.Owner, true, ProcessingState.Queued), (part.OwnerId, part.IsPrivate, part.State));
+            Assert.Equal((ProcessorHarness.Owner, true, ProcessingState.Queued, id), (part.OwnerId, part.IsPrivate, part.State, part.SplitFrom));
             Assert.Equal([editor], part.Editors.Select(found => found.AccountId));
         });
         Assert.Equal(["Scan 1 – 1", "Scan 1 – 2"], parts.Select(part => part.Title));
