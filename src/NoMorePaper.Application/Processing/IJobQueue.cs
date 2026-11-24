@@ -39,8 +39,8 @@ public interface IJobQueue
     Task<Document?> StartAsync(JobClaim claim, CancellationToken cancellationToken);
 
     /// <summary>
-    /// Stores the result of a successful OCR attempt and moves the job on to
-    /// <see cref="JobStage.Recognition"/>, due at once with its attempts reset, in one transaction. A
+    /// Stores the result of a successful OCR attempt and moves the job on to <see cref="JobStage.Separation"/>
+    /// for a scanned stack, otherwise to <see cref="JobStage.Recognition"/>, due at once with its attempts reset, in one transaction. A
     /// document without text, without owner or with confirmed fields has nothing to recognize: its job
     /// is removed instead. The page information replaces the document's earlier one in the same transaction.
     /// </summary>

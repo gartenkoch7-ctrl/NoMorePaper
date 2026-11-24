@@ -1,0 +1,11 @@
+{
+  "description": "Three invoices without salutation, told apart by their page counters.",
+  "pages": [
+    { "head": "Bauhaus · Fachcentrum München-Freiham\nRechnung 7781-2026\nSeite 1 von 2\nKunde: Max Mustermann\nArt.-Nr. Bezeichnung Menge Preis\n312455 Holzlasur 2,5 l 1 29,95", "blank": false },
+    { "head": "Bauhaus · Rechnung 7781-2026\nSeite 2 von 2\nSumme netto 41,13 EUR\nMwSt 19 % 7,82 EUR\nGesamtbetrag 48,95 EUR\nBezahlt mit EC-Karte", "blank": false },
+    { "head": "Vodafone GmbH\nMobilfunkrechnung November 2026\nSeite 1 von 1\nKundennummer 98765432\nRechnungsbetrag 17,99 EUR\nAbbuchung am 15.11.2026", "blank": false },
+    { "head": "ADAC Autoversicherung AG\nBeitragsrechnung 2027\nSeite 1 von 3\nVersicherungsnummer KH-445566\nFahrzeug M-MM 1234\nJahresbeitrag Haftpflicht 312,40 EUR", "blank": false },
+    { "head": "ADAC Autoversicherung AG\nSeite 2 von 3\nTeilkasko mit 150 EUR Selbstbeteiligung 98,20 EUR\nSchutzbrief 0,00 EUR", "blank": false },
+    { "head": "ADAC Autoversicherung AG\nSeite 3 von 3\nGesamtbeitrag 410,60 EUR, fällig am 01.01.2027\nBitte beachten Sie die beiliegenden Versicherungsbedingungen.", "blank": false }
+  ]
+}

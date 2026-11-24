@@ -1,0 +1,8 @@
+{
+  "description": "A doctor's invoice with its transfer slip on a second page, then a letter opening with 'Guten Tag'.",
+  "pages": [
+    { "head": "Praxis Dr. med. Sabine Roth · Fachärztin für Allgemeinmedizin · Leopoldstraße 40 · 80802 München\nHerrn Max Mustermann\nPrivatliquidation vom 30.10.2026\nSehr geehrter Herr Mustermann,\nfür die Behandlung am 21.10.2026 berechne ich Ihnen nach GOÄ:", "blank": false },
+    { "head": "SEPA-Überweisung\nEmpfänger: Dr. med. Sabine Roth\nIBAN DE.. .... .... 5566\nBetrag: 87,43 EUR\nVerwendungszweck: Rechnung 2026-1043 Mustermann", "blank": false },
+    { "head": "Fitnessstudio Kraftwerk · Rosenheimer Straße 145 · 81671 München\n10.11.2026\nIhre Mitgliedschaft\nGuten Tag Herr Mustermann,\nwir bestätigen die Kündigung Ihrer Mitgliedschaft zum 31.12.2026.", "blank": false }
+  ]
+}

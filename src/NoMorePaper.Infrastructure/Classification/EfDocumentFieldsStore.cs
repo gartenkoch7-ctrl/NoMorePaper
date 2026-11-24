@@ -105,7 +105,14 @@ public sealed class EfDocumentFieldsStore(AppDbContext db) : IDocumentFieldsStor
             .ConfigureAwait(false);
 
         var lookup = await new FieldsReader(db).LoadAsync(rows, viewerId, cancellationToken).ConfigureAwait(false);
-        return [.. rows.Select(row => new ReviewItem(row.Id, row.Title, row.ReceivedAt, lookup.View(row, viewerId), lookup.Candidate(row)))];
+        var ids = rows.Select(row => row.Id).ToList();
+        var splits = await db.Documents.AsNoTracking()
+            .Where(document => ids.Contains(document.Id) && document.SplitSuggestion != null)
+            .Select(document => new { document.Id, document.SplitSuggestion })
+            .ToDictionaryAsync(found => found.Id, found => found.SplitSuggestion, cancellationToken)
+            .ConfigureAwait(false);
+        return [.. rows.Select(row => new ReviewItem(
+            row.Id, row.Title, row.ReceivedAt, lookup.View(row, viewerId), lookup.Candidate(row), splits.GetValueOrDefault(row.Id)))];
     }
 
     public Task<int> CountReviewAsync(Guid viewerId, CancellationToken cancellationToken) =>
@@ -113,13 +120,14 @@ public sealed class EfDocumentFieldsStore(AppDbContext db) : IDocumentFieldsStor
 
     // "To review" for the viewer, one rule for the list and its number. The editing rule of
     // Document.CanEdit; an editor of a private document is no editor. A document waiting for its owner's
-    // check is the owner's alone to review (ADR-0024).
+    // check is the owner's alone to review (ADR-0024); a split suggestion is everybody's who may edit it.
     private IQueryable<Document> ReviewFor(Guid viewerId) =>
         db.Documents.AsNoTracking()
             .Where(document => document.OwnerId != null
                 && (document.OwnerId == viewerId || (!document.IsPrivate && document.Editors.Any(editor => editor.AccountId == viewerId))))
             .Where(document => document.Recognition == RecognitionState.Automatic
                 || (document.NeedsOwnerCheck && document.OwnerId == viewerId)
+                || document.SplitSuggestion != null
                 || db.Documents.Any(other => other.Id == document.PossibleDuplicateOf && (other.OwnerId == viewerId || !other.IsPrivate)));
 
     // The privacy rule of Document.IsVisibleTo, as SQL.

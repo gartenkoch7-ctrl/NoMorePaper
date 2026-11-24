@@ -1,0 +1,11 @@
+{
+  "description": "Blank separator sheets between an invoice, a two-page invoice with counters and a letter.",
+  "pages": [
+    { "head": "Elektro Huber · Meisterbetrieb · Gewerbestraße 7 · 85748 Garching\nRechnung Nr. 2026-311\nRechnungsdatum 28.10.2026\nHerrn Max Mustermann, Lindenstraße 5, 80331 München\nPos. 1 Austausch Steckdose Küche 1 Std. 68,00 EUR\nPos. 2 Material 12,40 EUR", "blank": false },
+    { "head": "", "blank": true },
+    { "head": "Telekom Deutschland GmbH\nIhre Rechnung für Oktober 2026\nSeite 1 von 2\nKundennummer 123 456 7890\nRechnungsdatum 02.11.2026\nRechnungsbetrag 39,95 EUR\nDer Betrag wird am 10.11.2026 von Ihrem Konto abgebucht.", "blank": false },
+    { "head": "Telekom Deutschland GmbH\nSeite 2 von 2\nEinzelverbindungsnachweis\nDatum Uhrzeit Zielrufnummer Dauer Betrag\n03.10.2026 18:22 0171 ... 00:04:12 0,00 EUR", "blank": false },
+    { "head": "", "blank": true },
+    { "head": "Landeshauptstadt München · Kreisverwaltungsreferat\nRuppertstraße 19 · 80337 München\nHerrn Max Mustermann\nLindenstraße 5\n80331 München\nIhr Antrag auf einen Bewohnerparkausweis\nSehr geehrter Herr Mustermann,\nIhr Antrag ist bei uns eingegangen.", "blank": false }
+  ]
+}

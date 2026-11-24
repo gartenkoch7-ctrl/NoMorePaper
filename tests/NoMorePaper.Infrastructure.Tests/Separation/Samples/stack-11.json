@@ -1,0 +1,8 @@
+{
+  "description": "A letter whose second page starts with the closing, then a new letter.",
+  "pages": [
+    { "head": "Deutsche Rentenversicherung Bund · 10704 Berlin\nHerrn Max Mustermann\nLindenstraße 5\n80331 München\n09.11.2026\nIhre Renteninformation 2026\nSehr geehrter Herr Mustermann,\nmit dieser Renteninformation erhalten Sie einen Überblick über", "blank": false },
+    { "head": "Mit freundlichen Grüßen\nIhre Deutsche Rentenversicherung\nDieses Schreiben wurde maschinell erstellt und ist ohne Unterschrift gültig.\nAnlage: Versicherungsverlauf", "blank": false },
+    { "head": "Beitragsservice von ARD, ZDF und Deutschlandradio · 50656 Köln\nHerrn Max Mustermann\nBeitragsnummer 123 456 789\n11.11.2026\nZahlungsaufforderung\nSehr geehrter Herr Mustermann,\nbitte zahlen Sie den Rundfunkbeitrag für das Quartal.", "blank": false }
+  ]
+}

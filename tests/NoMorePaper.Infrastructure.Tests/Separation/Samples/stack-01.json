@@ -1,0 +1,9 @@
+{
+  "description": "Three letters with salutations, no separator; the first runs over two pages.",
+  "pages": [
+    { "head": "Stadtwerke München GmbH · Emmy-Noether-Straße 2 · 80992 München\nHerrn Max Mustermann\nLindenstraße 5\n80331 München\nMünchen, 01.11.2026\nAnpassung Ihres Abschlags Strom\nKundennummer 4711-0815\nSehr geehrter Herr Mustermann,\nwir haben Ihren Verbrauch geprüft und passen Ihren", "blank": false },
+    { "head": "monatlichen Abschlag ab Dezember auf 86,00 EUR an. Der Betrag wird wie bisher per Lastschrift eingezogen. Wenn Sie Fragen haben, erreichen Sie uns montags bis freitags von 8 bis 18 Uhr.\nMit freundlichen Grüßen\nIhre Stadtwerke München", "blank": false },
+    { "head": "AOK Bayern · Die Gesundheitskasse\nPostfach 12 34 · 80001 München\nHerrn Max Mustermann\nLindenstraße 5\n80331 München\n03.11.2026\nIhre neue Gesundheitskarte\nSehr geehrter Herr Mustermann,\nanbei erhalten Sie Ihre neue elektronische Gesundheitskarte.", "blank": false },
+    { "head": "Hausverwaltung Berger · Schillerstraße 12 · 80336 München\nHerrn Max Mustermann\nLindenstraße 5\n80331 München\n05.11.2026\nNebenkostenabrechnung 2025\nSehr geehrter Herr Mustermann,\nanbei die Abrechnung der Betriebskosten für das Jahr 2025.", "blank": false }
+  ]
+}

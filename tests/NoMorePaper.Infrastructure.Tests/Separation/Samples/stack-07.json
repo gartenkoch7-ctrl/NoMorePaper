@@ -1,0 +1,8 @@
+{
+  "description": "A two-sheet bank statement, then a tax assessment with salutation.",
+  "pages": [
+    { "head": "Stadtsparkasse München\nKontoauszug Nr. 11/2026\nBlatt 1 von 2\nKonto DE.. ... 1234 Max Mustermann\nAlter Kontostand 1.204,33 EUR\n02.11. Lastschrift Stadtwerke München -84,20", "blank": false },
+    { "head": "Stadtsparkasse München\nKontoauszug Nr. 11/2026\nBlatt 2 von 2\n15.11. Gutschrift Gehalt 2.870,00\nNeuer Kontostand 3.512,48 EUR", "blank": false },
+    { "head": "Finanzamt München · Deroystraße 18 · 80335 München\nSteuernummer 143/123/45678\nHerrn Max Mustermann\nLindenstraße 5\n80331 München\nBescheid für 2025 über Einkommensteuer\nSehr geehrter Herr Mustermann,", "blank": false }
+  ]
+}

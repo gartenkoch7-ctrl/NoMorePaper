@@ -299,6 +299,27 @@ Typ-Listen mit `null`, `pattern`, `minItems`/`maxItems` und `enum` wurden von Ol
   zeigt (z. B. ein eigener Container auf `127.0.0.1:11500` mit dem Volume des Spikes); 2026-11-19
   lokal grün, 55 s mit Laden des Modells.
 
+## Stapel-Trennung (M4b)
+- **Kontext:** Die Trennung nutzt Modell und `num_ctx` 4 096 der Erkennung (sonst lädt Ollama neu), davon
+  600 Token für die Antwort. 30 Seiten × 300 Zeichen hätten das Fenster gesprengt; Ollama kürzt dann den
+  Anfang (Regeln) stillschweigend. Darum liest das LLM höchstens **15 Seiten** und je Seite die ersten
+  **160 Zeichen** (Briefkopf, Absender); die Seitenzeichen lesen weiter alle Seiten mit 300 Zeichen.
+  Liegt `prompt_eval_count` + 600 trotzdem über 4 096, wirft der `OllamaSeparationAssessor` die Antwort
+  weg (`InvalidDataException`, Ereignis 3528) und es zählen nur die Seitenzeichen. Ereignis 3990 nennt
+  die Prompt-Token.
+- **Leere Seiten:** Liegen alle leeren Seiten auf geraden Seitennummern, ist der Stapel vermutlich ein
+  Duplex-Scan (auch gemischt aus ein- und zweiseitigen Blättern); eine leere Seite ist dort nur eine
+  Rückseite und kein Trennzeichen. Ein neues Dokument danach braucht ein anderes Zeichen (Zähler
+  „Seite 1 von …“, Anrede, Absenderwechsel des LLM). Eine leere ungerade Seite ist eine Vorderseite, also
+  ein Trennblatt; dann trennen alle leeren Seiten. Preis: Ein einzelnes Trennblatt an gerader Stelle eines
+  Simplex-Scans trennt nur mit einem zweiten Zeichen.
+- **Musterstapel:** 13 Stapel in `tests/NoMorePaper.Infrastructure.Tests/Separation/Samples`
+  (`stack-13` = gemischter Duplex-Scan). `SeparationLiveTests` (nur mit `NOMOREPAPER_TEST_OLLAMA`) fordert
+  ≥ 80 % gefundene Grenzen und höchstens 20 % (bezogen auf die erwarteten) falsche. Gemessen 2026-11-23
+  (ministral-3, CPU, ~250 s für 13 Stapel): mit 160 Zeichen 20 von 21 Grenzen, 4 falsche (Präzision 83 %);
+  mit 300 Zeichen 21 von 21, aber 6 falsche (78 %). Das Modell setzt gern eine falsche Grenze auf Seite 2
+  (Folgeseiten ohne Briefkopf); die Seitenzeichen fangen das nicht ab.
+
 ## Offene Punkte
 - Inhaltliche Duplikate: Dauer der Trigramm-Suche mit sehr langen Texten (Verträge mit vielen Seiten)
   und großem Archiv nicht gemessen; ggf. nur Anfang des Textes vergleichen. Monatliche Rechnungen

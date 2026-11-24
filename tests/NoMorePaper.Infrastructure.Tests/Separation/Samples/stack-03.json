@@ -1,0 +1,11 @@
+{
+  "description": "Duplex scan of one-sided pages: every back side is empty; a two-page letter, then a one-page letter.",
+  "pages": [
+    { "head": "Rechtsanwälte Klein & Partner · Marienplatz 1 · 80331 München\nHerrn Max Mustermann\nLindenstraße 5\n80331 München\n06.11.2026\nIhr Mietverhältnis Lindenstraße 5\nSehr geehrter Herr Mustermann,\nwir zeigen an, dass wir die Interessen Ihrer Vermieterin vertreten.", "blank": false },
+    { "head": "", "blank": true },
+    { "head": "Die Vermieterin beabsichtigt, die Heizungsanlage im kommenden Jahr zu erneuern. Über die Auswirkungen auf die Miete werden wir Sie gesondert informieren. Wir bitten um Bestätigung des Eingangs dieses Schreibens bis zum 20.11.2026.\nMit freundlichen Grüßen\nDr. Klein, Rechtsanwalt", "blank": false },
+    { "head": "", "blank": true },
+    { "head": "Grundschule an der Haimhauserstraße · Haimhauserstraße 23 · 80802 München\nAn die Eltern der Klasse 3b\n07.11.2026\nElternabend\nSehr geehrte Eltern,\nwir laden Sie herzlich zum Elternabend am 19.11.2026 um 19 Uhr ein.", "blank": false },
+    { "head": "", "blank": true }
+  ]
+}

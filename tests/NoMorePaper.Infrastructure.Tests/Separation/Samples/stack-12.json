@@ -1,0 +1,10 @@
+{
+  "description": "Five one-page documents: salutations, a counter, and two that only a sender change shows.",
+  "pages": [
+    { "head": "Kassenärztliche Vereinigung Bayerns · Elsenheimerstraße 39 · 80687 München\nHerrn Max Mustermann\n02.11.2026\nIhr Termin über die Terminservicestelle\nSehr geehrter Herr Mustermann,\nwir haben für Sie einen Termin vereinbart.", "blank": false },
+    { "head": "1&1 Telecom GmbH\nRechnung November 2026\nSeite 1 von 1\nKundennummer K12345678\nRechnungsbetrag 29,99 EUR\nDer Betrag wird am 20.11.2026 abgebucht.", "blank": false },
+    { "head": "Kita Sonnenschein · Ungererstraße 80 · 80805 München\nElternbrief November\nLiebe Eltern,\nam 24.11.2026 bleibt die Kita wegen eines Teamtags geschlossen.", "blank": false },
+    { "head": "Zahnarztpraxis Dr. Huber · Theresienstraße 60 · 80333 München\nHerrn Max Mustermann\n13.11.2026\nHeil- und Kostenplan\nSehr geehrter Herr Mustermann,\nanbei erhalten Sie den Heil- und Kostenplan für die geplante Behandlung.", "blank": false },
+    { "head": "Aral Tankstelle · Leopoldstraße 120 · 80804 München\nBeleg-Nr. 0815\n14.11.2026 07:58\nSuper E10 38,21 l à 1,789 EUR\nSumme 68,36 EUR\nKartenzahlung girocard", "blank": false }
+  ]
+}

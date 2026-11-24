@@ -39,6 +39,7 @@ api.MapPreferencesEndpoints();
 api.MapOwnerCheckEndpoints();
 api.MapInputStatusEndpoints();
 api.MapMailSettingsEndpoints();
+api.MapSplitSuggestionEndpoints();
 api.MapTrashEndpoints();
 api.MapEditingEndpoints();
 app.MapFallbackToFile("index.html");

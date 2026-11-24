@@ -1,0 +1,15 @@
+{
+  "description": "Duplex scan of mixed sheets: a two-sided letter, a one-sided letter over two sheets, a one-sided receipt and a two-sided letter; only the back sides of the one-sided sheets are empty.",
+  "pages": [
+    { "head": "Finanzamt München · Deroystraße 18 · 80335 München\nHerrn Max Mustermann\nLindenstraße 5\n80331 München\n10.11.2026\nEinkommensteuerbescheid 2025\nSehr geehrter Herr Mustermann,\nfür das Jahr 2025 wird die Einkommensteuer wie folgt festgesetzt.", "blank": false },
+    { "head": "Rechtsbehelfsbelehrung: Der Bescheid kann mit dem Einspruch angefochten werden. Der Einspruch ist beim oben bezeichneten Finanzamt schriftlich einzureichen oder zur Niederschrift zu erklären.", "blank": false },
+    { "head": "Allianz Versicherungs-AG · Königinstraße 28 · 80802 München\nHerrn Max Mustermann\nLindenstraße 5\n80331 München\n11.11.2026\nIhre Hausratversicherung\nSehr geehrter Herr Mustermann,\nzum 01.01.2027 passen wir den Beitrag Ihrer Hausratversicherung an.", "blank": false },
+    { "head": "", "blank": true },
+    { "head": "der neue Jahresbeitrag beträgt 142,60 EUR. Sie können den Vertrag bis zum 31.12.2026 kündigen. Alle weiteren Bedingungen bleiben unverändert.\nMit freundlichen Grüßen\nAllianz Versicherungs-AG", "blank": false },
+    { "head": "", "blank": true },
+    { "head": "Apotheke am Rotkreuzplatz · Rotkreuzplatz 2 · 80634 München\nBeleg-Nr. 2211\n12.11.2026 16:42\nIbuprofen 400 mg 20 St. 4,95 EUR\nSumme 4,95 EUR\nBarzahlung", "blank": false },
+    { "head": "", "blank": true },
+    { "head": "Musikschule Neuhausen · Nymphenburger Straße 90 · 80636 München\nHerrn Max Mustermann\n13.11.2026\nAnmeldung Gitarrenunterricht\nGuten Tag Herr Mustermann,\nwir freuen uns, Ihre Tochter ab Januar im Gitarrenunterricht begrüßen zu dürfen.", "blank": false },
+    { "head": "Der Unterricht findet dienstags von 16 bis 16:45 Uhr statt. Die Gebühr von 48,00 EUR wird monatlich abgebucht.\nMit freundlichen Grüßen\nIhre Musikschule Neuhausen", "blank": false }
+  ]
+}

@@ -103,6 +103,8 @@ public sealed class EditKindsTests(PostgresFixture postgres)
             await db.Database.ExecuteSqlAsync($"DELETE FROM document_pages WHERE document_id = {id}", Ct);
         }
 
+        // The analysis reads two pages; the backlog only reads pages, so this is no stack for separation.
+        harness.Pages.Pages = [new PageInfo(1, "Rechnung Stromanbieter", false, false), new PageInfo(2, string.Empty, true, false)];
         var ocrCalls = harness.Ocr.Calls;
         await using (var scope = harness.Scopes.CreateAsyncScope())
         {

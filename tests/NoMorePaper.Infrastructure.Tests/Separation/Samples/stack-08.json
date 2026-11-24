@@ -1,0 +1,8 @@
+{
+  "description": "A German letter with a counter on its second page, then an English letter.",
+  "pages": [
+    { "head": "Allianz Versicherungs-AG · 10850 Berlin\nHerrn Max Mustermann\nLindenstraße 5\n80331 München\n08.11.2026\nIhre Hausratversicherung HV-778899\nSeite 1 von 2\nSehr geehrter Herr Mustermann,\nzum 01.01.2027 ändern sich Ihre Versicherungsbedingungen.", "blank": false },
+    { "head": "Seite 2 von 2\nIhr neuer Jahresbeitrag beträgt 132,40 EUR. Wenn Sie mit der Änderung nicht einverstanden sind, können Sie innerhalb eines Monats kündigen.\nFreundliche Grüße\nIhre Allianz", "blank": false },
+    { "head": "Booking.com B.V. · Herengracht 597 · 1017 CE Amsterdam\nMr Max Mustermann\n9 November 2026\nYour reservation 4455.667.889\nDear Mr Mustermann,\nthank you for your booking at Hotel Adlon, Berlin.", "blank": false }
+  ]
+}
