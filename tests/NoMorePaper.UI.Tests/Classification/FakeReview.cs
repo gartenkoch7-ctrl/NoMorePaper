@@ -30,6 +30,9 @@ internal sealed class FakeReview(params ReviewItemDto[] items)
     /// <summary>Answer of the delete call (204 deletes).</summary>
     public int DeleteStatus { get; set; } = 204;
 
+    /// <summary>Answer of accepting or dismissing a split suggestion (204 answers it, 409: somebody did already).</summary>
+    public int SplitStatus { get; set; } = 204;
+
     public IReadOnlyList<ReviewItemDto> Items => _items;
 
     public async Task<BrowserSession> OpenAsync(ServerFixture server, string culture = SupportedCultures.German)
@@ -62,27 +65,31 @@ internal sealed class FakeReview(params ReviewItemDto[] items)
             await Mocks.RespondAsync(page, "POST", $"/api/documents/{id}/duplicate/keep", 204, onCall: () => Replace(id, keepDuplicate: true));
             await Mocks.RespondAsync(page, "DELETE", $"/api/documents/{id}", DeleteStatus, onCall: () => Remove(id));
             await Mocks.RespondAsync(page, "PUT", $"/api/documents/{id}/fields", ConfirmStatus, onCall: () => Replace(id, confirmed: true));
+            await Mocks.RespondAsync(page, "POST", $"/api/documents/{id}/split-suggestion/accept", SplitStatus, onCall: () => Remove(id, SplitStatus));
+            await Mocks.RespondAsync(page, "POST", $"/api/documents/{id}/split-suggestion/dismiss", SplitStatus, onCall: () => Replace(id, dismissSplit: SplitStatus == 204));
         }
 
         await ClassificationMocks.ListsAsync(Mocks, page);
     }
 
-    private void Remove(Guid id)
+    private void Remove(Guid id) => Remove(id, DeleteStatus);
+
+    private void Remove(Guid id, int status)
     {
-        if (DeleteStatus == 204)
+        if (status == 204)
         {
             _items.RemoveAll(item => item.Id == id);
         }
     }
 
     // An item leaves the list when nothing is left to review: not automatic any more and no duplicate hint.
-    private void Replace(Guid id, bool confirmed = false, bool keepDuplicate = false)
+    private void Replace(Guid id, bool confirmed = false, bool keepDuplicate = false, bool dismissSplit = false)
     {
         var index = _items.FindIndex(item => item.Id == id);
         var item = _items[index];
         var fields = confirmed ? item.Fields with { Recognition = DocumentRecognitionState.Confirmed } : item.Fields;
-        var updated = item with { Fields = fields, PossibleDuplicate = keepDuplicate ? null : item.PossibleDuplicate };
-        if (updated.Fields.Recognition == DocumentRecognitionState.Automatic || updated.PossibleDuplicate is not null)
+        var updated = item with { Fields = fields, PossibleDuplicate = keepDuplicate ? null : item.PossibleDuplicate, Split = dismissSplit ? null : item.Split };
+        if (updated.Fields.Recognition == DocumentRecognitionState.Automatic || updated.PossibleDuplicate is not null || updated.Split is not null)
         {
             _items[index] = updated;
         }

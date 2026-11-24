@@ -70,6 +70,8 @@ else
 
                     <OwnerCheckSection DocumentId="item.Id" Title="@item.Title" Prefix="@("review-owner-" + key)" NeedsCheck="item.Fields.NeedsOwnerCheck" Household="_household" OnAnswered="answer => OwnerAnsweredAsync(item, answer)" />
 
+                    <SplitSuggestionSection DocumentId="item.Id" Title="@item.Title" Prefix="@("review-split-" + key)" Split="item.Split" OnAnswered="accepted => SplitAnsweredAsync(item, accepted)" OnConflict="() => ChangedMeanwhileAsync(item)" />
+
                     @if (item.PossibleDuplicate is { } other)
                     {
                         <ReviewDuplicateSection Item="item" Other="other" OnKeep="() => KeepAsync(item)" OnAskDelete="() => AskDelete(item)" />

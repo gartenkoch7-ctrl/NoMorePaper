@@ -1,0 +1,154 @@
+@using NoMorePaper.Contracts.Editing
+@inject IStringLocalizer<Strings> L
+@inject EditingApi Api
+@inject ILogger<SplitSuggestionSection> Logger
+
+@* A scanned stack that probably holds several documents: the suggestion in words and as a list, three answers.
+   "Teilen" asks first (nothing is split without it); "Anpassen" is a link to the page editor with the split
+   points set; "Nicht teilen" answers at once. Pages are named in text, nothing is shown by colour. The parent
+   decides what happens after an answer (reload, announcement, focus). *@
+@if (Split is { } split && (split.Parts.Count > 1 || split.BlankPages.Count > 0))
+{
+    <section class="split-suggestion" aria-labelledby="@(Prefix)-heading">
+        <MudText Typo="Typo.h4" HtmlTag="h3" id="@(Prefix + "-heading")">
+            <MudIcon Icon="@Icons.Material.Filled.ContentCut" aria-hidden="true" />
+            <span>@L["SplitHeading"]</span>
+        </MudText>
+        <p>@Summary(split)</p>
+        <ul class="split-suggestion-parts">
+            @for (var index = 0; index < split.Parts.Count; index++)
+            {
+                <li>@L["SplitPart", index + 1, PartPages(split.Parts[index])]</li>
+            }
+        </ul>
+        <LiveRegion @ref="_error" Assertive="true" Class="form-error" />
+        @if (_asking)
+        {
+            <ConfirmBox Id="@(Prefix + "-confirm")" HeadingLevel="4"
+                        Title="@L["SplitConfirmQuestion", split.Parts.Count]" Text="@L["SplitConfirmExplain", split.Parts.Count]"
+                        ConfirmLabel="@L["SplitConfirmYes"]" OnConfirm="AcceptAsync" OnCancel="CancelAsk" />
+        }
+        else
+        {
+            <div class="button-row">
+                <button type="button" id="@(Prefix)-do" class="nmp-button nmp-button-primary" disabled="@_busy"
+                        aria-label="@L["SplitDoFor", Title]" @onclick="Ask">@L["SplitDo"]</button>
+                <a id="@(Prefix)-adjust" class="nmp-button" href="@DocumentLinks.PageEditor(DocumentId, split: true)"
+                   aria-label="@L["SplitAdjustFor", Title]">@L["SplitAdjust"]</a>
+                <button type="button" id="@(Prefix)-dismiss" class="nmp-button" disabled="@_busy"
+                        aria-label="@L["SplitDismissFor", Title]" @onclick="DismissAsync">@L["SplitDismiss"]</button>
+            </div>
+        }
+    </section>
+}
+
+@code {
+    private LiveRegion? _error;
+    private PendingFocus _focus = default!;
+    private bool _asking;
+    private bool _busy;
+    private bool _shown;
+
+    [Inject] private IJSRuntime Js { get; set; } = default!;
+
+    /// <summary>The suggestion; without one (or without anything to do) nothing is shown.</summary>
+    [Parameter] public SplitSuggestionDto? Split { get; set; }
+
+    [Parameter, EditorRequired] public Guid DocumentId { get; set; }
+
+    /// <summary>The document's title: it names the buttons, since several documents can be on one page.</summary>
+    [Parameter, EditorRequired] public string Title { get; set; } = string.Empty;
+
+    /// <summary>Distinguishes the ids when several sections are on one page.</summary>
+    [Parameter] public string Prefix { get; set; } = "split-suggestion";
+
+    /// <summary>The suggestion was answered (<c>true</c>: accepted); the parent loads again and moves focus.</summary>
+    [Parameter] public EventCallback<bool> OnAnswered { get; set; }
+
+    /// <summary>Somebody answered it already; the parent loads the list again.</summary>
+    [Parameter] public EventCallback OnConflict { get; set; }
+
+    protected override void OnInitialized() => _focus = new PendingFocus(Js);
+
+    protected override Task OnAfterRenderAsync(bool firstRender) => _focus.ApplyAsync();
+
+    protected override void OnParametersSet()
+    {
+        if (!_shown && Split is not null)
+        {
+            _shown = true;
+            Logger.SplitSuggestionShown(Split.Parts.Count, Split.BlankPages.Count);
+        }
+    }
+
+    private void Ask() => _asking = true;
+
+    private void CancelAsk()
+    {
+        _asking = false;
+        _focus.On(Prefix + "-do");
+    }
+
+    private async Task AcceptAsync()
+    {
+        _busy = true;
+        var result = await Api.AcceptSplitAsync(DocumentId);
+        _busy = false;
+        if (!result.IsSuccess)
+        {
+            await FailAsync("accept", result.Error!);
+            return;
+        }
+
+        Logger.SplitSuggestionAccepted();
+        await OnAnswered.InvokeAsync(true);
+    }
+
+    private async Task DismissAsync()
+    {
+        _busy = true;
+        var result = await Api.DismissSplitAsync(DocumentId);
+        _busy = false;
+        if (result.IsConflict)
+        {
+            Logger.SplitSuggestionAnswerFailed("dismiss");
+            await OnConflict.InvokeAsync();
+            return;
+        }
+
+        if (!result.IsSuccess)
+        {
+            await FailAsync("dismiss", result.Error!);
+            return;
+        }
+
+        Logger.SplitSuggestionDismissed();
+        await OnAnswered.InvokeAsync(false);
+    }
+
+    private async Task FailAsync(string code, string message)
+    {
+        Logger.SplitSuggestionAnswerFailed(code);
+        _asking = false;
+        _focus.On(Prefix + (code == "accept" ? "-do" : "-dismiss"));
+        if (_error is not null)
+        {
+            await _error.Announce(L["SplitFailed", message]);
+        }
+    }
+
+    private string Summary(SplitSuggestionDto split)
+    {
+        var pages = string.Join(", ", split.Parts.Select(part => part.First == part.Last ? $"{part.First}" : $"{part.First}–{part.Last}"));
+        if (split.BlankPages.Count == 0)
+        {
+            return L["SplitSummary", split.Parts.Count, pages];
+        }
+
+        var blank = string.Join(", ", split.BlankPages);
+        return L["SplitSummaryBlank", split.Parts.Count, pages, L[split.BlankPages.Count == 1 ? "SplitBlankOne" : "SplitBlankMany", blank].Value];
+    }
+
+    private string PartPages(PageRangeDto part) =>
+        part.First == part.Last ? L["SplitPagesOne", part.First] : L["SplitPagesRange", part.First, part.Last];
+}

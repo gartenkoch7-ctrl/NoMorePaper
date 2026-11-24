@@ -108,6 +108,8 @@ public sealed partial class Review
     private Task OwnerAnsweredAsync(ReviewItemDto item, OwnerCheckAnswer answer) => DoneAsync(
         item, answer.HandedOver ? "InpOwnerCheckHandedOver" : "InpOwnerCheckKept", extra: answer.ReceiverName);
 
+    private Task SplitAnsweredAsync(ReviewItemDto item, bool accepted) => DoneAsync(item, accepted ? "SplitDone" : "SplitDismissed");
+
     private void StartEdit(ReviewItemDto item) => _editing = item.Id;
 
     private void CancelEdit(ReviewItemDto item)
