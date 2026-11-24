@@ -58,7 +58,9 @@ public sealed class RestoreTrashFile(
         {
             // Queued first: while another job of the document runs or waits, nothing may change its files. The
             // planned edit needs to exist for the queue; a refusal rolls it back with the scope, never committed.
-            await edits.SaveAsync(new DocumentEdit(document.Id, EditKind.Rebuild, "{}", current.Id, now, false), cancellationToken)
+            // The Worker carries out only a plan it can read: a rebuild needs the id of its own folder.
+            var plan = EditDataJson.ToJson(new EditData(Guid.CreateVersion7(now)));
+            await edits.SaveAsync(new DocumentEdit(document.Id, EditKind.Rebuild, plan, current.Id, now, false), cancellationToken)
                 .ConfigureAwait(false);
             if (!await queue.EnqueueEditAsync(document.Id, recognizeAfter: false, cancellationToken).ConfigureAwait(false))
             {

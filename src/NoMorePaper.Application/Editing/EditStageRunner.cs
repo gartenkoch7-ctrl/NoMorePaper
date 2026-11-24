@@ -61,6 +61,7 @@ internal sealed class EditStageRunner(
         }
         catch (Exception exception) when (!stoppingToken.IsCancellationRequested)
         {
+            // The queue never gives up an edit stored meanwhile (even in this attempt): only its files are left to move.
             var (reason, permanent) = Describe(exception);
             await RecordFailureAsync(queue, claim, data, reason, permanent, stoppingToken).ConfigureAwait(false);
         }

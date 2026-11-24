@@ -17,8 +17,17 @@ internal sealed class FakePdfTool : IPdfTool
     /// <summary>The content of the first source file of every compose call: which version the pages came from.</summary>
     public List<string> Sources { get; } = [];
 
+    /// <summary>The compose call (counted from 1 over all calls) that fails like an interrupted qpdf; <c>null</c> for none.</summary>
+    public int? FailOnCall { get; set; }
+
     public async Task ComposeAsync(IReadOnlyList<PdfPageSource> pages, string outputPath, CancellationToken cancellationToken)
     {
+        if (Composed.Count + 1 == FailOnCall)
+        {
+            FailOnCall = null;
+            throw new IOException("qpdf was interrupted");
+        }
+
         var taken = pages.Select(page => (Path.GetFileName(page.Path), page.Page, (int)page.Rotation)).ToList();
         Composed.Add(taken);
         Sources.Add(await File.ReadAllTextAsync(pages[0].Path, cancellationToken));

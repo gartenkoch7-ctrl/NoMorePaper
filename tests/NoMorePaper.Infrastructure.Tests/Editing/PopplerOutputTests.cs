@@ -61,7 +61,7 @@ public sealed class PopplerOutputTests
             [new(a, 3, PageRotation.None), new(a, 1, PageRotation.Right), new(b, 2, PageRotation.Left), new(a, 2, PageRotation.Half)],
             output);
 
-        Assert.Equal(["--rotate=+90:2", "--rotate=+270:3", "--rotate=+180:4", "--empty", "--pages", a, "3,1", b, "2", a, "2", "--", output], args);
+        Assert.Equal(["--rotate=+90:2", "--rotate=+270:3", "--rotate=+180:4", "--deterministic-id", "--empty", "--pages", a, "3,1", b, "2", a, "2", "--", output], args);
         Assert.Throws<ArgumentException>(() => QpdfTool.Arguments([new(a, 0, PageRotation.None)], output));
     }
 

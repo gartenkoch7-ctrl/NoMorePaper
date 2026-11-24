@@ -102,20 +102,22 @@ internal sealed class SplitStep(
             throw new EditFailedException($"The intake refused a part ({result.Status})", isPermanent: true);
         }
 
-        if (result.Status == IntakeStatus.Received && document.Editors.Count > 0 && document.OwnerId is { } owner)
+        // Also for a part found again: an attempt interrupted after storing it may not have copied them yet.
+        if (document.Editors.Count > 0 && document.OwnerId is { } owner)
         {
-            await CopyEditorsAsync(id, owner, document.Editors, cancellationToken).ConfigureAwait(false);
+            await CopyEditorsAsync(id, document, owner, cancellationToken).ConfigureAwait(false);
         }
 
         return id;
     }
 
-    private async Task CopyEditorsAsync(Guid id, Guid owner, IReadOnlyList<DocumentEditor> editors, CancellationToken cancellationToken)
+    private async Task CopyEditorsAsync(Guid id, Document document, Guid owner, CancellationToken cancellationToken)
     {
+        // Only a part of this split: an own document that happens to have the same bytes keeps its editors.
         var part = await fields.FindVisibleAsync(id, owner, cancellationToken).ConfigureAwait(false);
-        if (part is not null)
+        if (part is not null && part.SplitFrom == document.Id)
         {
-            part.SetEditors(owner, editors.Select(editor => editor.AccountId));
+            part.SetEditors(owner, document.Editors.Select(editor => editor.AccountId));
         }
 
         await fields.SaveAsync(cancellationToken).ConfigureAwait(false);

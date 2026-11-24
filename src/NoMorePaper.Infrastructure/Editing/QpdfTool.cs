@@ -78,7 +78,9 @@ public sealed class QpdfTool(ExternalProcess process, TimeProvider time, ILogger
             }
         }
 
-        args.AddRange(["--empty", "--pages"]);
+        // The same pages give the same bytes (no time in the document id): a split retried after a part was
+        // stored makes that part again with its hash, so the intake finds it instead of storing it twice.
+        args.AddRange(["--deterministic-id", "--empty", "--pages"]);
         foreach (var group in Groups(pages))
         {
             args.Add(Path.GetFullPath(group.Path));
