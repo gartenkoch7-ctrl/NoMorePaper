@@ -30,6 +30,22 @@ Beschreibt, wie ein Dokument im Worker verarbeitet wird. Entscheidung und Begrü
    sofort auf „Failed“, ohne weitere Versuche. Das gilt für OCRmyPDF-Exit-Code 2 (ungültige
    Eingabe) und 8 (verschlüsseltes PDF) und für nicht unterstützte Medientypen.
 
+## Stufen (M4b)
+
+`processing_jobs.stage` kennt `Recognition`, `Edit` und `Separation` (`JobStage`). Jede Stufe hat einen
+Ausführer `IStageRunner` (`RunAsync(queue, claim, stoppingToken)`), registriert als Schlüsseldienst je
+Stufe. `ProcessNextDocument` löst den Ausführer über den Scope des Auftrags auf und ruft ihn auf; fehlt er,
+schreibt die Verarbeitung Fehler 5000 (`StageRunnerMissing`), und der Versuch zählt als fehlgeschlagen.
+
+- `Edit` (`EditStageRunner`): geplante Seitenbearbeitung, qpdf, OCR ohne Drehung und Geraderichtung,
+  danach neues Archiv. Ablauf: [scan-bearbeitung.md](scan-bearbeitung.md).
+- `Separation` (`SeparationStageRunner`): Trennvorschlag bei mehrseitigen Scans nach der OCR, vor der Erkennung.
+  Scheitert der letzte Versuch, läuft die Erkennung ohne Vorschlag weiter. Ablauf: [scan-bearbeitung.md](scan-bearbeitung.md).
+- Die Weiche zwischen den Stufen liegt in der Warteschlange (`JobQueue.CompleteAsync`, `SeparationHeuristics.IsScannedStack`): Nach der OCR
+  folgt `Separation`, wenn der Scan mehrseitig ist und keine eigene Textebene hat; sonst direkt `Recognition`.
+- Eine Bearbeitung übernimmt einen wartenden Erkennungsauftrag des Dokuments (3976): die Erkennung folgt der
+  Bearbeitung. Läuft ein Auftrag des Dokuments oder wartet ein anderer, wird die Bearbeitung abgelehnt (3977).
+
 ## Besitz eines Jobs
 
 - Jedes Holen schreibt eine neue, zufällige `claim_id` (uuid) in den Job. Sie ist der Ausweis

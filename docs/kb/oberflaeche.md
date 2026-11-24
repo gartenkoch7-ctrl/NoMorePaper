@@ -154,6 +154,40 @@ Wo die Umsetzung bewusst von einer Notiz abweicht, gilt diese Liste:
 - **11 Hinzufügen:** H2 je Kachel wie im freigegebenen Entwurf; die ganze Kachel ist klickbar.
 - **Überschriften:** Seiten-H1 in `headline-lg` (`Typo.h2` mit `HtmlTag="h1"`), Abschnitts-H2 eine Stufe kleiner.
 
+## Seiten bearbeiten (`/dokumente/{id}/seiten`, M4b Entwurf 14)
+
+- Seitenliste mit Ansage je Seite (Seite x von y, Textanfang, „vermutlich leer“); Vorschau mit Shader.
+- Knöpfe für drehen, löschen, nach oben/unten, zuschneiden; Kürzel nur zusätzlich. Drag & Drop nur zusätzlich.
+- „Speichern“ legt **eine** neue Fassung an, „Verwerfen“ und der Weg zurück fragen bei Änderungen nach (F2).
+- Zuschnitt: Ecken per Pfeiltasten, Ergebnis wird angesagt.
+- „Dokument anhängen“ (Auswahl per Suche, Privat-Hinweis), „Hier teilen“ (Trennstellen in der Seitenliste).
+- Dokumente von vor M4b: Der Worker holt ihre Seitentexte einmalig mit niedrigster Priorität nach (F1); bis dahin
+  fehlt der Textanfang.
+
+## Papierkorb (`/papierkorb`, M4b Entwurf 15)
+
+- Liste nur mit den eigenen Einträgen; Karte je Eintrag mit Titel, Art (Dokument, Original, Fassung) und Löschdatum.
+- Knöpfe je Eintrag: wiederherstellen, endgültig entfernen; oben „Papierkorb leeren“ mit Rückfrage.
+- Löschen im Viewer (Besitzer, mit Bestätigung) bringt das Dokument hierher.
+- Abweichung 1: Das Datum steht im Format der Browser-Lokalisierung („g“), nicht wie im Entwurf
+  („28.02.2026, 11:15“). Offen, ob das übernommen wird.
+- Abweichung 2: Die Fehlermeldung „Lade den Papierkorb neu“ (`TrashErrorConflict`) passt nicht, weil die Seite
+  selbst neu lädt. Offen.
+
+## Fassungen (Viewer, Reiter „Angaben“, M4b Entwurf 16)
+
+- Abschnitt „Fassungen“ mit H2: Original und bearbeitete Fassung, Wahl „behalten“ (beides, nur bearbeitet,
+  nur Original), Hinweis „wird bearbeitet“ während eines Laufs.
+- Die Werkseinstellung steht auf der Konto-Seite (Werkswert, ADR-0025); die Wahl am Dokument überschreibt sie.
+
+## Zu prüfen: Trennvorschlag (Entwurf 06)
+
+- Abschnitt „Trennvorschlag“ in der Prüfkarte: Satz, Liste der Teile, Knöpfe „Teilen“ (mit Rückfrage), „Anpassen“
+  (öffnet „Seiten bearbeiten“ mit Trennstellen), „Nicht teilen“.
+- Abweichungen: Der Textanfang „beginnt mit …“ aus dem Entwurf fehlt, weil `SplitSuggestionDto` kein Textstück
+  trägt (Contract-Änderung nötig, offen). Bei nur einem Teil sagt der Text „1 Dokumente“; das Backend erzeugt
+  diesen Fall nicht (offen).
+
 ## Nicht aus Stitch übernommen
 
 Tailwind, CDN, Google Fonts, Material-Symbols-Schrift (MudBlazor-Symbole statt dessen), externe Bilder,

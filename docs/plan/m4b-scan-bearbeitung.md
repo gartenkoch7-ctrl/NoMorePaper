@@ -51,48 +51,48 @@ Daraus abgeleitet:
 ## Aufgaben
 
 ### 0. Gemeinsame Bausteine (Schritt 0)
-- [ ] Papierkorb im Schema: `documents.deleted_at`, `deleted_by`; Tabelle `trash_items`; **ein** Filter
+- [x] Papierkorb im Schema: `documents.deleted_at`, `deleted_by`; Tabelle `trash_items`; **ein** Filter
       „nicht im Papierkorb“ für EF (globaler Abfragefilter) und alle rohen SQL-Abfragen (Suche, Duplikate,
       SHA-256, „Zu prüfen“, Listeneinträge, Lernbeispiele)
-- [ ] Dateien: Art `Edited` (bearbeitete Fassung) neben `Original` und `Archive`; Ablage `edited.pdf`,
+- [x] Dateien: Art `Edited` (bearbeitete Fassung) neben `Original` und `Archive`; Ablage `edited.pdf`,
       Papierkorb-Ordner `trash/<id>/`; Speicher-Port erweitert (speichern, in den Papierkorb, zurück, endgültig)
-- [ ] Seitentexte: `document_pages` (Seite, Textanfang ≤ 300 Zeichen, vermutlich leer) – die OCR schreibt sie
-- [ ] Aufträge: Stufen `Edit` und `Separation` in `processing_jobs`; Tabelle `document_edits` (geplante
+- [x] Seitentexte: `document_pages` (Seite, Textanfang ≤ 300 Zeichen, vermutlich leer) – die OCR schreibt sie
+- [x] Aufträge: Stufen `Edit` und `Separation` in `processing_jobs`; Tabelle `document_edits` (geplante
       Bearbeitung als JSON, ersetzte Seitenbilder im Dateisystem)
-- [ ] Domain: `Document.MoveToTrash/RestoreFromTrash`, `VersionPolicy`, `SplitSuggestion`, `PagePlan`
+- [x] Domain: `Document.MoveToTrash/RestoreFromTrash`, `VersionPolicy`, `SplitSuggestion`, `PagePlan`
       (Reihenfolge, Drehung, Löschen, ersetzte Seite), Regeln für Zusammenfügen (Privat)
-- [ ] Ports: `IPdfTool` (qpdf: Seiten wählen, drehen, zusammensetzen, teilen), `IPageAnalyzer`, `ITrashStore`
-- [ ] Einstellung „Nach dem Bearbeiten behalten“ je Konto (Spalte, API, Contracts)
-- [ ] Löschen eines Dokuments geht in den Papierkorb (bisher hartes Löschen bei Duplikaten)
-- [ ] `qpdf` im Worker-Image; Contracts für alle Spuren; ADR-0025; Katalogblöcke
+- [x] Ports: `IPdfTool` (qpdf: Seiten wählen, drehen, zusammensetzen, teilen), `IPageAnalyzer`, `ITrashStore`
+- [x] Einstellung „Nach dem Bearbeiten behalten“ je Konto (Spalte, API, Contracts)
+- [x] Löschen eines Dokuments geht in den Papierkorb (bisher hartes Löschen bei Duplikaten)
+- [x] `qpdf` im Worker-Image; Contracts für alle Spuren; ADR-0025; Katalogblöcke
 
 ### A. Bearbeitung im Worker (Seiten, Zusammenfügen, Teilen)
-- [ ] Anwendungsfälle mit Zeilensperre: `RequestPageEdit` (Plan + ersetzte Seiten), `AppendDocument`,
+- [x] Anwendungsfälle mit Zeilensperre: `RequestPageEdit` (Plan + ersetzte Seiten), `AppendDocument`,
       `SplitDocument`; Endpunkte; 409 solange nicht fertig verarbeitet
-- [ ] Stufe `Edit`: Quelle (bearbeitete Fassung, sonst Original) + Plan → qpdf → `edited.pdf` → OCR → neues
+- [x] Stufe `Edit`: Quelle (bearbeitete Fassung, sonst Original) + Plan → qpdf → `edited.pdf` → OCR → neues
       Archiv, Seitentexte, Versionsregel anwenden (alte Fassung bzw. Original in den Papierkorb)
-- [ ] Zusammenfügen: Seiten des angehängten Dokuments ans Ende; angehängtes in den Papierkorb; Privat-Regel
-- [ ] Teilen: neue Dokumente (Original = Seitenauszug, Besitzer/Privat/Bearbeiter übernommen, normale OCR +
+- [x] Zusammenfügen: Seiten des angehängten Dokuments ans Ende; angehängtes in den Papierkorb; Privat-Regel
+- [x] Teilen: neue Dokumente (Original = Seitenauszug, Besitzer/Privat/Bearbeiter übernommen, normale OCR +
       Erkennung), Ausgangsdokument in den Papierkorb
-- [ ] Versionswahl je Dokument („nur bearbeitet“, „nur Original“, „beides“) als Anwendungsfall
+- [x] Versionswahl je Dokument („nur bearbeitet“, „nur Original“, „beides“) als Anwendungsfall
 
 ### B. Oberfläche „Seiten bearbeiten“ und Versionen
-- [ ] Seite `/dokumente/{id}/seiten`: Seitenliste (Liste mit Ansage je Seite), Vorschau mit Shader, Knöpfe und
+- [x] Seite `/dokumente/{id}/seiten`: Seitenliste (Liste mit Ansage je Seite), Vorschau mit Shader, Knöpfe und
       Kürzel (drehen, löschen, nach oben/unten, zuschneiden), Drag & Drop nur zusätzlich, „Speichern“/„Verwerfen“
-- [ ] Zuschnitt: OpenCV im Browser (Blatt + Schräglage), Ansage des Ergebnisses, Ecken per Pfeiltasten;
+- [x] Zuschnitt: OpenCV im Browser (Blatt + Schräglage), Ansage des Ergebnisses, Ecken per Pfeiltasten;
       ersetzte Seite als JPEG an den Server
-- [ ] „Dokument anhängen“ (Auswahl per Suche, Privat-Hinweis), „Hier teilen“ (Trennstellen in der Seitenliste)
-- [ ] Viewer: Knopf „Seiten bearbeiten“, Bereich „Fassungen“ (Original / bearbeitet, Wahl behalten), „wird
+- [x] „Dokument anhängen“ (Auswahl per Suche, Privat-Hinweis), „Hier teilen“ (Trennstellen in der Seitenliste)
+- [x] Viewer: Knopf „Seiten bearbeiten“, Bereich „Fassungen“ (Original / bearbeitet, Wahl behalten), „wird
       bearbeitet“; Konto-Seite: Werkswert; Vorschaubilder je Seite
 
 ### C. Papierkorb
-- [ ] Anwendungsfälle: auflisten (nur eigene), wiederherstellen (Dokument, Datei; belegter Platz → Tausch),
+- [x] Anwendungsfälle: auflisten (nur eigene), wiederherstellen (Dokument, Datei; belegter Platz → Tausch),
       endgültig entfernen, leeren; Endpunkte
-- [ ] Täglicher Aufräumdienst im Worker (`purge_after` < jetzt → Dateien und Zeilen weg)
+- [x] Täglicher Aufräumdienst im Worker (`purge_after` < jetzt → Dateien und Zeilen weg)
 - [x] Seite `/papierkorb` (Navigation), Löschen-Knopf im Viewer (Besitzer, mit Bestätigung)
 
 ### D. Stapel-Trennung
-- [ ] Stufe `Separation` nach der OCR bei mehrseitigen Scans (Original ohne eigene Textebene): leere Seiten,
+- [x] Stufe `Separation` nach der OCR bei mehrseitigen Scans (Original ohne eigene Textebene): leere Seiten,
       „Seite x von y“, Anrede, Absenderwechsel (ein LLM-Aufruf mit den Seitenanfängen)
 - [x] Vorschlag am Dokument; „Zu prüfen“-Grund „Trennvorschlag“; annehmen (→ `SplitDocument`), anpassen
       (→ „Seiten bearbeiten“ mit Trennstellen), verwerfen
@@ -101,7 +101,7 @@ Daraus abgeleitet:
 ### E. Tests und Doku
 - [ ] Unit: Seitenplan, Versionsregel, Papierkorb-Regeln, Trennheuristik; Integration: qpdf-Abläufe (Linux),
       Papierkorb-Filter in jeder Abfrage, Aufräumdienst; UI: axe DE/EN, Tastatur in allen neuen Seiten
-- [ ] KB `scan-bearbeitung.md`, ADR-0025, Katalog, `verarbeitung.md`
+- [x] KB `scan-bearbeitung.md`, ADR-0025, Katalog, `verarbeitung.md`
 
 ## Akzeptanzkriterien
 - [ ] Seiten drehen, löschen, umsortieren, zuschneiden per Tastatur; neue Version, Original bleibt (Werk)
@@ -184,6 +184,11 @@ Eigene Datei: [features/m4b-scan-bearbeitung-detail.md](features/m4b-scan-bearbe
 - **Neue Oberfläche:** Entwürfe 14–16 freigegeben (2026-11-23); nicht entworfene Zustände und Elemente kommen über S0
   ([UI-Prozess](../kb/ui-prozess.md)); umgesetzt wird mit den M4u-Bausteinen
 - Aus M4 offen: iCloud (Spur D von M4), iPhone-/NVDA-Prüfung
+- Teile aus einem Split laufen wieder durch die Stapel-Trennung; wer über „Anpassen“ bewusst Seiten zusammenließ, bekommt ggf. erneut einen Vorschlag (Vorschlag: Split-Teile überspringen die Trennung – Entscheidung offen)
+- Trennvorschlag: Textanfang „beginnt mit …“ aus Entwurf 06 fehlt, `SplitSuggestionDto` hat kein Textstück (Contract-Änderung nötig)
+- Text „1 Dokumente“ bei nur einem Teil (Backend erzeugt das nie)
+- `TrashErrorConflict` sagt „Lade den Papierkorb neu“, die Seite lädt aber selbst neu; `TrashRestoreFor`/`TrashPurgeFor` unbenutzt
+- Zeitformat Papierkorb „g“ statt „28.02.2026, 11:15“ wie im Entwurf
 
 ### Rückblick (nach Abschluss)
 | Paket | geplante Stufe | passend? | Anmerkung |

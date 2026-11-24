@@ -50,13 +50,20 @@ Blöcke der Eingänge (M4, [Detailplan](../plan/features/m4-eingaenge-detail.md)
 4790–4799 die API-Clients); Application 5300–5399 (neue Ereignisse der Annahme), 5400–5499 (Mail-Prüfung).
 Die Annahme behält 3200/3201 und nennt dort die Quelle.
 
-Blöcke M4b ([Detailplan](../plan/features/m4b-scan-bearbeitung-detail.md)), bereits belegt: Infrastructure 3950–3969
-(Seitenwerkzeuge: qpdf, Seitenanalyse; `EditingLog`) und 3970–3989 (Papierkorb-Ablage und Bearbeitungsseiten
-`TrashStorageLog`, Auftragsübernahme 3976–3977 `QueueLog`); Application 5000–5099 (Verarbeitung, neu: 5000
-`StageRunnerMissing`) und 5600–5699 (Papierkorb, `TrashLog`). 5255 ist entfallen und bleibt reserviert.
+Blöcke M4b ([Detailplan](../plan/features/m4b-scan-bearbeitung-detail.md)), belegt:
+- Server 1600–1649 (Bearbeiten, `EditingLog`), 1650–1669 (Trennvorschlag annehmen/verwerfen, `SplitSuggestionLog`),
+  1700–1749 (Papierkorb, `TrashLog`).
+- Worker 2400–2499 (Stufe `Edit`, `EditingLog`), 2500–2599 (Aufräumdienst, `TrashPurgerLog`), 2600–2699 (Stufe
+  `Separation`; eigene Ereignisse laufen über Application, Nummern 5700er).
+- Infrastructure 3950–3969 (Seitenwerkzeuge: qpdf, Seitenanalyse; `EditingLog`), 3970–3989 (Papierkorb-Ablage
+  `TrashStorageLog`, Bearbeitungsseiten, Auftragsübernahme 3976–3977 `QueueLog`, Veröffentlichung 3978 `StagingLog`),
+  3990–3999 (LLM-Prüfung der Trennung, `SeparationAssessorLog`).
+- Web.Client 4300–4349 (Seiten bearbeiten, `PageEditorLog`), 4350–4379 (Fassungen, `VersionsLog`), 4800–4849
+  (Papierkorb, `TrashLog`), 4900–4919 (Trennvorschlag, `SplitSuggestionLog`).
+- Application 5000–5099 (Verarbeitung, 5000 `StageRunnerMissing`), 5500–5599 (Bearbeitung, `EditingLog`),
+  5600–5699 (Papierkorb, `TrashLog`), 5700–5799 (Stapel-Trennung, `SeparationLog`). 5255 ist entfallen und bleibt reserviert.
 
-Block der Startseite (M4u Spur E): Web.Client 4950–4999 (4800–4949 sind für M4b reserviert, siehe
-[Detailplan M4b](../plan/features/m4b-scan-bearbeitung-detail.md)).
+Block der Startseite (M4u Spur E): Web.Client 4950–4999 (Startseite).
 
 ## Katalog
 
@@ -87,6 +94,12 @@ Block der Startseite (M4u Spur E): Web.Client 4950–4999 (4800–4949 sind für
 | 1500 | Information | `Server/Documents/PageUploadLog` | Kamera-Seiten angenommen (`POST /api/documents/pages`): Dokument-Id, Anzahl Seiten, Größe in Bytes |
 | 1501 | Warning | `Server/Documents/PageUploadLog` | Kamera-Seiten abgelehnt: Grund (`too-large`, `not-multipart`, `malformed`, `empty`, `too-many-pages`, `type-not-allowed`, `duplicate`) |
 | 1502 | Warning | `Server/Documents/PageUploadLog` | Kamera-Seiten ließen sich nicht zu einem PDF machen (Bild nicht lesbar, 400): Anzahl Seiten, Ausnahmetyp |
+| 1600 | Information | `Server/Editing/EditingLog` | Bearbeitungsanfrage angenommen: Aktion, Dokument-Id, Ergebnis |
+| 1601 | Warning | `Server/Editing/EditingLog` | Bearbeitungsanfrage abgelehnt: Aktion, Dokument-Id, Grund |
+| 1650 | Information | `Server/Editing/SplitSuggestionLog` | Antwort auf den Trennvorschlag: Aktion (annehmen, verwerfen), Dokument-Id, Ergebnis |
+| 1700 | Debug | `Server/Trash/TrashLog` | Papierkorb aufgelistet: Anzahl Einträge |
+| 1701 | Information | `Server/Trash/TrashLog` | Papierkorb-Anfrage beantwortet: Aktion, Eintrag-Id, Ergebnis |
+| 1702 | Information | `Server/Trash/TrashLog` | Papierkorb geleert: Anzahl Einträge endgültig entfernt |
 | 2000 | Information | `Worker/Heartbeat/HeartbeatLog` | Heartbeat gestartet, Intervall in s |
 | 2001 | Warning | `Worker/Heartbeat/HeartbeatLog` | Heartbeat nicht geschrieben (nur der erste Fehler eines Ausfalls) |
 | 2002 | Information | `Worker/Heartbeat/HeartbeatLog` | Heartbeat nach einem Ausfall wieder geschrieben |
@@ -114,6 +127,10 @@ Block der Startseite (M4u Spur E): Web.Client 4950–4999 (4800–4949 sind für
 | 2303 | Warning | `Worker/Inputs/InputSchedulerLog` | Status eines Eingangs (ganzer Eingang oder eine Konto-Zeile) nicht gespeichert, auch beim Herunterfahren (nur Ausnahmetyp); der nächste Lauf speichert wieder |
 | 2304 | Information | `Worker/Inputs/InputSchedulerLog` | Eingangs-Takt gestartet: Anzahl registrierter Eingänge, Prüfintervall in s (0 Eingänge: endet sofort) |
 | 2305 | Error | `Worker/Inputs/InputSchedulerLog` | Eingangs-Takt konnte die registrierten Eingänge nicht lernen (nur Ausnahmetyp); kein Eingang läuft bis zum Neustart, der Worker läuft weiter |
+| 2400 | Warning | `Worker/Editing/EditingLog` | Seitenbacklog nicht einreihbar: Ausnahmetyp, nächster Versuch in s |
+| 2500 | Information | `Worker/Trash/TrashPurgerLog` | Endgültiges Löschen gestartet: Intervall in h |
+| 2501 | Information | `Worker/Trash/TrashPurgerLog` | Endgültiges Löschen gelaufen: Anzahl Einträge, Dauer in ms |
+| 2502 | Error | `Worker/Trash/TrashPurgerLog` | Endgültiges Löschen fehlgeschlagen: Ausnahmetyp; nächster Lauf zum nächsten Termin |
 | 3000 | Information | `Infrastructure/Persistence/PersistenceLog` | Migration beginnt, Anzahl bekannter Migrationen |
 | 3001 | Information | `Infrastructure/Persistence/PersistenceLog` | Schema aktuell, Dauer in ms |
 | 3002 | Error | `Infrastructure/Persistence/PersistenceLog` | Migration fehlgeschlagen |
@@ -183,6 +200,10 @@ Block der Startseite (M4u Spur E): Web.Client 4950–4999 (4800–4949 sind für
 | 3975 | Warning | `Infrastructure/Documents/TrashStorageLog` | Bild für eine Seite nicht speicherbar (nur Ausnahmetyp); die halbe Datei wurde verworfen: Seitennummer, Dokument-Id |
 | 3976 | Information | `Infrastructure/Processing/QueueLog` | Wartende Erkennung eines Dokuments von einer Bearbeitung übernommen; sie folgt der Bearbeitung: Dokument-Id |
 | 3977 | Information | `Infrastructure/Processing/QueueLog` | Bearbeitung abgelehnt, weil noch ein anderer Job des Dokuments läuft oder wartet: Dokument-Id |
+| 3978 | Information | `Infrastructure/Documents/StagingLog` | Neue Fassung nach der Bearbeitung veröffentlicht: Art, Dokument-Id |
+| 3990 | Information | `Infrastructure/Recognition/SeparationAssessorLog` | Modell hat die Seiten eines Stapels gelesen: Seiten, Prompt-Tokens, Dauer in ms, Zahl der Grenzen |
+| 3991 | Warning | `Infrastructure/Recognition/SeparationAssessorLog` | Vom Modell genannte Grenzen (außerhalb oder doppelt) verworfen: Anzahl |
+| 3992 | Information | `Infrastructure/Recognition/SeparationAssessorLog` | Stapel hat n Seiten; das Modell liest die ersten m: Seiten, Obergrenze |
 | 4000 | Information | `Web.Client/Telemetry/WebClientLog` | Kultur (Sprache) angewendet |
 | 4001 | Warning | `Web.Client/Telemetry/WebClientLog` | Gespeicherte Sprache wird nicht unterstützt, Standard wird genommen |
 | 4002 | Warning | `Web.Client/Telemetry/WebClientLog` | Sprachpräferenz nicht lesbar oder nicht speicherbar |
@@ -218,6 +239,15 @@ Block der Startseite (M4u Spur E): Web.Client 4950–4999 (4800–4949 sind für
 | 4215 | Warning | `Web.Client/Viewer/ViewerLog` | Kopieren des erkannten Textes ging nicht: Ausnahmetyp |
 | 4216 | Information | `Web.Client/Viewer/ViewerLog` | Vollbild des Viewers umgeschaltet: `on` oder `off` |
 | 4217 | Warning | `Web.Client/Viewer/ViewerLog` | Vollbild des Viewers fehlgeschlagen: Fehlertyp |
+| 4300 | Information | `Web.Client/Editing/PageEditorLog` | Seiten bearbeiten geladen: Seitenzahl |
+| 4301 | Information | `Web.Client/Editing/PageEditorLog` | Seiten bearbeiten gespeichert: Schritte, Teile |
+| 4302 | Information | `Web.Client/Editing/PageEditorLog` | Anhängen eines Dokuments angefordert |
+| 4303 | Warning | `Web.Client/Editing/PageEditorLog` | Aufruf der Seitenbearbeitung fehlgeschlagen: Status |
+| 4310 | Information | `Web.Client/Editing/PageEditorLog` | Zuschnitt einer Seite: Dauer in ms, Blatt gefunden (ja/nein) |
+| 4311 | Warning | `Web.Client/Editing/PageEditorLog` | Seite nicht zuschneidbar: Grund |
+| 4350 | Information | `Web.Client/Editing/VersionsLog` | Fassungsrichtlinie gespeichert: Richtlinie |
+| 4351 | Warning | `Web.Client/Editing/VersionsLog` | Aufruf der Fassungen fehlgeschlagen: Vorgang |
+| 4352 | Information | `Web.Client/Editing/VersionsLog` | Fertige Bearbeitung per Abfrage erkannt |
 | 4400 | Information | `Web.Client/Accounts/AccountsLog` | Sitzungszustand geladen (`SignedIn`, `SignedOut`, `SetupNeeded`, `Unavailable`) |
 | 4401 | Information | `Web.Client/Accounts/AccountsLog` | Server antwortete 401, Sitzung vorbei |
 | 4402 | Information | `Web.Client/Accounts/AccountsLog` | angemeldet |
@@ -265,6 +295,16 @@ Block der Startseite (M4u Spur E): Web.Client 4950–4999 (4800–4949 sind für
 | 4722 | Information | `Web.Client/Pages/MailSettingsLog` | Verbindung getestet: ob die Anmeldung klappte |
 | 4790 | Warning | `Web.Client/Inputs/InputsLog` | Aufruf der Eingangs-/Einstellungs-API fehlgeschlagen: Vorgang (`preferences`, `save-preferences`, `inputs`, `owner-check`, `hand-over`, `mail-settings`, `save-mail-settings`, `test-mail-settings`), HTTP-Status |
 | 4791 | Warning | `Web.Client/Inputs/InputsLog` | Eingangs-/Einstellungs-API nicht erreichbar: Vorgang, Ausnahmetyp |
+| 4800 | Debug | `Web.Client/Trash/TrashLog` | Papierkorb geladen: Anzahl Einträge |
+| 4801 | Information | `Web.Client/Trash/TrashLog` | Papierkorb-Eintrag wiederhergestellt |
+| 4802 | Information | `Web.Client/Trash/TrashLog` | Papierkorb-Eintrag endgültig gelöscht |
+| 4803 | Information | `Web.Client/Trash/TrashLog` | Papierkorb geleert: Anzahl Einträge |
+| 4804 | Information | `Web.Client/Trash/TrashLog` | Dokument im Viewer in den Papierkorb gelegt |
+| 4805 | Warning | `Web.Client/Trash/TrashLog` | Papierkorb-Aktion fehlgeschlagen: HTTP-Status |
+| 4900 | Debug | `Web.Client/Classification/SplitSuggestionLog` | Trennvorschlag angezeigt: Teile, leere Seiten |
+| 4901 | Information | `Web.Client/Classification/SplitSuggestionLog` | Trennvorschlag in „Zu prüfen“ angenommen |
+| 4902 | Information | `Web.Client/Classification/SplitSuggestionLog` | Trennvorschlag in „Zu prüfen“ verworfen |
+| 4903 | Warning | `Web.Client/Classification/SplitSuggestionLog` | Antwort auf den Trennvorschlag fehlgeschlagen: Code |
 | 4950 | Debug | `Web.Client/Start/StartLog` | Teil der Startseite geladen: Teil (`recent`, `inputs`), Anzahl der Einträge |
 | 4951 | Warning | `Web.Client/Start/StartLog` | Teil der Startseite nicht ladbar: Teil (`recent`, `inputs`) |
 | 5000 | Error | `Application/Processing/ProcessingLog` | Für die Stufe des geholten Jobs ist kein `IStageRunner` registriert: Stufe, Dokument-Id, Ergebnis (`RetryScheduled`, `GivenUp`, `ClaimLost`); der Versuch zählt als Fehlschlag mit Wartezeit, die Warteschlange läuft weiter (Fehler beim Speichern: 2107) |
@@ -326,8 +366,51 @@ Block der Startseite (M4u Spur E): Web.Client 4950–4999 (4800–4949 sind für
 | 5407 | Information | `Application/Inputs/Mail/MailLog` | Zeitbudget des Laufs (5 min) erreicht: Anzahl verarbeiteter Mails |
 | 5408 | Information | `Application/Inputs/Mail/MailLog` | Lauf über das Postfach: Mails, neue Dokumente, ohne Dokument, aussortiert, Dauer in ms |
 | 5409 | Warning | `Application/Inputs/Mail/MailLog` | Mails nicht aus dem Posteingang verschiebbar: Anzahl; sie bleiben, der nächste Lauf versucht nur das Verschieben (Problem `StuckItems`) |
+| 5500 | Information | `Application/Editing/EditingLog` | Bearbeitung eingereiht: Art, Konto-Id, Dokument-Id |
+| 5501 | Information | `Application/Editing/EditingLog` | Bearbeitung abgelehnt, weil ein Auftrag des Dokuments läuft oder wartet: Art, Dokument-Id |
+| 5502 | Warning | `Application/Editing/EditingLog` | Bearbeitung abgelehnt: Art, Grund |
+| 5503 | Information | `Application/Editing/EditingLog` | Eigentümer hat die Fassungswahl für ein Dokument getroffen: Richtlinie, Dokument-Id |
+| 5504 | Warning | `Application/Editing/EditingLog` | Datei im Papierkorb, aber nicht verschiebbar: Art, Eintrag-Id, Ausnahmetyp |
+| 5505 | Information | `Application/Editing/EditingLog` | Bearbeitung läuft: Art, Dokument-Id, Versuch |
+| 5506 | Information | `Application/Editing/EditingLog` | Bearbeitung gespeichert: Art, Dauer in ms, Seiten |
+| 5507 | Warning | `Application/Editing/EditingLog` | Versuch der Bearbeitung fehlgeschlagen: Grund, nächster Versuch |
+| 5508 | Error | `Application/Editing/EditingLog` | Bearbeitung nach dem letzten Versuch aufgegeben; die bisherige Fassung bleibt |
+| 5509 | Information | `Application/Editing/EditingLog` | Bearbeitung abgeschlossen: Dateien an ihrem Platz |
+| 5510 | Information | `Application/Editing/EditingLog` | Zerlegung: Teil n ist das Dokument mit Id |
+| 5511 | Information | `Application/Editing/EditingLog` | Seiteninformation gespeichert: Seiten |
+| 5512 | Information | `Application/Editing/EditingLog` | Seitenbacklog: Anzahl wartender Dokumente |
+| 5513 | Warning | `Application/Editing/EditingLog` | Dateien einer Bearbeitung nicht entfernbar: Ausnahmetyp; nur Platz geht verloren |
+| 5514 | Information | `Application/Editing/EditingLog` | Wartende Seitenanalyse durch eine Bearbeitung ersetzt: Dokument-Id |
+| 5515 | Information | `Application/Editing/EditingLog` | Richtlinie gewählt, ein neues Archiv ist eingereiht: Richtlinie, Dokument-Id |
 | 5600 | Information | `Application/Trash/TrashLog` | Besitzer hat ein Dokument in den Papierkorb gelegt: Dokument-Id, Konto-Id, Papierkorb-Eintrag-Id |
 | 5601 | Information | `Application/Trash/TrashLog` | Auftrag und geplante Bearbeitung eines Dokuments verworfen, weil es in den Papierkorb ging: Dokument-Id |
+| 5610 | Information | `Application/Trash/TrashLog` | Eintrag des Papierkorbs wiederhergestellt: Eintrag-Id, Art, Dokument-Id |
+| 5611 | Information | `Application/Trash/TrashLog` | Bearbeitete Fassung in den Papierkorb, gegen die wiederhergestellte getauscht: Eintrag-Id |
+| 5612 | Information | `Application/Trash/TrashLog` | Dokument aus dem Papierkorb zurück, Auftrag der Stufe neu eingereiht: Stufe, Dokument-Id |
+| 5613 | Information | `Application/Trash/TrashLog` | Archiv aus der wiederhergestellten bearbeiteten Fassung neu erzeugt: Dokument-Id |
+| 5614 | Information | `Application/Trash/TrashLog` | Dokument behält wieder beide Fassungen: Art, Dokument-Id |
+| 5615 | Warning | `Application/Trash/TrashLog` | Konto abgewiesen: Ergebnis, Aktion, Eintrag-Id, Grund |
+| 5616 | Error | `Application/Trash/TrashLog` | Wiederherstellen fehlgeschlagen; die Dateien wurden zurückverschoben: Ausnahmetyp |
+| 5617 | Error | `Application/Trash/TrashLog` | Wiederherstellen und Zurückverschieben fehlgeschlagen: Ausnahmetyp; Archivordner prüfen |
+| 5618 | Information | `Application/Trash/TrashLog` | Papierkorb-Eintrag endgültig entfernt: Art, Eintrag-Id |
+| 5619 | Information | `Application/Trash/TrashLog` | Dokument endgültig gelöscht: Anzahl Papierkorb-Einträge |
+| 5620 | Warning | `Application/Trash/TrashLog` | Dateien nach dem endgültigen Entfernen übrig: Ausnahmetyp; sie kosten nur Platz |
+| 5621 | Information | `Application/Trash/TrashLog` | Konto hat einen Eintrag endgültig entfernt: Konto-Id, Eintrag-Id |
+| 5622 | Information | `Application/Trash/TrashLog` | Konto hat den Papierkorb geleert: Konto-Id, Anzahl |
+| 5623 | Information | `Application/Trash/TrashLog` | Fällige Einträge endgültig entfernt: Anzahl |
+| 5624 | Warning | `Application/Trash/TrashLog` | Eintrag nennt ein Dokument, das nicht im Papierkorb liegt; nur der Eintrag wurde entfernt |
+| 5625 | Information | `Application/Trash/TrashLog` | Eintrag bleibt vorerst: eine Bearbeitung des Dokuments ist geplant oder läuft |
+| 5700 | Information | `Application/Separation/SeparationLog` | Suche nach Dokumenten im Stapel gestartet: Dokument-Id, Versuch |
+| 5701 | Information | `Application/Separation/SeparationLog` | Stapel enthält vermutlich n Dokumente: Teile, leere Seiten, Dauer in ms |
+| 5702 | Information | `Application/Separation/SeparationLog` | Stapel ist ein Dokument: Seiten, Dauer in ms |
+| 5703 | Warning | `Application/Separation/SeparationLog` | Lokales LLM ohne Antwort (Ausnahmetyp); nur die Seitenzeichen zählen |
+| 5704 | Warning | `Application/Separation/SeparationLog` | LLM beschäftigt; Trennung wartet auf den nächsten Anspruch: Dokument-Id, zurückgegeben (ja/nein) |
+| 5705 | Warning | `Application/Separation/SeparationLog` | Trennungsversuch fehlgeschlagen: Versuch, Grund, nächster Versuch |
+| 5706 | Warning | `Application/Separation/SeparationLog` | Trennung nach dem letzten Versuch übersprungen; die Erkennung läuft ohne Vorschlag weiter |
+| 5707 | Warning | `Application/Separation/SeparationLog` | Trennungsversuch hat den Anspruch verloren; Ergebnis verworfen |
+| 5708 | Error | `Application/Separation/SeparationLog` | Ergebnis der Trennung nicht speicherbar: Ausnahmetyp |
+| 5710 | Information | `Application/Separation/SeparationLog` | Konto hat den Trennvorschlag angenommen: Konto-Id, Dokument-Id, Teile |
+| 5711 | Information | `Application/Separation/SeparationLog` | Konto hat den Trennvorschlag verworfen: Konto-Id, Dokument-Id |
 
 Web.Client: Die Ereignisse erscheinen nur in der Browser-Konsole und enthalten nur Sprachkürzel,
 Größen, Anzahlen, Statuscodes, Dauern und technische Fehlernamen – nie Dateinamen, Titel,
