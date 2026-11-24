@@ -10,7 +10,8 @@ namespace NoMorePaper.Application.Trash;
 /// <summary>
 /// The owner moves a document to the trash (ADR-0025): it is hidden everywhere for 30 days and can be
 /// restored until then; its files stay where they are. Its job and planned edit are dropped in the same
-/// transaction, so no Worker processes a document in the trash.
+/// transaction, so no Worker processes a document in the trash. An edit whose new version is stored
+/// already is never dropped: its files are still being moved (<see cref="EditFinisher"/>).
 /// </summary>
 public sealed class MoveDocumentToTrash(
     IDocumentFieldsStore documents,
@@ -25,7 +26,8 @@ public sealed class MoveDocumentToTrash(
 
     /// <returns>
     /// <see cref="ChangeOutcome.Changed"/>; <see cref="ChangeOutcome.NotFound"/> if the account may not see it
-    /// (or it is in the trash already); <see cref="ChangeOutcome.Forbidden"/> unless the account owns it.
+    /// (or it is in the trash already); <see cref="ChangeOutcome.Forbidden"/> unless the account owns it;
+    /// <see cref="ChangeOutcome.Conflict"/> while a stored edit still moves its files.
     /// </returns>
     public async Task<ChangeOutcome> MoveAsync(Guid id, CancellationToken cancellationToken)
     {
@@ -36,13 +38,26 @@ public sealed class MoveDocumentToTrash(
             return outcome;
         }
 
-        await MoveLoadedAsync(document, cancellationToken).ConfigureAwait(false);
-        return ChangeOutcome.Changed;
+        return await MoveLoadedAsync(document, Action, cancellationToken).ConfigureAwait(false);
     }
 
     /// <summary>Moves a document the caller loaded and checked (owner) through <see cref="IDocumentFieldsStore.FindVisibleAsync"/>.</summary>
-    internal async Task MoveLoadedAsync(Document document, CancellationToken cancellationToken)
+    /// <param name="action">The caller's word for the log of a refusal, e.g. <c>delete-duplicate</c>.</param>
+    /// <returns>
+    /// <see cref="ChangeOutcome.Changed"/>, or <see cref="ChangeOutcome.Conflict"/> (nothing changed) while a stored edit
+    /// still moves its files.
+    /// </returns>
+    internal async Task<ChangeOutcome> MoveLoadedAsync(Document document, string action, CancellationToken cancellationToken)
     {
+        // Read under the document's lock, which the Worker takes to store a version too. Dropping a stored
+        // edit would leave the database naming files that never reach their place.
+        if (await edits.GetAsync(document.Id, cancellationToken).ConfigureAwait(false) is { } edit
+            && EditDataJson.Parse(edit.Data, edit.Kind) is { IsCommitted: true })
+        {
+            logger.DocumentChangeRefused(current.Id, ChangeOutcome.Conflict, action, document.Id);
+            return ChangeOutcome.Conflict;
+        }
+
         var now = time.GetUtcNow();
         document.MoveToTrash(current.Id, now);
         var item = TrashItem.ForDocument(document, now);
@@ -58,5 +73,7 @@ public sealed class MoveDocumentToTrash(
         {
             logger.PendingWorkDropped(document.Id);
         }
+
+        return ChangeOutcome.Changed;
     }
 }

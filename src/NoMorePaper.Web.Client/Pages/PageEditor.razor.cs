@@ -150,8 +150,7 @@ public sealed partial class PageEditor
         }
     }
 
-    // The previews are cached by URL (thumbnails.js); an edit keeps the archive URL, so the version of the document is part of it.
-    private string PreviewSource => $"{DocumentLinks.Archive(Id)}?v={_detail?.EditedAt?.UtcTicks ?? 0}";
+    private string PreviewSource => DocumentLinks.ArchivePreview(Id, _detail?.EditedAt);
 
     // The suggestion belongs to the review list; the pages endpoint does not carry it.
     private async Task ApplySuggestionAsync(PagePlanModel model, Guid id)

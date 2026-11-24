@@ -20,14 +20,16 @@ public sealed class OpenDocumentFile(IDocumentRepository documents, IDocumentSto
             DocumentFileKind.Edited => detail?.Edited,
             _ => null,
         };
-        if (file is null)
+        if (detail is null || file is null)
         {
             return null;
         }
 
         try
         {
-            return new DocumentFileContent(file, storage.OpenRead(id, kind));
+            // An edit never replaces the original; one it drops is no longer named (see EditFinisher), so it is always settled.
+            var settled = kind == DocumentFileKind.Original || !detail.FilesMoving;
+            return new DocumentFileContent(file, storage.OpenRead(id, kind), settled);
         }
         catch (FileNotFoundException)
         {

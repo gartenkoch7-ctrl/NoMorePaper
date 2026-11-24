@@ -17,7 +17,7 @@ internal static class DocumentMapping
         return new(
             summary.Id, summary.Title, summary.ReceivedAt, summary.State.ToDto(), summary.IsPrivate, summary.IsMine,
             labels.Correspondent, labels.DocumentType, labels.DocumentDate, labels.Amount, labels.Recognition,
-            summary.Source.ToWord(), summary.Excerpt, [.. summary.Tags.Select(tag => tag.ToDto())]);
+            summary.Source.ToWord(), summary.Excerpt, [.. summary.Tags.Select(tag => tag.ToDto())], summary.EditedAt);
     }
 
     public static DocumentCountsDto ToDto(this DocumentCounts counts) =>
@@ -61,7 +61,7 @@ internal static class DocumentMapping
         var labels = hit.Labels.ToDto();
         return new(
             hit.Id, hit.Title, hit.ReceivedAt, hit.Snippet, hit.Rank, hit.IsPrivate, hit.IsMine,
-            labels.Correspondent, labels.DocumentType, labels.DocumentDate, labels.Amount, labels.Recognition);
+            labels.Correspondent, labels.DocumentType, labels.DocumentDate, labels.Amount, labels.Recognition, hit.EditedAt);
     }
 
     public static DocumentFileDto ToDto(this DocumentFile file) =>

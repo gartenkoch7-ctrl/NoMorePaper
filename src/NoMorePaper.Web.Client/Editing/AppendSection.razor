@@ -54,6 +54,10 @@
                 {
                     <p>@L["PeAppendPrivate", chosen.Title]</p>
                 }
+                @if (OnlyOriginal)
+                {
+                    <p>@L["PeAppendKeepBoth"]</p>
+                }
             </ConfirmBox>
         }
 
@@ -84,6 +88,9 @@
     [Parameter, EditorRequired] public string DocumentTitle { get; set; } = string.Empty;
 
     [Parameter] public bool DocumentIsPrivate { get; set; }
+
+    /// <summary>The document keeps only its original (and has one); an append switches it to both versions (user, 2026-11-24).</summary>
+    [Parameter] public bool OnlyOriginal { get; set; }
 
     /// <summary>The page has unsaved changes; appending then waits for saving or discarding.</summary>
     [Parameter] public bool Dirty { get; set; }

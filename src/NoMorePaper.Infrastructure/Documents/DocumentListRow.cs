@@ -20,4 +20,6 @@ internal sealed class DocumentListRow : LabelRow
     public string Source { get; set; } = nameof(DocumentSource.Upload);
 
     public string? Excerpt { get; set; }
+
+    public DateTimeOffset? EditedAt { get; set; }
 }

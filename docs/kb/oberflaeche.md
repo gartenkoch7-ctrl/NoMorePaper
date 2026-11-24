@@ -161,6 +161,12 @@ Wo die Umsetzung bewusst von einer Notiz abweicht, gilt diese Liste:
 - „Speichern“ legt **eine** neue Fassung an, „Verwerfen“ und der Weg zurück fragen bei Änderungen nach (F2).
 - Zuschnitt: Ecken per Pfeiltasten, Ergebnis wird angesagt.
 - „Dokument anhängen“ (Auswahl per Suche, Privat-Hinweis), „Hier teilen“ (Trennstellen in der Seitenliste).
+- Steht das Dokument auf „nur Original“, sagt die Rückfrage zum Anhängen zusätzlich „Das Dokument behält danach
+  Original und bearbeitete Fassung.“ (Nutzer, 2026-11-24; Nachtrag in Stitch 14).
+- Verlassen mit ungespeicherten Änderungen (F2): eigene Rückfrage „Seite verlassen?“, „Deine Änderungen gehen
+  verloren.“, „Abbrechen“, „Ja, verlassen“. „Alles verwerfen?“ bleibt eine eigene Rückfrage.
+- Miniaturen in Liste, Suche und Seitenvorschau tragen die Zeit der bearbeiteten Fassung in der Adresse
+  (`?v=`), damit nach einer Bearbeitung die neue Seite erscheint.
 - Dokumente von vor M4b: Der Worker holt ihre Seitentexte einmalig mit niedrigster Priorität nach (F1); bis dahin
   fehlt der Textanfang.
 
@@ -171,8 +177,8 @@ Wo die Umsetzung bewusst von einer Notiz abweicht, gilt diese Liste:
 - Löschen im Viewer (Besitzer, mit Bestätigung) bringt das Dokument hierher.
 - Abweichung 1: Das Datum steht im Format der Browser-Lokalisierung („g“), nicht wie im Entwurf
   („28.02.2026, 11:15“). Offen, ob das übernommen wird.
-- Abweichung 2: Die Fehlermeldung „Lade den Papierkorb neu“ (`TrashErrorConflict`) passt nicht, weil die Seite
-  selbst neu lädt. Offen.
+- Konflikt (409): Die Seite lädt die Liste selbst neu und sagt „Der Papierkorb hat sich inzwischen geändert. Die
+  Liste ist neu geladen.“ (`TrashErrorConflict`, Nachtrag in Stitch 15).
 
 ## Fassungen (Viewer, Reiter „Angaben“, M4b Entwurf 16)
 

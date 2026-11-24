@@ -9,6 +9,7 @@ namespace NoMorePaper.Application.Documents;
 /// <param name="Source">How the document came in.</param>
 /// <param name="Excerpt">Summary or start of the recognized text, short; <c>null</c> when there is none.</param>
 /// <param name="Tags">Tags of the document, sorted by name.</param>
+/// <param name="EditedAt">When its newest edited version was made; <c>null</c> without one.</param>
 public sealed record DocumentSummary(
     Guid Id, string Title, DateTimeOffset ReceivedAt, ProcessingState State, bool IsPrivate, bool IsMine, DocumentLabels Labels,
-    DocumentSource Source, string? Excerpt, IReadOnlyList<EntrySummary> Tags);
+    DocumentSource Source, string? Excerpt, IReadOnlyList<EntrySummary> Tags, DateTimeOffset? EditedAt = null);

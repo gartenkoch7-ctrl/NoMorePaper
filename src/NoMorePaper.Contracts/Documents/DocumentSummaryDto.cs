@@ -13,6 +13,7 @@ namespace NoMorePaper.Contracts.Documents;
 /// <param name="Source">How it came in: <c>upload</c>, <c>camera</c>, <c>scanner-folder</c>, <c>mail</c> or <c>icloud</c> (as <c>DocumentFieldsDto.Source</c>).</param>
 /// <param name="Excerpt">Summary or start of the recognized text, at most 160 characters plus an ellipsis; show as text only.</param>
 /// <param name="Tags">Tags of the document, sorted by name; <c>null</c> when not loaded.</param>
+/// <param name="EditedAt">When its newest edited version was made; <c>null</c> without one. Part of the thumbnail address, so an edit shows.</param>
 public sealed record DocumentSummaryDto(
     Guid Id,
     string Title,
@@ -27,4 +28,5 @@ public sealed record DocumentSummaryDto(
     DocumentRecognitionState Recognition = DocumentRecognitionState.None,
     string Source = "upload",
     string? Excerpt = null,
-    IReadOnlyList<EntryDto>? Tags = null);
+    IReadOnlyList<EntryDto>? Tags = null,
+    DateTimeOffset? EditedAt = null);

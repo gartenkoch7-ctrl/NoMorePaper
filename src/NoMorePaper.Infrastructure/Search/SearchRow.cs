@@ -18,4 +18,6 @@ internal sealed class SearchRow : LabelRow
     public bool IsPrivate { get; set; }
 
     public bool IsMine { get; set; }
+
+    public DateTimeOffset? EditedAt { get; set; }
 }

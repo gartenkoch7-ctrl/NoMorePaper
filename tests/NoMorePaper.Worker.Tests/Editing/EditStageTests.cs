@@ -145,7 +145,7 @@ public sealed class EditStageTests(PostgresFixture postgres)
             return new OcrResult(text, 1);
         };
 
-    private static async Task ChooseAsync(ProcessorHarness harness, Guid id, VersionPolicy policy)
+    internal static async Task ChooseAsync(ProcessorHarness harness, Guid id, VersionPolicy policy)
     {
         await using var db = harness.OtherWorkerContext();
         var document = await db.Documents.FindAsync([id], Ct);

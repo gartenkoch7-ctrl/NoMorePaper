@@ -1,11 +1,14 @@
 using System.Net;
+using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Security.Cryptography;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using NoMorePaper.Application.Documents;
+using NoMorePaper.Application.Editing;
 using NoMorePaper.Contracts.Documents;
 using NoMorePaper.Domain.Documents;
+using NoMorePaper.Domain.Editing;
 using NoMorePaper.Infrastructure.Persistence;
 using NoMorePaper.Server.Tests.Classification;
 using NoMorePaper.Server.Tests.Hosting;
@@ -15,7 +18,8 @@ namespace NoMorePaper.Server.Tests.Documents;
 
 /// <summary>
 /// Downloads after an edit (M4b): the edited version is served, and every file carries its hash as ETag
-/// and must be revalidated, so viewer and thumbnails never show an old version. Deleting goes to the trash.
+/// and must be revalidated, so viewer and thumbnails never show an old version; no ETag while an edit moves its
+/// files. Deleting goes to the trash.
 /// </summary>
 public sealed class DownloadCacheTests(ApiFixture api)
 {
@@ -39,6 +43,34 @@ public sealed class DownloadCacheTests(ApiFixture api)
         again.Headers.IfNoneMatch.Add(response.Headers.ETag!);
         using var unchanged = await client.SendAsync(again, Ct);
         Assert.Equal(HttpStatusCode.NotModified, unchanged.StatusCode);
+    }
+
+    [Fact]
+    public async Task WhileAStoredEditMovesItsFiles_NoETagIsSent_AndTheDocumentStaysOutOfTheTrash()
+    {
+        var id = await UploadAsync(SampleFiles.WithHead("%PDF-1.4 "u8, totalLength: 1_500));
+        var client = api.CreateAdminClient();
+        var edited = "%PDF-1.7 noch nicht an seinem Platz"u8.ToArray();
+        await StoreEditedAsync(id, edited, DateTimeOffset.UtcNow);
+        await using (var scope = api.Services.CreateAsyncScope())
+        {
+            var stored = new EditData(Guid.CreateVersion7()) { Steps = [new(1, PageRotation.None, false)], Finish = [] };
+            var edit = new DocumentEdit(id, EditKind.Pages, EditDataJson.ToJson(stored), Guid.CreateVersion7(), DateTimeOffset.UtcNow, false);
+            await scope.ServiceProvider.GetRequiredService<IDocumentEdits>().SaveAsync(edit, Ct);
+        }
+
+        using var again = new HttpRequestMessage(HttpMethod.Get, $"/api/documents/{id}/files/edited");
+        again.Headers.IfNoneMatch.Add(new EntityTagHeaderValue($"\"{Convert.ToHexStringLower(SHA256.HashData(edited))}\""));
+        using var response = await client.SendAsync(again, Ct);
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        Assert.Null(response.Headers.ETag);
+        Assert.Equal(edited, await response.Content.ReadAsByteArrayAsync(Ct));
+        // An edit never replaces the original, so it keeps its ETag.
+        using var original = await client.GetAsync($"/api/documents/{id}/files/original", Ct);
+        Assert.NotNull(original.Headers.ETag);
+        Assert.Equal(HttpStatusCode.Conflict, (await client.PostAsync($"/api/documents/{id}/trash", null, Ct)).StatusCode);
+        Assert.Equal(HttpStatusCode.OK, (await client.GetAsync($"/api/documents/{id}", Ct)).StatusCode);
     }
 
     [Fact]

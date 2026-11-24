@@ -4,6 +4,7 @@ using NoMorePaper.Application.Tests.Accounts;
 using NoMorePaper.Application.Tests.Classification;
 using NoMorePaper.Application.Trash;
 using NoMorePaper.Domain.Documents;
+using NoMorePaper.Domain.Editing;
 using Xunit;
 
 namespace NoMorePaper.Application.Tests.Trash;
@@ -41,6 +42,24 @@ public sealed class MoveDocumentToTrashTests
         Assert.Equal([document.Id], _edits.Deleted);
         Assert.Equal(1, _documents.Saves);
         Assert.Equal([5600, 5601], _log.EventIds);
+    }
+
+    [Fact]
+    public async Task WhileAStoredEditMovesItsFiles_ItIsAConflict_AndNothingChanges()
+    {
+        var document = _documents.Add(_current.Id, isPrivate: false);
+        var stored = new EditData(Guid.CreateVersion7()) { Steps = [new PageStep(1, PageRotation.None, false)], Finish = [] };
+        await _edits.SaveAsync(new DocumentEdit(document.Id, EditKind.Pages, EditDataJson.ToJson(stored), _current.Id, s_now, false), Ct);
+        _queue.HadJob = true;
+
+        Assert.Equal(ChangeOutcome.Conflict, await Move().MoveAsync(document.Id, Ct));
+
+        Assert.False(document.IsInTrash);
+        Assert.Empty(_trash.Items);
+        Assert.Empty(_queue.Cancelled);
+        Assert.Empty(_edits.Deleted);
+        Assert.Equal(0, _documents.Saves);
+        Assert.Equal([5256], _log.EventIds);
     }
 
     [Fact]

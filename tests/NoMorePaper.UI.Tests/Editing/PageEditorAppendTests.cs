@@ -1,7 +1,9 @@
 using System.Text.RegularExpressions;
 using Microsoft.Playwright;
 using NoMorePaper.Contracts.Documents;
+using NoMorePaper.Contracts.Editing;
 using NoMorePaper.UI.Tests.Hosting;
+using NoMorePaper.Web.Client.Localization;
 using Xunit;
 
 namespace NoMorePaper.UI.Tests.Editing;
@@ -68,7 +70,23 @@ public sealed class PageEditorAppendTests(ServerFixture server)
 
         await page.GetByRole(AriaRole.Button, new() { Name = "Anhängen: Mietvertrag" }).ClickAsync();
 
-        await Assertions.Expect(page.GetByRole(AriaRole.Group, new() { Name = "„Mietvertrag“ an „Stromrechnung“ anhängen?" })).Not.ToContainTextAsync("deshalb privat");
+        var box = page.GetByRole(AriaRole.Group, new() { Name = "„Mietvertrag“ an „Stromrechnung“ anhängen?" });
+        await Assertions.Expect(box).Not.ToContainTextAsync("deshalb privat");
+        await Assertions.Expect(box).Not.ToContainTextAsync("Original und bearbeitete Fassung");
+    }
+
+    [Fact]
+    public async Task Choose_UnderOnlyOriginal_SaysTheDocumentKeepsBothVersions()
+    {
+        var fake = new FakePageEditor { Hits = [Hit("Invoice")], VersionPolicy = VersionPolicyDto.OriginalOnly };
+        await using var session = await fake.OpenAsync(server, SupportedCultures.English);
+        var page = session.Page;
+        await SearchAsync(page, "inv");
+
+        await page.GetByRole(AriaRole.Button, new() { Name = "Append: Invoice" }).ClickAsync();
+
+        var box = page.GetByRole(AriaRole.Group, new() { Name = "Append \"Invoice\" to \"Stromrechnung\"?" });
+        await Assertions.Expect(box).ToContainTextAsync("The document then keeps the original and the edited version.");
     }
 
     [Fact]

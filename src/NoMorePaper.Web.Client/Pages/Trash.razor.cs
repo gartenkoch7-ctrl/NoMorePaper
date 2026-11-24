@@ -221,7 +221,8 @@ public sealed partial class Trash
             _focusIds = triggerIds;
         }
 
-        if (_error is not null)
+        // A failed reload says so itself (TrashLoadError); the conflict text would claim the list was reloaded.
+        if (_error is not null && !(result.IsConflict && _loadError is not null))
         {
             await _error.Announce(result.IsConflict ? result.Error! : L["TrashActionFailed", result.Error!].Value);
         }

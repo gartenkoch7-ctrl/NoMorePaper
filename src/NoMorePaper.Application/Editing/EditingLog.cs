@@ -57,4 +57,7 @@ internal static partial class EditingLog
 
     [LoggerMessage(EventId = 5515, Level = LogLevel.Information, Message = "Owner {AccountId} chose to keep {Policy} for document {DocumentId}; a new archive is queued")]
     public static partial void RebuildQueued(this ILogger logger, Guid accountId, VersionPolicy policy, Guid documentId);
+
+    [LoggerMessage(EventId = 5516, Level = LogLevel.Information, Message = "Document {DocumentId} keeps {Policy} from now on, because its edit ({Kind}) keeps the edited version")]
+    public static partial void VersionPolicySwitched(this ILogger logger, EditKind kind, VersionPolicy policy, Guid documentId);
 }

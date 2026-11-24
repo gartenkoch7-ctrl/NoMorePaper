@@ -11,7 +11,8 @@
             <div class="doc-tile-top">
                 @if (document.State == DocumentProcessingState.Done)
                 {
-                    <Thumbnail Source="@DocumentLinks.Archive(document.Id)" Title="@document.Title" />
+                    @* Keyed by its address: a reload in place with a new version draws the thumbnail anew. *@
+                    <Thumbnail @key="@DocumentLinks.ArchivePreview(document.Id, document.EditedAt)" Source="@DocumentLinks.ArchivePreview(document.Id, document.EditedAt)" Title="@document.Title" />
                 }
                 else
                 {

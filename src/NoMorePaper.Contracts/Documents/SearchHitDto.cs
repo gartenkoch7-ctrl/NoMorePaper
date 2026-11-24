@@ -12,6 +12,7 @@ namespace NoMorePaper.Contracts.Documents;
 /// <param name="DocumentDate">Date printed on the document; <c>null</c> when not set.</param>
 /// <param name="Amount">Amount with currency; <c>null</c> when not set.</param>
 /// <param name="Recognition">Where the fields come from.</param>
+/// <param name="EditedAt">When its newest edited version was made; <c>null</c> without one. Part of the thumbnail address, so an edit shows.</param>
 public sealed record SearchHitDto(
     Guid Id,
     string Title,
@@ -24,4 +25,5 @@ public sealed record SearchHitDto(
     EntryDto? DocumentType = null,
     DateOnly? DocumentDate = null,
     MoneyDto? Amount = null,
-    DocumentRecognitionState Recognition = DocumentRecognitionState.None);
+    DocumentRecognitionState Recognition = DocumentRecognitionState.None,
+    DateTimeOffset? EditedAt = null);

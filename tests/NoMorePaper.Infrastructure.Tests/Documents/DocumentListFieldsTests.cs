@@ -1,17 +1,19 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging.Abstractions;
 using Xunit;
 using NoMorePaper.Application.Documents;
 using NoMorePaper.Domain.Classification;
 using NoMorePaper.Domain.Documents;
 using NoMorePaper.Infrastructure.Documents;
 using NoMorePaper.Infrastructure.Persistence;
+using NoMorePaper.Infrastructure.Search;
 using NoMorePaper.Infrastructure.Tests.Accounts;
 using NoMorePaper.Infrastructure.Tests.Classification;
 using NoMorePaper.Infrastructure.Tests.Persistence;
 
 namespace NoMorePaper.Infrastructure.Tests.Documents;
 
-/// <summary>The extra list fields: source, excerpt and tags of the documents on the page.</summary>
+/// <summary>The extra list fields: source, excerpt, tags and the time of the edited version of the documents on the page.</summary>
 [Collection(SharedPostgres.Name)]
 public sealed class DocumentListFieldsTests(PostgresFixture postgres)
 {
@@ -94,5 +96,25 @@ public sealed class DocumentListFieldsTests(PostgresFixture postgres)
 
         Assert.Equal((newer.Id, 0), (Assert.Single(firstPage).Id, firstPage[0].Tags.Count));
         Assert.Equal((older.Id, 1), (Assert.Single(secondPage).Id, secondPage[0].Tags.Count));
+    }
+
+    // The thumbnail address carries it (M4b P6), so the list and the search must deliver it.
+    [Fact]
+    public async Task EditedAt_IsListedAndSearched_AndNullWithoutAnEditedVersion()
+    {
+        await using var database = await AccountDatabase.CreateAsync(postgres, "fields_edited_at");
+        var db = database.Db();
+        var editedAt = new DateTimeOffset(2026, 11, 24, 10, 30, 0, TimeSpan.Zero);
+        var edited = await Seed.DocumentAsync(db, s_anna, isPrivate: false, text: "Stromrechnung bearbeitet");
+        var plain = await Seed.DocumentAsync(db, s_anna, isPrivate: false, text: "Stromrechnung original");
+        edited.ReplaceFile(new DocumentFile(DocumentFileKind.Edited, "scan-edited.pdf", "application/pdf", 10, new string('d', 64)), editedAt);
+        await db.SaveChangesAsync(Ct);
+
+        var rows = (await new EfDocumentRepository(db).ListAsync(s_anna, 1, 10, DocumentFilter.None, Ct)).ToDictionary(row => row.Id);
+        var hits = (await new PostgresSearchIndex(db, NullLogger<PostgresSearchIndex>.Instance)
+            .SearchAsync("Stromrechnung", s_anna, 10, DocumentFilter.None, Ct)).ToDictionary(hit => hit.Id);
+
+        Assert.Equal((editedAt, (DateTimeOffset?)null), (rows[edited.Id].EditedAt, rows[plain.Id].EditedAt));
+        Assert.Equal((editedAt, (DateTimeOffset?)null), (hits[edited.Id].EditedAt, hits[plain.Id].EditedAt));
     }
 }

@@ -1977,8 +1977,14 @@
   <data name="PeAllDeleted" xml:space="preserve">
     <value>All pages are deleted. At least one page must stay.</value>
   </data>
-  <data name="PeLeaveWarning" xml:space="preserve">
-    <value>You have unsaved changes. Leave anyway?</value>
+  <data name="PeLeaveTitle" xml:space="preserve">
+    <value>Leave the page?</value>
+  </data>
+  <data name="PeLeaveText" xml:space="preserve">
+    <value>Your changes will be lost.</value>
+  </data>
+  <data name="PeLeaveConfirm" xml:space="preserve">
+    <value>Yes, leave</value>
   </data>
   <data name="PePageOf" xml:space="preserve">
     <value>Page {0} of {1}</value>
@@ -2135,6 +2141,9 @@
   </data>
   <data name="PeAppendPrivate" xml:space="preserve">
     <value>"{0}" is private. The result therefore becomes private.</value>
+  </data>
+  <data name="PeAppendKeepBoth" xml:space="preserve">
+    <value>The document then keeps the original and the edited version.</value>
   </data>
   <data name="PeAppendConfirm" xml:space="preserve">
     <value>Yes, append</value>
@@ -2376,14 +2385,8 @@
   <data name="TrashRestore" xml:space="preserve">
     <value>Restore</value>
   </data>
-  <data name="TrashRestoreFor" xml:space="preserve">
-    <value>Restore {0}</value>
-  </data>
   <data name="TrashPurge" xml:space="preserve">
     <value>Delete permanently</value>
-  </data>
-  <data name="TrashPurgeFor" xml:space="preserve">
-    <value>Delete {0} permanently</value>
   </data>
   <data name="TrashEmpty" xml:space="preserve">
     <value>Empty the trash</value>
@@ -2440,7 +2443,7 @@
     <value>That was not possible: {0}</value>
   </data>
   <data name="TrashErrorConflict" xml:space="preserve">
-    <value>That was not possible because the item or its document has changed meanwhile. Reload the trash.</value>
+    <value>The trash changed meanwhile. The list has been reloaded.</value>
   </data>
   <data name="TrashMove" xml:space="preserve">
     <value>Move to trash</value>

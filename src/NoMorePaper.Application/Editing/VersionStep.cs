@@ -35,10 +35,15 @@ internal sealed class VersionStep(
         IJobQueue queue, JobClaim claim, DocumentEdit edit, EditData data, Document document, string work, CancellationToken cancellationToken)
     {
         var started = time.GetTimestamp();
-        var policy = document.VersionPolicy
+        var effective = document.VersionPolicy
             ?? (document.OwnerId is { } owner
                 ? await preferences.GetAfterEditingAsync(owner, cancellationToken).ConfigureAwait(false)
                 : VersionPolicy.KeepBoth);
+
+        // A different policy is the document's own from now on (VersionRule.For), stored with the version; only an
+        // owner's choice can be stored (Document.ChooseVersions).
+        var policy = VersionRule.For(document, edit.Kind, effective);
+        VersionPolicy? switchTo = policy == effective || document.OwnerId is null ? null : policy;
 
         Document? appended = null;
         (string Path, IReadOnlyList<bool?> Layers)? composed = null;
@@ -90,7 +95,7 @@ internal sealed class VersionStep(
         var finishing = data with { Finish = changes.Moves };
         var completion = new EditCompletion(
             result.Text, pageInfos, appended?.Id, items, EditDataJson.ToJson(finishing), Final: false,
-            (tracked, other) => Apply(changes, appended, tracked, other, now));
+            (tracked, other) => Apply(changes, appended, switchTo, tracked, other, now));
         switch (await queue.CompleteEditAsync(claim, completion, cancellationToken).ConfigureAwait(false))
         {
             case EditCommitResult.ClaimLost:
@@ -101,6 +106,11 @@ internal sealed class VersionStep(
 
         var elapsedMs = (long)time.GetElapsedTime(started).TotalMilliseconds;
         logger.EditStored(edit.Kind, document.Id, elapsedMs, result.PageCount);
+        if (switchTo is { } switched)
+        {
+            logger.VersionPolicySwitched(edit.Kind, switched, document.Id);
+        }
+
         return await finisher.FinishAsync(queue, claim, finishing, cancellationToken).ConfigureAwait(false);
     }
 
@@ -152,7 +162,8 @@ internal sealed class VersionStep(
         return (path, source.MediaType, source.Kind == DocumentFileKind.Original);
     }
 
-    private static bool Apply(VersionChanges changes, Document? appended, Document tracked, Document? other, DateTimeOffset now)
+    private static bool Apply(
+        VersionChanges changes, Document? appended, VersionPolicy? switchTo, Document tracked, Document? other, DateTimeOffset now)
     {
         if (appended is not null
             && (other is not { State: ProcessingState.Done, OwnerId: { } } || !VersionRule.SameFiles(appended, other)))
@@ -163,6 +174,12 @@ internal sealed class VersionStep(
         if (!changes.ApplyTo(tracked))
         {
             return false;
+        }
+
+        // Stored as the owner's choice, like ChooseVersions does.
+        if (switchTo is { } policy && tracked.OwnerId is { } policyOwner)
+        {
+            tracked.ChooseVersions(policyOwner, policy);
         }
 
         // A split suggestion named the pages as they were; the new version has others (or the user chose them).

@@ -187,7 +187,11 @@ Eigene Datei: [features/m4b-scan-bearbeitung-detail.md](features/m4b-scan-bearbe
 - **Entschieden 2026-11-24:** Teile aus einem Split überspringen die Stapel-Trennung (`Document.SplitFrom`, Spalte `split_from_id`); wer über „Anpassen“ bewusst Seiten zusammenließ, bekommt keinen neuen Vorschlag
 - Trennvorschlag: Textanfang „beginnt mit …“ aus Entwurf 06 fehlt, `SplitSuggestionDto` hat kein Textstück (Contract-Änderung nötig)
 - Text „1 Dokumente“ bei nur einem Teil (Backend erzeugt das nie)
-- `TrashErrorConflict` sagt „Lade den Papierkorb neu“, die Seite lädt aber selbst neu; `TrashRestoreFor`/`TrashPurgeFor` unbenutzt
+- ~~`TrashErrorConflict` sagt „Lade den Papierkorb neu“, die Seite lädt aber selbst neu; `TrashRestoreFor`/`TrashPurgeFor` unbenutzt~~
+  **Erledigt (P6):** neuer Text „Der Papierkorb hat sich inzwischen geändert. Die Liste ist neu geladen.“; die
+  unbenutzten Schlüssel (auch `PeLeaveWarning`) sind entfernt
+- **Entschieden 2026-11-24 (Nutzer), erledigt in P6:** Anhängen unter „nur Original“ behält die bearbeitete Fassung
+  und stellt das Dokument auf „beides“ um; die Rückfrage zum Anhängen sagt es vorher (`VersionRule.For`)
 - Zeitformat Papierkorb „g“ statt „28.02.2026, 11:15“ wie im Entwurf
 
 ### Rückblick (nach Abschluss)
