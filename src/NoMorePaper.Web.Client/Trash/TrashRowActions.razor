@@ -1,0 +1,38 @@
+@inject IStringLocalizer<Strings> L
+
+@* The two actions of an entry. Both texts are always visible; a hidden suffix adds the title to the name, so
+   a list of buttons does not read "Wiederherstellen" over and over. The name keeps the visible text
+   first (WCAG 2.5.3); the ready-made "…For" strings do not (English: "Delete {0} permanently"). A file of a document that lies in
+   the trash itself cannot be restored alone: the reason is text, not a dead button. *@
+<div class="trash-actions">
+    @if (Item.DocumentInTrash)
+    {
+        <p class="trash-note" id="@(Prefix)note-@Key">@L["TrashDocInTrash"]</p>
+    }
+    else
+    {
+        <button type="button" id="@(Prefix)restore-@Key" class="nmp-button"
+                @onclick="() => OnRestore.InvokeAsync(Item)">
+            <MudIcon Icon="@Icons.Material.Outlined.Restore" aria-hidden="true" />
+            <span>@L["TrashRestore"]<span class="nmp-visually-hidden"> @Item.Title</span></span>
+        </button>
+    }
+    <button type="button" id="@(Prefix)purge-@Key" class="nmp-button"
+            @onclick="() => OnPurge.InvokeAsync(Item)">
+        <MudIcon Icon="@Icons.Material.Outlined.DeleteForever" aria-hidden="true" />
+        <span>@L["TrashPurge"]<span class="nmp-visually-hidden"> @Item.Title</span></span>
+    </button>
+</div>
+
+@code {
+    [Parameter, EditorRequired] public TrashItemDto Item { get; set; } = default!;
+
+    /// <summary>Id prefix: the table and the narrow list both exist in the page, so their ids must differ.</summary>
+    [Parameter, EditorRequired] public string Prefix { get; set; } = string.Empty;
+
+    [Parameter] public EventCallback<TrashItemDto> OnRestore { get; set; }
+
+    [Parameter] public EventCallback<TrashItemDto> OnPurge { get; set; }
+
+    private string Key => Item.Id.ToString("N");
+}

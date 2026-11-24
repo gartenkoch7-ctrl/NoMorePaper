@@ -1,1 +1,193 @@
-/* Papierkorb (Stitch 15), M4b Spur C. */
+/* Papierkorb (Stitch 15), M4b Spur C. From 48 rem a table, below it a list of cards; the other one is
+   display:none, so a screen reader meets each entry once. */
+
+.trash-section {
+    max-width: 72rem;
+}
+
+.trash-section > h2 {
+    margin: var(--nmp-space-lg) 0 var(--nmp-space-md);
+}
+
+/* ---- Table ---------------------------------------------------------------------------------- */
+
+.trash-table-scroll {
+    display: none;
+    overflow-x: auto;
+    background: var(--nmp-paper-low);
+    border-radius: var(--nmp-radius);
+}
+
+.trash-table {
+    width: 100%;
+    table-layout: fixed;
+    border-collapse: collapse;
+}
+
+.trash-table :is(th, td) {
+    padding: 0.75rem 1rem;
+    text-align: start;
+    vertical-align: top;
+    overflow-wrap: anywhere;
+}
+
+.trash-table thead th {
+    border-bottom: 1px solid var(--nmp-border);
+    color: var(--nmp-text-variant);
+    font: 400 0.625rem/0.875rem var(--nmp-font-mono);
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+}
+
+.trash-table tbody th {
+    color: var(--nmp-primary);
+    font-weight: 500;
+}
+
+.trash-table tbody tr + tr :is(th, td) {
+    border-top: 1px solid var(--nmp-border);
+}
+
+.trash-col-title { width: 24%; }
+.trash-col-kind { width: 14%; }
+.trash-col-date { width: 16%; }
+.trash-col-actions { width: 30%; }
+
+.trash-time {
+    color: var(--nmp-text-secondary);
+    font: 400 0.75rem/1.125rem var(--nmp-font-mono);
+    letter-spacing: 0.02em;
+}
+
+.trash-question-row td {
+    padding-top: 0;
+    border-top: 0;
+}
+
+/* ---- Buttons: neutral, the text is always visible --------------------------------------------- */
+
+.trash-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--nmp-space-sm);
+}
+
+.trash-actions .nmp-button,
+.trash-footer .nmp-button {
+    min-height: 2.5rem;
+    padding-block: 0.25rem;
+    border-color: transparent;
+    background: var(--nmp-surface-container);
+    text-align: start;
+}
+
+.trash-actions .nmp-button:hover:not(:disabled),
+.trash-footer .nmp-button:hover:not(:disabled) {
+    background: var(--nmp-elevated-high);
+}
+
+.trash-note {
+    margin: 0;
+    color: var(--nmp-text-secondary);
+    font-size: 0.8125rem;
+    line-height: 1.25rem;
+}
+
+.trash-footer {
+    margin: var(--nmp-space-md) 0;
+}
+
+/* ---- Cards (narrow) --------------------------------------------------------------------------- */
+
+.trash-cards {
+    display: flex;
+    flex-direction: column;
+    gap: var(--nmp-space-md);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.trash-card {
+    padding: var(--nmp-space-md);
+    background: var(--nmp-surface-container);
+    border-radius: var(--nmp-radius-lg);
+}
+
+.trash-card-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: var(--nmp-space-sm);
+}
+
+.trash-card-head h3 {
+    flex: 1 1 10rem;
+    min-width: 0;
+    margin: 0;
+    overflow-wrap: anywhere;
+}
+
+.trash-card-times {
+    display: flex;
+    flex-direction: column;
+    gap: var(--nmp-space-xs);
+    margin: var(--nmp-space-sm) 0 var(--nmp-space-md);
+}
+
+.trash-card-times dt {
+    color: var(--nmp-text-variant);
+    font: 400 0.625rem/0.875rem var(--nmp-font-mono);
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+}
+
+.trash-card-times dd {
+    margin: 0;
+}
+
+.trash-card .trash-actions .nmp-button {
+    flex: 1 1 10rem;
+    background: var(--nmp-paper-low);
+}
+
+.trash-card .nmp-confirm {
+    margin-top: var(--nmp-space-md);
+    background: var(--nmp-paper-low);
+}
+
+/* ---- Empty ------------------------------------------------------------------------------------- */
+
+.trash-empty-state {
+    display: flex;
+    align-items: center;
+    gap: var(--nmp-space-sm);
+    padding: var(--nmp-space-xl) var(--nmp-space-lg);
+    background: var(--nmp-paper-low);
+    border-radius: var(--nmp-radius);
+    color: var(--nmp-text-secondary);
+}
+
+/* ---- Viewer button ----------------------------------------------------------------------------- */
+
+.trash-move-button {
+    border: 0;
+    cursor: pointer;
+    align-self: flex-start;
+}
+
+.trash-move-button:disabled {
+    cursor: default;
+    opacity: 0.6;
+}
+
+@media (min-width: 48rem) {
+    .trash-table-scroll {
+        display: block;
+    }
+
+    .trash-cards {
+        display: none;
+    }
+}

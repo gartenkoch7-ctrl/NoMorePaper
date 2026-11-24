@@ -1,0 +1,104 @@
+@inject IStringLocalizer<Strings> L
+@inject TrashApi Api
+@inject ILogger<MoveToTrashButton> Logger
+
+@* "In den Papierkorb" in the viewer head, for the owner only. There is no page change afterwards: an
+   announcement made just before navigating would be lost, and the document list has no place for
+   one. The result is a box with a link to the list, and focus goes to it so it is read. *@
+@if (Detail.IsMine)
+{
+    @if (_moved)
+    {
+        <div @ref="_done" class="trash-move-done" tabindex="-1">
+            <NoticeBox Kind="NoticeKind.Success" Message="@L["TrashMoved", Detail.Title]">
+                <a class="nmp-button" href="dokumente">@L["TrashToList"]</a>
+            </NoticeBox>
+        </div>
+    }
+    else
+    {
+        <button type="button" @ref="_button" class="doc-view-action trash-move-button" @onclick="Ask" disabled="@_busy">
+            <MudIcon Icon="@Icons.Material.Outlined.Delete" aria-hidden="true" />
+            <span>@L["TrashMove"]</span>
+        </button>
+        @if (_asking)
+        {
+            <ConfirmBox Id="viewer-trash" Title="@L["TrashMoveQuestion", Detail.Title]" Text="@L["TrashMoveExplain"]"
+                        ConfirmLabel="@L["TrashMoveConfirm"]" OnConfirm="MoveAsync" OnCancel="CancelAsync" />
+        }
+
+        @if (_error is not null)
+        {
+            <NoticeBox Kind="NoticeKind.Error" Announce="true" Message="@L["TrashMoveFailed", _error]" />
+        }
+    }
+}
+
+@code {
+    private ElementReference _button;
+    private ElementReference _done;
+    private Guid _documentId;
+    private bool _asking;
+    private bool _moved;
+    private bool _busy;
+    private bool _focusDone;
+    private bool _focusButton;
+    private string? _error;
+
+    [Parameter, EditorRequired] public DocumentDetailDto Detail { get; set; } = default!;
+
+    protected override void OnParametersSet()
+    {
+        if (_documentId != Detail.Id)
+        {
+            // Another document in the same page: nothing of the last one carries over.
+            (_documentId, _asking, _moved, _busy, _error) = (Detail.Id, false, false, false, null);
+        }
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (_focusDone)
+        {
+            _focusDone = false;
+            await _done.FocusAsync();
+        }
+        else if (_focusButton)
+        {
+            _focusButton = false;
+            await _button.FocusAsync();
+        }
+    }
+
+    private void Ask()
+    {
+        _error = null;
+        _asking = true;
+    }
+
+    private Task CancelAsync()
+    {
+        _asking = false;
+        _focusButton = true;
+        return Task.CompletedTask;
+    }
+
+    private async Task MoveAsync()
+    {
+        _asking = false;
+        _busy = true;
+        var result = await Api.MoveDocumentAsync(Detail.Id);
+        _busy = false;
+        if (result.IsSuccess)
+        {
+            Logger.DocumentMovedToTrash();
+            _moved = true;
+            _focusDone = true;
+            return;
+        }
+
+        Logger.TrashActionFailed(result.IsConflict ? 409 : 0);
+        _error = result.Error;
+        _focusButton = true;
+    }
+}

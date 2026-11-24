@@ -20,6 +20,7 @@ public sealed class NavSectionTests
     [InlineData("eingaenge", NavItem.Settings)]
     [InlineData("eingaenge/mail#postfach", NavItem.Settings)]
     [InlineData("listen", NavItem.Settings)]
+    [InlineData("papierkorb", NavItem.Settings)]
     [InlineData("mitglieder", NavItem.Settings)]
     public void MapsPagesToTheirMainItem(string path, NavItem expected) =>
         Assert.Equal(expected, NavSection.For(path));

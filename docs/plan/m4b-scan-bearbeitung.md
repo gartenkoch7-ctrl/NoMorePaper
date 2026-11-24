@@ -89,7 +89,7 @@ Daraus abgeleitet:
 - [ ] Anwendungsfälle: auflisten (nur eigene), wiederherstellen (Dokument, Datei; belegter Platz → Tausch),
       endgültig entfernen, leeren; Endpunkte
 - [ ] Täglicher Aufräumdienst im Worker (`purge_after` < jetzt → Dateien und Zeilen weg)
-- [ ] Seite `/papierkorb` (Navigation), Löschen-Knopf im Viewer (Besitzer, mit Bestätigung)
+- [x] Seite `/papierkorb` (Navigation), Löschen-Knopf im Viewer (Besitzer, mit Bestätigung)
 
 ### D. Stapel-Trennung
 - [ ] Stufe `Separation` nach der OCR bei mehrseitigen Scans (Original ohne eigene Textebene): leere Seiten,

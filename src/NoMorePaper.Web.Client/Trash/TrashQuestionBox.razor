@@ -1,0 +1,41 @@
+@inject IStringLocalizer<Strings> L
+
+@* The question before an entry is restored with a swap or deleted for good, or the trash is emptied.
+   Confirming is the white main button, never red (Stitch 15); "Abbrechen" comes first. *@
+@switch (Question.Kind)
+{
+    case TrashQuestionKind.Purge:
+        <ConfirmBox @key="Question.Id" Id="@($"trash-confirm-{Question.Id:N}{Suffix}")" HeadingLevel="HeadingLevel"
+                    Title="@L["TrashPurgeQuestion", Title]" Text="@L["TrashPurgeExplain"]" ConfirmLabel="@L["TrashPurgeConfirm"]"
+                    PrimaryConfirm="true" OnConfirm="OnConfirm" OnCancel="OnCancel" />
+        break;
+    case TrashQuestionKind.Swap:
+        <ConfirmBox @key="Question.Id" Id="@($"trash-confirm-{Question.Id:N}{Suffix}")" HeadingLevel="HeadingLevel"
+                    Title="@L["TrashSwapQuestion", Title]" Text="@L["TrashSwapExplain"]" ConfirmLabel="@L["TrashSwapConfirm"]"
+                    PrimaryConfirm="true" OnConfirm="OnConfirm" OnCancel="OnCancel" />
+        break;
+    default:
+        <ConfirmBox Id="trash-empty" HeadingLevel="HeadingLevel" Title="@L["TrashEmptyQuestion"]"
+                    Text="@(Count == 1 ? L["TrashEmptyExplainOne"] : L["TrashEmptyExplain", Count])"
+                    ConfirmLabel="@L["TrashEmptyConfirm"]" PrimaryConfirm="true" OnConfirm="OnConfirm" OnCancel="OnCancel" />
+        break;
+}
+
+@code {
+    [Parameter, EditorRequired] public TrashQuestion Question { get; set; }
+
+    /// <summary>Title of the entry the question is about (not used for emptying).</summary>
+    [Parameter] public string Title { get; set; } = string.Empty;
+
+    /// <summary>Number of entries that emptying removes.</summary>
+    [Parameter] public int Count { get; set; }
+
+    /// <summary>Id suffix for the narrow list, so its question does not share ids with the table's.</summary>
+    [Parameter] public string Suffix { get; set; } = string.Empty;
+
+    [Parameter] public int HeadingLevel { get; set; } = 3;
+
+    [Parameter] public EventCallback OnConfirm { get; set; }
+
+    [Parameter] public EventCallback OnCancel { get; set; }
+}
