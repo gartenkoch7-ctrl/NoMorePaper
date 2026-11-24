@@ -1,4 +1,6 @@
+using Microsoft.EntityFrameworkCore;
 using NoMorePaper.Application.Editing;
+using NoMorePaper.Domain.Documents;
 using NoMorePaper.Domain.Editing;
 using NoMorePaper.Worker.Tests.Persistence;
 using NoMorePaper.Worker.Tests.Processing;
@@ -31,6 +33,35 @@ public sealed class EditSeparationTests(PostgresFixture postgres)
         await harness.ProcessAllAsync();
 
         Assert.Null((await harness.DocumentAsync(id)).SplitSuggestion);
+    }
+
+    [Fact]
+    public async Task ASplitStack_OfUnknownOwner_GivesEachPartTheOwnerCheckAndTheMail_AndDropsTheSuggestion()
+    {
+        await using var harness = await ProcessorHarness.CreateAsync(postgres, "edit_separation_owner_check");
+        var id = await harness.DoneDocumentAsync();
+        var mail = new MailOrigin("post@example.org", "Scan", null);
+        await using (var db = harness.OtherWorkerContext())
+        {
+            var document = await db.Documents.FindAsync([id], Ct);
+            document!.AttachMailOrigin(mail);
+            document.MarkOwnerCheck();
+            document.SuggestSplit(new SplitSuggestion([new PageRange(1, 1), new PageRange(2, 2)], [], [SplitReason.Salutation]));
+            await db.SaveChangesAsync(Ct);
+        }
+
+        await harness.PlanAsync(id, EditKind.Split, data => data with
+        {
+            Parts = [Steps((1, PageRotation.None, false)), Steps((2, PageRotation.None, false))],
+        });
+        Assert.True(await harness.Processor.ProcessNextAsync(Ct));
+
+        // Restored, the stack would otherwise offer the split it was split by.
+        Assert.Null((await harness.AnyDocumentAsync(id)).SplitSuggestion);
+        await using var check = harness.OtherWorkerContext();
+        var parts = await check.Documents.AsNoTracking().Where(document => document.SplitFrom == id).ToListAsync(Ct);
+        Assert.Equal(2, parts.Count);
+        Assert.All(parts, part => Assert.Equal((true, true, mail), (part.NeedsOwnerCheck, part.IsPrivate, part.MailOrigin)));
     }
 
     [Fact]

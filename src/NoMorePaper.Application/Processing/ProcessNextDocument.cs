@@ -1,5 +1,6 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using NoMorePaper.Application.Documents;
 using NoMorePaper.Application.Recognition;
 using NoMorePaper.Domain.Processing;
 
@@ -88,6 +89,7 @@ public sealed class ProcessNextDocument(
             }
 
             await runner.RunAsync(queue, claim, stoppingToken).ConfigureAwait(false);
+            await DeleteFilesOfRemovedDocumentAsync(services, claim.DocumentId, stoppingToken).ConfigureAwait(false);
         }
         catch (Exception exception) when (stoppingToken.IsCancellationRequested)
         {
@@ -100,6 +102,28 @@ public sealed class ProcessNextDocument(
             }
 
             throw new OperationCanceledException("The Worker stopped during the attempt.", exception, stoppingToken);
+        }
+    }
+
+    // A document moved to the trash and removed for good while its attempt ran (M4b) lost its folders before
+    // the attempt wrote its files (archive, staged edit), which then lie where nothing points to them. The
+    // removal commits before it deletes the folders, and the attempt wrote before it failed to commit, so
+    // one of the two deletes always comes last. A failure here only costs space.
+    private async Task DeleteFilesOfRemovedDocumentAsync(IServiceProvider services, Guid documentId, CancellationToken stoppingToken)
+    {
+        try
+        {
+            if (await services.GetRequiredService<IDocumentRepository>().ExistsAsync(documentId, stoppingToken).ConfigureAwait(false))
+            {
+                return;
+            }
+
+            services.GetRequiredService<IDocumentStorage>().Delete(documentId);
+            logger.RemovedDocumentFilesDeleted(documentId);
+        }
+        catch (Exception exception) when (!stoppingToken.IsCancellationRequested)
+        {
+            logger.RemovedDocumentFilesLeft(documentId, exception.GetType().Name);
         }
     }
 

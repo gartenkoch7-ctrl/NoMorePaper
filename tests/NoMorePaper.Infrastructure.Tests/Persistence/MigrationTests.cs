@@ -124,6 +124,35 @@ public sealed class MigrationTests(PostgresFixture postgres)
         Assert.Equal((told, resetAt, (DateTimeOffset?)null), (moved.UserId, moved.ResetAt, moved.AcknowledgedAt));
     }
 
+    [Fact]
+    public async Task Migrate_FromM4_KeepsDocumentsOutOfTheTrash_AndBothVersionsAsTheDefault()
+    {
+        var ct = TestContext.Current.CancellationToken;
+        await using var db = postgres.CreateContext("migration_from_m4");
+        await db.GetService<IMigrator>().MigrateAsync("20261119091505_Inputs", ct);
+        var account = Guid.CreateVersion7();
+        var id = Guid.CreateVersion7();
+        await db.Database.ExecuteSqlAsync(
+            $"""
+            INSERT INTO users (id, display_name, is_admin, email_confirmed, phone_number_confirmed, two_factor_enabled, lockout_enabled, access_failed_count)
+            VALUES ({account}, 'x', false, false, false, false, true, 0)
+            """,
+            ct);
+        await db.Database.ExecuteSqlAsync($"INSERT INTO account_preferences (account_id, new_documents_private) VALUES ({account}, true)", ct);
+        await db.Database.ExecuteSqlAsync(
+            $"INSERT INTO documents (id, title, received_at, state, owner_id, is_private) VALUES ({id}, 'alt', now(), 'Done', {account}, false)", ct);
+
+        await Migrator(db).MigrateAsync(ct);
+
+        var document = await db.Documents.AsNoTracking().SingleAsync(d => d.Id == id, ct);
+        Assert.False(document.IsInTrash);
+        Assert.Null(document.VersionPolicy);
+        Assert.Null(document.SplitSuggestion);
+        Assert.Null(document.SplitFrom);
+        Assert.Null(document.EditedAt);
+        Assert.Equal(VersionPolicy.KeepBoth, await new Infrastructure.Inputs.EfAccountPreferencesStore(db).GetAfterEditingAsync(account, ct));
+    }
+
     private static DatabaseMigrator Migrator(AppDbContext db) =>
         new(db, TimeProvider.System, NullLogger<DatabaseMigrator>.Instance);
 }

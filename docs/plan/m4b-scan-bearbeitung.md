@@ -193,6 +193,18 @@ Eigene Datei: [features/m4b-scan-bearbeitung-detail.md](features/m4b-scan-bearbe
 - **Entschieden 2026-11-24 (Nutzer), erledigt in P6:** Anhängen unter „nur Original“ behält die bearbeitete Fassung
   und stellt das Dokument auf „beides“ um; die Rückfrage zum Anhängen sagt es vorher (`VersionRule.For`)
 - Zeitformat Papierkorb „g“ statt „28.02.2026, 11:15“ wie im Entwurf
+- **Erledigt (P6, Gesamt-Review):** Übergeben während einer geplanten Bearbeitung oder Seitenanalyse ließ das Dokument ohne
+  Erkennung (`RequeueRecognitionAsync` erreicht jetzt beide); Teile eines Stapels mit Besitzer-Prüfung verloren Prüfung und
+  „Aus der Mail“ (jetzt übernommen); ein von Hand geteiltes Dokument behielt im Papierkorb seinen Trennvorschlag (jetzt
+  verworfen); endgültig Entfernen während eines laufenden Worker-Versuchs ließ dessen Dateien liegen (`ProcessNextDocument`
+  räumt auf, 5001); Katalog um Trennungs-Activity und -Messwerte ergänzt; Test der Worker-Komposition (DI-Prüfung) und
+  Migration von M4 neu
+- **Offen (niedrig):** Übergeben, während eine Teilung läuft: die Teile gehören dem bisherigen Besitzer (Versuch las ihn zu
+  Beginn), das Ausgangsdokument landet im Papierkorb des neuen. Selten (Sekunden bis Minuten), sichtbar und korrigierbar
+- **Offen (niedrig):** „Nur bearbeitet“ wählen verschiebt das Original nach dem Commit ohne Sperre; wird genau dieser
+  Eintrag im selben Moment endgültig entfernt, kann die Datei danach im Papierkorb-Ordner ohne Zeile liegen
+- **Offen (niedrig):** Eine geplante Bearbeitung, die beim Verschieben in den Papierkorb wegfällt, lässt ihre Seitenbilder in
+  `edits/<id>/<editId>/` liegen: bis das Dokument endgültig entfernt wird, nach dem Wiederherstellen dauerhaft (nur Platz)
 
 ### Rückblick (nach Abschluss)
 | Paket | geplante Stufe | passend? | Anmerkung |

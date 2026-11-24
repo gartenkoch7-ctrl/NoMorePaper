@@ -59,4 +59,10 @@ internal static partial class ProcessingLog
 
     [LoggerMessage(EventId = 5000, Level = LogLevel.Error, Message = "No runner for stage {Stage} of document {DocumentId}; the attempt counts as failed ({Outcome})")]
     public static partial void StageRunnerMissing(this ILogger logger, string stage, Guid documentId, string outcome);
+
+    [LoggerMessage(EventId = 5001, Level = LogLevel.Information, Message = "Document {DocumentId} was removed for good while its attempt ran; the files the attempt left were deleted")]
+    public static partial void RemovedDocumentFilesDeleted(this ILogger logger, Guid documentId);
+
+    [LoggerMessage(EventId = 5002, Level = LogLevel.Warning, Message = "Could not check whether document {DocumentId} still exists, or delete the files its attempt left ({ErrorType}); left files only cost space")]
+    public static partial void RemovedDocumentFilesLeft(this ILogger logger, Guid documentId, string errorType);
 }

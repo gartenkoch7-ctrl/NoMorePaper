@@ -42,9 +42,17 @@ schreibt die Verarbeitung Fehler 5000 (`StageRunnerMissing`), und der Versuch z�
 - `Separation` (`SeparationStageRunner`): Trennvorschlag bei mehrseitigen Scans nach der OCR, vor der Erkennung.
   Scheitert der letzte Versuch, läuft die Erkennung ohne Vorschlag weiter. Ablauf: [scan-bearbeitung.md](scan-bearbeitung.md).
 - Die Weiche zwischen den Stufen liegt in der Warteschlange (`JobQueue.CompleteAsync`, `SeparationHeuristics.IsScannedStack`): Nach der OCR
-  folgt `Separation`, wenn der Scan mehrseitig ist und keine eigene Textebene hat; sonst direkt `Recognition`.
-- Eine Bearbeitung übernimmt einen wartenden Erkennungsauftrag des Dokuments (3976): die Erkennung folgt der
-  Bearbeitung. Läuft ein Auftrag des Dokuments oder wartet ein anderer, wird die Bearbeitung abgelehnt (3977).
+  folgt `Separation`, wenn der Scan mehrseitig ist und keine eigene Textebene hat und kein Teil eines Splits ist
+  (`Document.SplitFrom`); sonst direkt `Recognition`.
+- Eine Bearbeitung übernimmt einen wartenden Erkennungs- oder Trennauftrag des Dokuments (3976): die Erkennung folgt
+  der Bearbeitung. Läuft ein Auftrag des Dokuments oder wartet ein anderer, wird die Bearbeitung abgelehnt (3977).
+- Erkennung neu anstoßen (`RequeueRecognitionAsync`, z. B. beim Übergeben): ein Erkennungsauftrag beginnt neu, eine
+  wartende oder laufende Seitenanalyse (Stufe `Edit` ohne geplante Bearbeitung) wird zur Erkennung; einer geplanten
+  Bearbeitung wird `recognize_after` gesetzt, OCR und Trennung führen ohnehin zur Erkennung. Sonst bliebe ein
+  übergebenes Dokument ohne Angaben, bis der Rückstand beim nächsten Start sie nachholt.
+- Wird ein Dokument endgültig entfernt (Papierkorb), während der Worker noch an ihm arbeitet, schreibt der Versuch
+  seine Dateien unter Umständen erst nach dem Löschen der Ordner. `ProcessNextDocument` prüft darum nach jedem Versuch,
+  ob das Dokument noch existiert, und löscht sonst seine Ordner (5001).
 
 ## Besitz eines Jobs
 
