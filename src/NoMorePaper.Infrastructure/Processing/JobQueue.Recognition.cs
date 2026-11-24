@@ -78,13 +78,16 @@ public sealed partial class JobQueue
     /// <inheritdoc />
     public async Task<bool> RequeueRecognitionAsync(Guid documentId, CancellationToken cancellationToken)
     {
-        // One statement in the caller's transaction (ExecuteSql joins it): a new unclaimed job, or
-        // the recognition job reset: a running attempt loses its claim and its result is discarded. An
-        // OCR job is left alone; recognition follows it with the owner of that moment.
+        // In the caller's transaction (ExecuteSql joins it): a new unclaimed job, or the recognition job
+        // reset: a running attempt loses its claim and its result is discarded. A page analysis (an edit
+        // job without planned edit, M4b) becomes the recognition; the backlog reads its pages on a later
+        // start. An OCR or separation job is left alone, recognition follows it with the owner of that
+        // moment; so it does a planned edit, which is told to recognize afterwards (EndEditAsync).
         var stage = nameof(JobStage.Recognition);
+        var edit = nameof(JobStage.Edit);
         var done = nameof(ProcessingState.Done);
         var now = time.GetUtcNow();
-        // {0} stage, {1} now, {2} document, {3} Done.
+        // {0} stage, {1} now, {2} document, {3} Done, {4} edit.
         var changed = await db.Database.ExecuteSqlAsync(
             FormattableStringFactory.Create(
                 $$"""
@@ -92,16 +95,22 @@ public sealed partial class JobQueue
                 SELECT d.id, {0}, 0, 0, {1} FROM documents d
                 WHERE d.id = {2} AND d.state = {3} AND d.owner_id IS NOT NULL AND d.content_text ~ '\S' AND {{TrashSql.NotInTrash}}
                 ON CONFLICT (document_id) DO UPDATE SET
-                    priority = 0, attempt = 0, next_attempt_at = EXCLUDED.next_attempt_at,
+                    stage = {0}, priority = 0, attempt = 0, next_attempt_at = EXCLUDED.next_attempt_at,
                     claim_id = NULL, locked_until = NULL, last_error = NULL
                 WHERE processing_jobs.stage = {0}
+                   OR (processing_jobs.stage = {4}
+                       AND NOT EXISTS (SELECT 1 FROM document_edits e WHERE e.document_id = processing_jobs.document_id))
                 """,
                 stage,
                 now,
                 documentId,
-                done),
+                done,
+                edit),
             cancellationToken).ConfigureAwait(false);
-        return changed > 0;
+        var afterEdit = await db.Database.ExecuteSqlAsync(
+            $"UPDATE document_edits SET recognize_after = TRUE WHERE document_id = {documentId}",
+            cancellationToken).ConfigureAwait(false);
+        return changed > 0 || afterEdit > 0;
     }
 
     /// <inheritdoc />

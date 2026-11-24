@@ -308,6 +308,8 @@ Block der Startseite (M4u Spur E): Web.Client 4950–4999 (Startseite).
 | 4950 | Debug | `Web.Client/Start/StartLog` | Teil der Startseite geladen: Teil (`recent`, `inputs`), Anzahl der Einträge |
 | 4951 | Warning | `Web.Client/Start/StartLog` | Teil der Startseite nicht ladbar: Teil (`recent`, `inputs`) |
 | 5000 | Error | `Application/Processing/ProcessingLog` | Für die Stufe des geholten Jobs ist kein `IStageRunner` registriert: Stufe, Dokument-Id, Ergebnis (`RetryScheduled`, `GivenUp`, `ClaimLost`); der Versuch zählt als Fehlschlag mit Wartezeit, die Warteschlange läuft weiter (Fehler beim Speichern: 2107) |
+| 5001 | Information | `Application/Processing/ProcessingLog` | Dokument wurde während seines Versuchs endgültig entfernt (Papierkorb); die Dateien, die der Versuch danach noch schrieb, sind gelöscht: Dokument-Id |
+| 5002 | Warning | `Application/Processing/ProcessingLog` | Nach einem Versuch nicht prüfbar, ob das Dokument noch existiert, oder dessen übrige Dateien nicht löschbar: Dokument-Id, Ausnahmetyp; übrige Dateien kosten nur Platz |
 | 5100 | Information | `Application/Accounts/AccountsLog` | Haushalt eingerichtet: Verwalter-Id, Anzahl übernommener Dokumente ohne Besitzer (M1) |
 | 5101 | Warning | `Application/Accounts/AccountsLog` | Einrichtung abgelehnt, Haushalt schon eingerichtet |
 | 5102 | Information | `Application/Accounts/AccountsLog` | Einladung erzeugt: Konto-Id des Verwalters, Ablaufzeit (nie der Link) |
@@ -432,6 +434,7 @@ In WASM gibt es keine `ActivitySource` und kein `Meter` (kein Exporter).
 | `nomorepaper.worker.heartbeat` | `NoMorePaper.Worker` | ein Heartbeat in `worker_heartbeats` schreiben |
 | `nomorepaper.processing.document` | `NoMorePaper.Application` | ein Verarbeitungsversuch eines Dokuments (OCR, Archiv speichern, abschließen); Tag `nomorepaper.processing.attempt` |
 | `nomorepaper.recognition.document` | `NoMorePaper.Application` | ein Erkennungsversuch (Listen, Beispiele, LLM, Prüfungen, Zuordnung); Tag `nomorepaper.recognition.attempt` |
+| `nomorepaper.separation.document` | `NoMorePaper.Application` | ein Versuch der Stapel-Trennung (Seitenzeichen, LLM, Vorschlag speichern); Tag `nomorepaper.separation.attempt` |
 
 ### Messwerte
 
@@ -447,7 +450,7 @@ In WASM gibt es keine `ActivitySource` und kein `Meter` (kein Exporter).
 | `nomorepaper.inputs.failed` | Counter | `NoMorePaper.Worker` | Läufe mit Problem, Tags `nomorepaper.inputs.source`, `nomorepaper.inputs.problem` (`InputProblemKind`) |
 | `nomorepaper.mail.assessed` | Counter | `NoMorePaper.Application` | vom LLM geprüfte Mails, Tag `nomorepaper.mail.verdict` (`spam`, `document`, `no-document`) |
 | `nomorepaper.search.duration` | Histogramm (ms) | `NoMorePaper.Infrastructure` | Dauer einer Suche |
-| `nomorepaper.storage.stored_bytes` | Counter (By) | `NoMorePaper.Infrastructure` | in die Dokumentablage geschriebene Bytes, Tag `nomorepaper.storage.kind` (`Original`/`Archive`) |
+| `nomorepaper.storage.stored_bytes` | Counter (By) | `NoMorePaper.Infrastructure` | in die Dokumentablage geschriebene Bytes, Tag `nomorepaper.storage.kind` (`Original`/`Archive`/`Edited`) |
 | `nomorepaper.processing.completed` | Counter | `NoMorePaper.Application` | erfolgreich verarbeitete Dokumente |
 | `nomorepaper.processing.failed` | Counter | `NoMorePaper.Application` | fehlgeschlagene Versuche, Tag `nomorepaper.processing.outcome` (`retry`/`failed` = aufgegeben) |
 | `nomorepaper.processing.duration` | Histogram (s) | `NoMorePaper.Application` | Dauer eines Versuchs, Tag `nomorepaper.processing.outcome` (`done`/`retry`/`failed`) |
@@ -457,6 +460,8 @@ In WASM gibt es keine `ActivitySource` und kein `Meter` (kein Exporter).
 | `nomorepaper.recognition.rejected_values` | Counter | `NoMorePaper.Application` | von den Prüfungen verworfene Werte, Tag `nomorepaper.recognition.field` (`correspondent`/`date`/`amount`/`tags`) |
 | `nomorepaper.recognition.duplicates` | Counter | `NoMorePaper.Application` | als mögliches Duplikat markierte Dokumente (Inhalt) |
 | `nomorepaper.recognition.llm_duration` | Histogram (s) | `NoMorePaper.Infrastructure` | Dauer einer Anfrage an das lokale LLM (`/api/chat`) |
+| `nomorepaper.separation.completed` | Counter | `NoMorePaper.Application` | beendete Trennstufen, Tag `nomorepaper.separation.outcome` (`suggested`/`none`/`skipped`) |
+| `nomorepaper.separation.duration` | Histogram (s) | `NoMorePaper.Application` | Dauer eines Trennversuchs, Tag `nomorepaper.separation.outcome` (`suggested`/`none`) |
 
 ## Health
 - **Server** `/health`: 200, wenn die Datenbank erreichbar ist, sonst 503.

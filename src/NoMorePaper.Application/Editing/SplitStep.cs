@@ -61,7 +61,9 @@ internal sealed class SplitStep(
                     return false;
                 }
 
-                // In the trash of its owner, whoever split it (an editor may split, only the owner may trash).
+                // In the trash of its owner, whoever split it (an editor may split, only the owner may trash). The
+                // split answers a suggestion to split it; restored, the stack would offer it again.
+                tracked.DismissSplit();
                 tracked.MoveToTrash(owner, now);
                 return true;
             });
@@ -92,7 +94,8 @@ internal sealed class SplitStep(
         var content = sources.OpenRead(output);
         await using (content.ConfigureAwait(false))
         {
-            var request = new IntakeRequest(document.OwnerId, document.Source, name, EditSources.PdfMediaType, content, SplitFrom: document.Id);
+            var request = new IntakeRequest(
+                document.OwnerId, document.Source, name, EditSources.PdfMediaType, content, document.MailOrigin, SplitFrom: document.Id);
             result = await intake.AcceptAsync(request, document.IsPrivate, DuplicateScope.Owned, cancellationToken).ConfigureAwait(false);
         }
 
@@ -102,22 +105,32 @@ internal sealed class SplitStep(
             throw new EditFailedException($"The intake refused a part ({result.Status})", isPermanent: true);
         }
 
-        // Also for a part found again: an attempt interrupted after storing it may not have copied them yet.
-        if (document.Editors.Count > 0 && document.OwnerId is { } owner)
+        // Also for a part found again: an attempt interrupted after storing it may not have taken them yet.
+        if ((document.Editors.Count > 0 || document.NeedsOwnerCheck) && document.OwnerId is { } owner)
         {
-            await CopyEditorsAsync(id, document, owner, cancellationToken).ConfigureAwait(false);
+            await InheritAsync(id, document, owner, cancellationToken).ConfigureAwait(false);
         }
 
         return id;
     }
 
-    private async Task CopyEditorsAsync(Guid id, Document document, Guid owner, CancellationToken cancellationToken)
+    // The editors, and the owner check of a stack whose owner was unknown on arrival (ADR-0024): each part
+    // may belong to somebody else, so the administrator must still be able to hand it over.
+    private async Task InheritAsync(Guid id, Document document, Guid owner, CancellationToken cancellationToken)
     {
-        // Only a part of this split: an own document that happens to have the same bytes keeps its editors.
+        // Only a part of this split: an own document that happens to have the same bytes keeps its own.
         var part = await fields.FindVisibleAsync(id, owner, cancellationToken).ConfigureAwait(false);
         if (part is not null && part.SplitFrom == document.Id)
         {
-            part.SetEditors(owner, document.Editors.Select(editor => editor.AccountId));
+            if (document.Editors.Count > 0)
+            {
+                part.SetEditors(owner, document.Editors.Select(editor => editor.AccountId));
+            }
+
+            if (document.NeedsOwnerCheck && !part.NeedsOwnerCheck)
+            {
+                part.MarkOwnerCheck();
+            }
         }
 
         await fields.SaveAsync(cancellationToken).ConfigureAwait(false);

@@ -2,11 +2,13 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging.Abstractions;
 using NoMorePaper.Application.Accounts;
 using NoMorePaper.Application.Classification;
+using NoMorePaper.Application.Editing;
 using NoMorePaper.Application.Processing;
 using NoMorePaper.Application.Recognition;
 using NoMorePaper.Domain.Classification;
 using NoMorePaper.Domain.Documents;
 using NoMorePaper.Infrastructure.Classification;
+using NoMorePaper.Infrastructure.Editing;
 using NoMorePaper.Infrastructure.Inputs;
 using NoMorePaper.Infrastructure.Processing;
 using NoMorePaper.Infrastructure.Tests.Accounts;
@@ -74,6 +76,39 @@ public sealed class JobQueueHandOverTests(PostgresFixture postgres)
 
         Assert.Equal((JobStage.Recognition, QueueDatabase.Start), ((await data.JobAsync(done))!.Stage, (await data.JobAsync(done))!.NextAttemptAt));
         Assert.Equal(JobStage.Ocr, (await data.JobAsync(queued))!.Stage);
+    }
+
+    [Fact]
+    public async Task Requeue_DuringAPlannedEdit_LetsRecognitionFollowTheEdit()
+    {
+        var data = await QueueDatabase.CreateAsync(postgres, "queue_requeue_edit");
+        await using var db = data.Context();
+        var document = await Seed.DocumentAsync(db, QueueDatabase.Owner, isPrivate: false, text: "Rechnung");
+        var edits = new EfDocumentEdits(db);
+        await edits.SaveAsync(new DocumentEdit(document.Id, EditKind.Pages, "{}", QueueDatabase.Owner, QueueDatabase.Start, false), Ct);
+        Assert.True(await data.Queue(db).EnqueueEditAsync(document.Id, recognizeAfter: false, Ct));
+
+        Assert.True(await data.Queue(db).RequeueRecognitionAsync(document.Id, Ct));
+
+        Assert.Equal(JobStage.Edit, (await data.JobAsync(document.Id))!.Stage);
+        Assert.True((await new EfDocumentEdits(data.Context()).GetAsync(document.Id, Ct))!.RecognizeAfter);
+    }
+
+    [Fact]
+    public async Task Requeue_DuringAPageAnalysis_TurnsItIntoTheRecognition()
+    {
+        var data = await QueueDatabase.CreateAsync(postgres, "queue_requeue_analysis");
+        await using var db = data.Context();
+        var document = await Seed.DocumentAsync(db, QueueDatabase.Owner, isPrivate: false, text: "Rechnung");
+        Assert.Equal(1, await data.Queue(db).EnqueuePageBacklogAsync(20, QueueDatabase.Start, Ct));
+        var claim = (await data.Queue(db).ClaimNextAsync(QueueDatabase.LockFor, Ct))!;
+
+        await using var person = data.Context();
+        Assert.True(await data.Queue(person).RequeueRecognitionAsync(document.Id, Ct));
+
+        Assert.False(await data.Queue(data.Context()).CompleteAnalysisAsync(claim, [], Ct));
+        var job = (await data.JobAsync(document.Id))!;
+        Assert.Equal((JobStage.Recognition, 0, 0, (Guid?)null), (job.Stage, job.Priority, job.Attempt, job.ClaimId));
     }
 
     [Fact]

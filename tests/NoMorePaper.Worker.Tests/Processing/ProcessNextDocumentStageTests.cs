@@ -46,4 +46,27 @@ public sealed class ProcessNextDocumentStageTests(PostgresFixture postgres)
         Assert.Equal(ProcessingState.Done, (await harness.DocumentAsync(next)).State);
         Assert.Equal(1, (await harness.JobAsync(waiting))!.Attempt);
     }
+
+    [Fact]
+    public async Task ADocumentRemovedForGood_WhileItsAttemptRuns_LeavesNoFiles()
+    {
+        await using var harness = await ProcessorHarness.CreateAsync(postgres, "processor_removed_during_attempt");
+        var id = await harness.AddQueuedDocumentAsync();
+        harness.Ocr.Behavior = async (input, output, cancellationToken) =>
+        {
+            // Moved to the trash and removed for good meanwhile: the row first, then its folders (TrashEraser).
+            await using (var db = harness.OtherWorkerContext())
+            {
+                await db.Database.ExecuteSqlAsync($"DELETE FROM documents WHERE id = {id}", cancellationToken);
+            }
+
+            harness.Storage.Delete(id);
+            return await FakeOcrEngine.WriteArchiveAsync(input, output, cancellationToken);
+        };
+
+        Assert.True(await harness.Processor.ProcessNextAsync(Ct));
+
+        Assert.Empty(Directory.GetDirectories(harness.DataRoot, id.ToString(), SearchOption.AllDirectories));
+        Assert.Contains(5001, harness.Log.EventIds);
+    }
 }

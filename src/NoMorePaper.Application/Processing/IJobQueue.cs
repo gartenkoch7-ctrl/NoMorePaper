@@ -120,10 +120,11 @@ public interface IJobQueue
     /// <summary>
     /// Queues recognition of a done document with text again, due at once with priority 0, e.g. after it
     /// was handed over to another account. A job at the recognition stage starts over (a running attempt
-    /// loses its claim); a job still at OCR is left alone, recognition follows it anyway. Joins the
-    /// caller's open transaction, if any.
+    /// loses its claim), and so does a page analysis, which becomes the recognition; a job still at OCR or
+    /// separation is left alone, recognition follows it anyway. A planned edit is told to recognize
+    /// afterwards. Joins the caller's open transaction, if any.
     /// </summary>
-    /// <returns>Whether a recognition job is queued now.</returns>
+    /// <returns>Whether a recognition job is queued now, or follows the planned edit.</returns>
     Task<bool> RequeueRecognitionAsync(Guid documentId, CancellationToken cancellationToken);
 
     /// <summary>

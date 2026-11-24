@@ -52,7 +52,10 @@ und wird neu erkannt.
   das vorher.
 - **Teilen** (`SplitDocument`): je Teil ein neues Dokument (Original = Seitenauszug, Besitzer, Privat und
   Bearbeiter übernommen). Die Teile werden normal per OCR und Erkennung verarbeitet. Das Ausgangsdokument
-  geht in den Papierkorb. qpdf läuft mit `--deterministic-id` (gleiche Seiten → gleiche Bytes): Bricht ein
+  geht in den Papierkorb, ohne Trennvorschlag (wiederhergestellt böte es sonst die schon erfolgte Trennung an).
+  Wartet das Ausgangsdokument auf die Besitzer-Prüfung (Besitzer beim Eingang unbekannt, ADR-0024), bekommt jeder
+  Teil sie auch, ebenso „Aus der Mail“: Jeder Brief eines Stapels kann jemand anderem gehören, und der Verwalter
+  muss jeden Teil übergeben können. qpdf läuft mit `--deterministic-id` (gleiche Seiten → gleiche Bytes): Bricht ein
   Teilen ab, nachdem ein Teil gespeichert, aber noch nicht vermerkt war, findet der neue Versuch ihn über
   SHA-256 wieder, statt ihn doppelt anzulegen, und gibt ihm die Bearbeiter.
 - Rechte: Bearbeiten, Zusammenfügen und Teilen brauchen das Bearbeitungsrecht aus M3 (Besitzer, Bearbeiter).
@@ -76,7 +79,9 @@ und wird neu erkannt.
 - Aufbewahrung **30 Tage** (`TrashRules.Retention`, Feld `purge_after`).
 - Auflisten zeigt nur die eigenen Einträge. Wiederherstellen: ist der Platz belegt (z. B. neue Fassung),
   wird getauscht (`RestoreTrashFile`): die Fassung am Platz geht dafür in den Papierkorb.
-- Endgültig entfernen und Papierkorb leeren: nur der Besitzer (ADR-0025).
+- Endgültig entfernen und Papierkorb leeren: nur der Besitzer (ADR-0025). Erst die Zeilen, dann die Dateien. Lief
+  für das Dokument gerade noch ein Versuch des Workers (OCR, Bearbeitung), löscht der Worker danach dessen Dateien
+  (`ProcessNextDocument`, 5001), sonst blieben Archiv oder bereitgestellte Fassung ohne Zeile liegen.
 - **Filter:** Dokumente im Papierkorb erscheinen in keiner Abfrage. EF-Abfragefilter `NotInTrash` für alle
   Zugriffe, Filter `TrashSql` in den rohen SQL-Abfragen (Suche, Duplikate, SHA-256, „Zu prüfen“). Ein
   Architekturtest (`TrashFilterTests`) prüft jede Datei mit `FROM documents`. Papierkorb-Fälle nutzen nur
