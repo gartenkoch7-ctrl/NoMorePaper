@@ -47,7 +47,7 @@ public sealed class AccountPageTests(ServerFixture server)
         await using var session = await OpenAsync(new FakeAccounts());
         var headings = session.Page.GetByRole(AriaRole.Heading, new() { Level = 2 });
 
-        await Assertions.Expect(headings).ToHaveTextAsync(["Passwort ändern", "Abmelden", "Eingänge und neue Dokumente"]);
+        await Assertions.Expect(headings).ToHaveTextAsync(["Passwort ändern", "Abmelden", "Eingänge und neue Dokumente", "Bearbeitete Dokumente"]);
     }
 
     [Fact]

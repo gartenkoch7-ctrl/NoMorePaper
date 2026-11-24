@@ -1,1 +1,133 @@
 /* Fassungen im Viewer (Stitch 16), M4b Spur V. */
+.versions {
+    display: flex;
+    flex-direction: column;
+    gap: var(--nmp-space-md);
+    margin-top: var(--nmp-space-lg);
+}
+
+.versions > h2 {
+    margin: 0;
+}
+
+.versions-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--nmp-space-sm);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.versions-list > li {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--nmp-space-xs) var(--nmp-space-md);
+    padding: var(--nmp-space-md);
+    border-radius: var(--nmp-radius);
+    background: var(--nmp-paper-low);
+}
+
+.versions-kind {
+    display: flex;
+    align-items: center;
+    gap: var(--nmp-space-xs);
+}
+
+.versions-date,
+.versions-active {
+    font-family: var(--nmp-font-mono);
+    font-size: 0.75rem;
+    color: var(--nmp-text-variant);
+}
+
+.versions-active {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--nmp-space-xs);
+}
+
+.versions-download {
+    margin-left: auto;
+    color: var(--nmp-text);
+    text-decoration: underline;
+    overflow-wrap: anywhere;
+}
+
+.versions-none,
+.versions-trash-hint {
+    margin: 0;
+    color: var(--nmp-text-variant);
+}
+
+.versions-trash-hint,
+.versions-pending {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--nmp-space-sm);
+}
+
+.versions-pending {
+    padding: var(--nmp-space-md);
+    border-radius: var(--nmp-radius);
+    background: var(--nmp-paper-low);
+}
+
+.versions-pending p {
+    margin: 0;
+}
+
+.versions-pending-title {
+    font-weight: 600;
+}
+
+.versions-choice {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--nmp-space-md);
+}
+
+.versions-choice .nmp-confirm {
+    align-self: stretch;
+}
+
+/* The choice of what to keep, for a document and for the account (radios 1,125 rem, explanation below). */
+.version-choice {
+    margin: 0;
+    padding: 0;
+    border: 0;
+    min-width: 0;
+}
+
+.version-choice legend {
+    padding: 0;
+    margin-bottom: var(--nmp-space-sm);
+    font-weight: 600;
+}
+
+.version-option {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    column-gap: var(--nmp-space-sm);
+    margin-bottom: var(--nmp-space-sm);
+}
+
+.version-option input[type="radio"] {
+    width: 1.125rem;
+    height: 1.125rem;
+    margin: 0.125rem 0 0;
+    accent-color: var(--nmp-primary);
+}
+
+.version-option .form-hint {
+    grid-column: 2;
+    margin: 0;
+}
+
+/* The confirm button may wrap its text: no fixed height. */
+.versions .nmp-confirm-actions .nmp-button {
+    height: auto;
+    padding-block: var(--nmp-space-xs);
+}

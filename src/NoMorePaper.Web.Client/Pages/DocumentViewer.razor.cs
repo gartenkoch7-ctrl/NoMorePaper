@@ -37,6 +37,9 @@ public sealed partial class DocumentViewer : IAsyncDisposable
     private LiveRegion? _announcer;
     private ElementReference _stage;
     private DocumentFieldsDto? _fields;
+    private string? _finishedNote;
+    // Bumped on every close: a stale OpenAsync that reports failure must not flag the newer open.
+    private int _openGen;
 
     [Parameter] public Guid Id { get; set; }
 
@@ -50,35 +53,6 @@ public sealed partial class DocumentViewer : IAsyncDisposable
 
     [Inject] private ILogger<DocumentViewer> Logger { get; set; } = default!;
 
-    protected override async Task OnParametersSetAsync()
-    {
-        if (Id == _loadedId)
-        {
-            return;
-        }
-
-        // The same component is reused when the route switches to another document.
-        _loadedId = Id;
-        _tab = FieldsTab;
-        await Viewer.CloseAsync();
-        (_detail, _fields, _error, _source, _state, _opened, _showFailed) = (null, null, null, null, null, false, false);
-        _originalColors = await Preferences.LoadOriginalColorsAsync();
-
-        var result = await Api.GetAsync(Id);
-        if (!result.IsSuccess || result.Value is null)
-        {
-            _error = result.Error;
-            return;
-        }
-
-        _detail = result.Value;
-        _source = SourceOf(_detail);
-        if (_source is null)
-        {
-            Logger.DocumentNotViewable(_detail.State);
-        }
-    }
-
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (_source is null || _opened || _showFailed)
@@ -88,8 +62,9 @@ public sealed partial class DocumentViewer : IAsyncDisposable
 
         _opened = true;
         var id = Id;
+        var gen = ++_openGen;
         var shown = await Viewer.OpenAsync(_stage, _source, _originalColors, OnViewChangedAsync, OnRendererChangedAsync);
-        if (!shown && !_disposed && id == Id)
+        if (!shown && !_disposed && id == Id && gen == _openGen)
         {
             _showFailed = true;
             StateHasChanged();
@@ -126,12 +101,6 @@ public sealed partial class DocumentViewer : IAsyncDisposable
 
     private string PageText => _state is null ? string.Empty : L["ViewerPageOf", _state.Page, _state.PageCount];
 
-    // Shows the archive PDF/A when there is one; a PDF original can be shown before processing.
-    private static string? SourceOf(DocumentDetailDto detail) =>
-        detail.Archive is not null ? DocumentLinks.Archive(detail.Id)
-        : detail.Original?.MediaType == PdfMediaType ? DocumentLinks.Original(detail.Id)
-        : null;
-
     private async Task OnViewChangedAsync(ViewerState state)
     {
         var previous = _state;
@@ -139,6 +108,12 @@ public sealed partial class DocumentViewer : IAsyncDisposable
         // An unchanged state answers a repeated command (zoom at 1600 %, last page): say both.
         var repeated = previous == state;
         var parts = new List<string>();
+        if (_finishedNote is not null)
+        {
+            parts.Add(_finishedNote);
+            _finishedNote = null;
+        }
+
         if (previous is null || repeated || previous.Page != state.Page || previous.PageCount != state.PageCount)
         {
             parts.Add(L["ViewerPageOf", state.Page, state.PageCount]);
@@ -178,6 +153,8 @@ public sealed partial class DocumentViewer : IAsyncDisposable
         _detail = _detail is null ? null : _detail with { IsPrivate = isPrivate };
 
     private void OnFieldsLoaded(DocumentFieldsDto fields) => _fields = fields;
+
+    private void OnDetailChanged(DocumentDetailDto detail) => _detail = detail;
 
     private Task ZoomOutAsync() => Viewer.ZoomOutAsync().AsTask();
 
