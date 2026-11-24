@@ -46,7 +46,7 @@ else if (_pages is not null)
                 <button type="button" id="@PageEditorIds.Save" class="nmp-button nmp-button-primary" disabled="@(!Model.CanSave || _saving)" @onclick="SaveAsync">
                     @L[_saving ? "PeSaving" : "PeSave"]
                 </button>
-                <button type="button" id="@PageEditorIds.Discard" class="nmp-button" disabled="@(!Model.IsDirty)" @onclick="AskDiscard">@L["PeDiscard"]</button>
+                <button type="button" id="@PageEditorIds.Discard" class="nmp-button" disabled="@(!Model.IsDirty || _saving)" @onclick="AskDiscard">@L["PeDiscard"]</button>
                 <button type="button" id="@PageEditorIds.Append" class="nmp-button" aria-expanded="@(_appendOpen ? "true" : "false")" @onclick="ToggleAppend">@L["PeAppend"]</button>
             </div>
             <p class="pe-explain">@L["PeSaveExplain"]</p>
@@ -81,7 +81,11 @@ else if (_pages is not null)
         }
         else
         {
-            <p id="pe-keys" class="pe-keys">@L["PeKeysHint"]</p>
+            @* After saving the cards have no buttons and take no keys; the hint would promise what no longer works. *@
+            @if (_saved == SavedKind.None)
+            {
+                <p id="pe-keys" class="pe-keys">@L["PeKeysHint"]</p>
+            }
             <ol class="pe-pages" aria-label="@L["PePagesLabel"]" @onkeydown="OnListKeyDown">
                 @for (var i = 0; i < Model.Entries.Count; i++)
                 {

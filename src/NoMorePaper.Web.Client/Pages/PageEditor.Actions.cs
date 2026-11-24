@@ -21,7 +21,8 @@ public sealed partial class PageEditor
 
     private async Task OnCardActionAsync(int index, PageAction action)
     {
-        if (_saved != SavedKind.None || index < 0 || index >= Model.Entries.Count)
+        // While the plan is sent a change would neither be saved nor be shown as unsaved afterwards.
+        if (_saved != SavedKind.None || _saving || index < 0 || index >= Model.Entries.Count)
         {
             return;
         }
@@ -118,7 +119,7 @@ public sealed partial class PageEditor
     // The "Trennstelle entfernen" button is gone afterwards; focus goes to the "Hier teilen" button of the card above.
     private async Task RemoveSplitAsync(int index)
     {
-        if (!Model.ToggleSplitAfter(index))
+        if (_saving || !Model.ToggleSplitAfter(index))
         {
             return;
         }
@@ -134,7 +135,7 @@ public sealed partial class PageEditor
     private async Task OnListKeyDown(KeyboardEventArgs e)
     {
         // While a frame is open its handles have the keys; undo would change the page under it.
-        if (_saved != SavedKind.None || Cropping || !(e.CtrlKey || e.MetaKey) || e.AltKey || !string.Equals(e.Key, "z", StringComparison.OrdinalIgnoreCase))
+        if (_saved != SavedKind.None || _saving || Cropping || !(e.CtrlKey || e.MetaKey) || e.AltKey || !string.Equals(e.Key, "z", StringComparison.OrdinalIgnoreCase))
         {
             return;
         }
@@ -145,11 +146,12 @@ public sealed partial class PageEditor
             return;
         }
 
-        // The card the undone change touched; the button that had focus may be gone.
-        if (Model.Undo() is { } page && Model.Entries.Any(entry => entry.SourcePage == page))
-        {
-            _focus.On(PageEditorIds.Heading(page));
-        }
+        // The card the undone change touched; the button that had focus may be gone. Undoing the split suggestion
+        // ("?trennen=1") touched no single card and removes its split points: the page heading is safe then.
+        var page = Model.Undo();
+        _focus.On(page is { } touched && Model.Entries.Any(entry => entry.SourcePage == touched)
+            ? PageEditorIds.Heading(touched)
+            : PageEditorIds.Heading1);
 
         await Say(L["PeAnnUndone"]);
     }

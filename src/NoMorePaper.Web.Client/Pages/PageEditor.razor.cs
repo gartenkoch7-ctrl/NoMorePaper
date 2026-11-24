@@ -1,5 +1,4 @@
 using Microsoft.AspNetCore.Components;
-using Microsoft.AspNetCore.Components.Routing;
 using Microsoft.Extensions.Localization;
 using Microsoft.Extensions.Logging;
 using Microsoft.JSInterop;
@@ -37,14 +36,12 @@ public sealed partial class PageEditor
     private string? _loadError;
     private string? _saveError;
     private string? _savedText;
-    private string? _leaveTarget;
     private Guid _loadedId;
     private SavedKind _saved;
     private bool _loading = true;
     private bool _saving;
     private bool _discarding;
     private bool _appendOpen;
-    private bool _leaving;
 
     [Parameter] public Guid Id { get; set; }
 
@@ -67,8 +64,6 @@ public sealed partial class PageEditor
 
     private PagePlanModel Model { get; set; } = new(0);
 
-    private bool Guarded => Model.IsDirty && _saved == SavedKind.None;
-
     private IReadOnlyList<BreadcrumbItem> Crumbs
     {
         get
@@ -88,8 +83,11 @@ public sealed partial class PageEditor
     {
         if (Id != _loadedId)
         {
+            // The same component is reused when a link opens the editor of another document: nothing carries over.
             _loadedId = Id;
             _focus = new PendingFocus(Js);
+            (_loadError, _saveError, _leaveTarget, _discarding, _appendOpen, _leaving) = (null, null, null, false, false, false);
+            await ResetCropsAsync();
             await LoadAsync();
         }
     }
@@ -99,10 +97,17 @@ public sealed partial class PageEditor
     private async Task LoadAsync()
     {
         var retry = _loadError is not null;
+        var id = Id;
         _loading = true;
         _loadError = null;
         _saved = SavedKind.None;
-        var pages = await Api.GetPagesAsync(Id);
+        var pages = await Api.GetPagesAsync(id);
+        // Another document was opened meanwhile; its own load fills the page.
+        if (id != Id)
+        {
+            return;
+        }
+
         if (!pages.IsSuccess || pages.Value is null)
         {
             _loading = false;
@@ -113,18 +118,26 @@ public sealed partial class PageEditor
         }
 
         // Only needed for the privacy hint when appending; without it the hint is left out.
-        var detail = await Documents.GetAsync(Id);
-        _detail = detail.Value;
-        _pages = pages.Value;
-        Model = new PagePlanModel(_pages.Pages.Count);
-        if (Trennen == 1 && Model.Entries.Count > 1)
+        var detail = await Documents.GetAsync(id);
+        if (id != Id)
         {
-            await ApplySuggestionAsync();
+            return;
         }
 
+        var model = new PagePlanModel(pages.Value.Pages.Count);
+        if (Trennen == 1 && model.Entries.Count > 1)
+        {
+            await ApplySuggestionAsync(model, id);
+            if (id != Id)
+            {
+                return;
+            }
+        }
+
+        (_detail, _pages, Model) = (detail.Value, pages.Value, model);
         _loading = false;
         FocusAfterRetry(retry, PageEditorIds.Heading1);
-        Logger.PageEditorLoaded(_pages.Pages.Count);
+        Logger.PageEditorLoaded(model.Entries.Count);
     }
 
     // The button that was pressed is gone once the page is reloaded; the keyboard user must land somewhere sensible.
@@ -141,12 +154,12 @@ public sealed partial class PageEditor
     private string PreviewSource => $"{DocumentLinks.Archive(Id)}?v={_detail?.EditedAt?.UtcTicks ?? 0}";
 
     // The suggestion belongs to the review list; the pages endpoint does not carry it.
-    private async Task ApplySuggestionAsync()
+    private async Task ApplySuggestionAsync(PagePlanModel model, Guid id)
     {
         var review = await Classification.ListReviewAsync();
-        if (review.Value?.FirstOrDefault(item => item.Id == Id)?.Split is { } suggestion)
+        if (review.Value?.FirstOrDefault(item => item.Id == id)?.Split is { } suggestion)
         {
-            Model.FromSuggestion(suggestion);
+            model.FromSuggestion(suggestion);
         }
     }
 
@@ -192,6 +205,14 @@ public sealed partial class PageEditor
     private async Task DiscardAsync()
     {
         _discarding = false;
+        if (_saving)
+        {
+            // The plan is on its way; dropping it now would show pages that differ from what is saved. The question
+            // is gone, so its focus needs a new place.
+            _focus.On(PageEditorIds.Heading1);
+            return;
+        }
+
         Model.Reset();
         await ResetCropsAsync();
         _focus.On(PageEditorIds.Heading1);
@@ -211,35 +232,6 @@ public sealed partial class PageEditor
         _savedText = L["PeAppended", appendedTitle];
         await Say(_savedText);
         _focus.On("pe-saved-link");
-    }
-
-    // Asked for every link inside the app; the page then shows its own question instead of changing the page.
-    private Task OnBeforeNavigationAsync(LocationChangingContext context)
-    {
-        if (Guarded && !_leaving)
-        {
-            context.PreventNavigation();
-            _leaveTarget = context.TargetLocation;
-        }
-
-        return Task.CompletedTask;
-    }
-
-    private void Leave()
-    {
-        var target = _leaveTarget;
-        _leaveTarget = null;
-        _leaving = true;
-        if (target is not null)
-        {
-            Navigation.NavigateTo(target);
-        }
-    }
-
-    private void CancelLeave()
-    {
-        _leaveTarget = null;
-        _focus.On(PageEditorIds.Heading1);
     }
 
     private Task Say(string message) => _status?.Announce(message) ?? Task.CompletedTask;

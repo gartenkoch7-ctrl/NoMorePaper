@@ -1,3 +1,4 @@
+using System.Text.Json;
 using System.Text.RegularExpressions;
 using Microsoft.Playwright;
 using NoMorePaper.Contracts.Documents;
@@ -16,6 +17,7 @@ public sealed class VersionsReloadTests(ServerFixture server)
 {
     private const string De = SupportedCultures.German;
     private const float PollWaitMs = 20_000;
+    private static readonly JsonSerializerOptions Json = new(JsonSerializerDefaults.Web);
 
     private static DocumentDetailDto Detail(bool edited, bool pending)
     {
@@ -49,6 +51,36 @@ public sealed class VersionsReloadTests(ServerFixture server)
         await Assertions.Expect(ViewerPages.Announcement(page)).ToContainTextAsync("Die neue Fassung ist fertig.", new() { Timeout = PollWaitMs });
         await Assertions.Expect(title).ToBeFocusedAsync();
         await Assertions.Expect(title).ToHaveValueAsync("Noch nicht gespeichert");
+    }
+
+    [Fact]
+    public async Task AFinishedEdit_ReloadsTheDocumentOnce()
+    {
+        var detail = Detail(edited: false, pending: true);
+        await using var viewer = await OpenAsync(detail);
+        var page = viewer.Page;
+        await ViewerPages.WaitUntilShownAsync(page);
+        var finished = JsonSerializer.Serialize(
+            detail with { EditPending = false, Edited = detail.Original, EditedAt = DateTimeOffset.UtcNow },
+            Json);
+        var gets = 0;
+        // Counted where the finished detail is served: only the requests that see the finished edit.
+        await page.RouteAsync(new Regex($"/api/documents/{detail.Id}$"), route =>
+        {
+            if (route.Request.Method != "GET")
+            {
+                return route.ContinueAsync();
+            }
+
+            Interlocked.Increment(ref gets);
+            return route.FulfillAsync(new RouteFulfillOptions { Status = 200, ContentType = "application/json", Body = finished });
+        });
+        await Assertions.Expect(ViewerPages.Announcement(page)).ToContainTextAsync("Die neue Fassung ist fertig.", new() { Timeout = PollWaitMs });
+        // Longer than one poll interval (5 s): a second poll started during the reload would ask and reload again.
+        await page.WaitForTimeoutAsync(6_500);
+
+        // The poll that saw the finished edit, and the reload of the viewer.
+        Assert.Equal(2, Volatile.Read(ref gets));
     }
 
     [Fact]

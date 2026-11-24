@@ -67,8 +67,11 @@ public sealed partial class VersionsSection : IDisposable
             _asking = false;
         }
 
+        // The poll runs until the page passes the finished detail: the render while the page reloads still shows
+        // the edit as pending, and a poll stopped earlier would be started again (a second poll, a second reload).
         if (!Detail.EditPending)
         {
+            StopPolling();
             _gaveUp = false;
         }
         else if (_poll is null && !_gaveUp)
@@ -158,7 +161,7 @@ public sealed partial class VersionsSection : IDisposable
                 if (DateTimeOffset.UtcNow > until)
                 {
                     _gaveUp = true;
-                    _poll = null;
+                    StopPolling();
                     await InvokeAsync(StateHasChanged);
                     return;
                 }
@@ -174,12 +177,12 @@ public sealed partial class VersionsSection : IDisposable
                     continue;
                 }
 
-                _poll = null;
                 Logger.EditFinishedDetected();
                 // A rebuild after "Nur Original" also runs as a pending edit but yields no new version.
                 var withoutEdited = result.Value.Edited is null;
                 await InvokeAsync(() => OnEditFinished.InvokeAsync(withoutEdited));
-                return;
+                // No return: once the page passes the finished detail, OnParametersSet stops this poll. If the
+                // page could not load the document, the detail stays pending and the next round tries again.
             }
         }
         catch (OperationCanceledException)
@@ -188,9 +191,12 @@ public sealed partial class VersionsSection : IDisposable
         }
     }
 
-    public void Dispose()
+    private void StopPolling()
     {
         _poll?.Cancel();
         _poll?.Dispose();
+        _poll = null;
     }
+
+    public void Dispose() => StopPolling();
 }

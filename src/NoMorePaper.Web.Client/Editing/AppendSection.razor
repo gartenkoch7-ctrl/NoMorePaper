@@ -95,6 +95,15 @@
 
     protected override void OnInitialized() => _focus = new PendingFocus(Js);
 
+    // A change on a card hides the question; it must not come back (and take the focus) after a discard.
+    protected override void OnParametersSet()
+    {
+        if (Dirty)
+        {
+            _chosen = null;
+        }
+    }
+
     protected override Task OnAfterRenderAsync(bool firstRender) => _focus.ApplyAsync();
 
     private static string HitId(SearchHitDto hit) => "pe-hit-" + hit.Id.ToString("N");

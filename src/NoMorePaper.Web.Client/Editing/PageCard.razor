@@ -10,7 +10,8 @@
             <MudText Typo="Typo.h3" HtmlTag="h2" id="@HeadingId" tabindex="-1">@L["PeDeletedPage", Entry.SourcePage]</MudText>
             @if (!Readonly)
             {
-                <div class="pe-buttons" role="group" aria-label="@L["PeGroup", Model.NumberOf(Index)]" aria-describedby="pe-keys">
+                @* Named by the heading: a deleted page has no number of its own ("Seite x" would name its predecessor). *@
+                <div class="pe-buttons" role="group" aria-labelledby="@HeadingId" aria-describedby="pe-keys">
                     <button type="button" id="@ButtonId("del")" class="nmp-button" @onclick="() => Raise(PageAction.ToggleDelete)">
                         <MudIcon Icon="@Icons.Material.Outlined.Undo" aria-hidden="true" />@L["PeUndoDelete"]
                     </button>
