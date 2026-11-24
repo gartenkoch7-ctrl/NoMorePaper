@@ -53,6 +53,14 @@ public sealed class PageEditorSplitTests(ServerFixture server)
         await Assertions.Expect(page.GetByRole(AriaRole.Listitem).Filter(new() { HasText = "Trennstelle: Dokument 1 endet nach Seite 1" })).ToBeVisibleAsync();
         await Assertions.Expect(page.GetByRole(AriaRole.Heading, new() { Level = 2 })).ToHaveTextAsync(["Seite 1 von 2", "Gelöschte Seite (vorher Seite 2)", "Seite 2 von 2"]);
         await Assertions.Expect(page.GetByRole(AriaRole.Button, new() { Name = "Speichern" })).ToBeEnabledAsync();
+        // The deleted card's buttons are named by its heading, not by the number of the page before it.
+        await Assertions.Expect(page.GetByRole(AriaRole.Group, new() { Name = "Gelöschte Seite (vorher Seite 2)" })).ToBeVisibleAsync();
+
+        // Undoing the suggestion removes its split row; focus must not fall to the page body with the removed button.
+        await page.Locator("#pe-split-remove-0").FocusAsync();
+        await page.Keyboard.PressAsync("Control+z");
+        await Assertions.Expect(page.Locator("#pe-split-remove-0")).ToHaveCountAsync(0);
+        await Assertions.Expect(page.Locator("#pe-heading")).ToBeFocusedAsync();
     }
 
     [Fact]

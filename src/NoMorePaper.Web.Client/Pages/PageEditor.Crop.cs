@@ -18,6 +18,10 @@ public sealed partial class PageEditor : IAsyncDisposable
     private bool _cropNotFound;
     private bool _cropBusy;
 
+    // Bumped when every crop is dropped ("Alles verwerfen", another document): a crop still drawn or straightened
+    // in the browser then belongs to pages that are gone and must not come back.
+    private int _cropEpoch;
+
     [Inject] private CropInterop Cropper { get; set; } = default!;
 
     [Inject] private TimeProvider Clock { get; set; } = default!;
@@ -49,10 +53,12 @@ public sealed partial class PageEditor : IAsyncDisposable
         _cropNotice = null;
         _cropBusy = true;
         await Say(L["CropWorking"]);
+        var epoch = _cropEpoch;
         var found = await Cropper.DetectAsync(PreviewSource, page, OnDragAsync);
         _cropBusy = false;
         var index = IndexOf(page);
-        if (found.Shape is not { } shape || index < 0 || Model.Entries[index].Deleted || _saved != SavedKind.None)
+        if (found.Shape is not { } shape || index < 0 || Model.Entries[index].Deleted || _saved != SavedKind.None || _saving
+            || epoch != _cropEpoch)
         {
             await Cropper.ReleaseAsync();
             if (found.Error is { } error)
@@ -100,8 +106,14 @@ public sealed partial class PageEditor : IAsyncDisposable
     private async Task ApplyAsync(int page, CropShape shape, bool automatic)
     {
         _cropBusy = true;
+        var epoch = _cropEpoch;
         var jpeg = await Cropper.ApplyAsync(shape.Quad);
         _cropBusy = false;
+        if (epoch != _cropEpoch)
+        {
+            return;
+        }
+
         var index = IndexOf(page);
         _focus.On(PageEditorIds.Button(page, automatic ? "auto" : "crop"));
         if (jpeg is null)
@@ -110,7 +122,7 @@ public sealed partial class PageEditor : IAsyncDisposable
             return;
         }
 
-        if (index < 0 || Model.Entries[index].Deleted || _saved != SavedKind.None)
+        if (index < 0 || Model.Entries[index].Deleted || _saved != SavedKind.None || _saving)
         {
             return;
         }
@@ -160,6 +172,7 @@ public sealed partial class PageEditor : IAsyncDisposable
     // "Alles verwerfen": no frame, no image and no notice stays.
     private async Task ResetCropsAsync()
     {
+        _cropEpoch++;
         await CloseCropAsync();
         _crops.Clear();
         _cropShapes.Clear();
