@@ -94,7 +94,7 @@ Daraus abgeleitet:
 ### D. Stapel-Trennung
 - [ ] Stufe `Separation` nach der OCR bei mehrseitigen Scans (Original ohne eigene Textebene): leere Seiten,
       „Seite x von y“, Anrede, Absenderwechsel (ein LLM-Aufruf mit den Seitenanfängen)
-- [ ] Vorschlag am Dokument; „Zu prüfen“-Grund „Trennvorschlag“; annehmen (→ `SplitDocument`), anpassen
+- [x] Vorschlag am Dokument; „Zu prüfen“-Grund „Trennvorschlag“; annehmen (→ `SplitDocument`), anpassen
       (→ „Seiten bearbeiten“ mit Trennstellen), verwerfen
 - [ ] Testsatz: 12 selbst erzeugte Stapel mit bekannten Grenzen, Messung mit echtem Ollama (optional)
 

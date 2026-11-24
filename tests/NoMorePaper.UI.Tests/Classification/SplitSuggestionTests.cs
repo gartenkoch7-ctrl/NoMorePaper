@@ -34,7 +34,7 @@ public sealed class SplitSuggestionTests(ServerFixture server)
         await Assertions.Expect(section.GetByRole(AriaRole.Heading, new() { Level = 3 })).ToHaveTextAsync("Trennvorschlag");
         await Assertions.Expect(section).ToContainTextAsync("Trennvorschlag: 3 Dokumente (Seiten 1–2, 3, 4–6), Seite 5 vermutlich leer.");
         await Assertions.Expect(section.GetByRole(AriaRole.Listitem)).ToHaveTextAsync(["Dokument 1: Seiten 1–2", "Dokument 2: Seite 3", "Dokument 3: Seiten 4–6"]);
-        await Assertions.Expect(section.GetByRole(AriaRole.Button, new() { Name = "Teilen: Scan vom 05.03.2026" })).ToBeVisibleAsync();
+        await Assertions.Expect(section.GetByRole(AriaRole.Button, new() { Name = "Teilen: Scan vom 05.03.2026", Exact = true })).ToBeVisibleAsync();
         await Assertions.Expect(section.GetByRole(AriaRole.Button, new() { Name = "Nicht teilen: Scan vom 05.03.2026" })).ToBeVisibleAsync();
         var adjust = section.GetByRole(AriaRole.Link, new() { Name = "Anpassen: Scan vom 05.03.2026" });
         await Assertions.Expect(adjust).ToHaveAttributeAsync("href", $"dokumente/{stack.Id}/seiten?trennen=1");
@@ -60,7 +60,7 @@ public sealed class SplitSuggestionTests(ServerFixture server)
         await using var session = await fake.OpenAsync(server);
         var page = session.Page;
 
-        await page.GetByRole(AriaRole.Button, new() { Name = "Teilen: Scan vom 05.03.2026" }).ClickAsync();
+        await page.GetByRole(AriaRole.Button, new() { Name = "Teilen: Scan vom 05.03.2026", Exact = true }).ClickAsync();
 
         var question = page.GetByRole(AriaRole.Group, new() { Name = "In 3 Dokumente teilen?" });
         await Assertions.Expect(question).ToBeVisibleAsync();
@@ -68,7 +68,7 @@ public sealed class SplitSuggestionTests(ServerFixture server)
         await Assertions.Expect(page.Locator($"{Section(stack)}-confirm-heading")).ToBeFocusedAsync();
         Assert.False(fake.Mocks.WasCalled("POST", $"/api/documents/{stack.Id}/split-suggestion/accept"));
 
-        await question.GetByRole(AriaRole.Button, new() { Name = "Ja, teilen" }).ClickAsync();
+        await question.GetByRole(AriaRole.Button, new() { Name = "Ja, teilen", Exact = true }).ClickAsync();
 
         await Assertions.Expect(page.Locator("main .live-region").First)
             .ToHaveTextAsync("„Scan vom 05.03.2026“ wird geteilt. Die neuen Dokumente erscheinen unter „Zu prüfen“. 1 Dokument zu prüfen.");
@@ -85,7 +85,7 @@ public sealed class SplitSuggestionTests(ServerFixture server)
         await using var session = await fake.OpenAsync(server);
         var page = session.Page;
 
-        await page.GetByRole(AriaRole.Button, new() { Name = "Teilen: Scan vom 05.03.2026" }).ClickAsync();
+        await page.GetByRole(AriaRole.Button, new() { Name = "Teilen: Scan vom 05.03.2026", Exact = true }).ClickAsync();
         await Assertions.Expect(page.GetByRole(AriaRole.Group, new() { Name = "In 3 Dokumente teilen?" })).ToBeVisibleAsync();
         await page.Keyboard.PressAsync("Escape");
 
@@ -132,7 +132,7 @@ public sealed class SplitSuggestionTests(ServerFixture server)
 
         await page.GetByRole(AriaRole.Button, new() { Name = "Nicht teilen: Scan vom 05.03.2026" }).ClickAsync();
 
-        await Assertions.Expect(page.Locator("main .form-error")).ToContainTextAsync("Die Angaben wurden inzwischen geändert und neu geladen.");
+        await Assertions.Expect(page.Locator("main .form-error").First).ToContainTextAsync("Die Angaben wurden inzwischen geändert und neu geladen.");
         await Assertions.Expect(page.GetByRole(AriaRole.Heading, new() { Level = 2 })).ToHaveTextAsync(["Scan vom 05.03.2026", "Brief Finanzamt"]);
     }
 
@@ -144,8 +144,8 @@ public sealed class SplitSuggestionTests(ServerFixture server)
         await using var session = await fake.OpenAsync(server);
         var page = session.Page;
 
-        await page.GetByRole(AriaRole.Button, new() { Name = "Teilen: Scan vom 05.03.2026" }).ClickAsync();
-        await page.GetByRole(AriaRole.Button, new() { Name = "Ja, teilen" }).ClickAsync();
+        await page.GetByRole(AriaRole.Button, new() { Name = "Teilen: Scan vom 05.03.2026", Exact = true }).ClickAsync();
+        await page.GetByRole(AriaRole.Button, new() { Name = "Ja, teilen", Exact = true }).ClickAsync();
 
         await Assertions.Expect(page.Locator($"{Section(stack)}-heading").Locator("xpath=..").Locator(".form-error"))
             .ToContainTextAsync("Das war nicht möglich: Das Dokument wird gerade bearbeitet oder hat sich geändert.");
