@@ -74,6 +74,14 @@ public sealed class TrashPurgerTests(PostgresFixture postgres) : IDisposable
         Assert.Null(await purger.RunOnceAsync(Ct));
 
         await purger.StartAsync(Ct);
+
+        // Since .NET 10 ExecuteAsync runs on the thread pool, so stopping right away could cancel the first run.
+        var deadline = DateTime.UtcNow.AddSeconds(10);
+        while (_log.Entries.Count < 3 && DateTime.UtcNow < deadline)
+        {
+            await Task.Delay(10, Ct);
+        }
+
         await purger.StopAsync(Ct);
         Assert.False(purger.ExecuteTask!.IsFaulted);
         Assert.Equal([2502, 2500, 2502], _log.EventIds);
