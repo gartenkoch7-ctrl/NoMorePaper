@@ -3,6 +3,7 @@ using NoMorePaper.Application.Editing;
 using NoMorePaper.Application.Processing;
 using NoMorePaper.Application.Trash;
 using NoMorePaper.Domain.Documents;
+using NoMorePaper.Domain.Editing;
 using NoMorePaper.Domain.Processing;
 using NoMorePaper.Infrastructure.Documents;
 using NoMorePaper.Infrastructure.Editing;
@@ -157,6 +158,29 @@ public sealed class EditCommitTests(PostgresFixture postgres)
         var stored = await data.DocumentAsync(document.Id);
         Assert.Equal((ProcessingState.Done, "Rechnung"), (stored.State, stored.ContentText));
         Assert.False((await new EfDocumentRepository(data.Context()).GetAsync(document.Id, QueueDatabase.Owner, Ct))!.EditPending);
+    }
+
+    [Fact]
+    public async Task AStoredEdit_IsNeverGivenUp_ItsFilesAreLeftToMove()
+    {
+        var data = await QueueDatabase.CreateAsync(postgres, "edit_commit_stored_retry");
+        var document = await DoneAsync(data);
+        var claim = await ClaimedEditAsync(data, document.Id, attemptsSoFar: RetryPolicy.MaxAttempts);
+        await using (var db = data.Context())
+        {
+            var stored = new EditData(Guid.Parse("00000000-0000-7000-8000-000000000000"))
+            {
+                Steps = [new PageStep(1, PageRotation.Right, false)],
+                Finish = [],
+            };
+            Assert.True(await new EfDocumentEdits(db).UpdateDataAsync(document.Id, EditDataJson.ToJson(stored), Ct));
+            var failure = await data.Queue(db).FailAsync(claim, "IOException", permanent: true, Start, Ct);
+            Assert.Equal((FailureOutcome.RetryScheduled, (DateTimeOffset?)Start.AddMinutes(30)), (failure.Outcome, failure.NextAttemptAt));
+        }
+
+        Assert.NotNull(await EditAsync(data, document.Id));
+        var job = await data.JobAsync(document.Id);
+        Assert.Equal((JobStage.Edit, (Guid?)null), (job!.Stage, job.ClaimId));
     }
 
     [Fact]

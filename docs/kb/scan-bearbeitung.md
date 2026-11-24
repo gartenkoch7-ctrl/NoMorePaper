@@ -21,6 +21,10 @@ Entscheidungen: [ADR-0013](../adr/0013-scan-bearbeitung-versionen-papierkorb.md)
    - Neues Archiv, Seitentexte in `document_pages`, Versionsregel (siehe unten), danach die Erkennung wie
      bei jedem Dokument.
 4. Bis zum Ende zeigt der Viewer die bisherige Version und „wird bearbeitet“.
+5. Neue Dateien liegen bis zum Commit in `edits/<id>/<editId>/` und werden danach an ihren Platz verschoben
+   (`EditFinisher`, jeder Schritt wiederholbar). Ein Auftrag, dessen Fassung schon gespeichert ist, wird nie
+   aufgegeben (`JobQueue.FailAsync`): Er läuft nach einem Fehler alle 30 Minuten erneut, sonst nennte die
+   Datenbank Dateien, die nie ankommen.
 
 Zuschnitt und Geraderichten laufen im Browser (OpenCV.js, Blatt- und Schräglageerkennung; Seite als JPEG
 an den Server, `CropDetection`, `CropInterop`). Eine so ersetzte Seite verliert eine vorhandene Textebene
@@ -31,10 +35,13 @@ und wird neu erkannt.
 - **Zusammenfügen** (`AppendDocument`): Seiten des angehängten Dokuments kommen ans Ende des geöffneten.
   Das angehängte Dokument geht in den Papierkorb. Ist das angehängte privat, wird das Ergebnis privat.
   Beide Dokumente werden in fester Reihenfolge (kleinere Id zuerst) gesperrt, damit sich zwei Vorgänge
-  nicht verklemmen.
+  nicht verklemmen. Wird das angehängte Dokument gerade selbst bearbeitet, wartet der Worker (neuer Versuch),
+  sonst nähme er Seiten, deren Dateien noch nicht an ihrem Platz liegen.
 - **Teilen** (`SplitDocument`): je Teil ein neues Dokument (Original = Seitenauszug, Besitzer, Privat und
   Bearbeiter übernommen). Die Teile werden normal per OCR und Erkennung verarbeitet. Das Ausgangsdokument
-  geht in den Papierkorb.
+  geht in den Papierkorb. qpdf läuft mit `--deterministic-id` (gleiche Seiten → gleiche Bytes): Bricht ein
+  Teilen ab, nachdem ein Teil gespeichert, aber noch nicht vermerkt war, findet der neue Versuch ihn über
+  SHA-256 wieder, statt ihn doppelt anzulegen, und gibt ihm die Bearbeiter.
 - Rechte: Bearbeiten, Zusammenfügen und Teilen brauchen das Bearbeitungsrecht aus M3 (Besitzer, Bearbeiter).
 
 ## Fassungen und Versionsregel

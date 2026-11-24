@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using NoMorePaper.Application.Editing;
 using NoMorePaper.Application.Processing;
 using NoMorePaper.Domain.Documents;
 using NoMorePaper.Domain.Processing;
@@ -31,6 +32,14 @@ public sealed partial class JobQueue
                 ? technicalError[..Document.MaxFailureReasonLength]
                 : technicalError;
             var next = permanent ? null : RetryPolicy.NextAttemptAt(Math.Max(job.Attempt, 1), now.ToUniversalTime());
+
+            // A stored edit only has its files left to move: giving it up would leave the database naming files
+            // that never reach their place. It is tried again at the longest delay until it ends.
+            if (next is null && job.Stage == JobStage.Edit && await IsStoredEditAsync(job.DocumentId, cancellationToken).ConfigureAwait(false))
+            {
+                next = RetryPolicy.NextAttemptAt(RetryPolicy.MaxAttempts - 1, now.ToUniversalTime());
+            }
+
             if (next is { } retryAt)
             {
                 job.LastError = error;
@@ -65,6 +74,12 @@ public sealed partial class JobQueue
                 cancellationToken)
             .ConfigureAwait(false);
         return released > 0;
+    }
+
+    private async Task<bool> IsStoredEditAsync(Guid documentId, CancellationToken cancellationToken)
+    {
+        var edit = await Edits(documentId).AsNoTracking().SingleOrDefaultAsync(cancellationToken).ConfigureAwait(false);
+        return edit is not null && EditDataJson.Parse(edit.Data, edit.Kind) is { IsCommitted: true };
     }
 
     private async Task GiveUpAsync(ProcessingJob job, string error, CancellationToken cancellationToken)

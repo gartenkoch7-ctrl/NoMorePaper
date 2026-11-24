@@ -40,6 +40,14 @@ public sealed class PageToolsTests(OcrSamples samples) : IClassFixture<OcrSample
         Assert.Contains("Rechnung", pages[1].Head, StringComparison.Ordinal);
         Assert.Equal([true, true, false], pages.Select(page => page.HadTextLayer));
         Assert.Empty(Directory.GetFiles(work, ".npages-*"));
+
+        // A retried split must make the same part again (same hash), so the same pages give the same bytes.
+        var again = Path.Combine(work, "again.pdf");
+        await qpdf.ComposeAsync(
+            [new(samples.TextPdf, 2, PageRotation.None), new(samples.TextPdf, 1, PageRotation.Right), new(samples.ScannedPdf, 1, PageRotation.Half)],
+            again,
+            Ct);
+        Assert.Equal(await File.ReadAllBytesAsync(output, Ct), await File.ReadAllBytesAsync(again, Ct));
     }
 
     [Fact]

@@ -51,7 +51,9 @@ public sealed class RestoreTrashFileTests
         var swapped = Assert.Single(_s.Trash.Items);
         Assert.Equal((TrashItemKind.Edited, current, TrashScenario.Now), (swapped.Kind, swapped.File, swapped.DeletedAt));
         Assert.Equal([$"to-trash Edited {swapped.Id}", $"restore Edited {item.Id}"], _s.Storage.Steps);
-        Assert.Equal(EditKind.Rebuild, _s.Edits.Edits[document.Id].Kind);
+        var rebuild = _s.Edits.Edits[document.Id];
+        Assert.Equal(EditKind.Rebuild, rebuild.Kind);
+        Assert.NotNull(EditDataJson.Parse(rebuild.Data, EditKind.Rebuild)); // else the Worker gives the rebuild up at once
         Assert.Equal([document.Id], _s.Queue.EditsQueued);
         Assert.Equal([5614, 5610, 5611, 5613], _s.FileLog.EventIds);
     }

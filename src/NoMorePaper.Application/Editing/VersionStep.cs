@@ -19,6 +19,7 @@ internal sealed class VersionStep(
     IOcrEngine ocr,
     IPageAnalyzer analyzer,
     IDocumentPages pages,
+    IDocumentEdits edits,
     IAccountPreferencesStore preferences,
     EditFinisher finisher,
     TimeProvider time,
@@ -50,6 +51,14 @@ internal sealed class VersionStep(
             appended = await queue.ReadDocumentAsync(data.AppendedId!.Value, cancellationToken).ConfigureAwait(false) is { State: ProcessingState.Done } found
                 ? found
                 : throw new EditFailedException("The appended document is gone or not processed", isPermanent: true);
+
+            // Read after the document: an edit of it stored since then still has files to move, which may not
+            // be in place yet (its database row names the new ones); one stored later changes its hashes, which
+            // the commit sees. Either way the pages are taken once it has ended.
+            if (await edits.GetAsync(appended.Id, cancellationToken).ConfigureAwait(false) is not null)
+            {
+                throw new EditFailedException("The appended document is being edited", isPermanent: false);
+            }
             composed = await ComposeAppendAsync(document, appended, work, cancellationToken).ConfigureAwait(false);
         }
 
