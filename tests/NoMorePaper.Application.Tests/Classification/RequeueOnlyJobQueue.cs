@@ -32,6 +32,15 @@ internal sealed class RequeueOnlyJobQueue : IJobQueue
         return Task.FromResult(HadJob);
     }
 
+    /// <summary>Documents whose OCR <see cref="RequeueOcrAsync"/> queued again.</summary>
+    public List<Guid> OcrRequeued { get; } = [];
+
+    public Task<bool> RequeueOcrAsync(Guid documentId, CancellationToken cancellationToken)
+    {
+        OcrRequeued.Add(documentId);
+        return Task.FromResult(true);
+    }
+
     public Task<JobClaim?> ClaimNextAsync(TimeSpan lockFor, bool includeLlmStages, CancellationToken cancellationToken) =>
         throw new NotSupportedException();
 
@@ -41,8 +50,21 @@ internal sealed class RequeueOnlyJobQueue : IJobQueue
         JobClaim claim, string text, StoredFile archive, IReadOnlyList<PageInfo> pages, CancellationToken cancellationToken) =>
         throw new NotSupportedException();
 
-    public Task<bool> EnqueueEditAsync(Guid documentId, bool recognizeAfter, CancellationToken cancellationToken) =>
-        throw new NotSupportedException();
+    /// <summary>Documents whose edit <see cref="EnqueueEditAsync"/> queued.</summary>
+    public List<Guid> EditsQueued { get; } = [];
+
+    /// <summary>What <see cref="EnqueueEditAsync"/> answers (<c>false</c>: another job runs).</summary>
+    public bool EnqueueEditResult { get; set; } = true;
+
+    public Task<bool> EnqueueEditAsync(Guid documentId, bool recognizeAfter, CancellationToken cancellationToken)
+    {
+        if (EnqueueEditResult)
+        {
+            EditsQueued.Add(documentId);
+        }
+
+        return Task.FromResult(EnqueueEditResult);
+    }
 
     public Task<RecordedFailure> FailAsync(JobClaim claim, string technicalError, bool permanent, DateTimeOffset now, CancellationToken cancellationToken) =>
         throw new NotSupportedException();

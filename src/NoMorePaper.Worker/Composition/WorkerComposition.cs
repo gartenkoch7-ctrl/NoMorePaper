@@ -10,6 +10,7 @@ using NoMorePaper.Worker.Inputs;
 using NoMorePaper.Worker.Processing;
 using NoMorePaper.Worker.Recognition;
 using NoMorePaper.Worker.Telemetry;
+using NoMorePaper.Worker.Trash;
 
 namespace NoMorePaper.Worker.Composition;
 
@@ -49,6 +50,7 @@ internal static class WorkerComposition
         builder.Services.AddAccountStore();
         builder.Services.AddInputSources(builder.Configuration);
         builder.Services.AddHostedService<InputScheduler>();
+        builder.Services.AddHostedService<TrashPurger>();
 
         return builder;
     }

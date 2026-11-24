@@ -33,6 +33,7 @@ public static class ApplicationServiceCollectionExtensions
         services.AddScoped<SearchDocuments>();
         services.AddScoped<SetDocumentPrivacy>();
         services.AddScoped<MoveDocumentToTrash>();
+        services.AddTrash();
         services.AddScoped<ListInputStatus>();
         services.AddScoped<ConfigureMailbox>();
         services.AddAccounts();
@@ -97,6 +98,7 @@ public static class ApplicationServiceCollectionExtensions
         services.AddScoped<RecognizeDocument>();
         services.AddScoped<FindContentDuplicate>();
         services.AddScoped<EnqueueBacklog>();
+        services.AddTrashPurge();
         services.AddStageRunners();
 
         // The background inputs (ADR-0024) take files in without a signed-in account.

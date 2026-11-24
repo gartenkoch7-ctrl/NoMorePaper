@@ -16,4 +16,10 @@ public static class DocumentLinks
 
     /// <summary>The PDF/A made by the processing; exists once the document is done.</summary>
     public static string Archive(Guid id) => $"api/documents/{id}/files/archive";
+
+    /// <summary>The newest edited version (PDF); exists once the document was edited.</summary>
+    public static string Edited(Guid id) => $"api/documents/{id}/files/edited";
+
+    /// <summary>The page editor; with <paramref name="split"/> the split points of the suggestion are set.</summary>
+    public static string PageEditor(Guid id, bool split = false) => split ? $"dokumente/{id}/seiten?trennen=1" : $"dokumente/{id}/seiten";
 }
