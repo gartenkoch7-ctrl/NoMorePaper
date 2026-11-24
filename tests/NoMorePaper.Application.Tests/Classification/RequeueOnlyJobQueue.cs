@@ -53,7 +53,7 @@ internal sealed class RequeueOnlyJobQueue : IJobQueue
     /// <summary>Documents whose edit <see cref="EnqueueEditAsync"/> queued.</summary>
     public List<Guid> EditsQueued { get; } = [];
 
-    /// <summary>What <see cref="EnqueueEditAsync"/> answers (<c>false</c>: another job runs).</summary>
+    /// <summary>What <see cref="EnqueueEditAsync"/> answers (<c>false</c>: another job runs or waits).</summary>
     public bool EnqueueEditResult { get; set; } = true;
 
     public Task<bool> EnqueueEditAsync(Guid documentId, bool recognizeAfter, CancellationToken cancellationToken)
@@ -65,6 +65,24 @@ internal sealed class RequeueOnlyJobQueue : IJobQueue
 
         return Task.FromResult(EnqueueEditResult);
     }
+
+    /// <summary>What <see cref="DropPendingAnalysisAsync"/> answers.</summary>
+    public bool HadPendingAnalysis { get; set; }
+
+    public Task<bool> DropPendingAnalysisAsync(Guid documentId, CancellationToken cancellationToken) => Task.FromResult(HadPendingAnalysis);
+
+    public Task<Document?> ReadDocumentAsync(Guid documentId, CancellationToken cancellationToken) => throw new NotSupportedException();
+
+    public Task<EditCommitResult> CompleteEditAsync(JobClaim claim, EditCompletion completion, CancellationToken cancellationToken) =>
+        throw new NotSupportedException();
+
+    public Task<bool> FinishEditAsync(JobClaim claim, CancellationToken cancellationToken) => throw new NotSupportedException();
+
+    public Task<bool> CompleteAnalysisAsync(JobClaim claim, IReadOnlyList<PageInfo> pages, CancellationToken cancellationToken) =>
+        throw new NotSupportedException();
+
+    public Task<int> EnqueuePageBacklogAsync(int priority, DateTimeOffset now, CancellationToken cancellationToken) =>
+        throw new NotSupportedException();
 
     public Task<RecordedFailure> FailAsync(JobClaim claim, string technicalError, bool permanent, DateTimeOffset now, CancellationToken cancellationToken) =>
         throw new NotSupportedException();

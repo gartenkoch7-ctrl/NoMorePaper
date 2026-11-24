@@ -68,7 +68,27 @@ internal sealed class FakeDocumentStorage : IDocumentStorage
 
     public Task<StoredFile> SaveEditedAsync(Guid id, Stream content, CancellationToken cancellationToken) => throw new NotSupportedException();
 
-    public Task MoveToTrashAsync(Guid id, DocumentFileKind kind, Guid trashItemId, CancellationToken cancellationToken) =>
+    /// <summary>Files <see cref="MoveToTrashAsync"/> moved.</summary>
+    public List<(Guid Id, DocumentFileKind Kind, Guid TrashItemId)> Trashed { get; } = [];
+
+    /// <summary>Thrown by <see cref="MoveToTrashAsync"/>, after recording the move.</summary>
+    public Exception? TrashFailure { get; set; }
+
+    public Task MoveToTrashAsync(Guid id, DocumentFileKind kind, Guid trashItemId, CancellationToken cancellationToken)
+    {
+        Trashed.Add((id, kind, trashItemId));
+        return TrashFailure is null ? Task.CompletedTask : Task.FromException(TrashFailure);
+    }
+
+    public Task<StoredFile> StageAsync(Guid id, Guid editId, DocumentFileKind kind, Stream content, CancellationToken cancellationToken) =>
+        throw new NotSupportedException();
+
+    public bool IsStaged(Guid id, Guid editId, DocumentFileKind kind) => throw new NotSupportedException();
+
+    public Task PublishStagedAsync(Guid id, Guid editId, DocumentFileKind kind, CancellationToken cancellationToken) =>
+        throw new NotSupportedException();
+
+    public Task TrashStagedAsync(Guid id, Guid editId, Guid trashItemId, CancellationToken cancellationToken) =>
         throw new NotSupportedException();
 
     public Task RestoreFromTrashAsync(Guid trashItemId, Guid id, DocumentFileKind kind, CancellationToken cancellationToken) =>

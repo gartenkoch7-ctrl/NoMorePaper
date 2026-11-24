@@ -92,29 +92,36 @@ public sealed class StorageTrashTests : IDisposable
     [Fact]
     public async Task EditPages_AreStoredPerPage_AndDiscardedTogether()
     {
-        await _pages.SaveAsync(_id, 2, new MemoryStream([0xFF, 0xD8, 1]), Ct);
-        await _pages.SaveAsync(_id, 2, new MemoryStream([0xFF, 0xD8, 2]), Ct);
+        var edit = Guid.CreateVersion7();
+        var other = Guid.CreateVersion7();
+        await _pages.SaveAsync(_id, edit, 2, new MemoryStream([0xFF, 0xD8, 1]), Ct);
+        await _pages.SaveAsync(_id, edit, 2, new MemoryStream([0xFF, 0xD8, 2]), Ct);
+        await _pages.SaveAsync(_id, other, 2, new MemoryStream([0xFF, 0xD8, 3]), Ct);
 
-        await using (var read = _pages.OpenRead(_id, 2))
+        await using (var read = _pages.OpenRead(_id, edit, 2))
         {
             using var copy = new MemoryStream();
             await read.CopyToAsync(copy, Ct);
             Assert.Equal([0xFF, 0xD8, 2], copy.ToArray());
         }
 
-        Assert.Equal(["page-2.jpg"], Directory.GetFiles(Path.Combine(_root, "edits", _id.ToString())).Select(Path.GetFileName));
-        Assert.Throws<FileNotFoundException>(() => _pages.OpenRead(_id, 3));
-        await Assert.ThrowsAsync<ArgumentOutOfRangeException>(() => _pages.SaveAsync(_id, 0, new MemoryStream(), Ct));
+        Assert.Equal(["page-2.jpg"], Directory.GetFiles(Path.Combine(_root, "edits", _id.ToString(), edit.ToString())).Select(Path.GetFileName));
+        Assert.Throws<FileNotFoundException>(() => _pages.OpenRead(_id, edit, 3));
+        await Assert.ThrowsAsync<ArgumentOutOfRangeException>(() => _pages.SaveAsync(_id, edit, 0, new MemoryStream(), Ct));
 
-        _pages.Discard(_id);
-        _pages.Discard(_id);
-        Assert.Throws<FileNotFoundException>(() => _pages.OpenRead(_id, 2));
+        // Each edit has its own folder: discarding one leaves the other's images alone.
+        _pages.Discard(_id, edit);
+        _pages.Discard(_id, edit);
+        Assert.Throws<FileNotFoundException>(() => _pages.OpenRead(_id, edit, 2));
+        _pages.OpenRead(_id, other, 2).Dispose();
+        _pages.Discard(_id, other);
+        Assert.False(Directory.Exists(Path.Combine(_root, "edits", _id.ToString())));
     }
 
     [Fact]
     public async Task Delete_AlsoRemovesThePageImagesOfAnEdit()
     {
-        await _pages.SaveAsync(_id, 1, new MemoryStream([1]), Ct);
+        await _pages.SaveAsync(_id, Guid.CreateVersion7(), 1, new MemoryStream([1]), Ct);
 
         _storage.Delete(_id);
 

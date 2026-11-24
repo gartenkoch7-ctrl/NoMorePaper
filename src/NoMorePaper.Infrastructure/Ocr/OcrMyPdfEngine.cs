@@ -32,7 +32,7 @@ public sealed class OcrMyPdfEngine(ExternalProcess process, TimeProvider time, I
 
     private static readonly string[] s_ocrOptions =
     [
-        "--output-type", "pdfa", "--language", "deu+eng", "--rotate-pages", "--deskew", "--skip-text",
+        "--output-type", "pdfa", "--language", "deu+eng", "--skip-text",
 
         // Two pages in parallel (M1 plan): leaves CPU for the Server and, later, the local LLM.
         "--jobs", "2",
@@ -41,10 +41,14 @@ public sealed class OcrMyPdfEngine(ExternalProcess process, TimeProvider time, I
         "--invalidate-digital-signatures",
     ];
 
+    // Only for received files: after an edit the user has turned the pages as they should be (ADR-0025).
+    private static readonly string[] s_correctionOptions = ["--rotate-pages", "--deskew"];
+
     /// <summary>All steps of one document together must finish within this time.</summary>
     public static TimeSpan TimeLimit { get; } = TimeSpan.FromMinutes(10);
 
-    public async Task<OcrResult> CreateArchiveAsync(string inputPath, string mediaType, string outputPdfPath, CancellationToken cancellationToken)
+    public async Task<OcrResult> CreateArchiveAsync(
+        string inputPath, string mediaType, string outputPdfPath, bool correctPages, CancellationToken cancellationToken)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(inputPath);
         ArgumentException.ThrowIfNullOrWhiteSpace(mediaType);
@@ -61,7 +65,8 @@ public sealed class OcrMyPdfEngine(ExternalProcess process, TimeProvider time, I
         try
         {
             var pdf = await ToPdfAsync(input, mediaType, work, started, cancellationToken).ConfigureAwait(false);
-            await RunAsync(OcrMyPdf, [.. s_ocrOptions, pdf, output], work, started, cancellationToken).ConfigureAwait(false);
+            string[] options = correctPages ? [.. s_ocrOptions, .. s_correctionOptions] : s_ocrOptions;
+            await RunAsync(OcrMyPdf, [.. options, pdf, output], work, started, cancellationToken).ConfigureAwait(false);
 
             var textPath = Path.Combine(work, "text.txt");
             await RunAsync(PdfToText, ["-enc", "UTF-8", output, textPath], work, started, cancellationToken).ConfigureAwait(false);

@@ -36,4 +36,12 @@ public sealed class EfDocumentEdits(AppDbContext db) : IDocumentEdits
 
     public Task DeleteAsync(Guid documentId, CancellationToken cancellationToken) =>
         db.Set<DocumentEditRow>().Where(row => row.DocumentId == documentId).ExecuteDeleteAsync(cancellationToken);
+
+    public async Task<bool> UpdateDataAsync(Guid documentId, string data, CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(data);
+        return await db.Database.ExecuteSqlAsync(
+            $"UPDATE document_edits SET data = CAST({data} AS jsonb) WHERE document_id = {documentId}",
+            cancellationToken).ConfigureAwait(false) > 0;
+    }
 }

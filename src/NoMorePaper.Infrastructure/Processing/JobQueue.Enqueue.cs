@@ -12,16 +12,19 @@ public sealed partial class JobQueue
     {
         var edit = nameof(JobStage.Edit);
         var recognition = nameof(JobStage.Recognition);
+        var separation = nameof(JobStage.Separation);
         var now = time.GetUtcNow();
 
-        // A waiting recognition is taken over: its result would describe the old pages anyway, and it
-        // follows the edit instead. One a Worker holds is left alone (the edit is refused); an expired
+        // A waiting recognition (or separation, which recognition follows) is taken over: its result would
+        // describe the old pages anyway, and recognition follows the edit instead; the edit skips separation,
+        // the user arranged the pages. One a Worker holds is left alone (the edit is refused); an expired
         // claim counts as free, its Worker loses it.
         var tookOver = await db.Database.ExecuteSqlAsync(
             $"""
             UPDATE processing_jobs SET stage = {edit}, priority = 0, attempt = 0, next_attempt_at = {now},
                 claim_id = NULL, locked_until = NULL, last_error = NULL
-            WHERE document_id = {documentId} AND stage = {recognition} AND (locked_until IS NULL OR locked_until < {now})
+            WHERE document_id = {documentId} AND stage IN ({recognition}, {separation})
+              AND (locked_until IS NULL OR locked_until < {now})
             """,
             cancellationToken).ConfigureAwait(false) > 0;
         if (tookOver)
