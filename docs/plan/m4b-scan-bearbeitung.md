@@ -104,12 +104,12 @@ Daraus abgeleitet:
 - [x] KB `scan-bearbeitung.md`, ADR-0025, Katalog, `verarbeitung.md`
 
 ## Akzeptanzkriterien
-- [ ] Seiten drehen, löschen, umsortieren, zuschneiden per Tastatur; neue Version, Original bleibt (Werk)
-- [ ] Zusammenfügen und Teilen ergeben die erwarteten Seiten; Privat-Regel beim Zusammenfügen greift
-- [ ] Ein Dokument im Papierkorb erscheint in keiner Liste, Suche, Duplikat-Meldung oder Listeneintrag-Sicht
-- [ ] Wiederherstellen und automatisches Löschen nach 30 Tagen funktionieren (Test mit gestellter Uhr)
+- [x] Seiten drehen, löschen, umsortieren, zuschneiden per Tastatur; neue Version, Original bleibt (Werk)
+- [x] Zusammenfügen und Teilen ergeben die erwarteten Seiten; Privat-Regel beim Zusammenfügen greift
+- [x] Ein Dokument im Papierkorb erscheint in keiner Liste, Suche, Duplikat-Meldung oder Listeneintrag-Sicht
+- [x] Wiederherstellen und automatisches Löschen nach 30 Tagen funktionieren (Test mit gestellter Uhr)
 - [ ] Trennvorschlag: an 12 Teststapeln ≥ 80 % der Grenzen richtig, keine Trennung ohne Bestätigung (⚠️ messen)
-- [ ] axe 0 Verstöße; NVDA-Prüfung „Seiten bearbeiten“ und „Papierkorb“ durch den Nutzer
+- [ ] axe 0 Verstöße (erfüllt 2026-11-24, Bilder in `TestResults/abnahme-m4b/`); NVDA-Prüfung „Seiten bearbeiten“ und „Papierkorb“ durch den Nutzer (offen)
 - [ ] CI grün
 
 ## Parallelisierung
@@ -209,3 +209,15 @@ Eigene Datei: [features/m4b-scan-bearbeitung-detail.md](features/m4b-scan-bearbe
 ### Rückblick (nach Abschluss)
 | Paket | geplante Stufe | passend? | Anmerkung |
 |---|---|---|---|
+| P1 Bearbeitung (A) | 3 Opus | ja | P6-Review fand trotzdem 4 Fehler (aufgegebene gespeicherte Bearbeitung, doppelte Split-Teile, Restore ohne Neubau, Anhängen mit alten Seiten); Datensicherheit verdient ein eigenes Review gleich nach der Spur |
+| P2b Seiten bearbeiten | 2 Sonnet | zu niedrig | viele Zustände und Wettläufe (Speichern, Laden, Zuschnitt, `_leaving`); P6 fand 8 Fehler – nächstes Mal Stufe 3 oder Opus-Review direkt nach der Spur |
+| P2c Zuschnitt | 3 Opus | ja | Interop ohne Befund im P6-Review |
+| P2d Fassungen | 2 Sonnet | knapp | doppeltes Neuladen nach Bearbeitung erst im P6-Review gefunden |
+| P3a/P3b Papierkorb | 3/2 | ja | Wechselwirkung mit gespeicherten Bearbeitungen erst im Gesamt-Review (409, ETag) |
+| P3c Papierkorb-Seite | 2 Sonnet | knapp | Selbstreview reichte nicht; Opus-Review fand 5 Fehler (Fokus, Layout Viewer) |
+| P4a–P4c Trennung | 2–3 | ja | Annehmen nicht atomar – im Opus-Review behoben |
+| P4d Trennvorschlag | 2 Sonnet | ja | klein, wenige Befunde |
+| P5 Doku | 1 Haiku | zu niedrig | mehrere falsche Aussagen (Knopfnamen, F1, Lizenz, Weiche); Doku mit Code-Abgleich besser Stufe 2 |
+| P6 Review | 3 Opus | ja | Spur-Reviews + Gesamt-Review fanden zusammen ~20 echte Fehler; Wechselwirkungen nur im Gesamt-Review sichtbar |
+
+**Lehren:** Sonnet-Spuren immer mit Opus-Review vor dem Merge (Selbstreview genügt nicht, AGENTS §12.3). Integrationsfragen (Split-Teile, Anhängen unter „Nur Original“) früher im Detailplan durchspielen. Ein Test mit `BackgroundService` muss in .NET 10 auf den ersten Lauf warten.

@@ -36,9 +36,9 @@ Ablauf und Status-Stufen: [KB ui-prozess.md](../../kb/ui-prozess.md). Stitch-Pro
 | 11 | Hinzufügen | `/hinzufuegen` | [11-hinzufuegen](11-hinzufuegen/notizen.md) | umgesetzt (Abnahme offen) |
 | 12 | Hochladen | `/hochladen` | [12-hochladen](12-hochladen/notizen.md) | umgesetzt (Abnahme offen) |
 | 13 | Kamera (mobil) | `/kamera` | [13-kamera](13-kamera/notizen.md) | umgesetzt (Abnahme offen) |
-| 14 | Seiten bearbeiten (M4b) | `/dokumente/{id}/seiten` | [14-seiten-bearbeiten](14-seiten-bearbeiten/notizen.md) | v3 (S0-Nachtrag) freigegeben 2026-11-23 |
-| 15 | Papierkorb (M4b) | `/papierkorb` | [15-papierkorb](15-papierkorb/notizen.md) | v3 (S0-Nachtrag) freigegeben 2026-11-23 |
-| 16 | Fassungen im Viewer (M4b) | `/dokumente/{id}` | [16-fassungen](16-fassungen/notizen.md) | v3 (S0-Nachtrag) freigegeben 2026-11-23 |
+| 14 | Seiten bearbeiten (M4b) | `/dokumente/{id}/seiten` | [14-seiten-bearbeiten](14-seiten-bearbeiten/notizen.md) | umgesetzt (Abnahme offen: NVDA); Nachtrag P6 2026-11-24 |
+| 15 | Papierkorb (M4b) | `/papierkorb` | [15-papierkorb](15-papierkorb/notizen.md) | umgesetzt (Abnahme offen: NVDA); Nachtrag P6 2026-11-24 |
+| 16 | Fassungen im Viewer (M4b) | `/dokumente/{id}` | [16-fassungen](16-fassungen/notizen.md) | umgesetzt (Abnahme offen) |
 
 `code.html` von 05–16 wurde aus der Inline-Antwort von `download_file` übertragen (kein Direkt-Download
 möglich, siehe KB [ui-prozess.md](../../kb/ui-prozess.md)); Tippfehler sind nicht ganz ausgeschlossen, Bild
