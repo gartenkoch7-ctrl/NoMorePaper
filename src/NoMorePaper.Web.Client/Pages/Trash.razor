@@ -1,0 +1,107 @@
+@page "/papierkorb"
+
+<PageTitle>@L["TrashTitle"]</PageTitle>
+
+<Breadcrumb Items="_path" />
+
+<MudText Typo="Typo.h2" HtmlTag="h1">@L["TrashTitle"]</MudText>
+<p>@L["TrashIntro"]</p>
+
+<LiveRegion @ref="_status" />
+<LiveRegion @ref="_error" Assertive="true" Class="form-error" />
+
+@if (_loading)
+{
+    <p role="status">@L["TrashLoading"]</p>
+}
+else if (_loadError is not null)
+{
+    <div data-ready><NoticeBox Kind="NoticeKind.Error" Announce="true" Message="@L["TrashLoadError", _loadError]" /></div>
+    <button type="button" id="@TrashFocus.Retry" class="nmp-button" @onclick="ReloadAsync">@L["Retry"]</button>
+}
+else
+{
+    @* The table (from 48 rem) and the list of cards (below) both exist; CSS shows one. Their ids differ
+       by a prefix. Question, list and empty state never show together. *@
+    <section class="trash-section" aria-labelledby="trash-heading" data-ready>
+        <MudText Typo="Typo.h3" HtmlTag="h2" id="@TrashFocus.Heading" tabindex="-1">@L["TrashHeading", _items.Length]</MudText>
+        @if (_items.Length == 0)
+        {
+            <p class="trash-empty-state">
+                <MudIcon Icon="@Icons.Material.Outlined.Delete" aria-hidden="true" />
+                <span>@L["TrashEmptyState"]</span>
+            </p>
+        }
+        else
+        {
+            <div class="trash-table-scroll" role="region" aria-labelledby="trash-caption" tabindex="0">
+                <table class="trash-table">
+                    <caption id="trash-caption" class="nmp-visually-hidden">@L["TrashCaption"]</caption>
+                    <thead>
+                        <tr>
+                            <th scope="col" class="trash-col-title">@L["TrashColTitle"]</th>
+                            <th scope="col" class="trash-col-kind">@L["TrashColKind"]</th>
+                            <th scope="col" class="trash-col-date">@L["TrashColDeleted"]</th>
+                            <th scope="col" class="trash-col-date">@L["TrashColPurge"]</th>
+                            <th scope="col" class="trash-col-actions">@L["TrashColActions"]</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in _items)
+                        {
+                            <tr @key="item.Id">
+                                <th scope="row" class="trash-title">@item.Title</th>
+                                <td>@KindText(item.Kind)</td>
+                                <td class="trash-time"><time datetime="@Iso(item.DeletedAt)">@Local(item.DeletedAt)</time></td>
+                                <td class="trash-time"><time datetime="@Iso(item.PurgeAfter)">@Local(item.PurgeAfter)</time></td>
+                                <td><TrashRowActions Item="item" Prefix="trash-" OnRestore="RestoreAsync" OnPurge="PurgeClicked" /></td>
+                            </tr>
+                            @if (_question is { Kind: not TrashQuestionKind.Empty } question && question.Id == item.Id)
+                            {
+                                <tr @key="@("question-" + item.Id)" class="trash-question-row">
+                                    <td colspan="5">
+                                        <TrashQuestionBox Question="question" Title="@item.Title" OnConfirm="ConfirmAsync" OnCancel="Cancel" />
+                                    </td>
+                                </tr>
+                            }
+                        }
+                    </tbody>
+                </table>
+            </div>
+
+            <ul class="trash-cards" aria-label="@L["TrashCaption"]">
+                @foreach (var item in _items)
+                {
+                    <li @key="item.Id">
+                        <article class="trash-card" aria-labelledby="trash-card-title-@item.Id.ToString("N")">
+                            <div class="trash-card-head">
+                                <MudText Typo="Typo.h3" HtmlTag="h3" id="@("trash-card-title-" + item.Id.ToString("N"))">@item.Title</MudText>
+                                <Badge Text="@KindText(item.Kind)" />
+                            </div>
+                            <dl class="trash-card-times">
+                                <div><dt>@L["TrashColDeleted"]</dt><dd class="trash-time">@Local(item.DeletedAt)</dd></div>
+                                <div><dt>@L["TrashColPurge"]</dt><dd class="trash-time">@Local(item.PurgeAfter)</dd></div>
+                            </dl>
+                            <TrashRowActions Item="item" Prefix="trash-card-" OnRestore="RestoreAsync" OnPurge="PurgeClicked" />
+                            @if (_question is { Kind: not TrashQuestionKind.Empty } question && question.Id == item.Id)
+                            {
+                                <TrashQuestionBox Question="question" Title="@item.Title" Suffix="-card" HeadingLevel="4" OnConfirm="ConfirmAsync" OnCancel="Cancel" />
+                            }
+                        </article>
+                    </li>
+                }
+            </ul>
+
+            <div class="trash-footer">
+                <button type="button" id="@TrashFocus.EmptyButton" class="nmp-button" @onclick="AskEmpty">
+                    <MudIcon Icon="@Icons.Material.Outlined.DeleteSweep" aria-hidden="true" />
+                    <span>@L["TrashEmpty"]</span>
+                </button>
+            </div>
+            @if (_question is { Kind: TrashQuestionKind.Empty } emptyQuestion)
+            {
+                <TrashQuestionBox Question="emptyQuestion" Count="_items.Length" OnConfirm="ConfirmAsync" OnCancel="Cancel" />
+            }
+        }
+    </section>
+}

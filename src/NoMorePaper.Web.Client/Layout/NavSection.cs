@@ -17,7 +17,7 @@ public static class NavSection
             "hinzufuegen" or "hochladen" or "kamera" => NavItem.Add,
             "dokumente" or "suche" => NavItem.Documents,
             "zu-pruefen" => NavItem.Review,
-            "einstellungen" or "konto" or "eingaenge" or "listen" or "mitglieder" => NavItem.Settings,
+            "einstellungen" or "konto" or "eingaenge" or "listen" or "papierkorb" or "mitglieder" => NavItem.Settings,
             _ => null,
         };
     }

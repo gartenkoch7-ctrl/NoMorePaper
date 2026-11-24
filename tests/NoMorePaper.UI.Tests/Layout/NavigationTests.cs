@@ -17,6 +17,7 @@ public sealed class NavigationTests(ServerFixture server)
     [InlineData("/suche", "Dokumente")]
     [InlineData("/konto", "Einstellungen")]
     [InlineData("/listen", "Einstellungen")]
+    [InlineData("/papierkorb", "Einstellungen")]
     public async Task SubPages_MarkTheirMainItemAsCurrent(string path, string mainItem)
     {
         await using var session = await server.OpenAsync(path, SupportedCultures.German);
@@ -38,8 +39,8 @@ public sealed class NavigationTests(ServerFixture server)
     }
 
     [Theory]
-    [InlineData(true, 4)]
-    [InlineData(false, 3)]
+    [InlineData(true, 5)]
+    [InlineData(false, 4)]
     public async Task SettingsPage_ShowsMembersOnlyToTheAdministrator(bool admin, int links)
     {
         var fake = new FakeAccounts { IsAdmin = admin };
