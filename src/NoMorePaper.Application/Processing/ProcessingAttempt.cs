@@ -37,7 +37,7 @@ internal sealed class ProcessingAttempt(IDocumentStorage storage, IOcrEngine ocr
         }
 
         var output = Path.Combine(work, "archive.pdf");
-        var result = await ocr.CreateArchiveAsync(input, original.MediaType, output, stoppingToken).ConfigureAwait(false);
+        var result = await ocr.CreateArchiveAsync(input, original.MediaType, output, correctPages: true, stoppingToken).ConfigureAwait(false);
         var pageInfos = await pages.AnalyzeAsync(output, input, stoppingToken).ConfigureAwait(false);
 
         // Files are not guarded by the claim: only a Worker far past its lock (longer than OCR's time

@@ -44,6 +44,17 @@ internal sealed class TrashFileStorage : IDocumentStorage
 
     public Task<StoredFile> SaveEditedAsync(Guid id, Stream content, CancellationToken cancellationToken) => throw new NotSupportedException();
 
+    public Task<StoredFile> StageAsync(Guid id, Guid editId, DocumentFileKind kind, Stream content, CancellationToken cancellationToken) =>
+        throw new NotSupportedException();
+
+    public bool IsStaged(Guid id, Guid editId, DocumentFileKind kind) => throw new NotSupportedException();
+
+    public Task PublishStagedAsync(Guid id, Guid editId, DocumentFileKind kind, CancellationToken cancellationToken) =>
+        throw new NotSupportedException();
+
+    public Task TrashStagedAsync(Guid id, Guid editId, Guid trashItemId, CancellationToken cancellationToken) =>
+        throw new NotSupportedException();
+
     private void Record(string step)
     {
         Steps.Add(step);

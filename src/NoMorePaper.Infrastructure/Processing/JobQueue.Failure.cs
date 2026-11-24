@@ -69,6 +69,13 @@ public sealed partial class JobQueue
 
     private async Task GiveUpAsync(ProcessingJob job, string error, CancellationToken cancellationToken)
     {
+        // An edit is an extra too: the document keeps its previous version (JobQueue.Edit.cs).
+        if (job.Stage == JobStage.Edit)
+        {
+            await GiveUpEditAsync(job, cancellationToken).ConfigureAwait(false);
+            return;
+        }
+
         db.ProcessingJobs.Remove(job);
 
         // Recognition is an extra: without it the document is still done, only without fields.

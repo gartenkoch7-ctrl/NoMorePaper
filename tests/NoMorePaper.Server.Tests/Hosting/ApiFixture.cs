@@ -4,13 +4,10 @@ using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.DependencyInjection.Extensions;
-using NoMorePaper.Application.Editing;
 using NoMorePaper.Contracts.Accounts;
 using NoMorePaper.Domain.Documents;
 using NoMorePaper.Infrastructure.Persistence;
 using NoMorePaper.Server.Accounts;
-using NoMorePaper.Server.Tests.Editing;
 using NoMorePaper.Server.Tests.Hosting;
 using Npgsql;
 using Testcontainers.PostgreSql;
@@ -104,10 +101,6 @@ public sealed class ApiFixture : WebApplicationFactory<Program>, IAsyncLifetime
                 ["NoMorePaper:DataPath"] = _dataRoot.FullName,
                 ["NoMorePaper:DataProtectionPath"] = Path.Combine(_dataRoot.FullName, "keys"),
             }));
-
-        // The split itself comes with M4b track A; until then a stand-in lets the host validate its
-        // services. TryAdd: once the Server registers the real one, it is used.
-        builder.ConfigureServices(services => services.TryAddScoped<ISplitRequester, RecordingSplitRequester>());
     }
 
     /// <summary>Clients act like scripts outside a browser: no Sec-Fetch-Site, but the request marker.</summary>

@@ -68,4 +68,27 @@ public interface IDocumentStorage
     /// <exception cref="IOException">The folder could not be removed.</exception>
     /// <exception cref="UnauthorizedAccessException">The folder could not be removed.</exception>
     void PurgeTrash(Guid trashItemId);
+
+    /// <summary>
+    /// Stores the new edited version or archive of the edit <paramref name="editId"/> apart from the files in
+    /// use, replacing an earlier staged one; readers see nothing of it until <see cref="PublishStagedAsync"/>.
+    /// So the files in use and their hashes in the database stay consistent until the edit is committed.
+    /// </summary>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="kind"/> is the original.</exception>
+    Task<StoredFile> StageAsync(Guid id, Guid editId, DocumentFileKind kind, Stream content, CancellationToken cancellationToken);
+
+    /// <summary>Whether a staged file of the edit still waits to be published or trashed.</summary>
+    bool IsStaged(Guid id, Guid editId, DocumentFileKind kind);
+
+    /// <summary>
+    /// Moves a staged file to its place (<c>edited.pdf</c>, <c>archive.pdf</c>) without copying, replacing the
+    /// file there. Does nothing when it was moved already, so a Worker interrupted after the commit can repeat it.
+    /// </summary>
+    Task PublishStagedAsync(Guid id, Guid editId, DocumentFileKind kind, CancellationToken cancellationToken);
+
+    /// <summary>
+    /// Moves the staged edited version straight into the trash folder of the entry <paramref name="trashItemId"/>
+    /// (the document keeps only its original). Does nothing when it was moved already.
+    /// </summary>
+    Task TrashStagedAsync(Guid id, Guid editId, Guid trashItemId, CancellationToken cancellationToken);
 }

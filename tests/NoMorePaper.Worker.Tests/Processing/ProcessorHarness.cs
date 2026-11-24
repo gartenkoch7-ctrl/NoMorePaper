@@ -15,6 +15,7 @@ using NoMorePaper.Infrastructure.Persistence;
 using NoMorePaper.Infrastructure.Processing;
 using NoMorePaper.Infrastructure.Recognition;
 using NoMorePaper.Worker.Processing;
+using NoMorePaper.Worker.Tests.Editing;
 using NoMorePaper.Worker.Tests.Persistence;
 using Xunit;
 
@@ -66,11 +67,18 @@ internal sealed class ProcessorHarness : IAsyncDisposable
         services.AddScoped<FindContentDuplicate>();
         services.AddScoped<EnqueueBacklog>();
         services.AddSeparation(Separator);
+        EditingServices.Add(services, _dataRoot.FullName, Pdf);
         _services = services.BuildServiceProvider();
 
         Readiness.MarkReady();
         Processor = new ProcessNextDocument(_services.GetRequiredService<IServiceScopeFactory>(), Readiness, Time, Log);
     }
+
+    /// <summary>Stands in for qpdf in the edit stage.</summary>
+    public FakePdfTool Pdf { get; } = new();
+
+    /// <summary>The data root of documents, edits and the trash.</summary>
+    public string DataRoot => _dataRoot.FullName;
 
     /// <summary>Stands in for the page analysis with poppler.</summary>
     public FakePageAnalyzer Pages { get; } = new();

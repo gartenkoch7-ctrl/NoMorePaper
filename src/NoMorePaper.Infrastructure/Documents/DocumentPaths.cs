@@ -40,6 +40,9 @@ internal sealed class DocumentPaths
     /// <summary><c>edits/&lt;id&gt;/</c>: page images of an edit the Worker has not carried out yet (M4b).</summary>
     public string EditsFolder(Guid id) => Below("edits", IdSegment(id));
 
+    /// <summary><c>edits/&lt;id&gt;/&lt;editId&gt;/</c>: page images and staged files of one edit (M4b).</summary>
+    public string EditFolder(Guid id, Guid editId) => Below("edits", IdSegment(id), IdSegment(editId));
+
     /// <summary>Year and month come from the timestamp inside the version 7 id (UTC), so they never change.</summary>
     public string ArchiveFolder(Guid id)
     {

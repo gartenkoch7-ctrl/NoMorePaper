@@ -41,6 +41,7 @@ api.MapInputStatusEndpoints();
 api.MapMailSettingsEndpoints();
 api.MapSplitSuggestionEndpoints();
 api.MapTrashEndpoints();
+api.MapEditingEndpoints();
 app.MapFallbackToFile("index.html");
 
 await app.RunAsync();

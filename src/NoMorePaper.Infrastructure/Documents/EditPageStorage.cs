@@ -5,8 +5,8 @@ using NoMorePaper.Application.Editing;
 namespace NoMorePaper.Infrastructure.Documents;
 
 /// <summary>
-/// Page images of planned edits below the data root: <c>edits/&lt;id&gt;/page-&lt;n&gt;.jpg</c>. A write goes to
-/// a temporary file that is flushed and renamed into place, so the Worker never reads a partial image.
+/// Page images of planned edits below the data root: <c>edits/&lt;id&gt;/&lt;editId&gt;/page-&lt;n&gt;.jpg</c>. A write
+/// goes to a temporary file that is flushed and renamed into place, so the Worker never reads a partial image.
 /// </summary>
 public sealed class EditPageStorage : IEditPageStorage
 {
@@ -28,10 +28,10 @@ public sealed class EditPageStorage : IEditPageStorage
         _logger = logger;
     }
 
-    public async Task SaveAsync(Guid id, int page, Stream jpeg, CancellationToken cancellationToken)
+    public async Task SaveAsync(Guid id, Guid editId, int page, Stream jpeg, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(jpeg);
-        var target = PagePath(id, page);
+        var target = PagePath(id, editId, page);
         var folder = Path.GetDirectoryName(target)!;
         Directory.CreateDirectory(folder);
         var temporary = Path.Combine(folder, $".{Guid.NewGuid():N}.tmp");
@@ -59,9 +59,9 @@ public sealed class EditPageStorage : IEditPageStorage
         }
     }
 
-    public Stream OpenRead(Guid id, int page)
+    public Stream OpenRead(Guid id, Guid editId, int page)
     {
-        var path = PagePath(id, page);
+        var path = PagePath(id, editId, page);
         try
         {
             return new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read | FileShare.Delete, 81920, FileOptions.Asynchronous);
@@ -72,20 +72,31 @@ public sealed class EditPageStorage : IEditPageStorage
         }
     }
 
-    public void Discard(Guid id)
+    public void Discard(Guid id, Guid editId)
     {
-        var folder = _paths.EditsFolder(id);
-        if (Directory.Exists(folder))
+        var folder = _paths.EditFolder(id, editId);
+        if (!Directory.Exists(folder))
         {
-            Directory.Delete(folder, recursive: true);
-            _logger.EditPagesDiscarded(id);
+            return;
+        }
+
+        Directory.Delete(folder, recursive: true);
+        _logger.EditPagesDiscarded(id);
+
+        // The document's folder goes too once no other edit uses it; a new request may have added one meanwhile.
+        try
+        {
+            Directory.Delete(_paths.EditsFolder(id));
+        }
+        catch (IOException)
+        {
         }
     }
 
-    private string PagePath(Guid id, int page)
+    private string PagePath(Guid id, Guid editId, int page)
     {
         ArgumentOutOfRangeException.ThrowIfLessThan(page, 1);
         ArgumentOutOfRangeException.ThrowIfGreaterThan(page, MaxPage);
-        return Path.Combine(_paths.EditsFolder(id), string.Create(CultureInfo.InvariantCulture, $"page-{page}.jpg"));
+        return Path.Combine(_paths.EditFolder(id, editId), string.Create(CultureInfo.InvariantCulture, $"page-{page}.jpg"));
     }
 }
