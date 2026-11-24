@@ -1,0 +1,200 @@
+@inject IStringLocalizer<Strings> L
+@inject DocumentApi Documents
+@inject EditingApi Editing
+@inject ILogger<AppendSection> Logger
+@implements IDisposable
+
+@* "Dokument anhängen" inside the page (no dialog). Search hits are buttons; the choice is confirmed in the page
+   with what happens to the other document. With unsaved changes it only asks to save or discard first. *@
+<section class="pe-append" aria-labelledby="@PageEditorIds.AppendHeading">
+    <MudText Typo="Typo.h3" HtmlTag="h2" id="@PageEditorIds.AppendHeading" tabindex="-1">@L["PeAppend"]</MudText>
+    @if (Dirty)
+    {
+        <NoticeBox Kind="NoticeKind.Error" Icon="@Icons.Material.Filled.Info" Message="@L["PeAppendDirty"]" />
+    }
+    else
+    {
+        <FormField Id="pe-append-search" Label="@L["PeAppendSearch"]" Hint="@L["PeAppendHint"]" Icon="@Icons.Material.Outlined.Search"
+                   Value="@_query" ValueChanged="QueryChangedAsync" />
+        <LiveRegion @ref="_status" />
+        @if (_searching)
+        {
+            <p role="status">@L["PeAppendSearching"]</p>
+        }
+        else if (_searchError is not null)
+        {
+            <NoticeBox Kind="NoticeKind.Error" Announce="true" Message="@L["PeAppendSearchError", _searchError]" />
+        }
+        else if (_hits is { Length: 0 })
+        {
+            <p>@L["PeAppendNone"]</p>
+        }
+        else if (_hits is not null)
+        {
+            <ul class="pe-hits" aria-label="@L["PeAppendHits"]">
+                @foreach (var hit in _hits)
+                {
+                    <li @key="hit.Id">
+                        <button type="button" id="@HitId(hit)" class="nmp-button" @onclick="() => Choose(hit)">@L["PeAppendHit", hit.Title]</button>
+                        @if (hit.IsPrivate)
+                        {
+                            <PrivateBadge />
+                        }
+                    </li>
+                }
+            </ul>
+        }
+
+        @if (_chosen is { } chosen)
+        {
+            <ConfirmBox @key="chosen.Id" Id="@("pe-append-" + chosen.Id.ToString("N"))" HeadingLevel="3"
+                        Title="@L["PeAppendQuestion", chosen.Title, DocumentTitle]" Text="@L["PeAppendExplain", chosen.Title]"
+                        ConfirmLabel="@L["PeAppendConfirm"]" OnConfirm="AppendAsync" OnCancel="CancelChoice">
+                @if (chosen.IsPrivate && !DocumentIsPrivate)
+                {
+                    <p>@L["PeAppendPrivate", chosen.Title]</p>
+                }
+            </ConfirmBox>
+        }
+
+        @if (_failed is not null)
+        {
+            <NoticeBox Kind="NoticeKind.Error" Announce="true" Message="@L["PeAppendFailed", _failed]" />
+        }
+    }
+</section>
+
+@code {
+    private const int MinQueryLength = 2;
+    private static readonly TimeSpan _debounce = TimeSpan.FromMilliseconds(300);
+
+    private PendingFocus _focus = default!;
+    private CancellationTokenSource? _search;
+    private LiveRegion? _status;
+    private SearchHitDto[]? _hits;
+    private SearchHitDto? _chosen;
+    private string _query = string.Empty;
+    private string? _searchError;
+    private string? _failed;
+    private bool _searching;
+    private bool _sending;
+
+    [Parameter, EditorRequired] public Guid DocumentId { get; set; }
+
+    [Parameter, EditorRequired] public string DocumentTitle { get; set; } = string.Empty;
+
+    [Parameter] public bool DocumentIsPrivate { get; set; }
+
+    /// <summary>The page has unsaved changes; appending then waits for saving or discarding.</summary>
+    [Parameter] public bool Dirty { get; set; }
+
+    /// <summary>The append was accepted (202); the argument is the appended document's title.</summary>
+    [Parameter] public EventCallback<string> OnAppended { get; set; }
+
+    [Inject] private IJSRuntime Js { get; set; } = default!;
+
+    protected override void OnInitialized() => _focus = new PendingFocus(Js);
+
+    protected override Task OnAfterRenderAsync(bool firstRender) => _focus.ApplyAsync();
+
+    private static string HitId(SearchHitDto hit) => "pe-hit-" + hit.Id.ToString("N");
+
+    private async Task QueryChangedAsync(string value)
+    {
+        _query = value;
+        _search?.Cancel();
+        _search?.Dispose();
+        _search = null;
+        _hits = null;
+        _searchError = null;
+        _chosen = null;
+        _failed = null;
+        _searching = false;
+        if (value.Trim().Length < MinQueryLength)
+        {
+            return;
+        }
+
+        var search = _search = new CancellationTokenSource();
+        try
+        {
+            await Task.Delay(_debounce, search.Token);
+            _searching = true;
+            StateHasChanged();
+            var result = await Documents.SearchAsync(value.Trim(), 10, search.Token);
+            _searching = false;
+            if (!result.IsSuccess)
+            {
+                _searchError = result.Error;
+                return;
+            }
+
+            _hits = result.Value?.Where(hit => hit.Id != DocumentId).ToArray() ?? [];
+            if (_status is not null)
+            {
+                await _status.Announce(_hits.Length switch
+                {
+                    0 => L["PeAppendNone"],
+                    1 => L["SearchCountOne", _query.Trim()],
+                    _ => L["SearchCount", _hits.Length, _query.Trim()],
+                });
+            }
+        }
+        catch (OperationCanceledException)
+        {
+            // A newer query replaced this one.
+        }
+    }
+
+    private void Choose(SearchHitDto hit)
+    {
+        _failed = null;
+        _chosen = hit;
+    }
+
+    private void CancelChoice()
+    {
+        if (_chosen is { } hit)
+        {
+            _focus.On(HitId(hit));
+        }
+
+        _chosen = null;
+    }
+
+    private async Task AppendAsync()
+    {
+        // A second click while the first request runs must not append the document twice.
+        if (_sending || _chosen is not { } hit)
+        {
+            return;
+        }
+
+        _sending = true;
+        Logger.PageEditorAppendSent();
+        try
+        {
+            var result = await Editing.AppendAsync(DocumentId, hit.Id);
+            _chosen = null;
+            if (!result.IsSuccess)
+            {
+                Logger.PageEditorFailed(result.IsConflict ? "conflict" : "error");
+                _failed = result.Error;
+                _focus.On(HitId(hit));
+                return;
+            }
+
+            await OnAppended.InvokeAsync(hit.Title);
+        }
+        finally
+        {
+            _sending = false;
+        }
+    }
+
+    public void Dispose()
+    {
+        _search?.Cancel();
+        _search?.Dispose();
+    }
+}

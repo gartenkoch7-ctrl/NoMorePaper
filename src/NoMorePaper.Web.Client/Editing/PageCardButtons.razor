@@ -1,0 +1,72 @@
+@inject IStringLocalizer<Strings> L
+
+@* The buttons of a page card that stays. Every button has a visible text; symbols are decoration. Buttons that
+   would do nothing (move the first page up, split after the last) are left out, not disabled. *@
+<div class="pe-buttons" role="group" aria-label="@L["PeGroup", Model.NumberOf(Index)]" aria-describedby="pe-keys">
+    <button type="button" id="@ButtonId("rl")" class="nmp-button" @onclick="() => Raise(PageAction.RotateLeft)">
+        <MudIcon Icon="@Icons.Material.Outlined.RotateLeft" aria-hidden="true" />@L["PeRotateLeft"]
+    </button>
+    <button type="button" id="@ButtonId("rr")" class="nmp-button" @onclick="() => Raise(PageAction.RotateRight)">
+        <MudIcon Icon="@Icons.Material.Outlined.RotateRight" aria-hidden="true" />@L["PeRotateRight"]
+    </button>
+    @if (Model.CanMoveUp(Index))
+    {
+        <button type="button" id="@ButtonId("up")" class="nmp-button" @onclick="() => Raise(PageAction.MoveUp)">
+            <MudIcon Icon="@Icons.Material.Outlined.ArrowUpward" aria-hidden="true" />@L["PeMoveUp"]
+        </button>
+    }
+    @if (Model.CanMoveDown(Index))
+    {
+        <button type="button" id="@ButtonId("down")" class="nmp-button" @onclick="() => Raise(PageAction.MoveDown)">
+            <MudIcon Icon="@Icons.Material.Outlined.ArrowDownward" aria-hidden="true" />@L["PeMoveDown"]
+        </button>
+    }
+    @* While the frame is open its own buttons apply or cancel it. *@
+    @if (!Cropping)
+    {
+        <button type="button" id="@ButtonId("crop")" class="nmp-button" disabled="@(!CropEnabled)" @onclick="() => Raise(PageAction.Crop)">
+            <MudIcon Icon="@Icons.Material.Outlined.Crop" aria-hidden="true" />@L["PeCrop"]
+        </button>
+    }
+    <button type="button" id="@ButtonId("auto")" class="nmp-button" disabled="@(!CropEnabled)" @onclick="() => Raise(PageAction.AutoCrop)">
+        <MudIcon Icon="@Icons.Material.Outlined.AutoFixHigh" aria-hidden="true" />@L["PeAuto"]
+    </button>
+    @if (!Cropping && Entry.ReplacedJpegKey is not null)
+    {
+        <button type="button" id="@ButtonId("uncrop")" class="nmp-button" @onclick="() => Raise(PageAction.ClearCrop)">
+            <MudIcon Icon="@Icons.Material.Outlined.Undo" aria-hidden="true" />@L["CropClear"]
+        </button>
+    }
+    <button type="button" id="@ButtonId("del")" class="nmp-button" @onclick="() => Raise(PageAction.ToggleDelete)">
+        <MudIcon Icon="@Icons.Material.Outlined.Delete" aria-hidden="true" />@L["PeDelete"]
+    </button>
+    @if (Model.CanSplitAfter(Index))
+    {
+        <button type="button" id="@ButtonId("split")" class="nmp-button" aria-pressed="@(Model.SplitsAfter.Contains(Index) ? "true" : "false")"
+                @onclick="() => Raise(PageAction.ToggleSplit)">
+            <MudIcon Icon="@Icons.Material.Outlined.CallSplit" aria-hidden="true" />@L["PeSplitHere"]
+        </button>
+    }
+</div>
+
+@code {
+    [Parameter, EditorRequired] public PagePlanModel Model { get; set; } = default!;
+
+    /// <summary>Position in <see cref="PagePlanModel.Entries"/>.</summary>
+    [Parameter, EditorRequired] public int Index { get; set; }
+
+    /// <summary>"Zuschneiden" and the automatic crop work.</summary>
+    [Parameter] public bool CropEnabled { get; set; }
+
+    /// <summary>The crop frame of this page is open.</summary>
+    [Parameter] public bool Cropping { get; set; }
+
+    [Parameter] public EventCallback<PageAction> OnAction { get; set; }
+
+    private PageEntry Entry => Model.Entries[Index];
+
+    // Ids follow the stored page, not the position, so focus can find a card again after it moved.
+    private string ButtonId(string action) => PageEditorIds.Button(Entry.SourcePage, action);
+
+    private Task Raise(PageAction action) => OnAction.InvokeAsync(action);
+}

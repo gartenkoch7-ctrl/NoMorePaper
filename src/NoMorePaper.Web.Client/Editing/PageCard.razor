@@ -1,0 +1,193 @@
+@inject IStringLocalizer<Strings> L
+
+@* One page of the document: preview, number, start of its text, what was changed and the buttons. The preview is
+   decoration (the heading and "Beginnt mit" name the page). Keys work only while focus is inside the card, so
+   typing elsewhere never changes a page. Symbols are decoration; every button has a visible text. *@
+@if (Entry.Deleted)
+{
+    <li>
+        <article class="pe-card pe-card-deleted" aria-labelledby="@HeadingId" @onkeydown="OnKeyDown">
+            <MudText Typo="Typo.h3" HtmlTag="h2" id="@HeadingId" tabindex="-1">@L["PeDeletedPage", Entry.SourcePage]</MudText>
+            @if (!Readonly)
+            {
+                <div class="pe-buttons" role="group" aria-label="@L["PeGroup", Model.NumberOf(Index)]" aria-describedby="pe-keys">
+                    <button type="button" id="@ButtonId("del")" class="nmp-button" @onclick="() => Raise(PageAction.ToggleDelete)">
+                        <MudIcon Icon="@Icons.Material.Outlined.Undo" aria-hidden="true" />@L["PeUndoDelete"]
+                    </button>
+                </div>
+            }
+        </article>
+    </li>
+}
+else
+{
+    <li>
+        <article class="pe-card" aria-labelledby="@HeadingId" @onkeydown="OnKeyDown">
+            @if ((Crop ?? Applied) is { } shape)
+            {
+                @* Open: the handles are in here, so only the drawn parts are hidden. Applied: the frame shows what is kept. *@
+                <div class="pe-preview pe-preview-crop" aria-hidden="@(Crop is null ? "true" : null)">
+                    <CropStage Shape="shape" Source="@Source" Page="Entry.SourcePage" Number="Model.NumberOf(Index)" Title="@PageTitle"
+                               Rotation="Entry.Rotation" Interactive="@(Crop is not null)" Label="CropLabel" OnChange="OnCropChange"
+                               OnApply="() => Raise(PageAction.CropApply)" />
+                </div>
+            }
+            else
+            {
+                <div class="pe-preview pe-rot-@((int)Entry.Rotation)" aria-hidden="true">
+                    <Thumbnail Source="@Source" Page="Entry.SourcePage" CssWidth="240" Title="@PageTitle" />
+                </div>
+            }
+            <div class="pe-body">
+                <div class="pe-title-row">
+                    <MudText Typo="Typo.h3" HtmlTag="h2" id="@HeadingId" tabindex="-1">@PageTitle</MudText>
+                    @if (Info?.ProbablyBlank == true)
+                    {
+                        <Badge Icon="@Icons.Material.Outlined.CropFree" Text="@L["PeBlank"]" />
+                    }
+                    @if (Crop is not null)
+                    {
+                        <Badge Icon="@Icons.Material.Outlined.Crop" Text="@L["CropActive"]" />
+                    }
+                </div>
+                @if (Info is { ProbablyBlank: false, Head.Length: > 0 })
+                {
+                    <p class="pe-head">@L["PeBeginsWith", Info.Head]</p>
+                }
+                @if (States.Count > 0)
+                {
+                    <ul class="pe-states">
+                        @foreach (var state in States)
+                        {
+                            <li><MudIcon Icon="@Icons.Material.Outlined.Check" aria-hidden="true" /><span>@state</span></li>
+                        }
+                    </ul>
+                }
+                @if (Crop is not null)
+                {
+                    <PageCropPanel Page="Entry.SourcePage" OnApply="() => Raise(PageAction.CropApply)" OnCancel="() => Raise(PageAction.CropCancel)" />
+                }
+                else if (CropNotice is not null)
+                {
+                    @* No sheet found: a question with its answer; a failure: an error the screen reader announces. *@
+                    <NoticeBox Kind="@(CropNotFound ? NoticeKind.Success : NoticeKind.Error)" Announce="@(!CropNotFound)" Message="@CropNotice"
+                               Icon="@(CropNotFound ? Icons.Material.Filled.Info : null)">
+                        @if (CropNotFound && !Readonly)
+                        {
+                            <button type="button" id="@ButtonId("crop-hand")" class="nmp-button" @onclick="() => Raise(PageAction.CropByHand)">@L["CropSetByHand"]</button>
+                        }
+                    </NoticeBox>
+                }
+                @if (!Readonly)
+                {
+                    <PageCardButtons Model="Model" Index="Index" CropEnabled="CropEnabled" Cropping="@(Crop is not null)" OnAction="OnAction" />
+                }
+            </div>
+        </article>
+    </li>
+}
+
+@code {
+    [Parameter, EditorRequired] public PagePlanModel Model { get; set; } = default!;
+
+    /// <summary>Position in <see cref="PagePlanModel.Entries"/>.</summary>
+    [Parameter, EditorRequired] public int Index { get; set; }
+
+    /// <summary>What the server knows about the stored page; <c>null</c> when it sent nothing for it.</summary>
+    [Parameter] public PageInfoDto? Info { get; set; }
+
+    /// <summary>URL of the PDF the previews are drawn from.</summary>
+    [Parameter, EditorRequired] public string Source { get; set; } = string.Empty;
+
+    /// <summary>After saving the list only shows the pages.</summary>
+    [Parameter] public bool Readonly { get; set; }
+
+    /// <summary>"Zuschneiden" and the automatic crop work.</summary>
+    [Parameter] public bool CropEnabled { get; set; }
+
+    /// <summary>The crop frame being set on this page; <c>null</c> when none is open here.</summary>
+    [Parameter] public CropShape? Crop { get; set; }
+
+    /// <summary>The frame of the crop that replaces this page, shown on the preview; <c>null</c> without one.</summary>
+    [Parameter] public CropShape? Applied { get; set; }
+
+    /// <summary>What the last crop of this page said: no sheet found (<see cref="CropNotFound"/>) or why it failed.</summary>
+    [Parameter] public string? CropNotice { get; set; }
+
+    [Parameter] public bool CropNotFound { get; set; }
+
+    [Parameter] public EventCallback<PageAction> OnAction { get; set; }
+
+    /// <summary>Name of a corner handle of the open frame, with its position.</summary>
+    [Parameter] public Func<CropCorner, string>? CropLabel { get; set; }
+
+    /// <summary>A corner handle was moved by a key.</summary>
+    [Parameter] public EventCallback<(CropQuad Quad, CropCorner Corner)> OnCropChange { get; set; }
+
+    private PageEntry Entry => Model.Entries[Index];
+
+    private string PageTitle => L["PePageOf", Model.NumberOf(Index), Model.KeptCount];
+
+    // Ids follow the stored page, not the position, so focus can find a card again after it moved.
+    private string HeadingId => PageEditorIds.Heading(Entry.SourcePage);
+
+    private string ButtonId(string action) => PageEditorIds.Button(Entry.SourcePage, action);
+
+    private List<string> States
+    {
+        get
+        {
+            var states = new List<string>();
+            switch (Entry.Rotation)
+            {
+                case PageRotationDto.Right: states.Add(L["PeStateRotatedRight"]); break;
+                case PageRotationDto.Left: states.Add(L["PeStateRotatedLeft"]); break;
+                case PageRotationDto.Half: states.Add(L["PeStateRotatedHalf"]); break;
+            }
+
+            if (Entry.ReplacedJpegKey is not null)
+            {
+                states.Add(string.IsNullOrEmpty(Entry.CropText) ? L["PeStateCropped"] : Entry.CropText);
+            }
+
+            if (Model.IsMoved(Index))
+            {
+                states.Add(L["PeStateMoved", Entry.SourcePage]);
+            }
+
+            return states;
+        }
+    }
+
+    private Task Raise(PageAction action) => OnAction.InvokeAsync(action);
+
+    private Task OnKeyDown(KeyboardEventArgs e)
+    {
+        if (Readonly || e.CtrlKey || e.MetaKey)
+        {
+            return Task.CompletedTask;
+        }
+
+        // While the frame is open the keys belong to its handles; only Escape leaves it.
+        if (Crop is not null)
+        {
+            return e.Key == "Escape" ? Raise(PageAction.CropCancel) : Task.CompletedTask;
+        }
+
+        if (Entry.Deleted)
+        {
+            return e.Key == "Delete" ? Raise(PageAction.ToggleDelete) : Task.CompletedTask;
+        }
+
+        return e.Key.ToLowerInvariant() switch
+        {
+            "r" when !e.AltKey => Raise(e.ShiftKey ? PageAction.RotateLeft : PageAction.RotateRight),
+            "delete" => Raise(PageAction.ToggleDelete),
+            "arrowup" when e.AltKey && Model.CanMoveUp(Index) => Raise(PageAction.MoveUp),
+            "arrowdown" when e.AltKey && Model.CanMoveDown(Index) => Raise(PageAction.MoveDown),
+            "t" when !e.AltKey && Model.CanSplitAfter(Index) => Raise(PageAction.ToggleSplit),
+            "z" when !e.AltKey && CropEnabled => Raise(PageAction.Crop),
+            _ => Task.CompletedTask,
+        };
+    }
+}

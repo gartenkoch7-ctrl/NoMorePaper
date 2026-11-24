@@ -1,0 +1,25 @@
+@inject IStringLocalizer<Strings> L
+
+@* The open crop of a card (Stitch 14 v2): what happens to the page, the keys for the handles and the two
+   answers. It sits in the card, not in a dialog; the handles are in the preview next to it. *@
+<div class="pe-crop-panel">
+    <p class="pe-crop-explain">@L["CropExplain"]</p>
+    <p id="@PageEditorIds.CropKeys(Page)" class="pe-crop-keys">
+        <MudIcon Icon="@Icons.Material.Outlined.Keyboard" aria-hidden="true" /><span>@L["CropKeys"]</span>
+    </p>
+    <div class="pe-crop-actions">
+        <button type="button" id="@PageEditorIds.Button(Page, "crop-apply")" class="nmp-button nmp-button-primary" @onclick="OnApply">
+            <MudIcon Icon="@Icons.Material.Outlined.Check" aria-hidden="true" />@L["CropApply"]
+        </button>
+        <button type="button" id="@PageEditorIds.Button(Page, "crop-cancel")" class="nmp-button" @onclick="OnCancel">@L["Cancel"]</button>
+    </div>
+</div>
+
+@code {
+    /// <summary>The stored page (from 1) the crop is for.</summary>
+    [Parameter, EditorRequired] public int Page { get; set; }
+
+    [Parameter] public EventCallback OnApply { get; set; }
+
+    [Parameter] public EventCallback OnCancel { get; set; }
+}

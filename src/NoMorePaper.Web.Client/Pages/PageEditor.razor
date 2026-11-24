@@ -1,0 +1,109 @@
+@page "/dokumente/{Id:guid}/seiten"
+
+<PageTitle>@(_pages is null ? L["PeTitle"] : L["PeTitleFor", _pages.Title])</PageTitle>
+
+<NavigationLock ConfirmExternalNavigation="Guarded" OnBeforeInternalNavigation="OnBeforeNavigationAsync" />
+
+<Breadcrumb Items="Crumbs" />
+
+<MudText Typo="Typo.h2" HtmlTag="h1" id="@PageEditorIds.Heading1" tabindex="-1">@(_pages is null ? L["PeTitle"] : L["PeTitleFor", _pages.Title])</MudText>
+
+<LiveRegion @ref="_status" />
+
+@if (_loading)
+{
+    <p role="status">@L["PeLoading"]</p>
+}
+else if (_loadError is not null)
+{
+    <div data-ready><NoticeBox Kind="NoticeKind.Error" Announce="true" Message="@L["PeLoadError", _loadError]" /></div>
+    <button type="button" id="@PageEditorIds.Retry" class="nmp-button" @onclick="LoadAsync">@L["Retry"]</button>
+}
+else if (_pages is { CanEdit: false })
+{
+    <div data-ready><NoticeBox Kind="NoticeKind.Error" Message="@L["PeForbidden"]" /></div>
+}
+else if (_pages is { EditPending: true } && _saved == SavedKind.None)
+{
+    <div data-ready>
+        <NoticeBox Kind="NoticeKind.Success" Icon="@Icons.Material.Filled.Info" Message="@L["PePending"]">
+            <a class="nmp-button" href="@DocumentLinks.Viewer(Id)">@L["PeToViewer"]</a>
+        </NoticeBox>
+    </div>
+}
+else if (_pages is not null)
+{
+    <div class="pe" data-ready>
+        @if (_saved != SavedKind.None)
+        {
+            <NoticeBox Kind="NoticeKind.Success" Message="@_savedText">
+                <a id="pe-saved-link" class="nmp-button" href="@(_saved == SavedKind.Split ? "zu-pruefen" : DocumentLinks.Viewer(Id))">@L[_saved == SavedKind.Split ? "PeToReview" : "PeToViewer"]</a>
+            </NoticeBox>
+        }
+        else
+        {
+            <div class="pe-actions" role="group" aria-label="@L["PeActionsLabel"]" @onkeydown="OnListKeyDown">
+                <button type="button" id="@PageEditorIds.Save" class="nmp-button nmp-button-primary" disabled="@(!Model.CanSave || _saving)" @onclick="SaveAsync">
+                    @L[_saving ? "PeSaving" : "PeSave"]
+                </button>
+                <button type="button" id="@PageEditorIds.Discard" class="nmp-button" disabled="@(!Model.IsDirty)" @onclick="AskDiscard">@L["PeDiscard"]</button>
+                <button type="button" id="@PageEditorIds.Append" class="nmp-button" aria-expanded="@(_appendOpen ? "true" : "false")" @onclick="ToggleAppend">@L["PeAppend"]</button>
+            </div>
+            <p class="pe-explain">@L["PeSaveExplain"]</p>
+            @if (_saveError is not null)
+            {
+                <NoticeBox Kind="NoticeKind.Error" Announce="true" Message="@L["PeSaveFailed", _saveError]" />
+            }
+            @if (Model.Entries.Count > 0 && Model.KeptCount == 0)
+            {
+                <p class="pe-explain">@L["PeAllDeleted"]</p>
+            }
+            @if (_discarding)
+            {
+                <ConfirmBox Id="pe-discard" Title="@L["PeDiscardTitle"]" Text="@L["PeDiscardText"]" ConfirmLabel="@L["PeDiscardConfirm"]"
+                            OnConfirm="DiscardAsync" OnCancel="CancelDiscard" />
+            }
+            @if (_leaveTarget is not null)
+            {
+                <ConfirmBox Id="pe-leave" Title="@L["PeLeaveWarning"]" ConfirmLabel="@L["PeDiscardConfirm"]"
+                            OnConfirm="Leave" OnCancel="CancelLeave" />
+            }
+            @if (_appendOpen)
+            {
+                <AppendSection DocumentId="Id" DocumentTitle="@_pages.Title" DocumentIsPrivate="@(_detail?.IsPrivate == true)"
+                               Dirty="Model.IsDirty" OnAppended="AppendedAsync" />
+            }
+        }
+
+        @if (Model.Entries.Count == 0)
+        {
+            <p>@L["PeNoPages"]</p>
+        }
+        else
+        {
+            <p id="pe-keys" class="pe-keys">@L["PeKeysHint"]</p>
+            <ol class="pe-pages" aria-label="@L["PePagesLabel"]" @onkeydown="OnListKeyDown">
+                @for (var i = 0; i < Model.Entries.Count; i++)
+                {
+                    var index = i;
+                    var entry = Model.Entries[index];
+                    <PageCard @key="entry.SourcePage" Model="Model" Index="index" Info="InfoOf(entry)"
+                              Source="@PreviewSource" Readonly="@(_saved != SavedKind.None)" CropEnabled="CropEnabled"
+                              Crop="CropOf(entry)" Applied="AppliedOf(entry)" CropNotice="@CropNoticeOf(entry)" CropNotFound="_cropNotFound"
+                              CropLabel="CornerLabel" OnCropChange="OnCropChangeAsync"
+                              OnAction="action => OnCardActionAsync(index, action)" />
+                    @if (Model.EffectiveSplitsAfter.Contains(index))
+                    {
+                        <li @key="@("split-" + index)" class="pe-split">
+                            <span>@L["PeSplitRow", Model.DocumentNumberOfSplit(index), Model.NumberOf(index)]</span>
+                            @if (_saved == SavedKind.None)
+                            {
+                                <button type="button" id="@PageEditorIds.SplitRemove(index)" class="nmp-button" @onclick="() => RemoveSplitAsync(index)">@L["PeSplitRemove"]</button>
+                            }
+                        </li>
+                    }
+                }
+            </ol>
+        }
+    </div>
+}

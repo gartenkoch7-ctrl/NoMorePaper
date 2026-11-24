@@ -31,16 +31,7 @@ public sealed class EditingApi(HttpClient http, IStringLocalizer<Strings> locali
     {
         ArgumentNullException.ThrowIfNull(plan);
         ArgumentNullException.ThrowIfNull(pages);
-        var form = new MultipartFormDataContent { { JsonContent.Create(plan), "plan" } };
-        foreach (var (page, jpeg) in pages)
-        {
-            var name = string.Create(CultureInfo.InvariantCulture, $"page-{page}");
-            var part = new ByteArrayContent(jpeg);
-            part.Headers.ContentType = new MediaTypeHeaderValue("image/jpeg");
-            form.Add(part, name, name + ".jpg");
-        }
-
-        return _http.SendContentAsync<bool>(HttpMethod.Post, $"api/documents/{id}/edit", form, "edit", Conflict, null, null, ct);
+        return _http.SendContentAsync<bool>(HttpMethod.Post, $"api/documents/{id}/edit", Form(plan, pages), "edit", Conflict, null, null, ct);
     }
 
     /// <summary>Appends the pages of <paramref name="appendedId"/>; that document goes to the trash afterwards.</summary>
@@ -48,8 +39,19 @@ public sealed class EditingApi(HttpClient http, IStringLocalizer<Strings> locali
         => _http.SendAsync<bool>(
             HttpMethod.Post, $"api/documents/{id}/append", new AppendRequestDto(appendedId), "append", Conflict, null, ct);
 
-    public Task<ApiResult<bool>> SplitAsync(Guid id, SplitPlanDto plan, CancellationToken ct = default)
-        => _http.SendAsync<bool>(HttpMethod.Post, $"api/documents/{id}/split", plan, "split", Conflict, null, ct);
+    /// <summary>
+    /// Splits the document into the parts of <paramref name="plan"/>. Without replaced pages the plan goes as JSON; with
+    /// them as the same form as <see cref="SaveEditAsync"/>, one JPEG per replaced page of all parts.
+    /// </summary>
+    public Task<ApiResult<bool>> SplitAsync(
+        Guid id, SplitPlanDto plan, IReadOnlyList<(int Page, byte[] Jpeg)> pages, CancellationToken ct = default)
+    {
+        ArgumentNullException.ThrowIfNull(plan);
+        ArgumentNullException.ThrowIfNull(pages);
+        return pages.Count == 0
+            ? _http.SendAsync<bool>(HttpMethod.Post, $"api/documents/{id}/split", plan, "split", Conflict, null, ct)
+            : _http.SendContentAsync<bool>(HttpMethod.Post, $"api/documents/{id}/split", Form(plan, pages), "split", Conflict, null, null, ct);
+    }
 
     public Task<ApiResult<bool>> ChooseVersionsAsync(Guid id, VersionPolicyDto policy, CancellationToken ct = default)
         => _http.SendAsync<bool>(
@@ -70,6 +72,21 @@ public sealed class EditingApi(HttpClient http, IStringLocalizer<Strings> locali
     public Task<ApiResult<bool>> DismissSplitAsync(Guid id, CancellationToken ct = default)
         => _http.SendAsync<bool>(
             HttpMethod.Post, $"api/documents/{id}/split-suggestion/dismiss", null, "dismiss-split", SplitAnswered, null, ct);
+
+    // The plan as text field "plan" and one file part "page-<n>" per replaced page n (PageEditForm on the server).
+    private static MultipartFormDataContent Form<TPlan>(TPlan plan, IReadOnlyList<(int Page, byte[] Jpeg)> pages)
+    {
+        var form = new MultipartFormDataContent { { JsonContent.Create(plan), "plan" } };
+        foreach (var (page, jpeg) in pages)
+        {
+            var name = string.Create(CultureInfo.InvariantCulture, $"page-{page}");
+            var part = new ByteArrayContent(jpeg);
+            part.Headers.ContentType = new MediaTypeHeaderValue("image/jpeg");
+            form.Add(part, name, name + ".jpg");
+        }
+
+        return form;
+    }
 
     private string? Conflict(int status) => status == 409 ? localizer["PeErrorConflict"].Value : null;
 

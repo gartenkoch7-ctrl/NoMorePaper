@@ -30,7 +30,7 @@ export async function capturePage(cv, video, quad) {
   }
 }
 
-function warp(cv, frame, quad) {
+export function warp(cv, frame, quad) {
   const corners = quad.map((p) => ({ x: p.x * frame.width, y: p.y * frame.height }));
   const [tl, tr, br, bl] = corners;
   let width = Math.max(distance(tl, tr), distance(bl, br));

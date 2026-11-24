@@ -22,6 +22,12 @@
 
     [Parameter, EditorRequired] public string Title { get; set; } = string.Empty;
 
+    /// <summary>Page to draw, from 1 (the page editor shows every page).</summary>
+    [Parameter] public int Page { get; set; } = 1;
+
+    /// <summary>Width of the drawn bitmap in CSS pixels; the page editor draws larger previews.</summary>
+    [Parameter] public int CssWidth { get; set; } = ThumbnailRenderer.CssWidth;
+
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (!firstRender)
@@ -30,7 +36,7 @@
         }
 
         var originalColors = await Preferences.LoadOriginalColorsAsync();
-        _shown = await Renderer.ShowWhenVisibleAsync(_box, _canvas, Source, originalColors, _cts.Token);
+        _shown = await Renderer.ShowWhenVisibleAsync(_box, _canvas, Source, originalColors, _cts.Token, Page, CssWidth);
         if (_shown && !_cts.IsCancellationRequested)
         {
             StateHasChanged();
