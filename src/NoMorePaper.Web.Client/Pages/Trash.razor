@@ -17,14 +17,14 @@
 else if (_loadError is not null)
 {
     <div data-ready><NoticeBox Kind="NoticeKind.Error" Announce="true" Message="@L["TrashLoadError", _loadError]" /></div>
-    <button type="button" id="trash-retry" class="nmp-button" @onclick="ReloadAsync">@L["Retry"]</button>
+    <button type="button" id="@TrashFocus.Retry" class="nmp-button" @onclick="ReloadAsync">@L["Retry"]</button>
 }
 else
 {
     @* The table (from 48 rem) and the list of cards (below) both exist; CSS shows one. Their ids differ
        by a prefix. Question, list and empty state never show together. *@
     <section class="trash-section" aria-labelledby="trash-heading" data-ready>
-        <MudText Typo="Typo.h3" HtmlTag="h2" id="trash-heading" tabindex="-1">@L["TrashHeading", _items.Length]</MudText>
+        <MudText Typo="Typo.h3" HtmlTag="h2" id="@TrashFocus.Heading" tabindex="-1">@L["TrashHeading", _items.Length]</MudText>
         @if (_items.Length == 0)
         {
             <p class="trash-empty-state">
@@ -93,7 +93,7 @@ else
             </ul>
 
             <div class="trash-footer">
-                <button type="button" id="trash-empty-button" class="nmp-button" @onclick="AskEmpty">
+                <button type="button" id="@TrashFocus.EmptyButton" class="nmp-button" @onclick="AskEmpty">
                     <MudIcon Icon="@Icons.Material.Outlined.DeleteSweep" aria-hidden="true" />
                     <span>@L["TrashEmpty"]</span>
                 </button>

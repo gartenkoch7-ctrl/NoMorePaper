@@ -171,10 +171,22 @@
 
 /* ---- Viewer button ----------------------------------------------------------------------------- */
 
+/* Stitch 16: "In den Papierkorb" sits in one row with the downloads; its question, result or error
+   spans the whole head below them instead of squeezing into the column of the buttons. */
+.doc-view-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--nmp-space-sm);
+}
+
+.doc-view-actions > :is(.nmp-confirm, .nmp-notice, .trash-move-done) {
+    flex: 1 1 100%;
+}
+
 .trash-move-button {
     border: 0;
     cursor: pointer;
-    align-self: flex-start;
 }
 
 .trash-move-button:disabled {
@@ -189,5 +201,20 @@
 
     .trash-cards {
         display: none;
+    }
+}
+
+/* Where the head is one row (document-view.css), the buttons join it and a box below takes a row of its own. */
+@media (min-width: 80rem) {
+    .doc-view-head {
+        flex-wrap: wrap;
+    }
+
+    .doc-view-head > .doc-view-actions {
+        display: contents;
+    }
+
+    .doc-view-head > .doc-view-heading {
+        flex: 1 1 auto;
     }
 }

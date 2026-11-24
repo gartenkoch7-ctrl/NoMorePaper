@@ -87,17 +87,31 @@
     {
         _asking = false;
         _busy = true;
-        var result = await Api.MoveDocumentAsync(Detail.Id);
-        _busy = false;
+        var documentId = Detail.Id;
+        var result = await Api.MoveDocumentAsync(documentId);
         if (result.IsSuccess)
         {
             Logger.DocumentMovedToTrash();
+        }
+        else
+        {
+            Logger.TrashActionFailed(result.IsConflict ? 409 : 0);
+        }
+
+        if (documentId != _documentId)
+        {
+            // The page shows another document by now; the result must not be shown as if it were about that one.
+            return;
+        }
+
+        _busy = false;
+        if (result.IsSuccess)
+        {
             _moved = true;
             _focusDone = true;
             return;
         }
 
-        Logger.TrashActionFailed(result.IsConflict ? 409 : 0);
         _error = result.Error;
         _focusButton = true;
     }

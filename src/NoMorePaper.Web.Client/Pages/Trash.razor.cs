@@ -73,10 +73,12 @@ public sealed partial class Trash
         Logger.TrashLoaded(_items.Length);
     }
 
+    // "Erneut versuchen" disappears with the error, so focus must not stay on it.
     private async Task ReloadAsync()
     {
         _loading = true;
         await LoadAsync();
+        _focusIds = TrashFocus.AfterReload(_loadError is not null);
     }
 
     private string KindText(TrashItemKindDto kind) => L[kind switch
@@ -90,9 +92,6 @@ public sealed partial class Trash
 
     private static string Iso(DateTimeOffset at) => at.ToString("o", CultureInfo.InvariantCulture);
 
-    // Both variants (table and cards) get the focus request; only the visible one takes it.
-    private static string[] Ids(string action, Guid id) => [$"trash-{action}-{id:N}", $"trash-card-{action}-{id:N}"];
-
     private void Cancel()
     {
         if (_question is not { } question)
@@ -101,12 +100,7 @@ public sealed partial class Trash
         }
 
         _question = null;
-        _focusIds = question.Kind switch
-        {
-            TrashQuestionKind.Empty => ["trash-empty-button"],
-            TrashQuestionKind.Swap => Ids("restore", question.Id),
-            _ => Ids("purge", question.Id),
-        };
+        _focusIds = TrashFocus.AfterCancel(question);
     }
 
     // The question opens with its own focus (heading first), so no focus is requested here.
@@ -148,7 +142,42 @@ public sealed partial class Trash
         }
     }
 
-    private async Task RunRestoreAsync(TrashItemDto item)
+    private Task RunRestoreAsync(TrashItemDto item) => RunAsync(
+        () => Api.RestoreAsync(item.Id),
+        TrashFocus.Button(TrashFocus.RestoreAction, item.Id),
+        () =>
+        {
+            Logger.TrashItemRestored();
+            var message = L[item.RestoreSwaps ? "TrashRestoredSwapped" : "TrashRestored", item.Title].Value;
+            return DoneAsync(item, message, TrashFocus.RestoreAction);
+        });
+
+    private Task RunPurgeAsync(TrashItemDto item) => RunAsync(
+        () => Api.PurgeAsync(item.Id),
+        TrashFocus.Button(TrashFocus.PurgeAction, item.Id),
+        () =>
+        {
+            Logger.TrashItemPurged();
+            return DoneAsync(item, L["TrashPurged", item.Title].Value, TrashFocus.PurgeAction);
+        });
+
+    private Task EmptyAsync()
+    {
+        var count = _items.Length;
+        return RunAsync(
+            () => Api.EmptyAsync(),
+            [TrashFocus.EmptyButton],
+            async () =>
+            {
+                Logger.TrashEmptied(count);
+                await LoadAsync();
+                await AnnounceAsync(L["TrashEmptied"].Value);
+                _focusIds = TrashFocus.AfterReload(_loadError is not null);
+            });
+    }
+
+    // One action at a time. An error of an earlier action must not stay on screen next to the result of this one.
+    private async Task RunAsync(Func<Task<ApiResult<bool>>> call, string[] triggerIds, Func<Task> done)
     {
         if (_busy)
         {
@@ -156,62 +185,11 @@ public sealed partial class Trash
         }
 
         _busy = true;
+        _error?.Clear();
         try
         {
-            var result = await Api.RestoreAsync(item.Id);
-            if (!result.IsSuccess)
-            {
-                await FailAsync(result, Ids("restore", item.Id));
-                return;
-            }
-
-            Logger.TrashItemRestored();
-            await DoneAsync(item, L[item.RestoreSwaps ? "TrashRestoredSwapped" : "TrashRestored", item.Title].Value, "restore");
-        }
-        finally
-        {
-            _busy = false;
-        }
-    }
-
-    private async Task RunPurgeAsync(TrashItemDto item)
-    {
-        _busy = true;
-        try
-        {
-            var result = await Api.PurgeAsync(item.Id);
-            if (!result.IsSuccess)
-            {
-                await FailAsync(result, Ids("purge", item.Id));
-                return;
-            }
-
-            Logger.TrashItemPurged();
-            await DoneAsync(item, L["TrashPurged", item.Title].Value, "purge");
-        }
-        finally
-        {
-            _busy = false;
-        }
-    }
-
-    private async Task EmptyAsync()
-    {
-        _busy = true;
-        try
-        {
-            var count = _items.Length;
-            var result = await Api.EmptyAsync();
-            if (!result.IsSuccess)
-            {
-                await FailAsync(result, ["trash-empty-button"]);
-                return;
-            }
-
-            Logger.TrashEmptied(count);
-            await LoadAsync();
-            await AnnounceAsync(L["TrashEmptied"].Value);
-            _focusIds = [_loadError is null ? "trash-heading" : "trash-retry"];
+            var result = await call();
+            await (result.IsSuccess ? done() : FailAsync(result, triggerIds));
         }
         finally
         {
@@ -226,20 +204,7 @@ public sealed partial class Trash
         var index = Array.FindIndex(_items, other => other.Id == item.Id);
         await LoadAsync();
         await AnnounceAsync(message);
-        if (_loadError is not null)
-        {
-            _focusIds = ["trash-retry"];
-        }
-        else if (_items.Length == 0)
-        {
-            _focusIds = ["trash-heading"];
-        }
-        else
-        {
-            var next = _items[Math.Clamp(index, 0, _items.Length - 1)];
-            // A file of a trashed document has no restore button; its deletion button is the closest.
-            _focusIds = Ids(action == "restore" && next.DocumentInTrash ? "purge" : action, next.Id);
-        }
+        _focusIds = TrashFocus.AfterAction(_items, index, action, _loadError is not null);
     }
 
     private async Task FailAsync(ApiResult<bool> result, string[] triggerIds)
@@ -249,7 +214,7 @@ public sealed partial class Trash
         {
             // The entry or its document changed meanwhile: show what is there now.
             await LoadAsync();
-            _focusIds = [_loadError is null ? "trash-heading" : "trash-retry"];
+            _focusIds = TrashFocus.AfterReload(_loadError is not null);
         }
         else
         {
