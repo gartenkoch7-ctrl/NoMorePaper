@@ -31,6 +31,9 @@ internal sealed class FakePageEditor
 
     public bool IsPrivate { get; init; }
 
+    /// <summary>Which versions the document keeps (its own choice, else the owner's default).</summary>
+    public VersionPolicyDto VersionPolicy { get; init; } = VersionPolicyDto.KeepBoth;
+
     /// <summary>Version of the document (the detail carries it); the page puts it into the preview URL.</summary>
     public DateTimeOffset? EditedAt { get; set; }
 
@@ -92,9 +95,10 @@ internal sealed class FakePageEditor
     public async Task InstallAsync(IPage page)
     {
         var pdf = Pdf();
+        var file = new DocumentFileDto("brief.pdf", "application/pdf", pdf.Length, "0");
         var detail = new DocumentDetailDto(
-            Id, Title, DateTimeOffset.UtcNow, DocumentProcessingState.Done, null, null,
-            new DocumentFileDto("brief.pdf", "application/pdf", pdf.Length, "0"), IsPrivate: IsPrivate, IsMine: true, EditedAt: EditedAt);
+            Id, Title, DateTimeOffset.UtcNow, DocumentProcessingState.Done, null, file, file,
+            IsPrivate: IsPrivate, IsMine: true, EditedAt: EditedAt, VersionPolicy: VersionPolicy);
         // The detail is read when the page loads, so a test can change EditedAt before it comes back.
         await page.RouteAsync(new Regex($"/api/documents/{Id}$"), route => route.Request.Method == "GET"
             ? route.FulfillAsync(new RouteFulfillOptions

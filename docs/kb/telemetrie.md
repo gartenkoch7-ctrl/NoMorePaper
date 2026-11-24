@@ -345,7 +345,7 @@ Block der Startseite (M4u Spur E): Web.Client 4950–4999 (Startseite).
 | 5253 | Information | `Application/Classification/ClassificationLog` | Mögliches Duplikat behalten (Hinweis entfernt): Dokument-Id, Konto-Id |
 | 5254 | Information | `Application/Classification/ClassificationLog` | Mögliches Duplikat vom Besitzer in den Papierkorb gelegt (statt gelöscht): Dokument-Id, Konto-Id |
 | 5255 | – | – | entfallen (M4b); Nummer bleibt reserviert, nicht wiederverwenden (das Dokument geht in den Papierkorb, siehe 5254 und 5600) |
-| 5256 | Warning | `Application/Classification/ClassificationLog` | Änderung an einem Dokument abgelehnt: Konto-Id, Ergebnis (`NotFound`, `Forbidden`, `Invalid`, `Conflict`), Vorgang (`edit-fields`, `confirm`, `set-editors`, `keep-duplicate`, `delete-duplicate`), Dokument-Id; `Conflict` bei `edit-fields`/`confirm`: Erkennungsstatus anders als der, mit dem die Seite die Angaben geladen hat |
+| 5256 | Warning | `Application/Classification/ClassificationLog` | Änderung an einem Dokument abgelehnt: Konto-Id, Ergebnis (`NotFound`, `Forbidden`, `Invalid`, `Conflict`), Vorgang (`edit-fields`, `confirm`, `set-editors`, `keep-duplicate`, `delete-duplicate`, `move-to-trash`, …), Dokument-Id; `Conflict` bei `edit-fields`/`confirm`: Erkennungsstatus anders als der, mit dem die Seite die Angaben geladen hat; bei `move-to-trash`/`delete-duplicate` auch: eine gespeicherte Bearbeitung verschiebt noch ihre Dateien |
 | 5257 | Information | `Application/Classification/ClassificationLog` | Listeneintrag gefunden oder angelegt: Konto-Id, Eintrag-Id, Liste (`Correspondent`, `DocumentType`, `Tag`) – nie der Name |
 | 5258 | Information | `Application/Classification/ClassificationLog` | Listeneintrag umbenannt: Konto-Id, Eintrag-Id, Liste |
 | 5259 | Information | `Application/Classification/ClassificationLog` | Listeneinträge zusammengeführt: Konto-Id, Anzahl Quellen, Liste, Ziel-Id |
@@ -382,6 +382,7 @@ Block der Startseite (M4u Spur E): Web.Client 4950–4999 (Startseite).
 | 5513 | Warning | `Application/Editing/EditingLog` | Dateien einer Bearbeitung nicht entfernbar: Ausnahmetyp; nur Platz geht verloren |
 | 5514 | Information | `Application/Editing/EditingLog` | Wartende Seitenanalyse durch eine Bearbeitung ersetzt: Dokument-Id |
 | 5515 | Information | `Application/Editing/EditingLog` | Richtlinie gewählt, ein neues Archiv ist eingereiht: Richtlinie, Dokument-Id |
+| 5516 | Information | `Application/Editing/EditingLog` | Richtlinie des Dokuments umgestellt, weil die Bearbeitung die bearbeitete Fassung behält (Anhängen unter „nur Original“ → „beides“): Art, Richtlinie, Dokument-Id |
 | 5600 | Information | `Application/Trash/TrashLog` | Besitzer hat ein Dokument in den Papierkorb gelegt: Dokument-Id, Konto-Id, Papierkorb-Eintrag-Id |
 | 5601 | Information | `Application/Trash/TrashLog` | Auftrag und geplante Bearbeitung eines Dokuments verworfen, weil es in den Papierkorb ging: Dokument-Id |
 | 5610 | Information | `Application/Trash/TrashLog` | Eintrag des Papierkorbs wiederhergestellt: Eintrag-Id, Art, Dokument-Id |

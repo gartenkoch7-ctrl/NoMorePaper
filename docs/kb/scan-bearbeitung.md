@@ -24,7 +24,15 @@ Entscheidungen: [ADR-0013](../adr/0013-scan-bearbeitung-versionen-papierkorb.md)
 5. Neue Dateien liegen bis zum Commit in `edits/<id>/<editId>/` und werden danach an ihren Platz verschoben
    (`EditFinisher`, jeder Schritt wiederholbar). Ein Auftrag, dessen Fassung schon gespeichert ist, wird nie
    aufgegeben (`JobQueue.FailAsync`): Er läuft nach einem Fehler alle 30 Minuten erneut, sonst nennte die
-   Datenbank Dateien, die nie ankommen.
+   Datenbank Dateien, die nie ankommen. Solange die Dateien wandern, lehnt der Papierkorb das Dokument ab (409,
+   `MoveDocumentToTrash`), und Archiv und bearbeitete Fassung werden ohne ETag ausgeliefert
+   (`DocumentDetail.FilesMoving`): Die Datenbank nennt dann schon den neuen Hash, auf der Platte liegt vielleicht noch
+   die alte Datei. Das Original behält sein ETag, eine Bearbeitung ersetzt es nie.
+6. Miniaturen (Liste, Suche, Seitenvorschau) hängen `?v=<Ticks von EditedAt>` an die Archiv-Adresse
+   (`DocumentLinks.ArchivePreview`), weil `thumbnails.js` nach Adresse zwischenspeichert. **Lücke (offen):** Wird
+   die Liste geladen, während das Archiv neu entsteht (Wiederherstellen einer Fassung, „nur Original“ wählen, Dateien
+   wandern noch), bleibt bis zum Neuladen der Seite die alte Miniatur stehen; `EditedAt` ändert sich dort nicht im
+   selben Moment wie das Archiv. Abhilfe wäre der SHA-256 des Archivs als Schlüssel.
 
 Zuschnitt und Geraderichten laufen im Browser (OpenCV.js, Blatt- und Schräglageerkennung; Seite als JPEG
 an den Server, `CropDetection`, `CropInterop`). Eine so ersetzte Seite verliert eine vorhandene Textebene
@@ -37,6 +45,11 @@ und wird neu erkannt.
   Beide Dokumente werden in fester Reihenfolge (kleinere Id zuerst) gesperrt, damit sich zwei Vorgänge
   nicht verklemmen. Wird das angehängte Dokument gerade selbst bearbeitet, wartet der Worker (neuer Versuch),
   sonst nähme er Seiten, deren Dateien noch nicht an ihrem Platz liegen.
+- **Anhängen behält immer die bearbeitete Fassung** (Nutzer, 2026-11-24, `VersionRule.For`): Steht das Dokument
+  (eigene Wahl oder Werkswert des Besitzers) auf „nur Original“, gälte sonst das Original allein, und die
+  angehängten Seiten lägen nach 30 Tagen nirgends mehr. Der Worker speichert stattdessen die bearbeitete Fassung und
+  stellt das Dokument in derselben Transaktion auf „beides“ (Log 5516). Die Rückfrage in „Seiten bearbeiten“ sagt
+  das vorher.
 - **Teilen** (`SplitDocument`): je Teil ein neues Dokument (Original = Seitenauszug, Besitzer, Privat und
   Bearbeiter übernommen). Die Teile werden normal per OCR und Erkennung verarbeitet. Das Ausgangsdokument
   geht in den Papierkorb. qpdf läuft mit `--deterministic-id` (gleiche Seiten → gleiche Bytes): Bricht ein
@@ -52,12 +65,14 @@ und wird neu erkannt.
 - Die Richtlinie („Nach dem Bearbeiten behalten“) ist je Konto gesetzt (Werkswert: beides, nur bearbeitet,
   nur Original) und je Dokument änderbar (`VersionPolicy`, `ChooseVersions`).
 - Was verschwindet, geht in den Papierkorb: die ältere Fassung bzw. das Original.
+- Ausnahme Anhängen: Es behält die bearbeitete Fassung immer und stellt „nur Original“ auf „beides“ um (siehe oben).
 - Ein Dokument belegt bis zu dreimal Platz (Original, bearbeitet, Archiv); im Papierkorb zusätzlich 30 Tage.
 
 ## Papierkorb
 
 - Löschen eines Dokuments, Originals oder einer Fassung geht in den Papierkorb (`MoveDocumentToTrash`,
-  `ITrashStore`). Das Dokument bleibt als Zeile mit `deleted_at`; Dateien liegen in `trash/<id>/`.
+  `ITrashStore`). Das Dokument bleibt als Zeile mit `deleted_at`; Dateien liegen in `trash/<id>/`. Eine geplante
+  Bearbeitung fällt dabei weg; eine schon gespeicherte, deren Dateien noch wandern, nicht (dann 409).
 - Aufbewahrung **30 Tage** (`TrashRules.Retention`, Feld `purge_after`).
 - Auflisten zeigt nur die eigenen Einträge. Wiederherstellen: ist der Platz belegt (z. B. neue Fassung),
   wird getauscht (`RestoreTrashFile`): die Fassung am Platz geht dafür in den Papierkorb.

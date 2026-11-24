@@ -14,7 +14,9 @@ public sealed class DeleteDuplicate(
 {
     private const string Action = "delete-duplicate";
 
-    /// <returns><see cref="ChangeOutcome.Conflict"/> if the document is no possible duplicate.</returns>
+    /// <returns>
+    /// <see cref="ChangeOutcome.Conflict"/> if the document is no possible duplicate or a stored edit still moves its files.
+    /// </returns>
     public async Task<ChangeOutcome> DeleteAsync(Guid id, CancellationToken cancellationToken)
     {
         var (document, outcome) = await DocumentChangeGuard.LoadAsync(
@@ -30,8 +32,12 @@ public sealed class DeleteDuplicate(
             return ChangeOutcome.Conflict;
         }
 
-        await trash.MoveLoadedAsync(document, cancellationToken).ConfigureAwait(false);
-        logger.DuplicateDeleted(id, current.Id);
-        return ChangeOutcome.Changed;
+        var moved = await trash.MoveLoadedAsync(document, Action, cancellationToken).ConfigureAwait(false);
+        if (moved == ChangeOutcome.Changed)
+        {
+            logger.DuplicateDeleted(id, current.Id);
+        }
+
+        return moved;
     }
 }

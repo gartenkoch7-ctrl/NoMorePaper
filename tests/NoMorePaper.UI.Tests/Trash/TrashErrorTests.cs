@@ -20,7 +20,7 @@ public sealed class TrashErrorTests(ServerFixture server)
 
         await Button(page, "Wiederherstellen Mietvertrag").ClickAsync();
 
-        await Assertions.Expect(page.Locator("main .form-error")).ToContainTextAsync("weil sich der Eintrag oder sein Dokument inzwischen geändert hat");
+        await Assertions.Expect(page.Locator("main .form-error")).ToContainTextAsync("Der Papierkorb hat sich inzwischen geändert. Die Liste ist neu geladen.");
         await Assertions.Expect(page.GetByRole(AriaRole.Heading, new() { Level = 2 })).ToBeFocusedAsync();
     }
 
@@ -58,5 +58,19 @@ public sealed class TrashErrorTests(ServerFixture server)
 
         await Assertions.Expect(page.GetByRole(AriaRole.Rowheader)).ToHaveTextAsync(["Mietvertrag"]);
         await Assertions.Expect(page.GetByRole(AriaRole.Heading, new() { Level = 2 })).ToBeFocusedAsync();
+    }
+
+    [Fact]
+    public async Task ConflictWhoseReloadFails_ShowsOnlyTheLoadError()
+    {
+        var fake = new FakeTrash(FakeTrash.Entry("Mietvertrag")) { RestoreStatus = 409 };
+        await using var session = await fake.OpenAsync(server);
+        var page = session.Page;
+        fake.ListStatus = 500;
+
+        await Button(page, "Wiederherstellen Mietvertrag").ClickAsync();
+
+        await Assertions.Expect(page.Locator(".nmp-notice-error")).ToContainTextAsync("Der Papierkorb konnte nicht geladen werden");
+        await Assertions.Expect(page.Locator("main .form-error")).ToBeEmptyAsync();
     }
 }

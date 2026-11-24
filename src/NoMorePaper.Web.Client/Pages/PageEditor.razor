@@ -65,12 +65,13 @@ else if (_pages is not null)
             }
             @if (_leaveTarget is not null)
             {
-                <ConfirmBox Id="pe-leave" Title="@L["PeLeaveWarning"]" ConfirmLabel="@L["PeDiscardConfirm"]"
+                <ConfirmBox Id="pe-leave" Title="@L["PeLeaveTitle"]" Text="@L["PeLeaveText"]" ConfirmLabel="@L["PeLeaveConfirm"]"
                             OnConfirm="Leave" OnCancel="CancelLeave" />
             }
             @if (_appendOpen)
             {
                 <AppendSection DocumentId="Id" DocumentTitle="@_pages.Title" DocumentIsPrivate="@(_detail?.IsPrivate == true)"
+                               OnlyOriginal="@(_detail is { VersionPolicy: VersionPolicyDto.OriginalOnly, Original: not null })"
                                Dirty="Model.IsDirty" OnAppended="AppendedAsync" />
             }
         }

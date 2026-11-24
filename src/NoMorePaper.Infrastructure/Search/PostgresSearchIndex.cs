@@ -24,7 +24,7 @@ public sealed class PostgresSearchIndex(AppDbContext db, ILogger<PostgresSearchI
     // Columns every hit carries besides snippet and rank. @viewer is the account searching.
     private const string HitColumns = """
         d.id AS "Id", d.title AS "Title", d.received_at AS "ReceivedAt",
-        d.is_private AS "IsPrivate", d.owner_id IS NOT DISTINCT FROM @viewer AS "IsMine",
+        d.is_private AS "IsPrivate", d.owner_id IS NOT DISTINCT FROM @viewer AS "IsMine", d.edited_at AS "EditedAt",
         """ + DocumentFilterSql.LabelColumns;
 
     // Only finished documents the viewer may see, never those in the trash; the filters of the list narrow it further.
@@ -110,5 +110,5 @@ public sealed class PostgresSearchIndex(AppDbContext db, ILogger<PostgresSearchI
 
     private static List<SearchHit> ToHits(List<SearchRow> rows) =>
         [.. rows.Select(row => new SearchHit(
-            row.Id, row.Title, row.ReceivedAt, row.Snippet ?? string.Empty, row.Rank, row.IsPrivate, row.IsMine, row.ToLabels()))];
+            row.Id, row.Title, row.ReceivedAt, row.Snippet ?? string.Empty, row.Rank, row.IsPrivate, row.IsMine, row.ToLabels(), row.EditedAt))];
 }

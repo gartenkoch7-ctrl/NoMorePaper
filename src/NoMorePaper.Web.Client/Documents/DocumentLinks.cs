@@ -17,6 +17,12 @@ public static class DocumentLinks
     /// <summary>The PDF/A made by the processing; exists once the document is done.</summary>
     public static string Archive(Guid id) => $"api/documents/{id}/files/archive";
 
+    /// <summary>
+    /// The archive for page previews and thumbnails, which are cached by URL (thumbnails.js): an edit keeps the
+    /// archive's address, so the time of the edited version is part of it.
+    /// </summary>
+    public static string ArchivePreview(Guid id, DateTimeOffset? editedAt) => $"{Archive(id)}?v={editedAt?.UtcTicks ?? 0}";
+
     /// <summary>The newest edited version (PDF); exists once the document was edited.</summary>
     public static string Edited(Guid id) => $"api/documents/{id}/files/edited";
 

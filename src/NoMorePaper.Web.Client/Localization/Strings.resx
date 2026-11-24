@@ -1977,8 +1977,14 @@
   <data name="PeAllDeleted" xml:space="preserve">
     <value>Alle Seiten sind gelöscht. Mindestens eine Seite muss bleiben.</value>
   </data>
-  <data name="PeLeaveWarning" xml:space="preserve">
-    <value>Du hast ungespeicherte Änderungen. Wirklich verlassen?</value>
+  <data name="PeLeaveTitle" xml:space="preserve">
+    <value>Seite verlassen?</value>
+  </data>
+  <data name="PeLeaveText" xml:space="preserve">
+    <value>Deine Änderungen gehen verloren.</value>
+  </data>
+  <data name="PeLeaveConfirm" xml:space="preserve">
+    <value>Ja, verlassen</value>
   </data>
   <data name="PePageOf" xml:space="preserve">
     <value>Seite {0} von {1}</value>
@@ -2135,6 +2141,9 @@
   </data>
   <data name="PeAppendPrivate" xml:space="preserve">
     <value>„{0}“ ist privat. Das Ergebnis wird deshalb privat.</value>
+  </data>
+  <data name="PeAppendKeepBoth" xml:space="preserve">
+    <value>Das Dokument behält danach Original und bearbeitete Fassung.</value>
   </data>
   <data name="PeAppendConfirm" xml:space="preserve">
     <value>Ja, anhängen</value>
@@ -2376,14 +2385,8 @@
   <data name="TrashRestore" xml:space="preserve">
     <value>Wiederherstellen</value>
   </data>
-  <data name="TrashRestoreFor" xml:space="preserve">
-    <value>{0} wiederherstellen</value>
-  </data>
   <data name="TrashPurge" xml:space="preserve">
     <value>Endgültig löschen</value>
-  </data>
-  <data name="TrashPurgeFor" xml:space="preserve">
-    <value>{0} endgültig löschen</value>
   </data>
   <data name="TrashEmpty" xml:space="preserve">
     <value>Papierkorb leeren</value>
@@ -2440,7 +2443,7 @@
     <value>Das war nicht möglich: {0}</value>
   </data>
   <data name="TrashErrorConflict" xml:space="preserve">
-    <value>Das war nicht möglich, weil sich der Eintrag oder sein Dokument inzwischen geändert hat. Lade den Papierkorb neu.</value>
+    <value>Der Papierkorb hat sich inzwischen geändert. Die Liste ist neu geladen.</value>
   </data>
   <data name="TrashMove" xml:space="preserve">
     <value>In den Papierkorb</value>

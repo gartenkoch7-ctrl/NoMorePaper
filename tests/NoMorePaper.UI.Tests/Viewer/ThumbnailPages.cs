@@ -58,6 +58,6 @@ internal static partial class ThumbnailPages
         return [.. colours.Select(c => new Rgb(c[0], c[1], c[2]))];
     }
 
-    [GeneratedRegex(@"/api/documents/[0-9a-f-]+/files/archive$")]
+    [GeneratedRegex(@"/api/documents/[0-9a-f-]+/files/archive(\?v=[0-9]+)?$")]
     private static partial Regex ArchiveUrl();
 }

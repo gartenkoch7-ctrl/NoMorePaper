@@ -64,8 +64,9 @@ internal static class DocumentEndpoints
 
     // The bytes are served as stored: same SHA-256 as at upload, never converted (ADR-0003). An edit
     // replaces the archive and the edited version under the same address, so the browser must ask again
-    // every time (no-cache); the hash as ETag lets it keep its copy while nothing changed. Private: no
-    // shared cache on the way may keep a document.
+    // every time (no-cache); the hash as ETag lets it keep its copy while nothing changed. While a stored
+    // edit still moves its files, the hash may be the new one and the bytes the old ones: no ETag then, or
+    // the browser would keep the old bytes under the new hash. Private: no shared cache on the way may keep a document.
     private static async Task<IResult> DownloadAsync(
         Guid id, string kind, HttpContext context, OpenDocumentFile open, CancellationToken cancellationToken)
     {
@@ -94,7 +95,7 @@ internal static class DocumentEndpoints
             opened.Content,
             opened.File.MediaType,
             opened.File.FileName,
-            entityTag: new EntityTagHeaderValue($"\"{opened.File.Sha256}\""),
+            entityTag: opened.Settled ? new EntityTagHeaderValue($"\"{opened.File.Sha256}\"") : null,
             enableRangeProcessing: true);
     }
 

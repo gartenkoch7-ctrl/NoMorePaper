@@ -69,6 +69,36 @@ public sealed class VersionChangesTests
         Assert.True(VersionChanges.For(read, VersionPolicy.OriginalOnly, s_newEdited, s_newArchive, Now).KeepsEdited);
     }
 
+    [Theory]
+    [InlineData(EditKind.Append, VersionPolicy.OriginalOnly, VersionPolicy.KeepBoth)]
+    [InlineData(EditKind.Append, VersionPolicy.EditedOnly, VersionPolicy.EditedOnly)]
+    [InlineData(EditKind.Append, VersionPolicy.KeepBoth, VersionPolicy.KeepBoth)]
+    [InlineData(EditKind.Pages, VersionPolicy.OriginalOnly, VersionPolicy.OriginalOnly)]
+    [InlineData(EditKind.Rebuild, VersionPolicy.OriginalOnly, VersionPolicy.OriginalOnly)]
+    public void AnAppend_UnderOnlyOriginal_KeepsBoth(EditKind kind, VersionPolicy policy, VersionPolicy expected)
+    {
+        Assert.Equal(expected, VersionRule.For(New().Done(), kind, policy));
+
+        // Without original the edit is kept anyway; the document keeps its policy.
+        var withoutOriginal = New().Done(edited: true);
+        withoutOriginal.RemoveFile(DocumentFileKind.Original);
+        Assert.Equal(policy, VersionRule.For(withoutOriginal, kind, policy));
+    }
+
+    [Fact]
+    public void AnAppend_UnderOnlyOriginal_KeepsTheNewEditedVersion_AndTheOriginal()
+    {
+        var read = New().Done();
+        var tracked = New().Done();
+
+        var changes = VersionChanges.For(read, VersionRule.For(read, EditKind.Append, VersionPolicy.OriginalOnly), s_newEdited, s_newArchive, Now);
+
+        Assert.Empty(changes.Items);
+        Assert.True(changes.KeepsEdited);
+        Assert.True(changes.ApplyTo(tracked));
+        Assert.Equal((new string('a', 64), new string('d', 64), new string('e', 64)), Shas(tracked));
+    }
+
     [Fact]
     public void ARebuild_ReplacesOnlyTheArchive()
     {

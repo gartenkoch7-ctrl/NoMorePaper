@@ -2,6 +2,7 @@ using System.Runtime.CompilerServices;
 using Microsoft.EntityFrameworkCore;
 using NoMorePaper.Application.Classification;
 using NoMorePaper.Application.Documents;
+using NoMorePaper.Application.Editing;
 using NoMorePaper.Domain.Documents;
 using NoMorePaper.Infrastructure.Editing;
 using NoMorePaper.Infrastructure.Inputs;
@@ -48,7 +49,7 @@ public sealed class EfDocumentRepository(AppDbContext db) : IDocumentRepository
         var sql = """
             SELECT d.id AS "Id", d.title AS "Title", d.received_at AS "ReceivedAt", d.state AS "State",
                    d.is_private AS "IsPrivate", d.owner_id IS NOT DISTINCT FROM @viewer AS "IsMine",
-                   d.source AS "Source",
+                   d.source AS "Source", d.edited_at AS "EditedAt",
                    left(regexp_replace(left(coalesce(nullif(btrim(d.summary, E' \t\r\n'), ''), d.content_text), 2000), '\s+', ' ', 'g'), 400) AS "Excerpt",
             """ + DocumentFilterSql.LabelColumns + " FROM documents d " + DocumentFilterSql.LabelJoins
             + " WHERE " + TrashSql.NotInTrash + " AND (d.owner_id = @viewer OR NOT d.is_private)" + DocumentFilterSql.Conditions(filter, parameters)
@@ -61,7 +62,7 @@ public sealed class EfDocumentRepository(AppDbContext db) : IDocumentRepository
         var tags = await LoadTagsAsync([.. rows.Select(row => row.Id)], cancellationToken).ConfigureAwait(false);
         return [.. rows.Select(row => new DocumentSummary(
             row.Id, row.Title, row.ReceivedAt, Enum.Parse<ProcessingState>(row.State), row.IsPrivate, row.IsMine, row.ToLabels(),
-            Enum.Parse<DocumentSource>(row.Source), DocumentExcerpt.From(row.Excerpt), [.. tags[row.Id]]))];
+            Enum.Parse<DocumentSource>(row.Source), DocumentExcerpt.From(row.Excerpt), [.. tags[row.Id]], row.EditedAt))];
     }
 
     // Only for the documents of the page, which the viewer may see already, so no visibility check is needed here.
@@ -127,7 +128,11 @@ public sealed class EfDocumentRepository(AppDbContext db) : IDocumentRepository
             return null;
         }
 
-        var editPending = await db.Set<DocumentEditRow>().AnyAsync(edit => edit.DocumentId == id, cancellationToken).ConfigureAwait(false);
+        var edit = await db.Set<DocumentEditRow>().AsNoTracking()
+            .Where(row => row.DocumentId == id)
+            .Select(row => new { row.Kind, row.Data })
+            .SingleOrDefaultAsync(cancellationToken)
+            .ConfigureAwait(false);
         var policy = document.VersionPolicy ?? await OwnerDefaultAsync(document.OwnerId, cancellationToken).ConfigureAwait(false);
         return new DocumentDetail(
             document.Id,
@@ -141,8 +146,9 @@ public sealed class EfDocumentRepository(AppDbContext db) : IDocumentRepository
             document.OwnerId == viewerId,
             document.FindFile(DocumentFileKind.Edited),
             document.EditedAt,
-            editPending,
-            policy);
+            edit is not null,
+            policy,
+            edit is not null && EditDataJson.Parse(edit.Data, edit.Kind) is { IsCommitted: true });
     }
 
     // The owner's default for edited documents; the owner decides, whoever looks.

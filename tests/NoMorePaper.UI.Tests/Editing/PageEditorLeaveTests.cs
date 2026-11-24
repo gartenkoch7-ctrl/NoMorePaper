@@ -15,7 +15,7 @@ public sealed class PageEditorLeaveTests(ServerFixture server)
         await using var session = await fake.OpenAsync(server);
         var page = session.Page;
         await page.Locator("#pe-rr-1").ClickAsync();
-        var box = page.GetByRole(AriaRole.Group, new() { Name = "Du hast ungespeicherte Änderungen. Wirklich verlassen?" });
+        var box = page.GetByRole(AriaRole.Group, new() { Name = "Seite verlassen?" });
 
         await page.GetByRole(AriaRole.Navigation, new() { Name = "Pfad" }).GetByRole(AriaRole.Link, new() { Name = "Dokumente" }).ClickAsync();
         await Assertions.Expect(box).ToBeVisibleAsync();
@@ -25,7 +25,7 @@ public sealed class PageEditorLeaveTests(ServerFixture server)
         await Assertions.Expect(page).ToHaveURLAsync(new Regex("/seiten$"));
 
         await page.GetByRole(AriaRole.Navigation, new() { Name = "Pfad" }).GetByRole(AriaRole.Link, new() { Name = "Dokumente" }).ClickAsync();
-        await box.GetByRole(AriaRole.Button, new() { Name = "Ja, verwerfen" }).ClickAsync();
+        await box.GetByRole(AriaRole.Button, new() { Name = "Ja, verlassen" }).ClickAsync();
 
         await Assertions.Expect(page).ToHaveURLAsync(new Regex("/dokumente$"));
     }

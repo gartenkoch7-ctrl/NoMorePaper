@@ -9,6 +9,10 @@ namespace NoMorePaper.Application.Documents;
 /// <param name="EditedAt">When <paramref name="Edited"/> was made.</param>
 /// <param name="EditPending">An edit is planned or running; the files shown are the previous version until it is done.</param>
 /// <param name="VersionPolicy">Which versions the document keeps: its own choice, else the owner's default.</param>
+/// <param name="FilesMoving">
+/// A new version is stored, but its files are still moving to their place (<see cref="Editing.EditData.IsCommitted"/>):
+/// the files named here may not be those on disk yet.
+/// </param>
 public sealed record DocumentDetail(
     Guid Id,
     string Title,
@@ -22,4 +26,5 @@ public sealed record DocumentDetail(
     DocumentFile? Edited = null,
     DateTimeOffset? EditedAt = null,
     bool EditPending = false,
-    VersionPolicy VersionPolicy = VersionPolicy.KeepBoth);
+    VersionPolicy VersionPolicy = VersionPolicy.KeepBoth,
+    bool FilesMoving = false);

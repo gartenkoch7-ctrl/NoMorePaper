@@ -38,6 +38,33 @@ public sealed class EditKindsTests(PostgresFixture postgres)
     }
 
     [Fact]
+    public async Task Appending_UnderOnlyOriginal_KeepsTheEditedVersion_AndSwitchesToBoth()
+    {
+        await using var harness = await ProcessorHarness.CreateAsync(postgres, "edit_kinds_append_original_only");
+        var target = await harness.DoneDocumentAsync();
+        var appended = await harness.DoneDocumentAsync();
+        await EditStageTests.ChooseAsync(harness, target, VersionPolicy.OriginalOnly);
+        EditStageTests.ArchiveOfInput(harness, "Beide");
+        harness.Pdf.PageCount = 2;
+
+        await harness.PlanAsync(target, EditKind.Append, data => data with { AppendedId = appended });
+        await harness.ProcessAllAsync();
+
+        // The appended pages are in the edited version the archive is made from, not in the trash.
+        Assert.Equal(
+            [("source.pdf", 1, 0), ("source.pdf", 2, 0), ("appended.pdf", 1, 0), ("appended.pdf", 2, 0)],
+            harness.Pdf.Composed.Single());
+        var document = await harness.DocumentAsync(target);
+        Assert.NotNull(document.FindFile(DocumentFileKind.Edited));
+        Assert.NotNull(document.FindFile(DocumentFileKind.Original));
+        Assert.Equal(VersionPolicy.KeepBoth, document.VersionPolicy);
+        Assert.Equal("%PDF archive of edited.pdf", await harness.ReadAsync(target, "archive.pdf"));
+        Assert.True(File.Exists(Path.Combine(harness.ArchiveFolder(target), "edited.pdf")));
+        Assert.Empty(await harness.TrashKindsAsync(target));
+        Assert.Equal(["Document"], await harness.TrashKindsAsync(appended));
+    }
+
+    [Fact]
     public async Task Splitting_MakesNewDocuments_WithOwnerPrivacyAndEditors_AndTrashesTheDocument()
     {
         await using var harness = await ProcessorHarness.CreateAsync(postgres, "edit_kinds_split");
