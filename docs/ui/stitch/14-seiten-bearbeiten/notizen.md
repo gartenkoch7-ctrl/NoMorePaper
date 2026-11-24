@@ -85,3 +85,12 @@ auftauchen:
   Abschnitt nur ohne ungespeicherte Änderungen (oder die Demo-Seiten ohne Änderung).
 
 Status: freigegeben durch den Nutzer (2026-11-23); Restpunkte werden beim Umsetzen nach Plan behoben
+
+## Nachtrag 2026-11-24 (M4b P6, per MCP in Stitch geändert)
+
+- Anhängen: Satz „Das Dokument behält danach Original und bearbeitete Fassung.“ (nur wenn das Dokument auf
+  „Nur Original“ steht; Entscheidung des Nutzers 2026-11-24). Stitch setzte ihn unter den Privat-Hinweis; im Code
+  steht er in der Rückfrage zum Anhängen.
+- Verlassen-Rückfrage (F2): „Seite verlassen?“, „Deine Änderungen gehen verloren.“, „Abbrechen“, „Ja, verlassen“.
+  Stitch hat dafür im Bild die Rückfrage „Alles verwerfen?“ ersetzt; im Code bleiben **beide** Rückfragen, „Alles
+  verwerfen?“ unverändert.

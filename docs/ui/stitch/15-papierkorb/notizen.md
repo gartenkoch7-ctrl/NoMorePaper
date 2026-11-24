@@ -89,3 +89,8 @@ Optional (Nutzer entscheidet bei der Freigabe): Rückfrage „endgültig lösche
 Schrift-Link korrigieren, damit das Bild Mono zeigt.
 
 Status: freigegeben durch den Nutzer (2026-11-23); Restpunkte werden beim Umsetzen nach Plan behoben
+
+## Nachtrag 2026-11-24 (M4b P6, per MCP in Stitch geändert)
+
+- Neutraler Hinweis über „Gelöschte Einträge“ bei einem Konflikt: „Der Papierkorb hat sich inzwischen geändert. Die
+  Liste ist neu geladen.“ (ersetzt den alten Text „… Lade den Papierkorb neu“, die Seite lädt selbst neu).
